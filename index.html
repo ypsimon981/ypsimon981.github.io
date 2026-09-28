@@ -22,7 +22,9 @@ h1{font-size:clamp(36px,5vw,58px);line-height:1;margin:0 0 14px}
 label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
 #passenger{display:block;width:100%;height:78px;border-radius:17px;border:1px solid #373737;background:#0e0e0e;color:white;padding:0 20px;font-size:26px;outline:none}
 #passenger:focus{border-color:#777}
-.viewBox{margin-top:16px;padding-top:14px;border-top:1px solid #2d2d2d}\n.viewLabel{font-size:13px;font-weight:750;color:#8f8f8f;margin-bottom:9px}\n.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:0}
+.viewBox{margin-top:16px;padding-top:14px;border-top:1px solid #2d2d2d}
+.viewLabel{font-size:13px;font-weight:750;color:#8f8f8f;margin-bottom:9px}
+.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:0}
 .action{height:86px;border-radius:18px;border:1px solid #3b3b3b;font-size:20px;font-weight:850;cursor:pointer}
 .fit{background:#fff;color:#090909;border-color:#fff}
 .max{background:#2b2b2b;color:#fff}
@@ -30,7 +32,11 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
 .options{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
 .speedbox,.presetBox,.fontBox{margin-top:16px;padding-top:14px;border-top:1px solid #2d2d2d}
 .speedlabel,.presetLabel,.fontLabel{font-size:13px;font-weight:750;color:#8f8f8f;margin-bottom:9px}
-.fontrow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}\n.fontChoice{height:64px;border-radius:999px;font-size:20px;font-weight:800;text-align:center;padding:0 16px}\n.fontChoice[data-font="system"]{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",Arial,sans-serif}\n.fontChoice[data-font="impact"]{font-family:Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif}\n.fontChoice[data-font="serif"]{font-family:Georgia,"Times New Roman",serif}
+.fontrow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.fontChoice{height:64px;border-radius:999px;font-size:20px;font-weight:800;text-align:center;padding:0 16px}
+.fontChoice[data-font="system"]{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",Arial,sans-serif}
+.fontChoice[data-font="impact"]{font-family:Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif}
+.fontChoice[data-font="serif"]{font-family:Georgia,"Times New Roman",serif}
 .speedrow{display:flex;gap:9px;flex-wrap:wrap}
 .pill{border:1px solid #3b3b3b;background:#252525;color:#fff;padding:11px 17px;border-radius:999px;font-size:15px;font-weight:750;cursor:pointer}
 .pill.on{background:#fff;color:#000;border-color:#fff}
@@ -65,20 +71,23 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
 #verticalTrack.run{animation:verticalTape var(--vdur) linear infinite}
 
 @media(max-width:780px){
- .presetGrid{grid-template-columns:repeat(2,minmax(0,1fr))}\n .fontrow{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .presetGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .fontrow{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
 @media(max-width:650px){
  .setup{padding:14px}.card{padding:22px 18px;border-radius:24px}
  .actions{grid-template-columns:1fr}.action{height:70px}
  #passenger{height:68px;font-size:22px}
- .presetGrid{grid-template-columns:1fr 1fr}\n .fontrow{grid-template-columns:repeat(3,minmax(0,1fr))}\n .fontChoice{font-size:16px;height:58px;padding:0 8px}
+ .presetGrid{grid-template-columns:1fr 1fr}
+ .fontrow{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .fontChoice{font-size:16px;height:58px;padding:0 8px}
 }
 </style>
 </head>
 <body>
 <main class="setup">
   <section class="card">
-    <div class="brand">CODRIVER · V1.7</div>
+    <div class="brand">CODRIVER · V1.8</div>
     <h1>Cartello aeroporto</h1>
     <p class="desc">Inserisci il nominativo e scegli come deve occupare lo schermo.</p>
 
@@ -86,7 +95,8 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
     <input id="passenger" type="text" placeholder="Es. JOHN SMITH" autocomplete="off" autocorrect="off" spellcheck="false">
 
     <div class="options">
-      <button id="caps" class="pill on" type="button">MAIUSCOLO</button>
+      <button id="originalCase" class="pill" type="button">Originale</button>
+      <button id="caps" class="pill on" type="button">Tutto maiuscolo</button>
     </div>
 
     <div class="fontBox">
@@ -171,6 +181,7 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
   var fitBtn = $("fit");
   var maxBtn = $("max");
   var verticalBtn = $("vertical");
+  var originalCaseBtn = $("originalCase");
   var capsBtn = $("caps");
   var speed1Btn = $("speed1");
   var speed2Btn = $("speed2");
@@ -375,11 +386,13 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
   fitBtn.onclick = function(){ openViewer("fit"); };
   maxBtn.onclick = function(){ openViewer("max"); };
   verticalBtn.onclick = function(){ openViewer("vertical"); };
-  capsBtn.onclick = function(){
-    isCaps = !isCaps;
+  function setCaseMode(useCaps){
+    isCaps = useCaps;
+    originalCaseBtn.classList.toggle("on", !isCaps);
     capsBtn.classList.toggle("on", isCaps);
-    capsBtn.textContent = isCaps ? "MAIUSCOLO" : "Originale";
-  };
+  }
+  originalCaseBtn.onclick = function(){ setCaseMode(false); };
+  capsBtn.onclick = function(){ setCaseMode(true); };
   speed1Btn.onclick = function(){ setSpeed(1); };
   speed2Btn.onclick = function(){ setSpeed(2); };
   speed3Btn.onclick = function(){ setSpeed(3); };
