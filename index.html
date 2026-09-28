@@ -27,6 +27,9 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
 .fit{background:#fff;color:#090909;border-color:#fff}
 .max{background:#2b2b2b;color:#fff}
 .options{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
+.speedbox{margin-top:16px;padding-top:14px;border-top:1px solid #2d2d2d}
+.speedlabel{font-size:13px;font-weight:750;color:#8f8f8f;margin-bottom:9px}
+.speedrow{display:flex;gap:9px;flex-wrap:wrap}
 .pill{border:1px solid #3b3b3b;background:#252525;color:#fff;padding:11px 17px;border-radius:999px;font-size:15px;font-weight:750;cursor:pointer}
 .pill.on{background:#fff;color:#000;border-color:#fff}
 .note{margin-top:23px;color:#777;font-size:13px}
@@ -60,7 +63,7 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
 
 <main class="setup">
   <section class="card">
-    <div class="brand">CODRIVER · V1.1</div>
+    <div class="brand">CODRIVER · V1.2</div>
     <h1>Cartello aeroporto</h1>
     <p class="desc">Inserisci il nominativo e scegli come deve occupare lo schermo.</p>
 
@@ -75,6 +78,15 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
     <div class="options">
       <button id="theme" class="pill" type="button">Sfondo bianco</button>
       <button id="caps" class="pill on" type="button">MAIUSCOLO</button>
+    </div>
+
+    <div class="speedbox">
+      <div class="speedlabel">Velocità scorrimento</div>
+      <div class="speedrow">
+        <button id="speed1" class="pill" type="button">1 · Lenta</button>
+        <button id="speed2" class="pill on" type="button">2 · Media</button>
+        <button id="speed3" class="pill" type="button">3 · Veloce</button>
+      </div>
     </div>
 
     <div class="note">In visualizzazione: ruota il dispositivo in orizzontale. Tocca il cartello per tornare indietro.</div>
@@ -102,11 +114,15 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
   var maxBtn = $("max");
   var themeBtn = $("theme");
   var capsBtn = $("caps");
+  var speed1Btn = $("speed1");
+  var speed2Btn = $("speed2");
+  var speed3Btn = $("speed3");
   var engine = $("engine");
 
   var isLight = false;
   var isCaps = true;
   var currentMode = "";
+  var scrollSpeed = 250;
   var wakeLock = null;
 
   engine.textContent = "Motore attivo · pronto";
@@ -217,8 +233,8 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
 
       requestAnimationFrame(function(){
         var tw = scrollText.getBoundingClientRect().width;
-        var pxPerSecond = 115;
-        var duration = Math.max(5.5, (vw + tw) / pxPerSecond);
+        var pxPerSecond = scrollSpeed;
+        var duration = Math.max(2.8, (vw + tw) / pxPerSecond);
 
         scrollText.style.setProperty("--tw", tw + "px");
         scrollText.style.setProperty("--dur", duration.toFixed(2) + "s");
@@ -243,6 +259,19 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
     capsBtn.classList.toggle("on", isCaps);
     capsBtn.textContent = isCaps ? "MAIUSCOLO" : "Originale";
   };
+
+  function setSpeed(level){
+    if(level === 1) scrollSpeed = 170;
+    if(level === 2) scrollSpeed = 250;
+    if(level === 3) scrollSpeed = 340;
+    speed1Btn.classList.toggle("on", level === 1);
+    speed2Btn.classList.toggle("on", level === 2);
+    speed3Btn.classList.toggle("on", level === 3);
+  }
+
+  speed1Btn.onclick = function(){ setSpeed(1); };
+  speed2Btn.onclick = function(){ setSpeed(2); };
+  speed3Btn.onclick = function(){ setSpeed(3); };
 
   viewer.onclick = closeViewer;
 
