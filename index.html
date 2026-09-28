@@ -15,7 +15,7 @@ body{min-height:100dvh}
 button,input{font:inherit}
 button{-webkit-tap-highlight-color:transparent}
 .setup{min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:22px}
-.card{width:min(850px,100%);padding:28px 30px 26px;background:var(--panel);border:1px solid var(--line);border-radius:30px;box-shadow:0 22px 70px rgba(0,0,0,.35)}
+.card{width:min(880px,100%);padding:28px 30px 26px;background:var(--panel);border:1px solid var(--line);border-radius:30px;box-shadow:0 22px 70px rgba(0,0,0,.35)}
 .brand{font-size:14px;font-weight:800;letter-spacing:.16em;color:#a7a7a7;margin-bottom:12px}
 h1{font-size:clamp(36px,5vw,58px);line-height:1;margin:0 0 14px}
 .desc{font-size:18px;color:#999;margin:0 0 30px}
@@ -28,55 +28,55 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
 .max{background:#2b2b2b;color:#fff}
 .verticalBtn{background:#222;color:#fff}
 .options{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
-.speedbox{margin-top:16px;padding-top:14px;border-top:1px solid #2d2d2d}
-.speedlabel{font-size:13px;font-weight:750;color:#8f8f8f;margin-bottom:9px}
+.speedbox,.presetBox{margin-top:16px;padding-top:14px;border-top:1px solid #2d2d2d}
+.speedlabel,.presetLabel{font-size:13px;font-weight:750;color:#8f8f8f;margin-bottom:9px}
 .speedrow{display:flex;gap:9px;flex-wrap:wrap}
 .pill{border:1px solid #3b3b3b;background:#252525;color:#fff;padding:11px 17px;border-radius:999px;font-size:15px;font-weight:750;cursor:pointer}
 .pill.on{background:#fff;color:#000;border-color:#fff}
+.presetGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.presetCard{appearance:none;border:1px solid #333;background:#212121;color:#fff;border-radius:18px;padding:10px;cursor:pointer;text-align:left}
+.presetCard.on{border-color:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.15) inset}
+.presetSwatch{height:58px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:28px;letter-spacing:-.02em;margin-bottom:8px;border:1px solid rgba(255,255,255,.08)}
+.presetName{display:block;font-size:12px;font-weight:750;color:#d9d9d9;line-height:1.25}
 .note{margin-top:23px;color:#777;font-size:13px}
 #engine{margin-top:9px;color:#a26d6d;font-size:11px}
 #engine.ok{color:#6f9878}
 
 .viewer{position:fixed;inset:0;z-index:9999;display:none;overflow:hidden;background:#000;color:#fff}
 .viewer.open{display:block}
-.viewer.light{background:#fff;color:#000}
 #fixedStage{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:2vh 2vw}
 #fixedText{font-weight:900;line-height:.88;white-space:nowrap;text-align:center}
 #scrollStage{position:absolute;inset:0;display:none;align-items:center;overflow:hidden}
 #scrollText{position:absolute;left:0;white-space:nowrap;font-weight:900;line-height:.88;will-change:transform}
 .viewer.scrolling #fixedStage{display:none}
 .viewer.scrolling #scrollStage{display:flex}
-.exitHint{position:absolute;right:18px;bottom:calc(13px + env(safe-area-inset-bottom));font-size:11px;font-weight:700;letter-spacing:.08em;opacity:.18;text-transform:uppercase;pointer-events:none}
-@keyframes slide{
-  from{transform:translateX(100vw)}
-  to{transform:translateX(calc(-1 * var(--tw)))}
-}
-#scrollText.run{animation:slide var(--dur) linear infinite}
-
 #verticalStage{position:absolute;inset:0;display:none;overflow:hidden}
 #verticalTrack{position:absolute;left:0;top:0;width:100%;will-change:transform}
 .verticalGroup{min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:space-around;gap:8vh;padding:10vh 3vw}
 .verticalWord{display:block;white-space:nowrap;font-weight:900;line-height:.88;text-align:center}
 .viewer.vertical #fixedStage,.viewer.vertical #scrollStage{display:none}
 .viewer.vertical #verticalStage{display:block}
-@keyframes verticalTape{
-  from{transform:translateY(0)}
-  to{transform:translateY(calc(-1 * var(--vhgroup)))}
-}
+.exitHint{position:absolute;right:18px;bottom:calc(13px + env(safe-area-inset-bottom));font-size:11px;font-weight:700;letter-spacing:.08em;opacity:.18;text-transform:uppercase;pointer-events:none}
+@keyframes slide{from{transform:translateX(100vw)}to{transform:translateX(calc(-1 * var(--tw)))}}
+#scrollText.run{animation:slide var(--dur) linear infinite}
+@keyframes verticalTape{from{transform:translateY(0)}to{transform:translateY(calc(-1 * var(--vhgroup)))}}
 #verticalTrack.run{animation:verticalTape var(--vdur) linear infinite}
 
+@media(max-width:780px){
+ .presetGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
 @media(max-width:650px){
  .setup{padding:14px}.card{padding:22px 18px;border-radius:24px}
  .actions{grid-template-columns:1fr}.action{height:70px}
  #passenger{height:68px;font-size:22px}
+ .presetGrid{grid-template-columns:1fr 1fr}
 }
 </style>
 </head>
 <body>
-
 <main class="setup">
   <section class="card">
-    <div class="brand">CODRIVER · V1.3</div>
+    <div class="brand">CODRIVER · V1.4</div>
     <h1>Cartello aeroporto</h1>
     <p class="desc">Inserisci il nominativo e scegli come deve occupare lo schermo.</p>
 
@@ -90,8 +90,37 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
     </div>
 
     <div class="options">
-      <button id="theme" class="pill" type="button">Sfondo bianco</button>
       <button id="caps" class="pill on" type="button">MAIUSCOLO</button>
+    </div>
+
+    <div class="presetBox">
+      <div class="presetLabel">Preset colore</div>
+      <div class="presetGrid">
+        <button class="presetCard on" type="button" data-preset="classic-dark">
+          <div class="presetSwatch" style="background:#000;color:#fff">Aa</div>
+          <span class="presetName">Nero · Bianca</span>
+        </button>
+        <button class="presetCard" type="button" data-preset="classic-light">
+          <div class="presetSwatch" style="background:#fff;color:#000">Aa</div>
+          <span class="presetName">Bianco · Nera</span>
+        </button>
+        <button class="presetCard" type="button" data-preset="blue-white">
+          <div class="presetSwatch" style="background:#0b4dff;color:#fff">Aa</div>
+          <span class="presetName">Blu · Bianca</span>
+        </button>
+        <button class="presetCard" type="button" data-preset="antique-pink">
+          <div class="presetSwatch" style="background:#d8b0a6;color:#111">Aa</div>
+          <span class="presetName">Rosa antico · Nera</span>
+        </button>
+        <button class="presetCard" type="button" data-preset="neon-yellow">
+          <div class="presetSwatch" style="background:#000;color:#d8ff00">Aa</div>
+          <span class="presetName">Nero · Giallo fluo</span>
+        </button>
+        <button class="presetCard" type="button" data-preset="orange-electric">
+          <div class="presetSwatch" style="background:#ff7a00;color:#0047ff">Aa</div>
+          <span class="presetName">Arancione · Blu elettrico</span>
+        </button>
+      </div>
     </div>
 
     <div class="speedbox">
@@ -104,7 +133,7 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
     </div>
 
     <div class="note">In visualizzazione: ruota il dispositivo in orizzontale. Tocca il cartello per tornare indietro.</div>
-    <div id="engine">Anteprima file: i comandi possono essere disattivati.</div>
+    <div id="engine">Motore attivo · pronto</div>
   </section>
 </main>
 
@@ -118,7 +147,6 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
 <script>
 (function(){
   "use strict";
-
   var $ = function(id){ return document.getElementById(id); };
   var passenger = $("passenger");
   var viewer = $("viewer");
@@ -129,21 +157,25 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
   var fitBtn = $("fit");
   var maxBtn = $("max");
   var verticalBtn = $("vertical");
-  var themeBtn = $("theme");
   var capsBtn = $("caps");
   var speed1Btn = $("speed1");
   var speed2Btn = $("speed2");
   var speed3Btn = $("speed3");
-  var engine = $("engine");
+  var presetButtons = Array.prototype.slice.call(document.querySelectorAll('.presetCard'));
 
-  var isLight = false;
   var isCaps = true;
   var currentMode = "";
   var scrollSpeed = 250;
   var wakeLock = null;
-
-  engine.textContent = "Motore attivo · pronto";
-  engine.className = "ok";
+  var colorPresets = {
+    "classic-dark": {bg:"#000000", fg:"#ffffff"},
+    "classic-light": {bg:"#ffffff", fg:"#000000"},
+    "blue-white": {bg:"#0b4dff", fg:"#ffffff"},
+    "antique-pink": {bg:"#d8b0a6", fg:"#111111"},
+    "neon-yellow": {bg:"#000000", fg:"#d8ff00"},
+    "orange-electric": {bg:"#ff7a00", fg:"#0047ff"}
+  };
+  var activePreset = "classic-dark";
 
   function textValue(){
     var t = passenger.value.trim();
@@ -152,8 +184,17 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
   }
 
   function applyTheme(){
-    if(isLight) viewer.classList.add("light");
-    else viewer.classList.remove("light");
+    var preset = colorPresets[activePreset] || colorPresets["classic-dark"];
+    viewer.style.background = preset.bg;
+    viewer.style.color = preset.fg;
+  }
+
+  function setPreset(name){
+    activePreset = name;
+    presetButtons.forEach(function(btn){
+      btn.classList.toggle('on', btn.getAttribute('data-preset') === name);
+    });
+    if(currentMode) applyTheme();
   }
 
   function clean(){
@@ -187,7 +228,6 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
     viewer.setAttribute("aria-hidden","false");
     document.body.style.overflow = "hidden";
     requestWake();
-
     requestAnimationFrame(function(){
       requestAnimationFrame(function(){
         if(mode === "fit") renderFit();
@@ -198,54 +238,39 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
   }
 
   function closeViewer(){
-    viewer.classList.remove("open","scrolling");
+    viewer.classList.remove("open","scrolling","vertical");
     viewer.setAttribute("aria-hidden","true");
     document.body.style.overflow = "";
     currentMode = "";
     clean();
-    if(wakeLock){
-      try{ wakeLock.release(); }catch(e){}
-      wakeLock = null;
-    }
+    if(wakeLock){ try{ wakeLock.release(); }catch(e){} wakeLock = null; }
   }
 
   function renderFit(){
     var t = textValue();
     fixedText.textContent = t;
-
     var maxW = fixedStage.clientWidth * .94;
     var maxH = fixedStage.clientHeight * .84;
     var lo = 12;
     var hi = Math.max(80, Math.floor(fixedStage.clientHeight * .95));
     var best = lo;
-
     while(lo <= hi){
       var mid = Math.floor((lo + hi) / 2);
       fixedText.style.fontSize = mid + "px";
       var r = fixedText.getBoundingClientRect();
-      if(r.width <= maxW && r.height <= maxH){
-        best = mid;
-        lo = mid + 1;
-      }else{
-        hi = mid - 1;
-      }
+      if(r.width <= maxW && r.height <= maxH){ best = mid; lo = mid + 1; }
+      else { hi = mid - 1; }
     }
     fixedText.style.fontSize = best + "px";
   }
 
   function fitWordToWidth(el, maxSize, maxWidth){
-    var lo = 24;
-    var hi = Math.max(24, Math.floor(maxSize));
-    var best = lo;
+    var lo = 24, hi = Math.max(24, Math.floor(maxSize)), best = lo;
     while(lo <= hi){
       var mid = Math.floor((lo + hi) / 2);
       el.style.fontSize = mid + "px";
-      if(el.getBoundingClientRect().width <= maxWidth){
-        best = mid;
-        lo = mid + 1;
-      }else{
-        hi = mid - 1;
-      }
+      if(el.getBoundingClientRect().width <= maxWidth){ best = mid; lo = mid + 1; }
+      else { hi = mid - 1; }
     }
     el.style.fontSize = best + "px";
   }
@@ -253,36 +278,26 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
   function renderVertical(){
     var words = textValue().split(/\s+/).filter(Boolean);
     if(!words.length) words = ["NOME","PASSEGGERO"];
-
     viewer.classList.add("vertical");
-
     var groupA = document.createElement("div");
     groupA.className = "verticalGroup";
-
     words.forEach(function(word){
       var el = document.createElement("div");
       el.className = "verticalWord";
       el.textContent = word;
       groupA.appendChild(el);
     });
-
     verticalTrack.appendChild(groupA);
-
     requestAnimationFrame(function(){
       var maxSize = viewer.clientHeight * .54;
       var maxWidth = viewer.clientWidth * .94;
-      Array.prototype.forEach.call(groupA.children, function(el){
-        fitWordToWidth(el, maxSize, maxWidth);
-      });
-
+      Array.prototype.forEach.call(groupA.children, function(el){ fitWordToWidth(el, maxSize, maxWidth); });
       var groupB = groupA.cloneNode(true);
       verticalTrack.appendChild(groupB);
-
       requestAnimationFrame(function(){
         var groupHeight = groupA.getBoundingClientRect().height;
         var verticalPxPerSecond = scrollSpeed * .58;
         var duration = Math.max(4.2, groupHeight / verticalPxPerSecond);
-
         verticalTrack.style.setProperty("--vhgroup", groupHeight + "px");
         verticalTrack.style.setProperty("--vdur", duration.toFixed(2) + "s");
         void verticalTrack.offsetHeight;
@@ -296,50 +311,24 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
     var vh = viewer.clientHeight;
     var vw = viewer.clientWidth;
     var size = Math.max(72, Math.floor(vh * .78));
-
     fixedText.textContent = t;
     fixedText.style.fontSize = size + "px";
-
     requestAnimationFrame(function(){
       var w = fixedText.getBoundingClientRect().width;
-
-      if(w <= vw * .94){
-        return;
-      }
-
+      if(w <= vw * .94) return;
       viewer.classList.add("scrolling");
       scrollText.textContent = t;
       scrollText.style.fontSize = size + "px";
-
       requestAnimationFrame(function(){
         var tw = scrollText.getBoundingClientRect().width;
-        var pxPerSecond = scrollSpeed;
-        var duration = Math.max(2.8, (vw + tw) / pxPerSecond);
-
+        var duration = Math.max(2.8, (vw + tw) / scrollSpeed);
         scrollText.style.setProperty("--tw", tw + "px");
         scrollText.style.setProperty("--dur", duration.toFixed(2) + "s");
-
         void scrollText.offsetWidth;
         scrollText.classList.add("run");
       });
     });
   }
-
-  fitBtn.onclick = function(){ openViewer("fit"); };
-  maxBtn.onclick = function(){ openViewer("max"); };
-  verticalBtn.onclick = function(){ openViewer("vertical"); };
-
-  themeBtn.onclick = function(){
-    isLight = !isLight;
-    themeBtn.classList.toggle("on", isLight);
-    themeBtn.textContent = isLight ? "Sfondo nero" : "Sfondo bianco";
-  };
-
-  capsBtn.onclick = function(){
-    isCaps = !isCaps;
-    capsBtn.classList.toggle("on", isCaps);
-    capsBtn.textContent = isCaps ? "MAIUSCOLO" : "Originale";
-  };
 
   function setSpeed(level){
     if(level === 1) scrollSpeed = 170;
@@ -350,19 +339,22 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
     speed3Btn.classList.toggle("on", level === 3);
   }
 
+  fitBtn.onclick = function(){ openViewer("fit"); };
+  maxBtn.onclick = function(){ openViewer("max"); };
+  verticalBtn.onclick = function(){ openViewer("vertical"); };
+  capsBtn.onclick = function(){
+    isCaps = !isCaps;
+    capsBtn.classList.toggle("on", isCaps);
+    capsBtn.textContent = isCaps ? "MAIUSCOLO" : "Originale";
+  };
   speed1Btn.onclick = function(){ setSpeed(1); };
   speed2Btn.onclick = function(){ setSpeed(2); };
   speed3Btn.onclick = function(){ setSpeed(3); };
-
-  viewer.onclick = closeViewer;
-
-  passenger.addEventListener("keydown", function(e){
-    if(e.key === "Enter"){
-      e.preventDefault();
-      openViewer("fit");
-    }
+  presetButtons.forEach(function(btn){
+    btn.onclick = function(){ setPreset(btn.getAttribute('data-preset')); };
   });
-
+  viewer.onclick = closeViewer;
+  passenger.addEventListener("keydown", function(e){ if(e.key === "Enter"){ e.preventDefault(); openViewer("fit"); } });
   window.addEventListener("resize", function(){
     if(!currentMode) return;
     clearTimeout(window.__cdTimer);
@@ -373,12 +365,10 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
       else renderVertical();
     }, 120);
   });
-
   document.addEventListener("visibilitychange", function(){
     if(document.visibilityState === "visible" && currentMode) requestWake();
   });
 })();
 </script>
-<!-- trigger pages deploy 2026-09-29 -->
 </body>
 </html>
