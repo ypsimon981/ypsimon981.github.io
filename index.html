@@ -22,7 +22,7 @@ h1{font-size:clamp(36px,5vw,58px);line-height:1;margin:0 0 14px}
 label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
 #passenger{display:block;width:100%;height:78px;border-radius:17px;border:1px solid #373737;background:#0e0e0e;color:white;padding:0 20px;font-size:26px;outline:none}
 #passenger:focus{border-color:#777}
-.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:17px}
+.viewBox{margin-top:16px;padding-top:14px;border-top:1px solid #2d2d2d}\n.viewLabel{font-size:13px;font-weight:750;color:#8f8f8f;margin-bottom:9px}\n.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:0}
 .action{height:86px;border-radius:18px;border:1px solid #3b3b3b;font-size:20px;font-weight:850;cursor:pointer}
 .fit{background:#fff;color:#090909;border-color:#fff}
 .max{background:#2b2b2b;color:#fff}
@@ -30,14 +30,7 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
 .options{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
 .speedbox,.presetBox,.fontBox{margin-top:16px;padding-top:14px;border-top:1px solid #2d2d2d}
 .speedlabel,.presetLabel,.fontLabel{font-size:13px;font-weight:750;color:#8f8f8f;margin-bottom:9px}
-.fontrow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-.fontCard{appearance:none;border:1px solid #333;background:#212121;color:#fff;border-radius:18px;padding:10px;cursor:pointer;text-align:left}
-.fontCard.on{border-color:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.15) inset}
-.fontPreview{height:58px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:#111;color:#fff;font-size:31px;margin-bottom:8px;border:1px solid rgba(255,255,255,.08)}
-.fontName{display:block;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Arial,sans-serif;font-size:12px;font-weight:750;color:#d9d9d9;line-height:1.25}
-.font-system .fontPreview{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",Arial,sans-serif;font-weight:900}
-.font-impact .fontPreview{font-family:Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif;font-weight:900}
-.font-serif .fontPreview{font-family:Georgia,"Times New Roman",serif;font-weight:700}
+.fontrow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}\n.fontChoice{height:64px;border-radius:999px;font-size:20px;font-weight:800;text-align:center;padding:0 16px}\n.fontChoice[data-font="system"]{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",Arial,sans-serif}\n.fontChoice[data-font="impact"]{font-family:Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif}\n.fontChoice[data-font="serif"]{font-family:Georgia,"Times New Roman",serif}
 .speedrow{display:flex;gap:9px;flex-wrap:wrap}
 .pill{border:1px solid #3b3b3b;background:#252525;color:#fff;padding:11px 17px;border-radius:999px;font-size:15px;font-weight:750;cursor:pointer}
 .pill.on{background:#fff;color:#000;border-color:#fff}
@@ -72,31 +65,25 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
 #verticalTrack.run{animation:verticalTape var(--vdur) linear infinite}
 
 @media(max-width:780px){
- .presetGrid,.fontrow{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .presetGrid{grid-template-columns:repeat(2,minmax(0,1fr))}\n .fontrow{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
 @media(max-width:650px){
  .setup{padding:14px}.card{padding:22px 18px;border-radius:24px}
  .actions{grid-template-columns:1fr}.action{height:70px}
  #passenger{height:68px;font-size:22px}
- .presetGrid,.fontrow{grid-template-columns:1fr 1fr}
+ .presetGrid{grid-template-columns:1fr 1fr}\n .fontrow{grid-template-columns:repeat(3,minmax(0,1fr))}\n .fontChoice{font-size:16px;height:58px;padding:0 8px}
 }
 </style>
 </head>
 <body>
 <main class="setup">
   <section class="card">
-    <div class="brand">CODRIVER · V1.6</div>
+    <div class="brand">CODRIVER · V1.7</div>
     <h1>Cartello aeroporto</h1>
     <p class="desc">Inserisci il nominativo e scegli come deve occupare lo schermo.</p>
 
     <label for="passenger">Nome passeggero</label>
     <input id="passenger" type="text" placeholder="Es. JOHN SMITH" autocomplete="off" autocorrect="off" spellcheck="false">
-
-    <div class="actions">
-      <button id="fit" class="action fit" type="button">FIT ALLO SCHERMO</button>
-      <button id="max" class="action max" type="button">MAX + SCORRIMENTO</button>
-      <button id="vertical" class="action verticalBtn" type="button">NASTRO VERTICALE</button>
-    </div>
 
     <div class="options">
       <button id="caps" class="pill on" type="button">MAIUSCOLO</button>
@@ -105,18 +92,9 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
     <div class="fontBox">
       <div class="fontLabel">Carattere</div>
       <div class="fontrow">
-        <button class="fontCard fontChoice font-system on" type="button" data-font="system">
-          <div class="fontPreview">Aa</div>
-          <span class="fontName">Standard</span>
-        </button>
-        <button class="fontCard fontChoice font-impact" type="button" data-font="impact">
-          <div class="fontPreview">Aa</div>
-          <span class="fontName">Compatto</span>
-        </button>
-        <button class="fontCard fontChoice font-serif" type="button" data-font="serif">
-          <div class="fontPreview">Aa</div>
-          <span class="fontName">Elegante</span>
-        </button>
+        <button class="pill fontChoice on" type="button" data-font="system">Standard</button>
+        <button class="pill fontChoice" type="button" data-font="impact">Compatto</button>
+        <button class="pill fontChoice" type="button" data-font="serif">Elegante</button>
       </div>
     </div>
 
@@ -156,6 +134,15 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
         <button id="speed1" class="pill" type="button">1 · Lenta</button>
         <button id="speed2" class="pill on" type="button">2 · Media</button>
         <button id="speed3" class="pill" type="button">3 · Veloce</button>
+      </div>
+    </div>
+
+    <div class="viewBox">
+      <div class="viewLabel">Visualizzazione</div>
+      <div class="actions">
+        <button id="fit" class="action fit" type="button">FIT ALLO SCHERMO</button>
+        <button id="max" class="action max" type="button">MAX + SCORRIMENTO</button>
+        <button id="vertical" class="action verticalBtn" type="button">NASTRO VERTICALE</button>
       </div>
     </div>
 
