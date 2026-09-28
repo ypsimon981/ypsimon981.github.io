@@ -28,8 +28,9 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
 .max{background:#2b2b2b;color:#fff}
 .verticalBtn{background:#222;color:#fff}
 .options{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
-.speedbox,.presetBox{margin-top:16px;padding-top:14px;border-top:1px solid #2d2d2d}
-.speedlabel,.presetLabel{font-size:13px;font-weight:750;color:#8f8f8f;margin-bottom:9px}
+.speedbox,.presetBox,.fontBox{margin-top:16px;padding-top:14px;border-top:1px solid #2d2d2d}
+.speedlabel,.presetLabel,.fontLabel{font-size:13px;font-weight:750;color:#8f8f8f;margin-bottom:9px}
+.fontrow{display:flex;gap:9px;flex-wrap:wrap}
 .speedrow{display:flex;gap:9px;flex-wrap:wrap}
 .pill{border:1px solid #3b3b3b;background:#252525;color:#fff;padding:11px 17px;border-radius:999px;font-size:15px;font-weight:750;cursor:pointer}
 .pill.on{background:#fff;color:#000;border-color:#fff}
@@ -45,15 +46,16 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
 .viewer{position:fixed;inset:0;z-index:9999;display:none;overflow:hidden;background:#000;color:#fff}
 .viewer.open{display:block}
 #fixedStage{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:2vh 2vw}
-#fixedText{font-weight:900;line-height:.88;white-space:nowrap;text-align:center}
+#fixedText{font-family:var(--sign-font,-apple-system,BlinkMacSystemFont,"SF Pro Display",Arial,sans-serif);font-weight:900;line-height:.88;white-space:nowrap;text-align:center}
+#fixedText.fitMultiline{white-space:pre-line;line-height:.9}
 #scrollStage{position:absolute;inset:0;display:none;align-items:center;overflow:hidden}
-#scrollText{position:absolute;left:0;white-space:nowrap;font-weight:900;line-height:.88;will-change:transform}
+#scrollText{position:absolute;left:0;white-space:nowrap;font-family:var(--sign-font,-apple-system,BlinkMacSystemFont,"SF Pro Display",Arial,sans-serif);font-weight:900;line-height:.88;will-change:transform}
 .viewer.scrolling #fixedStage{display:none}
 .viewer.scrolling #scrollStage{display:flex}
 #verticalStage{position:absolute;inset:0;display:none;overflow:hidden}
 #verticalTrack{position:absolute;left:0;top:0;width:100%;will-change:transform}
 .verticalGroup{min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:space-around;gap:8vh;padding:10vh 3vw}
-.verticalWord{display:block;white-space:nowrap;font-weight:900;line-height:.88;text-align:center}
+.verticalWord{display:block;white-space:nowrap;font-family:var(--sign-font,-apple-system,BlinkMacSystemFont,"SF Pro Display",Arial,sans-serif);font-weight:900;line-height:.88;text-align:center}
 .viewer.vertical #fixedStage,.viewer.vertical #scrollStage{display:none}
 .viewer.vertical #verticalStage{display:block}
 .exitHint{position:absolute;right:18px;bottom:calc(13px + env(safe-area-inset-bottom));font-size:11px;font-weight:700;letter-spacing:.08em;opacity:.18;text-transform:uppercase;pointer-events:none}
@@ -76,7 +78,7 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
 <body>
 <main class="setup">
   <section class="card">
-    <div class="brand">CODRIVER · V1.4</div>
+    <div class="brand">CODRIVER · V1.5</div>
     <h1>Cartello aeroporto</h1>
     <p class="desc">Inserisci il nominativo e scegli come deve occupare lo schermo.</p>
 
@@ -91,6 +93,15 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
 
     <div class="options">
       <button id="caps" class="pill on" type="button">MAIUSCOLO</button>
+    </div>
+
+    <div class="fontBox">
+      <div class="fontLabel">Carattere</div>
+      <div class="fontrow">
+        <button class="pill fontChoice on" type="button" data-font="system">Standard</button>
+        <button class="pill fontChoice" type="button" data-font="impact">Compatto</button>
+        <button class="pill fontChoice" type="button" data-font="serif">Elegante</button>
+      </div>
     </div>
 
     <div class="presetBox">
@@ -162,6 +173,7 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
   var speed2Btn = $("speed2");
   var speed3Btn = $("speed3");
   var presetButtons = Array.prototype.slice.call(document.querySelectorAll('.presetCard'));
+  var fontButtons = Array.prototype.slice.call(document.querySelectorAll('.fontChoice'));
 
   var isCaps = true;
   var currentMode = "";
@@ -176,6 +188,12 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
     "orange-electric": {bg:"#ff7a00", fg:"#0047ff"}
   };
   var activePreset = "classic-dark";
+  var signFonts = {
+    "system": '-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",Arial,sans-serif',
+    "impact": 'Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif',
+    "serif": 'Georgia,"Times New Roman",serif'
+  };
+  var activeFont = "system";
 
   function textValue(){
     var t = passenger.value.trim();
@@ -187,6 +205,15 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
     var preset = colorPresets[activePreset] || colorPresets["classic-dark"];
     viewer.style.background = preset.bg;
     viewer.style.color = preset.fg;
+    viewer.style.setProperty("--sign-font", signFonts[activeFont] || signFonts.system);
+  }
+
+  function setFont(name){
+    activeFont = name;
+    fontButtons.forEach(function(btn){
+      btn.classList.toggle("on", btn.getAttribute("data-font") === name);
+    });
+    viewer.style.setProperty("--sign-font", signFonts[activeFont] || signFonts.system);
   }
 
   function setPreset(name){
@@ -206,6 +233,7 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
     verticalTrack.style.removeProperty("--vhgroup");
     verticalTrack.style.removeProperty("--vdur");
     verticalTrack.innerHTML = "";
+    fixedText.classList.remove("fitMultiline");
     fixedText.style.fontSize = "";
     scrollText.style.fontSize = "";
     fixedText.textContent = "";
@@ -248,9 +276,11 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
 
   function renderFit(){
     var t = textValue();
-    fixedText.textContent = t;
+    var words = t.split(/\s+/).filter(Boolean);
+    fixedText.classList.add("fitMultiline");
+    fixedText.textContent = words.length > 1 ? words.join("\n") : t;
     var maxW = fixedStage.clientWidth * .94;
-    var maxH = fixedStage.clientHeight * .84;
+    var maxH = fixedStage.clientHeight * .86;
     var lo = 12;
     var hi = Math.max(80, Math.floor(fixedStage.clientHeight * .95));
     var best = lo;
@@ -352,6 +382,9 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
   speed3Btn.onclick = function(){ setSpeed(3); };
   presetButtons.forEach(function(btn){
     btn.onclick = function(){ setPreset(btn.getAttribute('data-preset')); };
+  });
+  fontButtons.forEach(function(btn){
+    btn.onclick = function(){ setFont(btn.getAttribute('data-font')); };
   });
   viewer.onclick = closeViewer;
   passenger.addEventListener("keydown", function(e){ if(e.key === "Enter"){ e.preventDefault(); openViewer("fit"); } });
