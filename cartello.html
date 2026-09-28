@@ -16,7 +16,9 @@ button,input{font:inherit}
 button{-webkit-tap-highlight-color:transparent}
 .setup{min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:22px}
 .card{width:min(880px,100%);padding:28px 30px 26px;background:var(--panel);border:1px solid var(--line);border-radius:30px;box-shadow:0 22px 70px rgba(0,0,0,.35)}
-.brand{font-size:14px;font-weight:800;letter-spacing:.16em;color:#a7a7a7;margin-bottom:12px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.brand{font-size:14px;font-weight:800;letter-spacing:.16em;color:#a7a7a7;margin:0}
+.homeLink{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;color:#fff;background:#252525;border:1px solid #3b3b3b;border-radius:999px;padding:10px 14px;font-size:14px;font-weight:800}
 h1{font-size:clamp(36px,5vw,58px);line-height:1;margin:0 0 14px}
 .desc{font-size:18px;color:#999;margin:0 0 30px}
 label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
@@ -87,7 +89,10 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
 <body>
 <main class="setup">
   <section class="card">
-    <div class="brand">CODRIVER · V1.8</div>
+    <div class="topbar">
+      <div class="brand">CODRIVER · V1.9</div>
+      <a class="homeLink" href="index.html">← Home</a>
+    </div>
     <h1>Cartello aeroporto</h1>
     <p class="desc">Inserisci il nominativo e scegli come deve occupare lo schermo.</p>
 
