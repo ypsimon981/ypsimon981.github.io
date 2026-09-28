@@ -22,10 +22,11 @@ h1{font-size:clamp(36px,5vw,58px);line-height:1;margin:0 0 14px}
 label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
 #passenger{display:block;width:100%;height:78px;border-radius:17px;border:1px solid #373737;background:#0e0e0e;color:white;padding:0 20px;font-size:26px;outline:none}
 #passenger:focus{border-color:#777}
-.actions{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:17px}
+.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:17px}
 .action{height:86px;border-radius:18px;border:1px solid #3b3b3b;font-size:20px;font-weight:850;cursor:pointer}
 .fit{background:#fff;color:#090909;border-color:#fff}
 .max{background:#2b2b2b;color:#fff}
+.verticalBtn{background:#222;color:#fff}
 .options{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
 .speedbox{margin-top:16px;padding-top:14px;border-top:1px solid #2d2d2d}
 .speedlabel{font-size:13px;font-weight:750;color:#8f8f8f;margin-bottom:9px}
@@ -52,6 +53,18 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
 }
 #scrollText.run{animation:slide var(--dur) linear infinite}
 
+#verticalStage{position:absolute;inset:0;display:none;overflow:hidden}
+#verticalTrack{position:absolute;left:0;top:0;width:100%;will-change:transform}
+.verticalGroup{min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:space-around;gap:8vh;padding:10vh 3vw}
+.verticalWord{display:block;white-space:nowrap;font-weight:900;line-height:.88;text-align:center}
+.viewer.vertical #fixedStage,.viewer.vertical #scrollStage{display:none}
+.viewer.vertical #verticalStage{display:block}
+@keyframes verticalTape{
+  from{transform:translateY(0)}
+  to{transform:translateY(calc(-1 * var(--vhgroup)))}
+}
+#verticalTrack.run{animation:verticalTape var(--vdur) linear infinite}
+
 @media(max-width:650px){
  .setup{padding:14px}.card{padding:22px 18px;border-radius:24px}
  .actions{grid-template-columns:1fr}.action{height:70px}
@@ -63,7 +76,7 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
 
 <main class="setup">
   <section class="card">
-    <div class="brand">CODRIVER · V1.2</div>
+    <div class="brand">CODRIVER · V1.3</div>
     <h1>Cartello aeroporto</h1>
     <p class="desc">Inserisci il nominativo e scegli come deve occupare lo schermo.</p>
 
@@ -73,6 +86,7 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
     <div class="actions">
       <button id="fit" class="action fit" type="button">FIT ALLO SCHERMO</button>
       <button id="max" class="action max" type="button">MAX + SCORRIMENTO</button>
+      <button id="vertical" class="action verticalBtn" type="button">NASTRO VERTICALE</button>
     </div>
 
     <div class="options">
@@ -97,6 +111,7 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
 <section id="viewer" class="viewer" aria-hidden="true">
   <div id="fixedStage"><div id="fixedText"></div></div>
   <div id="scrollStage"><div id="scrollText"></div></div>
+  <div id="verticalStage"><div id="verticalTrack"></div></div>
   <div class="exitHint">tocca per uscire</div>
 </section>
 
@@ -110,8 +125,10 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
   var fixedStage = $("fixedStage");
   var fixedText = $("fixedText");
   var scrollText = $("scrollText");
+  var verticalTrack = $("verticalTrack");
   var fitBtn = $("fit");
   var maxBtn = $("max");
+  var verticalBtn = $("vertical");
   var themeBtn = $("theme");
   var capsBtn = $("caps");
   var speed1Btn = $("speed1");
@@ -140,10 +157,14 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
   }
 
   function clean(){
-    viewer.classList.remove("scrolling");
+    viewer.classList.remove("scrolling","vertical");
     scrollText.classList.remove("run");
+    verticalTrack.classList.remove("run");
     scrollText.style.removeProperty("--tw");
     scrollText.style.removeProperty("--dur");
+    verticalTrack.style.removeProperty("--vhgroup");
+    verticalTrack.style.removeProperty("--vdur");
+    verticalTrack.innerHTML = "";
     fixedText.style.fontSize = "";
     scrollText.style.fontSize = "";
     fixedText.textContent = "";
@@ -170,7 +191,8 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
     requestAnimationFrame(function(){
       requestAnimationFrame(function(){
         if(mode === "fit") renderFit();
-        else renderMax();
+        else if(mode === "max") renderMax();
+        else renderVertical();
       });
     });
   }
@@ -211,6 +233,64 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
     fixedText.style.fontSize = best + "px";
   }
 
+  function fitWordToWidth(el, maxSize, maxWidth){
+    var lo = 24;
+    var hi = Math.max(24, Math.floor(maxSize));
+    var best = lo;
+    while(lo <= hi){
+      var mid = Math.floor((lo + hi) / 2);
+      el.style.fontSize = mid + "px";
+      if(el.getBoundingClientRect().width <= maxWidth){
+        best = mid;
+        lo = mid + 1;
+      }else{
+        hi = mid - 1;
+      }
+    }
+    el.style.fontSize = best + "px";
+  }
+
+  function renderVertical(){
+    var words = textValue().split(/\s+/).filter(Boolean);
+    if(!words.length) words = ["NOME","PASSEGGERO"];
+
+    viewer.classList.add("vertical");
+
+    var groupA = document.createElement("div");
+    groupA.className = "verticalGroup";
+
+    words.forEach(function(word){
+      var el = document.createElement("div");
+      el.className = "verticalWord";
+      el.textContent = word;
+      groupA.appendChild(el);
+    });
+
+    verticalTrack.appendChild(groupA);
+
+    requestAnimationFrame(function(){
+      var maxSize = viewer.clientHeight * .54;
+      var maxWidth = viewer.clientWidth * .94;
+      Array.prototype.forEach.call(groupA.children, function(el){
+        fitWordToWidth(el, maxSize, maxWidth);
+      });
+
+      var groupB = groupA.cloneNode(true);
+      verticalTrack.appendChild(groupB);
+
+      requestAnimationFrame(function(){
+        var groupHeight = groupA.getBoundingClientRect().height;
+        var verticalPxPerSecond = scrollSpeed * .58;
+        var duration = Math.max(4.2, groupHeight / verticalPxPerSecond);
+
+        verticalTrack.style.setProperty("--vhgroup", groupHeight + "px");
+        verticalTrack.style.setProperty("--vdur", duration.toFixed(2) + "s");
+        void verticalTrack.offsetHeight;
+        verticalTrack.classList.add("run");
+      });
+    });
+  }
+
   function renderMax(){
     var t = textValue();
     var vh = viewer.clientHeight;
@@ -247,6 +327,7 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
 
   fitBtn.onclick = function(){ openViewer("fit"); };
   maxBtn.onclick = function(){ openViewer("max"); };
+  verticalBtn.onclick = function(){ openViewer("vertical"); };
 
   themeBtn.onclick = function(){
     isLight = !isLight;
@@ -288,7 +369,8 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
     window.__cdTimer = setTimeout(function(){
       clean();
       if(currentMode === "fit") renderFit();
-      else renderMax();
+      else if(currentMode === "max") renderMax();
+      else renderVertical();
     }, 120);
   });
 
