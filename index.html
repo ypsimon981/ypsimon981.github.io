@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#090909">
+<title>CoDriver · Cartello Aeroporto</title>
+<style>
+:root{--bg:#090909;--panel:#181818;--line:#323232;--text:#f7f7f7;--muted:#8d8d8d}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",Arial,sans-serif}
+body{min-height:100dvh}
+button,input{font:inherit}
+button{-webkit-tap-highlight-color:transparent}
+.setup{min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:22px}
+.card{width:min(850px,100%);padding:28px 30px 26px;background:var(--panel);border:1px solid var(--line);border-radius:30px;box-shadow:0 22px 70px rgba(0,0,0,.35)}
+.brand{font-size:14px;font-weight:800;letter-spacing:.16em;color:#a7a7a7;margin-bottom:12px}
+h1{font-size:clamp(36px,5vw,58px);line-height:1;margin:0 0 14px}
+.desc{font-size:18px;color:#999;margin:0 0 30px}
+label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
+#passenger{display:block;width:100%;height:78px;border-radius:17px;border:1px solid #373737;background:#0e0e0e;color:white;padding:0 20px;font-size:26px;outline:none}
+#passenger:focus{border-color:#777}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:17px}
+.action{height:86px;border-radius:18px;border:1px solid #3b3b3b;font-size:20px;font-weight:850;cursor:pointer}
+.fit{background:#fff;color:#090909;border-color:#fff}
+.max{background:#2b2b2b;color:#fff}
+.options{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
+.pill{border:1px solid #3b3b3b;background:#252525;color:#fff;padding:11px 17px;border-radius:999px;font-size:15px;font-weight:750;cursor:pointer}
+.pill.on{background:#fff;color:#000;border-color:#fff}
+.note{margin-top:23px;color:#777;font-size:13px}
+#engine{margin-top:9px;color:#a26d6d;font-size:11px}
+#engine.ok{color:#6f9878}
+
+.viewer{position:fixed;inset:0;z-index:9999;display:none;overflow:hidden;background:#000;color:#fff}
+.viewer.open{display:block}
+.viewer.light{background:#fff;color:#000}
+#fixedStage{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:2vh 2vw}
+#fixedText{font-weight:900;line-height:.88;white-space:nowrap;text-align:center}
+#scrollStage{position:absolute;inset:0;display:none;align-items:center;overflow:hidden}
+#scrollText{position:absolute;left:0;white-space:nowrap;font-weight:900;line-height:.88;will-change:transform}
+.viewer.scrolling #fixedStage{display:none}
+.viewer.scrolling #scrollStage{display:flex}
+.exitHint{position:absolute;right:18px;bottom:calc(13px + env(safe-area-inset-bottom));font-size:11px;font-weight:700;letter-spacing:.08em;opacity:.18;text-transform:uppercase;pointer-events:none}
+@keyframes slide{
+  from{transform:translateX(100vw)}
+  to{transform:translateX(calc(-1 * var(--tw)))}
+}
+#scrollText.run{animation:slide var(--dur) linear infinite}
+
+@media(max-width:650px){
+ .setup{padding:14px}.card{padding:22px 18px;border-radius:24px}
+ .actions{grid-template-columns:1fr}.action{height:70px}
+ #passenger{height:68px;font-size:22px}
+}
+</style>
+</head>
+<body>
+
+<main class="setup">
+  <section class="card">
+    <div class="brand">CODRIVER · V1.1</div>
+    <h1>Cartello aeroporto</h1>
+    <p class="desc">Inserisci il nominativo e scegli come deve occupare lo schermo.</p>
+
+    <label for="passenger">Nome passeggero</label>
+    <input id="passenger" type="text" placeholder="Es. JOHN SMITH" autocomplete="off" autocorrect="off" spellcheck="false">
+
+    <div class="actions">
+      <button id="fit" class="action fit" type="button">FIT ALLO SCHERMO</button>
+      <button id="max" class="action max" type="button">MAX + SCORRIMENTO</button>
+    </div>
+
+    <div class="options">
+      <button id="theme" class="pill" type="button">Sfondo bianco</button>
+      <button id="caps" class="pill on" type="button">MAIUSCOLO</button>
+    </div>
+
+    <div class="note">In visualizzazione: ruota il dispositivo in orizzontale. Tocca il cartello per tornare indietro.</div>
+    <div id="engine">Anteprima file: i comandi possono essere disattivati.</div>
+  </section>
+</main>
+
+<section id="viewer" class="viewer" aria-hidden="true">
+  <div id="fixedStage"><div id="fixedText"></div></div>
+  <div id="scrollStage"><div id="scrollText"></div></div>
+  <div class="exitHint">tocca per uscire</div>
+</section>
+
+<script>
+(function(){
+  "use strict";
+
+  var $ = function(id){ return document.getElementById(id); };
+  var passenger = $("passenger");
+  var viewer = $("viewer");
+  var fixedStage = $("fixedStage");
+  var fixedText = $("fixedText");
+  var scrollText = $("scrollText");
+  var fitBtn = $("fit");
+  var maxBtn = $("max");
+  var themeBtn = $("theme");
+  var capsBtn = $("caps");
+  var engine = $("engine");
+
+  var isLight = false;
+  var isCaps = true;
+  var currentMode = "";
+  var wakeLock = null;
+
+  engine.textContent = "Motore attivo · pronto";
+  engine.className = "ok";
+
+  function textValue(){
+    var t = passenger.value.trim();
+    if(!t) t = "NOME PASSEGGERO";
+    return isCaps ? t.toUpperCase() : t;
+  }
+
+  function applyTheme(){
+    if(isLight) viewer.classList.add("light");
+    else viewer.classList.remove("light");
+  }
+
+  function clean(){
+    viewer.classList.remove("scrolling");
+    scrollText.classList.remove("run");
+    scrollText.style.removeProperty("--tw");
+    scrollText.style.removeProperty("--dur");
+    fixedText.style.fontSize = "";
+    scrollText.style.fontSize = "";
+    fixedText.textContent = "";
+    scrollText.textContent = "";
+  }
+
+  function requestWake(){
+    try{
+      if("wakeLock" in navigator){
+        navigator.wakeLock.request("screen").then(function(lock){ wakeLock = lock; }).catch(function(){});
+      }
+    }catch(e){}
+  }
+
+  function openViewer(mode){
+    currentMode = mode;
+    clean();
+    applyTheme();
+    viewer.classList.add("open");
+    viewer.setAttribute("aria-hidden","false");
+    document.body.style.overflow = "hidden";
+    requestWake();
+
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        if(mode === "fit") renderFit();
+        else renderMax();
+      });
+    });
+  }
+
+  function closeViewer(){
+    viewer.classList.remove("open","scrolling");
+    viewer.setAttribute("aria-hidden","true");
+    document.body.style.overflow = "";
+    currentMode = "";
+    clean();
+    if(wakeLock){
+      try{ wakeLock.release(); }catch(e){}
+      wakeLock = null;
+    }
+  }
+
+  function renderFit(){
+    var t = textValue();
+    fixedText.textContent = t;
+
+    var maxW = fixedStage.clientWidth * .94;
+    var maxH = fixedStage.clientHeight * .84;
+    var lo = 12;
+    var hi = Math.max(80, Math.floor(fixedStage.clientHeight * .95));
+    var best = lo;
+
+    while(lo <= hi){
+      var mid = Math.floor((lo + hi) / 2);
+      fixedText.style.fontSize = mid + "px";
+      var r = fixedText.getBoundingClientRect();
+      if(r.width <= maxW && r.height <= maxH){
+        best = mid;
+        lo = mid + 1;
+      }else{
+        hi = mid - 1;
+      }
+    }
+    fixedText.style.fontSize = best + "px";
+  }
+
+  function renderMax(){
+    var t = textValue();
+    var vh = viewer.clientHeight;
+    var vw = viewer.clientWidth;
+    var size = Math.max(72, Math.floor(vh * .78));
+
+    fixedText.textContent = t;
+    fixedText.style.fontSize = size + "px";
+
+    requestAnimationFrame(function(){
+      var w = fixedText.getBoundingClientRect().width;
+
+      if(w <= vw * .94){
+        return;
+      }
+
+      viewer.classList.add("scrolling");
+      scrollText.textContent = t;
+      scrollText.style.fontSize = size + "px";
+
+      requestAnimationFrame(function(){
+        var tw = scrollText.getBoundingClientRect().width;
+        var pxPerSecond = 115;
+        var duration = Math.max(5.5, (vw + tw) / pxPerSecond);
+
+        scrollText.style.setProperty("--tw", tw + "px");
+        scrollText.style.setProperty("--dur", duration.toFixed(2) + "s");
+
+        void scrollText.offsetWidth;
+        scrollText.classList.add("run");
+      });
+    });
+  }
+
+  fitBtn.onclick = function(){ openViewer("fit"); };
+  maxBtn.onclick = function(){ openViewer("max"); };
+
+  themeBtn.onclick = function(){
+    isLight = !isLight;
+    themeBtn.classList.toggle("on", isLight);
+    themeBtn.textContent = isLight ? "Sfondo nero" : "Sfondo bianco";
+  };
+
+  capsBtn.onclick = function(){
+    isCaps = !isCaps;
+    capsBtn.classList.toggle("on", isCaps);
+    capsBtn.textContent = isCaps ? "MAIUSCOLO" : "Originale";
+  };
+
+  viewer.onclick = closeViewer;
+
+  passenger.addEventListener("keydown", function(e){
+    if(e.key === "Enter"){
+      e.preventDefault();
+      openViewer("fit");
+    }
+  });
+
+  window.addEventListener("resize", function(){
+    if(!currentMode) return;
+    clearTimeout(window.__cdTimer);
+    window.__cdTimer = setTimeout(function(){
+      clean();
+      if(currentMode === "fit") renderFit();
+      else renderMax();
+    }, 120);
+  });
+
+  document.addEventListener("visibilitychange", function(){
+    if(document.visibilityState === "visible" && currentMode) requestWake();
+  });
+})();
+</script>
+</body>
+</html>
