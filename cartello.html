@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#090909">
+<title>CoDriver · Cartello Aeroporto</title>
+<style>
+:root{--bg:#090909;--panel:#181818;--line:#323232;--text:#f7f7f7;--muted:#8d8d8d}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",Arial,sans-serif}
+body{min-height:100dvh}
+button,input{font:inherit}
+button{-webkit-tap-highlight-color:transparent}
+.setup{min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:22px}
+.card{width:min(880px,100%);padding:28px 30px 26px;background:var(--panel);border:1px solid var(--line);border-radius:30px;box-shadow:0 22px 70px rgba(0,0,0,.35)}
+.brand{font-size:14px;font-weight:800;letter-spacing:.16em;color:#a7a7a7;margin-bottom:12px}
+h1{font-size:clamp(36px,5vw,58px);line-height:1;margin:0 0 14px}
+.desc{font-size:18px;color:#999;margin:0 0 30px}
+label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
+#passenger{display:block;width:100%;height:78px;border-radius:17px;border:1px solid #373737;background:#0e0e0e;color:white;padding:0 20px;font-size:26px;outline:none}
+#passenger:focus{border-color:#777}
+.viewBox{margin-top:16px;padding-top:14px;border-top:1px solid #2d2d2d}
+.viewLabel{font-size:13px;font-weight:750;color:#8f8f8f;margin-bottom:9px}
+.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:0}
+.action{height:86px;border-radius:18px;border:1px solid #3b3b3b;font-size:20px;font-weight:850;cursor:pointer}
+.fit{background:#fff;color:#090909;border-color:#fff}
+.max{background:#2b2b2b;color:#fff}
+.verticalBtn{background:#222;color:#fff}
+.options{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
+.speedbox,.presetBox,.fontBox{margin-top:16px;padding-top:14px;border-top:1px solid #2d2d2d}
+.speedlabel,.presetLabel,.fontLabel{font-size:13px;font-weight:750;color:#8f8f8f;margin-bottom:9px}
+.fontrow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.fontChoice{height:64px;border-radius:999px;font-size:20px;font-weight:800;text-align:center;padding:0 16px}
+.fontChoice[data-font="system"]{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",Arial,sans-serif}
+.fontChoice[data-font="impact"]{font-family:Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif}
+.fontChoice[data-font="serif"]{font-family:Georgia,"Times New Roman",serif}
+.speedrow{display:flex;gap:9px;flex-wrap:wrap}
+.pill{border:1px solid #3b3b3b;background:#252525;color:#fff;padding:11px 17px;border-radius:999px;font-size:15px;font-weight:750;cursor:pointer}
+.pill.on{background:#fff;color:#000;border-color:#fff}
+.presetGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.presetCard{appearance:none;border:1px solid #333;background:#212121;color:#fff;border-radius:18px;padding:10px;cursor:pointer;text-align:left}
+.presetCard.on{border-color:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.15) inset}
+.presetSwatch{height:58px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:28px;letter-spacing:-.02em;margin-bottom:8px;border:1px solid rgba(255,255,255,.08)}
+.presetName{display:block;font-size:12px;font-weight:750;color:#d9d9d9;line-height:1.25}
+.note{margin-top:23px;color:#777;font-size:13px}
+#engine{margin-top:9px;color:#a26d6d;font-size:11px}
+#engine.ok{color:#6f9878}
+
+.viewer{position:fixed;inset:0;z-index:9999;display:none;overflow:hidden;background:#000;color:#fff}
+.viewer.open{display:block}
+#fixedStage{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:2vh 2vw}
+#fixedText{font-family:var(--sign-font,-apple-system,BlinkMacSystemFont,"SF Pro Display",Arial,sans-serif);font-weight:900;line-height:.88;white-space:nowrap;text-align:center}
+#fixedText.fitMultiline{white-space:pre-line;line-height:.9}
+#scrollStage{position:absolute;inset:0;display:none;align-items:center;overflow:hidden}
+#scrollText{position:absolute;left:0;white-space:nowrap;font-family:var(--sign-font,-apple-system,BlinkMacSystemFont,"SF Pro Display",Arial,sans-serif);font-weight:900;line-height:.88;will-change:transform}
+.viewer.scrolling #fixedStage{display:none}
+.viewer.scrolling #scrollStage{display:flex}
+#verticalStage{position:absolute;inset:0;display:none;overflow:hidden}
+#verticalTrack{position:absolute;left:0;top:0;width:100%;will-change:transform}
+.verticalGroup{min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:space-around;gap:8vh;padding:10vh 3vw}
+.verticalWord{display:block;white-space:nowrap;font-family:var(--sign-font,-apple-system,BlinkMacSystemFont,"SF Pro Display",Arial,sans-serif);font-weight:900;line-height:.88;text-align:center}
+.viewer.vertical #fixedStage,.viewer.vertical #scrollStage{display:none}
+.viewer.vertical #verticalStage{display:block}
+.exitHint{position:absolute;right:18px;bottom:calc(13px + env(safe-area-inset-bottom));font-size:11px;font-weight:700;letter-spacing:.08em;opacity:.18;text-transform:uppercase;pointer-events:none}
+@keyframes slide{from{transform:translateX(100vw)}to{transform:translateX(calc(-1 * var(--tw)))}}
+#scrollText.run{animation:slide var(--dur) linear infinite}
+@keyframes verticalTape{from{transform:translateY(0)}to{transform:translateY(calc(-1 * var(--vhgroup)))}}
+#verticalTrack.run{animation:verticalTape var(--vdur) linear infinite}
+
+@media(max-width:780px){
+ .presetGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .fontrow{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:650px){
+ .setup{padding:14px}.card{padding:22px 18px;border-radius:24px}
+ .actions{grid-template-columns:1fr}.action{height:70px}
+ #passenger{height:68px;font-size:22px}
+ .presetGrid{grid-template-columns:1fr 1fr}
+ .fontrow{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .fontChoice{font-size:16px;height:58px;padding:0 8px}
+}
+</style>
+</head>
+<body>
+<main class="setup">
+  <section class="card">
+    <div class="brand">CODRIVER · V1.8</div>
+    <h1>Cartello aeroporto</h1>
+    <p class="desc">Inserisci il nominativo e scegli come deve occupare lo schermo.</p>
+
+    <label for="passenger">Nome passeggero</label>
+    <input id="passenger" type="text" placeholder="Es. JOHN SMITH" autocomplete="off" autocorrect="off" spellcheck="false">
+
+    <div class="options">
+      <button id="originalCase" class="pill" type="button">Originale</button>
+      <button id="caps" class="pill on" type="button">Tutto maiuscolo</button>
+    </div>
+
+    <div class="fontBox">
+      <div class="fontLabel">Carattere</div>
+      <div class="fontrow">
+        <button class="pill fontChoice on" type="button" data-font="system">Standard</button>
+        <button class="pill fontChoice" type="button" data-font="impact">Compatto</button>
+        <button class="pill fontChoice" type="button" data-font="serif">Elegante</button>
+      </div>
+    </div>
+
+    <div class="presetBox">
+      <div class="presetLabel">Preset colore</div>
+      <div class="presetGrid">
+        <button class="presetCard on" type="button" data-preset="classic-dark">
+          <div class="presetSwatch" style="background:#000;color:#fff">Aa</div>
+          <span class="presetName">Nero · Bianca</span>
+        </button>
+        <button class="presetCard" type="button" data-preset="classic-light">
+          <div class="presetSwatch" style="background:#fff;color:#000">Aa</div>
+          <span class="presetName">Bianco · Nera</span>
+        </button>
+        <button class="presetCard" type="button" data-preset="blue-white">
+          <div class="presetSwatch" style="background:#0b4dff;color:#fff">Aa</div>
+          <span class="presetName">Blu · Bianca</span>
+        </button>
+        <button class="presetCard" type="button" data-preset="antique-pink">
+          <div class="presetSwatch" style="background:#d8b0a6;color:#111">Aa</div>
+          <span class="presetName">Rosa antico · Nera</span>
+        </button>
+        <button class="presetCard" type="button" data-preset="neon-yellow">
+          <div class="presetSwatch" style="background:#000;color:#d8ff00">Aa</div>
+          <span class="presetName">Nero · Giallo fluo</span>
+        </button>
+        <button class="presetCard" type="button" data-preset="orange-electric">
+          <div class="presetSwatch" style="background:#ff7a00;color:#0047ff">Aa</div>
+          <span class="presetName">Arancione · Blu elettrico</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="speedbox">
+      <div class="speedlabel">Velocità scorrimento</div>
+      <div class="speedrow">
+        <button id="speed1" class="pill" type="button">1 · Lenta</button>
+        <button id="speed2" class="pill on" type="button">2 · Media</button>
+        <button id="speed3" class="pill" type="button">3 · Veloce</button>
+      </div>
+    </div>
+
+    <div class="viewBox">
+      <div class="viewLabel">Visualizzazione</div>
+      <div class="actions">
+        <button id="fit" class="action fit" type="button">FIT ALLO SCHERMO</button>
+        <button id="max" class="action max" type="button">MAX + SCORRIMENTO</button>
+        <button id="vertical" class="action verticalBtn" type="button">NASTRO VERTICALE</button>
+      </div>
+    </div>
+
+    <div class="note">In visualizzazione: ruota il dispositivo in orizzontale. Tocca il cartello per tornare indietro.</div>
+    <div id="engine">Motore attivo · pronto</div>
+  </section>
+</main>
+
+<section id="viewer" class="viewer" aria-hidden="true">
+  <div id="fixedStage"><div id="fixedText"></div></div>
+  <div id="scrollStage"><div id="scrollText"></div></div>
+  <div id="verticalStage"><div id="verticalTrack"></div></div>
+  <div class="exitHint">tocca per uscire</div>
+</section>
+
+<script>
+(function(){
+  "use strict";
+  var $ = function(id){ return document.getElementById(id); };
+  var passenger = $("passenger");
+  var viewer = $("viewer");
+  var fixedStage = $("fixedStage");
+  var fixedText = $("fixedText");
+  var scrollText = $("scrollText");
+  var verticalTrack = $("verticalTrack");
+  var fitBtn = $("fit");
+  var maxBtn = $("max");
+  var verticalBtn = $("vertical");
+  var originalCaseBtn = $("originalCase");
+  var capsBtn = $("caps");
+  var speed1Btn = $("speed1");
+  var speed2Btn = $("speed2");
+  var speed3Btn = $("speed3");
+  var presetButtons = Array.prototype.slice.call(document.querySelectorAll('.presetCard'));
+  var fontButtons = Array.prototype.slice.call(document.querySelectorAll('.fontChoice'));
+
+  var isCaps = true;
+  var currentMode = "";
+  var scrollSpeed = 250;
+  var wakeLock = null;
+  var colorPresets = {
+    "classic-dark": {bg:"#000000", fg:"#ffffff"},
+    "classic-light": {bg:"#ffffff", fg:"#000000"},
+    "blue-white": {bg:"#0b4dff", fg:"#ffffff"},
+    "antique-pink": {bg:"#d8b0a6", fg:"#111111"},
+    "neon-yellow": {bg:"#000000", fg:"#d8ff00"},
+    "orange-electric": {bg:"#ff7a00", fg:"#0047ff"}
+  };
+  var activePreset = "classic-dark";
+  var signFonts = {
+    "system": '-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",Arial,sans-serif',
+    "impact": 'Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif',
+    "serif": 'Georgia,"Times New Roman",serif'
+  };
+  var activeFont = "system";
+
+  function textValue(){
+    var t = passenger.value.trim();
+    if(!t) t = "NOME PASSEGGERO";
+    return isCaps ? t.toUpperCase() : t;
+  }
+
+  function applyTheme(){
+    var preset = colorPresets[activePreset] || colorPresets["classic-dark"];
+    viewer.style.background = preset.bg;
+    viewer.style.color = preset.fg;
+    viewer.style.setProperty("--sign-font", signFonts[activeFont] || signFonts.system);
+  }
+
+  function setFont(name){
+    activeFont = name;
+    fontButtons.forEach(function(btn){
+      btn.classList.toggle("on", btn.getAttribute("data-font") === name);
+    });
+    viewer.style.setProperty("--sign-font", signFonts[activeFont] || signFonts.system);
+  }
+
+  function setPreset(name){
+    activePreset = name;
+    presetButtons.forEach(function(btn){
+      btn.classList.toggle('on', btn.getAttribute('data-preset') === name);
+    });
+    if(currentMode) applyTheme();
+  }
+
+  function clean(){
+    viewer.classList.remove("scrolling","vertical");
+    scrollText.classList.remove("run");
+    verticalTrack.classList.remove("run");
+    scrollText.style.removeProperty("--tw");
+    scrollText.style.removeProperty("--dur");
+    verticalTrack.style.removeProperty("--vhgroup");
+    verticalTrack.style.removeProperty("--vdur");
+    verticalTrack.innerHTML = "";
+    fixedText.classList.remove("fitMultiline");
+    fixedText.style.fontSize = "";
+    scrollText.style.fontSize = "";
+    fixedText.textContent = "";
+    scrollText.textContent = "";
+  }
+
+  function requestWake(){
+    try{
+      if("wakeLock" in navigator){
+        navigator.wakeLock.request("screen").then(function(lock){ wakeLock = lock; }).catch(function(){});
+      }
+    }catch(e){}
+  }
+
+  function openViewer(mode){
+    currentMode = mode;
+    clean();
+    applyTheme();
+    viewer.classList.add("open");
+    viewer.setAttribute("aria-hidden","false");
+    document.body.style.overflow = "hidden";
+    requestWake();
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        if(mode === "fit") renderFit();
+        else if(mode === "max") renderMax();
+        else renderVertical();
+      });
+    });
+  }
+
+  function closeViewer(){
+    viewer.classList.remove("open","scrolling","vertical");
+    viewer.setAttribute("aria-hidden","true");
+    document.body.style.overflow = "";
+    currentMode = "";
+    clean();
+    if(wakeLock){ try{ wakeLock.release(); }catch(e){} wakeLock = null; }
+  }
+
+  function renderFit(){
+    var t = textValue();
+    var words = t.split(/\s+/).filter(Boolean);
+    fixedText.classList.add("fitMultiline");
+    fixedText.textContent = words.length > 1 ? words.join("\n") : t;
+    var maxW = fixedStage.clientWidth * .94;
+    var maxH = fixedStage.clientHeight * .86;
+    var lo = 12;
+    var hi = Math.max(80, Math.floor(fixedStage.clientHeight * .95));
+    var best = lo;
+    while(lo <= hi){
+      var mid = Math.floor((lo + hi) / 2);
+      fixedText.style.fontSize = mid + "px";
+      var r = fixedText.getBoundingClientRect();
+      if(r.width <= maxW && r.height <= maxH){ best = mid; lo = mid + 1; }
+      else { hi = mid - 1; }
+    }
+    fixedText.style.fontSize = best + "px";
+  }
+
+  function fitWordToWidth(el, maxSize, maxWidth){
+    var lo = 24, hi = Math.max(24, Math.floor(maxSize)), best = lo;
+    while(lo <= hi){
+      var mid = Math.floor((lo + hi) / 2);
+      el.style.fontSize = mid + "px";
+      if(el.getBoundingClientRect().width <= maxWidth){ best = mid; lo = mid + 1; }
+      else { hi = mid - 1; }
+    }
+    el.style.fontSize = best + "px";
+  }
+
+  function renderVertical(){
+    var words = textValue().split(/\s+/).filter(Boolean);
+    if(!words.length) words = ["NOME","PASSEGGERO"];
+    viewer.classList.add("vertical");
+    var groupA = document.createElement("div");
+    groupA.className = "verticalGroup";
+    words.forEach(function(word){
+      var el = document.createElement("div");
+      el.className = "verticalWord";
+      el.textContent = word;
+      groupA.appendChild(el);
+    });
+    verticalTrack.appendChild(groupA);
+    requestAnimationFrame(function(){
+      var maxSize = viewer.clientHeight * .54;
+      var maxWidth = viewer.clientWidth * .94;
+      Array.prototype.forEach.call(groupA.children, function(el){ fitWordToWidth(el, maxSize, maxWidth); });
+      var groupB = groupA.cloneNode(true);
+      verticalTrack.appendChild(groupB);
+      requestAnimationFrame(function(){
+        var groupHeight = groupA.getBoundingClientRect().height;
+        var verticalPxPerSecond = scrollSpeed * .58;
+        var duration = Math.max(4.2, groupHeight / verticalPxPerSecond);
+        verticalTrack.style.setProperty("--vhgroup", groupHeight + "px");
+        verticalTrack.style.setProperty("--vdur", duration.toFixed(2) + "s");
+        void verticalTrack.offsetHeight;
+        verticalTrack.classList.add("run");
+      });
+    });
+  }
+
+  function renderMax(){
+    var t = textValue();
+    var vh = viewer.clientHeight;
+    var vw = viewer.clientWidth;
+    var size = Math.max(72, Math.floor(vh * .78));
+    fixedText.textContent = t;
+    fixedText.style.fontSize = size + "px";
+    requestAnimationFrame(function(){
+      var w = fixedText.getBoundingClientRect().width;
+      if(w <= vw * .94) return;
+      viewer.classList.add("scrolling");
+      scrollText.textContent = t;
+      scrollText.style.fontSize = size + "px";
+      requestAnimationFrame(function(){
+        var tw = scrollText.getBoundingClientRect().width;
+        var duration = Math.max(2.8, (vw + tw) / scrollSpeed);
+        scrollText.style.setProperty("--tw", tw + "px");
+        scrollText.style.setProperty("--dur", duration.toFixed(2) + "s");
+        void scrollText.offsetWidth;
+        scrollText.classList.add("run");
+      });
+    });
+  }
+
+  function setSpeed(level){
+    if(level === 1) scrollSpeed = 170;
+    if(level === 2) scrollSpeed = 250;
+    if(level === 3) scrollSpeed = 340;
+    speed1Btn.classList.toggle("on", level === 1);
+    speed2Btn.classList.toggle("on", level === 2);
+    speed3Btn.classList.toggle("on", level === 3);
+  }
+
+  fitBtn.onclick = function(){ openViewer("fit"); };
+  maxBtn.onclick = function(){ openViewer("max"); };
+  verticalBtn.onclick = function(){ openViewer("vertical"); };
+  function setCaseMode(useCaps){
+    isCaps = useCaps;
+    originalCaseBtn.classList.toggle("on", !isCaps);
+    capsBtn.classList.toggle("on", isCaps);
+  }
+  originalCaseBtn.onclick = function(){ setCaseMode(false); };
+  capsBtn.onclick = function(){ setCaseMode(true); };
+  speed1Btn.onclick = function(){ setSpeed(1); };
+  speed2Btn.onclick = function(){ setSpeed(2); };
+  speed3Btn.onclick = function(){ setSpeed(3); };
+  presetButtons.forEach(function(btn){
+    btn.onclick = function(){ setPreset(btn.getAttribute('data-preset')); };
+  });
+  fontButtons.forEach(function(btn){
+    btn.onclick = function(){ setFont(btn.getAttribute('data-font')); };
+  });
+  viewer.onclick = closeViewer;
+  passenger.addEventListener("keydown", function(e){ if(e.key === "Enter"){ e.preventDefault(); openViewer("fit"); } });
+  window.addEventListener("resize", function(){
+    if(!currentMode) return;
+    clearTimeout(window.__cdTimer);
+    window.__cdTimer = setTimeout(function(){
+      clean();
+      if(currentMode === "fit") renderFit();
+      else if(currentMode === "max") renderMax();
+      else renderVertical();
+    }, 120);
+  });
+  document.addEventListener("visibilitychange", function(){
+    if(document.visibilityState === "visible" && currentMode) requestWake();
+  });
+})();
+</script>
+</body>
+</html>
