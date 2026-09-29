@@ -70,7 +70,7 @@ function airport(a: any) {
   };
 }
 
-function normalizeFlight(f: any) {
+function normalizeFlight(f: any, targetDate:string|null) {
   let status = f.status || "";
   if (!status) {
     if (f.cancelled) status = "Cancellato";
@@ -99,7 +99,38 @@ function normalizeFlight(f: any) {
     gate_origin: f.gate_origin || null,
     terminal_destination: f.terminal_destination || null,
     gate_destination: f.gate_destination || null,
-    progress_percent: f.progress_percent ?? null
+    progress_percent: f.progress_percent ?? null,
+    target_date: targetDate
+  };
+}
+
+function romeDate(value:any):string|null{
+  if(!value) return null;
+  const d=new Date(value);
+  if(isNaN(d.getTime())) return null;
+  const parts=new Intl.DateTimeFormat("en-CA",{
+    timeZone:"Europe/Rome",year:"numeric",month:"2-digit",day:"2-digit"
+  }).formatToParts(d);
+  const get=(t:string)=>parts.find(x=>x.type===t)?.value||"";
+  return get("year")+"-"+get("month")+"-"+get("day");
+}
+
+function validDate(v:string){
+  return /^20\d{2}-\d{2}-\d{2}$/.test(v);
+}
+
+function broadRange(targetDate:string|null){
+  const now=new Date();
+  if(!targetDate){
+    return {
+      start:new Date(now.getTime()-24*3600000).toISOString(),
+      end:new Date(now.getTime()+72*3600000).toISOString()
+    };
+  }
+  const [y,m,d]=targetDate.split("-").map(Number);
+  return {
+    start:new Date(Date.UTC(y,m-1,d-1,0,0,0)).toISOString(),
+    end:new Date(Date.UTC(y,m-1,d+2,0,0,0)).toISOString()
   };
 }
 
@@ -132,6 +163,8 @@ Deno.serve(async (req: Request) => {
   const ident = (url.searchParams.get("ident") || "")
     .toUpperCase()
     .replace(/\s+/g, "");
+  const requestedDate=(url.searchParams.get("date")||"").trim();
+  const targetDate=validDate(requestedDate)?requestedDate:null;
 
   if (!/^[A-Z0-9]{2,10}$/.test(ident)) {
     return json({ error: "invalid_ident" }, 400, origin);
@@ -164,10 +197,13 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
+    const range=broadRange(targetDate);
     const endpoint =
       "https://aeroapi.flightaware.com/aeroapi/flights/" +
       encodeURIComponent(ident) +
-      "?max_pages=1";
+      "?start="+encodeURIComponent(range.start)+
+      "&end="+encodeURIComponent(range.end)+
+      "&max_pages=1";
 
     const upstream = await fetch(endpoint, {
       headers: {
@@ -186,10 +222,17 @@ Deno.serve(async (req: Request) => {
       }, upstream.status, origin);
     }
 
-    const flights = Array.isArray(raw?.flights) ? raw.flights : [];
+    let flights = Array.isArray(raw?.flights) ? raw.flights : [];
+
+    if(targetDate){
+      flights=flights.filter((f:any)=>{
+        const ref=f.estimated_in||f.scheduled_in||f.estimated_out||f.scheduled_out;
+        return romeDate(ref)===targetDate;
+      });
+    }
 
     if (!flights.length) {
-      return json({ error: "flight_not_found", ident }, 404, origin);
+      return json({ error: targetDate?"flight_not_found_for_date":"flight_not_found", ident, target_date:targetDate }, 404, origin);
     }
 
     const now = Date.now();
@@ -199,7 +242,8 @@ Deno.serve(async (req: Request) => {
 
     return json({
       provider: "FlightAware",
-      flight: normalizeFlight(best)
+      target_date:targetDate,
+      flight: normalizeFlight(best,targetDate)
     }, 200, origin);
   } catch (error) {
     return json({
