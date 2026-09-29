@@ -541,6 +541,22 @@ h1{
   .productsNote{display:none}
   .productCard{flex-basis:168px}
 }
+.dailyBackdrop{display:none;position:fixed;inset:0;z-index:120;background:rgba(0,0,0,.72);backdrop-filter:blur(5px)}
+.dailyBackdrop.show{display:block}
+.dailyKmSheet{display:none;position:fixed;z-index:130;top:max(14px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);width:min(560px,calc(100% - 24px));padding:20px;border:1px solid #3a4047;border-radius:22px;background:linear-gradient(180deg,#1b1f24,#15181c);box-shadow:0 24px 80px rgba(0,0,0,.55)}
+.dailyKmSheet.show{display:block}
+.dailyEyebrow{font-size:10px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#7f8994}
+.dailyTitle{margin-top:5px;font-size:26px;font-weight:950;letter-spacing:-.03em}
+.dailySub{margin-top:6px;color:#8a929a;font-size:12px;line-height:1.4}
+.dailyGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.dailyField{display:grid;gap:7px}
+.dailyField label{font-size:9px;color:#7c858d;font-weight:900;text-transform:uppercase;letter-spacing:.08em}
+.dailyField select,.dailyField input{width:100%;height:52px;border:1px solid #3b424a;border-radius:14px;background:#0f1215;color:#fff;padding:0 13px;font:inherit;font-weight:850;outline:none}
+.dailyField input:focus,.dailyField select:focus{border-color:#6b7681}
+.dailySave{width:100%;height:52px;margin-top:12px;border:0;border-radius:14px;background:#fff;color:#111;font-weight:950}
+.dailyError{display:none;margin-top:9px;color:#ff9e9a;font-size:11px;font-weight:750}
+.dailyError.show{display:block}
+@media(max-width:560px){.dailyGrid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -742,9 +758,28 @@ h1{
       </div>
     </section>
 
-    <div class="footer">MAINPAGE · STEERWILL V4.3</div>
+    <div class="footer">MAINPAGE · STEERWILL V4.4</div>
   </section>
 </main>
+
+<div id="dailyKmBackdrop" class="dailyBackdrop"></div>
+<div id="dailyKmSheet" class="dailyKmSheet" role="dialog" aria-modal="true" aria-labelledby="dailyKmTitle">
+  <div class="dailyEyebrow">Inizio giornata</div>
+  <div id="dailyKmTitle" class="dailyTitle">Con che mezzo parti?</div>
+  <div class="dailySub">Seleziona il veicolo e inserisci i chilometri attuali. SteerWill aggiornerà automaticamente manutenzione e scadenze chilometriche.</div>
+  <div class="dailyGrid">
+    <div class="dailyField">
+      <label for="dailyVehicleSelect">Veicolo</label>
+      <select id="dailyVehicleSelect"></select>
+    </div>
+    <div class="dailyField">
+      <label for="dailyKmInput">Km attuali</label>
+      <input id="dailyKmInput" type="number" min="0" step="1" inputmode="numeric" placeholder="Es. 85000">
+    </div>
+  </div>
+  <div id="dailyKmError" class="dailyError"></div>
+  <button id="dailyKmSave" class="dailySave" type="button">Inizia giornata</button>
+</div>
 
 <script>
 (function(){
@@ -818,34 +853,135 @@ h1{
     return '<div class="vehicleDeadline '+x.cls+'"><div class="vehicleDeadlineName">'+esc(name)+'</div><div class="vehicleDeadlineDate">'+esc(x.date)+'</div></div>';
   }
 
-  var vehicleHost=document.getElementById("vehicleHomeList");
-  if(vehicleHost){
-    var vehicles=[];
-    try{vehicles=JSON.parse(localStorage.getItem("codriver_vehicles_v1")||"[]");}catch(e){}
-    vehicles=Array.isArray(vehicles)?vehicles:[];
+  var VEHICLE_KEY="codriver_vehicles_v1";
+  var ACTIVE_VEHICLE_KEY="codriver_active_vehicle_v1";
+  var DAILY_CHECK_KEY="codriver_daily_vehicle_check_v1";
+  var KM_HISTORY_KEY="codriver_vehicle_km_history_v1";
+
+  function readVehicles(){
+    try{
+      var x=JSON.parse(localStorage.getItem(VEHICLE_KEY)||"[]");
+      return Array.isArray(x)?x:[];
+    }catch(e){return [];}
+  }
+
+  function renderVehiclesHome(){
+    var vehicleHost=document.getElementById("vehicleHomeList");
+    if(!vehicleHost) return;
+    var vehicles=readVehicles();
     if(!vehicles.length){
       vehicleHost.innerHTML='<a class="vehicleMini" href="veicolo.html"><div class="vehicleHomeEmpty">Nessun veicolo inserito · aggiungi il primo mezzo →</div></a>';
-    }else{
-      vehicleHost.innerHTML=vehicles.map(function(v){
-        var km=Number(v.km||0);
-        var maint=[];
-        if(v.serviceKm) maint.push("Tagliando "+Number(v.serviceKm).toLocaleString("it-IT")+" km");
-        if(v.tyresKm) maint.push("Gomme "+Number(v.tyresKm).toLocaleString("it-IT")+" km");
-        return '<a class="vehicleMini" href="veicolo.html">'+
-          '<div class="vehicleMiniTop"><div><div class="vehicleMiniPlate">'+esc(v.plate||"SENZA TARGA")+'</div>'+
-          '<div class="vehicleMiniModel">'+esc(v.model||"Modello non inserito")+'</div></div>'+
-          '<div class="vehicleMiniKm">'+(km?km.toLocaleString("it-IT"):"—")+'<span>km</span></div></div>'+
-          '<div class="vehicleDeadlineGrid">'+
-            vehicleDeadline("Assicurazione",v.insurance)+
-            vehicleDeadline("Revisione",v.revision)+
-            vehicleDeadline("ZTL",v.ztl)+
-            vehicleDeadline("Bollo",v.tax)+
-          '</div>'+
-          (maint.length?'<div class="vehicleMiniMaint">'+esc(maint.join(" · "))+'</div>':"")+
-        '</a>';
-      }).join("");
+      return;
     }
+    vehicleHost.innerHTML=vehicles.map(function(v){
+      var km=Number(v.km||0);
+      var maint=[];
+      if(v.serviceKm) maint.push("Tagliando "+Number(v.serviceKm).toLocaleString("it-IT")+" km");
+      if(v.tyresKm) maint.push("Gomme "+Number(v.tyresKm).toLocaleString("it-IT")+" km");
+      return '<a class="vehicleMini" href="veicolo.html">'+
+        '<div class="vehicleMiniTop"><div><div class="vehicleMiniPlate">'+esc(v.plate||"SENZA TARGA")+'</div>'+
+        '<div class="vehicleMiniModel">'+esc(v.model||"Modello non inserito")+'</div></div>'+
+        '<div class="vehicleMiniKm">'+(km?km.toLocaleString("it-IT"):"—")+'<span>km</span></div></div>'+
+        '<div class="vehicleDeadlineGrid">'+
+          vehicleDeadline("Assicurazione",v.insurance)+
+          vehicleDeadline("Revisione",v.revision)+
+          vehicleDeadline("ZTL",v.ztl)+
+          vehicleDeadline("Bollo",v.tax)+
+        '</div>'+
+        (maint.length?'<div class="vehicleMiniMaint">'+esc(maint.join(" · "))+'</div>':"")+
+      '</a>';
+    }).join("");
   }
+
+  function localDayKey(){
+    var d=new Date();
+    return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  }
+
+  function openDailyKm(){
+    var vehicles=readVehicles();
+    if(!vehicles.length) return;
+
+    var today=localDayKey();
+    try{
+      var done=JSON.parse(localStorage.getItem(DAILY_CHECK_KEY)||"{}");
+      if(done && done.date===today) return;
+    }catch(e){}
+
+    var select=document.getElementById("dailyVehicleSelect");
+    var input=document.getElementById("dailyKmInput");
+    var active=localStorage.getItem(ACTIVE_VEHICLE_KEY)||"";
+    select.innerHTML=vehicles.map(function(v){
+      var name=[v.plate,v.model].filter(Boolean).join(" · ")||"Veicolo";
+      return '<option value="'+esc(v.id)+'">'+esc(name)+'</option>';
+    }).join("");
+
+    if(active && vehicles.some(function(v){return v.id===active;})) select.value=active;
+
+    function syncKm(){
+      var v=vehicles.find(function(x){return x.id===select.value;});
+      input.value=v&&Number(v.km||0)>0?String(Number(v.km)):"";
+      input.min=v&&Number(v.km||0)>0?String(Number(v.km)): "0";
+    }
+    select.onchange=syncKm;
+    syncKm();
+
+    document.getElementById("dailyKmBackdrop").classList.add("show");
+    document.getElementById("dailyKmSheet").classList.add("show");
+    setTimeout(function(){input.focus();input.select();},80);
+  }
+
+  document.getElementById("dailyKmSave").onclick=function(){
+    var select=document.getElementById("dailyVehicleSelect");
+    var input=document.getElementById("dailyKmInput");
+    var error=document.getElementById("dailyKmError");
+    var km=Math.round(Number(input.value));
+    var vehicles=readVehicles();
+    var vehicle=vehicles.find(function(v){return v.id===select.value;});
+
+    if(!vehicle || !Number.isFinite(km) || km<0){
+      error.textContent="Inserisci i chilometri attuali.";
+      error.classList.add("show");
+      return;
+    }
+    if(Number(vehicle.km||0)>0 && km<Number(vehicle.km)){
+      error.textContent="I chilometri non possono essere inferiori all'ultimo valore registrato ("+Number(vehicle.km).toLocaleString("it-IT")+" km).";
+      error.classList.add("show");
+      return;
+    }
+
+    error.classList.remove("show");
+    vehicles=vehicles.map(function(v){
+      if(v.id===vehicle.id){
+        var copy=Object.assign({},v);
+        copy.km=km;
+        return copy;
+      }
+      return v;
+    });
+    localStorage.setItem(VEHICLE_KEY,JSON.stringify(vehicles));
+    localStorage.setItem(ACTIVE_VEHICLE_KEY,vehicle.id);
+    localStorage.setItem(DAILY_CHECK_KEY,JSON.stringify({date:localDayKey(),vehicleId:vehicle.id,km:km,ts:Date.now()}));
+
+    var history=[];
+    try{history=JSON.parse(localStorage.getItem(KM_HISTORY_KEY)||"[]");}catch(e){}
+    history=Array.isArray(history)?history:[];
+    history.unshift({date:localDayKey(),vehicleId:vehicle.id,km:km,ts:Date.now()});
+    localStorage.setItem(KM_HISTORY_KEY,JSON.stringify(history.slice(0,365)));
+
+    try{
+      var prefs=JSON.parse(localStorage.getItem("codriver_quote_costs_v1")||"{}");
+      prefs.vehicleId=vehicle.id;
+      localStorage.setItem("codriver_quote_costs_v1",JSON.stringify(prefs));
+    }catch(e){}
+
+    document.getElementById("dailyKmBackdrop").classList.remove("show");
+    document.getElementById("dailyKmSheet").classList.remove("show");
+    renderVehiclesHome();
+  };
+
+  renderVehiclesHome();
+  openDailyKm();
 })();
 </script>
 </body>
