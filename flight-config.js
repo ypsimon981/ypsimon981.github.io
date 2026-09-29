@@ -6,3 +6,5 @@ window.CODRIVER_SUPABASE_PUBLIC_KEY = "sb_publishable_IYGuSSUStiK95becoD-OQQ_aj_
 window.CODRIVER_FLIGHT_PROVIDER = "FlightAware";
 
 window.CODRIVER_SHIPS_API = "https://bboijzuzhgvfxqrsfatw.supabase.co/functions/v1/ships";
+
+window.CODRIVER_TRAINS_API = "https://bboijzuzhgvfxqrsfatw.supabase.co/functions/v1/trains";
