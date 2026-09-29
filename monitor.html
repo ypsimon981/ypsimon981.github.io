@@ -144,6 +144,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     }
     if(item.kind==="train"){
       var t=item.data;
+      if(t.service_ts) return Number(t.service_ts)||0;
       var now=new Date();
       var parts=String(t.estimated||t.scheduled||"23:59").split(":");
       now.setHours(Number(parts[0]||23),Number(parts[1]||59),0,0);
@@ -340,7 +341,11 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
 
         updated=updated.map(function(old){
           if((old.station_slug||"roma_termini")!==stationSlug||(old.mode||"departures")!==mode) return old;
-          var match=data.items.find(function(x){return String(x.train)===String(old.train);});
+          var match=data.items.find(function(x){
+            if(String(x.train)!==String(old.train)) return false;
+            if(old.service_date && x.service_date) return String(x.service_date)===String(old.service_date);
+            return true;
+          });
           if(!match) return old;
           match.station=old.station||data.station||"";
           match.station_slug=stationSlug;
