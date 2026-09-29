@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#090909">
+<meta name="theme-color" content="#0c0d0f">
 <title>SteerWill</title>
 <link rel="icon" type="image/svg+xml" href="assets/steerwill-icon.svg?v=1">
 <style>
@@ -317,6 +317,12 @@ h1{
 }
 .utilityTile .iconWrap{width:46px;height:46px}
 .utilityTile .icon{width:34px;height:34px}
+.alertTile{
+  background:linear-gradient(135deg,#1d252f 0%,#1c2127 100%);
+  border-color:#314151;
+}
+.alertTile .iconWrap{color:#9bbce7}
+.alertTile .tileMeta{color:#77899d}
 .savedQuotesHome{
   margin-top:12px;
   padding:16px;
@@ -624,7 +630,7 @@ h1{
           </span>
         </a>
 
-        <a class="utilityTile" href="monitor.html">
+        <a class="utilityTile alertTile" href="monitor.html">
           <span class="iconWrap" aria-hidden="true">
             <svg class="icon" viewBox="0 0 64 64">
               <rect x="8" y="11" width="48" height="37" rx="5"/>
