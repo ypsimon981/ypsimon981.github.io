@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#090909">
-<title>CoDriver · Preventivo rapido</title>
+<title>SteerWill · Preventivo rapido</title>
+<link rel="icon" type="image/webp" href="assets/steerwill-icon.webp">
 <style>
 :root{--bg:#090909;--panel:#171717;--panel2:#222;--line:#353535;--text:#f7f7f7;--muted:#858585;--yellow:#f3d500}
 *{box-sizing:border-box}
@@ -72,7 +73,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
 <body>
 <main class="page">
   <div class="topbar">
-    <div class="brand">CODRIVER · PREVENTIVO</div>
+    <div class="brand">STEERWILL · PREVENTIVO</div>
     <div class="topActions">
       <button id="settingsBtn" class="settingsBtn" type="button">Impostazioni</button>
       <a class="pillLink" href="index.html">← Home</a>
@@ -81,7 +82,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
 
   <section class="hero">
     <h1>Preventivo rapido</h1>
-    <p class="sub">Inserisci partenza e destinazione. CoDriver calcola i km stradali e applica la tua tariffa.</p>
+    <p class="sub">Inserisci partenza e destinazione. SteerWill calcola i km stradali e applica la tua tariffa.</p>
 
     <div class="routeForm">
       <div class="field">
@@ -216,10 +217,10 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     calculateBtn.textContent="Calcolo…";
 
     try{
-      var url=window.CODRIVER_QUOTE_API+"?from="+encodeURIComponent(from)+"&to="+encodeURIComponent(to);
+      var url=window.STEERWILL_QUOTE_API+"?from="+encodeURIComponent(from)+"&to="+encodeURIComponent(to);
       var res=await fetch(url,{
         cache:"no-store",
-        headers:{"apikey":window.CODRIVER_SUPABASE_PUBLIC_KEY||""}
+        headers:{"apikey":window.STEERWILL_SUPABASE_PUBLIC_KEY||""}
       });
       var data=await res.json().catch(function(){return {};});
       if(!res.ok) throw new Error(data.error||"api");
@@ -252,7 +253,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     var rate=getRate();
     var total=Number(lastQuote.distance_km||0)*rate;
     var text=
-      "Preventivo CoDriver\n"+
+      "Preventivo SteerWill\n"+
       "Da: "+((lastQuote.from&&lastQuote.from.label)||fromInput.value)+"\n"+
       "A: "+((lastQuote.to&&lastQuote.to.label)||toInput.value)+"\n"+
       "Distanza: "+lastQuote.distance_km+" km\n"+
