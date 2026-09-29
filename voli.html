@@ -91,7 +91,7 @@ h1{margin:0;font-size:clamp(40px,8vw,68px);line-height:.94;letter-spacing:-.045e
       <button type="button" data-flight="AZ61">AZ61</button>
       <button type="button" data-flight="FR9981">FR9981</button>
     </div>
-    <div id="modeNotice" class="notice">Interfaccia pronta. I dati live verranno letti tramite FlightAware quando colleghiamo il proxy API server-side.</div>
+    <div id="modeNotice" class="notice">Dati live FlightAware attivi. Cerca il numero del volo e aggiungilo al Monitor.</div>
   </section>
 
   <section id="result" class="result">
@@ -146,56 +146,6 @@ h1{margin:0;font-size:clamp(40px,8vw,68px);line-height:.94;letter-spacing:-.045e
     return String(v||"").toUpperCase().replace(/\s+/g,"").trim();
   }
 
-  function todayIsoAt(hour,minute){
-    var d = new Date();
-    d.setHours(hour,minute,0,0);
-    return d.toISOString();
-  }
-
-  function demoFlight(ident){
-    var id = normalizeIdent(ident);
-    if(id === "AZ61"){
-      return {
-        ident:"AZ61",
-        airline:"ITA Airways",
-        origin:{code:"MAD",name:"Madrid"},
-        destination:{code:"FCO",name:"Roma Fiumicino"},
-        scheduled_in:todayIsoAt(12,0),
-        estimated_in:todayIsoAt(12,0),
-        terminal_destination:"1",
-        gate_destination:"—",
-        status:"Programmato",
-        demo:true
-      };
-    }
-    if(id === "FR9981"){
-      return {
-        ident:"FR9981",
-        airline:"Ryanair",
-        origin:{code:"WRO",name:"Wroclaw"},
-        destination:{code:"LIS",name:"Lisbona"},
-        scheduled_in:todayIsoAt(10,10),
-        estimated_in:todayIsoAt(10,10),
-        terminal_destination:"—",
-        gate_destination:"—",
-        status:"Programmato",
-        demo:true
-      };
-    }
-    return {
-      ident:id || "—",
-      airline:"Dati live da collegare",
-      origin:{code:"—",name:"Origine"},
-      destination:{code:"—",name:"Destinazione"},
-      scheduled_in:null,
-      estimated_in:null,
-      terminal_destination:"—",
-      gate_destination:"—",
-      status:"In attesa dati",
-      demo:true
-    };
-  }
-
   function formatTime(v){
     if(!v) return "—";
     var d = new Date(v);
@@ -227,7 +177,7 @@ h1{margin:0;font-size:clamp(40px,8vw,68px);line-height:.94;letter-spacing:-.045e
     currentFlight = f;
     document.getElementById("ident").textContent = f.ident || "—";
     document.getElementById("airline").textContent = f.airline || "—";
-    document.getElementById("statusBadge").textContent = f.demo ? (f.status + " · DEMO") : (f.status || "—");
+    document.getElementById("statusBadge").textContent = f.status || "—";
     document.getElementById("originCode").textContent = (f.origin&&f.origin.code)||"—";
     document.getElementById("originName").textContent = (f.origin&&f.origin.name)||"Origine";
     document.getElementById("destinationCode").textContent = (f.destination&&f.destination.code)||"—";
@@ -242,26 +192,25 @@ h1{margin:0;font-size:clamp(40px,8vw,68px);line-height:.94;letter-spacing:-.045e
 
   function normalizeApiFlight(data, ident){
     var f = data && data.flight ? data.flight : data;
-    if(!f) return demoFlight(ident);
+    if(!f) throw new Error("flight_not_found");
     return {
-      ident:f.ident_iata || f.ident || ident,
-      airline:f.operator_name || f.operator || "",
+      ident:f.ident || ident,
+      airline:f.airline || "",
       origin:{
-        code:(f.origin&&(f.origin.code_iata||f.origin.code)) || f.origin_iata || f.origin || "—",
+        code:(f.origin&&f.origin.code) || "—",
         name:(f.origin&&(f.origin.name||f.origin.city)) || "Origine"
       },
       destination:{
-        code:(f.destination&&(f.destination.code_iata||f.destination.code)) || f.destination_iata || f.destination || "—",
+        code:(f.destination&&f.destination.code) || "—",
         name:(f.destination&&(f.destination.name||f.destination.city)) || "Destinazione"
       },
       scheduled_in:f.scheduled_in || null,
-      estimated_in:f.estimated_in || f.estimated_on || null,
+      estimated_in:f.estimated_in || null,
       actual_in:f.actual_in || null,
-      terminal_destination:f.terminal_destination || f.terminal_dest || "—",
-      gate_destination:f.gate_destination || f.gate_dest || "—",
-      status:f.status || (f.cancelled ? "Cancellato" : f.actual_in ? "Arrivato" : f.actual_off ? "In volo" : "Programmato"),
-      fa_flight_id:f.fa_flight_id || "",
-      demo:false
+      terminal_destination:f.terminal_destination || "—",
+      gate_destination:f.gate_destination || "—",
+      status:f.status || "—",
+      fa_flight_id:f.fa_flight_id || ""
     };
   }
 
@@ -273,16 +222,32 @@ h1{margin:0;font-size:clamp(40px,8vw,68px);line-height:.94;letter-spacing:-.045e
 
     try{
       if(window.CODRIVER_FLIGHT_API){
-        var res = await fetch(window.CODRIVER_FLIGHT_API + "?ident=" + encodeURIComponent(id),{cache:"no-store"});
-        if(!res.ok) throw new Error("api");
-        var data = await res.json();
+        var res = await fetch(window.CODRIVER_FLIGHT_API + "?ident=" + encodeURIComponent(id),{
+          cache:"no-store",
+          headers:{"apikey":window.CODRIVER_SUPABASE_PUBLIC_KEY || ""}
+        });
+        var data = await res.json().catch(function(){return {};});
+        if(!res.ok) throw new Error(data.error || "api");
         render(normalizeApiFlight(data,id));
       }else{
-        render(demoFlight(id));
+        throw new Error("config");
       }
     }catch(e){
-      render(demoFlight(id));
-      document.getElementById("statusBadge").textContent = "Dati live non disponibili";
+      currentFlight = null;
+      result.classList.add("show");
+      document.getElementById("ident").textContent = id;
+      document.getElementById("airline").textContent = "Volo non disponibile";
+      document.getElementById("statusBadge").textContent = "Nessun dato";
+      document.getElementById("originCode").textContent = "—";
+      document.getElementById("originName").textContent = "Origine";
+      document.getElementById("destinationCode").textContent = "—";
+      document.getElementById("destinationName").textContent = "Destinazione";
+      document.getElementById("scheduled").textContent = "—";
+      document.getElementById("estimated").textContent = "—";
+      document.getElementById("terminal").textContent = "—";
+      document.getElementById("gate").textContent = "—";
+      followBtn.textContent = "+ Segui nel Monitor";
+      followBtn.classList.remove("followed");
     }finally{
       searchBtn.disabled = false;
       searchBtn.textContent = "Cerca volo";
