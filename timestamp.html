@@ -6,7 +6,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#090909">
-<title>CoDriver · Timestamp</title>
+<title>SteerWill · Timestamp</title>
+<link rel="icon" type="image/webp" href="assets/steerwill-icon.webp">
 <style>
 :root{
   --bg:#090909;
@@ -338,7 +339,7 @@ h1{
 <body>
 <main class="page">
   <div class="topbar">
-    <div class="brand">CODRIVER · TIMESTAMP</div>
+    <div class="brand">STEERWILL · TIMESTAMP</div>
     <a class="home" href="index.html">← Home</a>
   </div>
 
@@ -371,7 +372,7 @@ h1{
     <div id="permissionOverlay" class="permissionOverlay">
       <div class="permissionCard">
         <strong>Servono fotocamera e posizione</strong>
-        <p>CoDriver usa la fotocamera per lo scatto e il GPS per imprimere coordinate, città, nazione e minimappa.</p>
+        <p>SteerWill usa la fotocamera per lo scatto e il GPS per imprimere coordinate, città, nazione e minimappa.</p>
         <button id="retryBtn" type="button">Attiva</button>
       </div>
     </div>
@@ -389,7 +390,7 @@ h1{
   </div>
   <div id="backupState" class="backupState">Backup locale automatico attivo.</div>
 
-  <p class="note">La foto finale include realmente la stampa in alto a destra e la minimappa in basso a sinistra. Su iPhone il salvataggio nel rullino passa dal pannello iOS; CoDriver conserva anche una copia locale automatica per evitare perdite accidentali.</p>
+  <p class="note">La foto finale include realmente la stampa in alto a destra e la minimappa in basso a sinistra. Su iPhone il salvataggio nel rullino passa dal pannello iOS; SteerWill conserva anche una copia locale automatica per evitare perdite accidentali.</p>
   <canvas id="canvas"></canvas>
 </main>
 
@@ -428,7 +429,7 @@ h1{
   var geocodeTimer = null;
   var watchId = null;
   var mapZoom = 15;
-  var DB_NAME = "CoDriverTimestamp";
+  var DB_NAME = "SteerWillTimestamp";
   var DB_STORE = "photos";
 
   function openPhotoDb(){
@@ -478,7 +479,7 @@ h1{
         keys.slice(25).forEach(function(key){ pruneStore.delete(key); });
       };
 
-      backupState.textContent = "✓ Copia salvata automaticamente in CoDriver";
+      backupState.textContent = "✓ Copia salvata automaticamente in SteerWill";
       backupState.classList.add("show");
       db.close();
       return true;
@@ -491,7 +492,7 @@ h1{
 
   function makeFilename(){
     var n = new Date();
-    return "CoDriver-Timestamp-" +
+    return "SteerWill-Timestamp-" +
       n.getFullYear() +
       pad(n.getMonth()+1) +
       pad(n.getDate()) + "-" +
@@ -875,7 +876,7 @@ h1{
     reviewControls.classList.remove("show");
     photoBlob = null;
     if(backupState.classList.contains("show")){
-      backupState.textContent = "L'ultimo scatto resta salvato nel backup locale di CoDriver.";
+      backupState.textContent = "L'ultimo scatto resta salvato nel backup locale di SteerWill.";
     }
     updateStatus();
   }
@@ -888,7 +889,7 @@ h1{
 
     try{
       if(navigator.canShare && navigator.canShare({files:[file]}) && navigator.share){
-        await navigator.share({files:[file],title:"CoDriver Timestamp"});
+        await navigator.share({files:[file],title:"SteerWill Timestamp"});
         backupState.textContent = "Dal pannello iOS scegli “Salva immagine” per inserirla nel rullino.";
         backupState.classList.add("show");
         return;
