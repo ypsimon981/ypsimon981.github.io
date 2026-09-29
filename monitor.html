@@ -30,6 +30,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
 .secondaryText{margin-top:3px;color:#888;font-size:12px;font-weight:700}
 .badge{padding:7px 10px;border-radius:999px;border:1px solid #414141;background:#292929;font-size:10px;font-weight:900;white-space:nowrap}
 .badge.ship{background:#3a340c;color:#f6dc58;border-color:#5e5312}
+.badge.train{background:#102f3a;color:#9fe6ff;border-color:#23566a}
 .route{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;padding:0 18px 14px}
 .code{font-size:27px;font-weight:950}
 .line{height:1px;background:#444;position:relative}
@@ -64,6 +65,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     <div class="brand">CODRIVER · MONITOR</div>
     <div class="topActions">
       <a class="pillLink" href="voli.html">+ Volo</a>
+      <a class="pillLink" href="treni.html">+ Treno</a>
       <a class="pillLink" href="navi.html">+ Nave</a>
       <a class="pillLink" href="index.html">← Home</a>
     </div>
@@ -72,21 +74,22 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
   <div class="head">
     <div>
       <h1>I miei viaggi</h1>
-      <p class="subtitle">Voli e navi che stai seguendo.</p>
+      <p class="subtitle">Voli, treni e navi che stai seguendo.</p>
     </div>
     <button id="refreshAll" class="refresh" type="button">Aggiorna</button>
   </div>
 
-  <div class="notice">Voli: dati live FlightAware. Navi: programmazione del porto selezionato quando la relativa fonte è collegata.</div>
+  <div class="notice">Voli: FlightAware live. Treni: tabelloni RFI live. Navi: programmazione del porto selezionato.</div>
   <div id="list" class="list"></div>
 </main>
 
-<script src="flight-config.js?v=ships6"></script>
+<script src="flight-config.js?v=trains1"></script>
 <script>
 (function(){
   "use strict";
 
   var FLIGHT_KEY = "codriver_monitored_flights_v1";
+  var TRAIN_KEY = "codriver_monitored_trains_v1";
   var SHIP_KEY = "codriver_monitored_ships_v1";
   var list = document.getElementById("list");
   var refreshAll = document.getElementById("refreshAll");
@@ -131,6 +134,13 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     if(item.kind==="flight"){
       return new Date(item.data.estimated_in||item.data.scheduled_in||0).getTime()||0;
     }
+    if(item.kind==="train"){
+      var t=item.data;
+      var now=new Date();
+      var parts=String(t.estimated||t.scheduled||"23:59").split(":");
+      now.setHours(Number(parts[0]||23),Number(parts[1]||59),0,0);
+      return now.getTime();
+    }
     var s=item.data;
     return new Date((s.date||"1970-01-01")+"T"+(s.arrival||s.departure||"23:59")+":00").getTime()||0;
   }
@@ -152,6 +162,26 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
         '<div class="cell"><div class="cellLabel">Terminal</div><div class="cellValue">'+escapeHtml(f.terminal_destination||"—")+'</div></div>'+
       '</div>'+
       '<div class="cardActions"><div class="meta">Gate '+escapeHtml(f.gate_destination||"—")+'</div><button class="remove" type="button" data-remove-flight="'+escapeHtml(f.ident)+'">Rimuovi</button></div>'+
+    '</article>';
+  }
+
+  function trainCard(t){
+    var place=t.mode==="arrivals"?(t.origin||"—"):(t.destination||"—");
+    var direction=t.mode==="arrivals"?"da":"per";
+    var delay=t.delay_minutes;
+    return '<article class="card">'+
+      '<div class="cardHead">'+
+        '<div><div class="ident">'+escapeHtml(t.train||"—")+'</div><div class="secondaryText">'+escapeHtml(t.operator||"")+'</div></div>'+
+        '<div class="badge train">TRENO · '+escapeHtml(t.status||"—")+'</div>'+
+      '</div>'+
+      '<div class="shipRoute">'+escapeHtml(t.station||"—")+' · '+direction+' '+escapeHtml(place)+'</div>'+
+      '<div class="times">'+
+        '<div class="cell"><div class="cellLabel">Orario</div><div class="cellValue">'+escapeHtml(t.scheduled||"—")+'</div></div>'+
+        '<div class="cell"><div class="cellLabel">Previsto</div><div class="cellValue">'+escapeHtml(t.estimated||"—")+'</div></div>'+
+        '<div class="cell"><div class="cellLabel">Ritardo</div><div class="cellValue '+(delay>0?"delay":"")+'">'+(delay==null?"—":delay>0?"+"+delay+" min":"0 min")+'</div></div>'+
+        '<div class="cell"><div class="cellLabel">Binario</div><div class="cellValue">'+escapeHtml(t.platform||"—")+'</div></div>'+
+      '</div>'+
+      '<div class="cardActions"><div class="meta">RFI Live</div><button class="remove" type="button" data-remove-train="'+escapeHtml(t.train)+'" data-train-station="'+escapeHtml(t.station_slug||"")+'" data-train-mode="'+escapeHtml(t.mode||"departures")+'">Rimuovi</button></div>'+
     '</article>';
   }
 
@@ -180,23 +210,38 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
 
   function render(){
     var flights=read(FLIGHT_KEY).map(function(x){return {kind:"flight",data:x};});
+    var trains=read(TRAIN_KEY).map(function(x){return {kind:"train",data:x};});
     var ships=read(SHIP_KEY).map(function(x){return {kind:"ship",data:x};});
-    var items=flights.concat(ships);
+    var items=flights.concat(trains,ships);
 
     if(!items.length){
-      list.innerHTML='<div class="empty"><strong>Nessun viaggio seguito</strong>Aggiungi un volo o una nave e comparirà qui.<div class="emptyActions"><a href="voli.html">+ Volo</a><a href="navi.html">+ Nave</a></div></div>';
+      list.innerHTML='<div class="empty"><strong>Nessun viaggio seguito</strong>Aggiungi un volo, un treno o una nave e comparirà qui.<div class="emptyActions"><a href="voli.html">+ Volo</a><a href="treni.html">+ Treno</a><a href="navi.html">+ Nave</a></div></div>';
       return;
     }
 
     items.sort(function(a,b){return sortTime(a)-sortTime(b);});
     list.innerHTML=items.map(function(item){
-      return item.kind==="flight" ? flightCard(item.data) : shipCard(item.data);
+      if(item.kind==="flight") return flightCard(item.data);
+      if(item.kind==="train") return trainCard(item.data);
+      return shipCard(item.data);
     }).join("");
 
     Array.prototype.forEach.call(document.querySelectorAll("[data-remove-flight]"),function(btn){
       btn.onclick=function(){
         var ident=btn.getAttribute("data-remove-flight");
         write(FLIGHT_KEY,read(FLIGHT_KEY).filter(function(f){return f.ident!==ident;}));
+        render();
+      };
+    });
+
+    Array.prototype.forEach.call(document.querySelectorAll("[data-remove-train]"),function(btn){
+      btn.onclick=function(){
+        var train=btn.getAttribute("data-remove-train");
+        var station=btn.getAttribute("data-train-station");
+        var mode=btn.getAttribute("data-train-mode");
+        write(TRAIN_KEY,read(TRAIN_KEY).filter(function(t){
+          return !(String(t.train)===train && String(t.station_slug||"")===station && String(t.mode||"departures")===mode);
+        }));
         render();
       };
     });
@@ -255,6 +300,46 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     write(FLIGHT_KEY,updated);
   }
 
+  async function refreshTrains(){
+    var followed=read(TRAIN_KEY);
+    if(!followed.length||!window.CODRIVER_TRAINS_API) return;
+
+    var groups={};
+    followed.forEach(function(t){
+      var key=(t.station_slug||"roma_termini")+"|"+(t.mode||"departures");
+      if(!groups[key]) groups[key]=[];
+      groups[key].push(t);
+    });
+
+    var updated=followed.slice();
+
+    for(var key in groups){
+      var bits=key.split("|");
+      var stationSlug=bits[0], mode=bits[1];
+      try{
+        var res=await fetch(window.CODRIVER_TRAINS_API+"?station="+encodeURIComponent(stationSlug)+"&mode="+encodeURIComponent(mode),{
+          cache:"no-store",
+          headers:{"apikey":window.CODRIVER_SUPABASE_PUBLIC_KEY||""}
+        });
+        var data=await res.json().catch(function(){return {};});
+        if(!res.ok||!Array.isArray(data.items)) continue;
+
+        updated=updated.map(function(old){
+          if((old.station_slug||"roma_termini")!==stationSlug||(old.mode||"departures")!==mode) return old;
+          var match=data.items.find(function(x){return String(x.train)===String(old.train);});
+          if(!match) return old;
+          match.station=old.station||data.station||"";
+          match.station_slug=stationSlug;
+          match.mode=mode;
+          match.followedAt=old.followedAt||Date.now();
+          return match;
+        });
+      }catch(e){}
+    }
+
+    write(TRAIN_KEY,updated);
+  }
+
   async function refreshShips(){
     var followed=read(SHIP_KEY);
     if(!followed.length||!window.CODRIVER_SHIPS_API) return;
@@ -298,7 +383,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
   async function refresh(){
     refreshAll.disabled=true;
     refreshAll.textContent="Aggiorno…";
-    await Promise.all([refreshFlights(),refreshShips()]);
+    await Promise.all([refreshFlights(),refreshTrains(),refreshShips()]);
     refreshAll.disabled=false;
     refreshAll.textContent="Aggiorna";
     render();
@@ -309,7 +394,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
   refresh();
 
   setInterval(async function(){
-    await refreshFlights();
+    await Promise.all([refreshFlights(),refreshTrains()]);
     render();
   },60000);
 })();
