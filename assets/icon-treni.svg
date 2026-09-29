@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Treni">
+  <rect width="256" height="256" rx="34" fill="#F2B426"/>
+  <g fill="#252931">
+    <path d="M45 137V92c0-19 12-34 33-42 18-7 40-10 60-10 22 0 44 3 62 11 20 9 31 24 31 43v43c0 14-8 25-22 31l-14 6H82l-15-6c-14-6-22-17-22-31zm38-57h90c8 0 14 5 18 12l10 20H63l10-20c4-7 10-12 20-12zm-18 50h130l-9 19c-3 7-9 11-17 11H91c-8 0-14-4-17-11l-9-19z"/>
+    <rect x="76" y="181" width="104" height="9" rx="4.5"/>
+    <rect x="58" y="197" width="140" height="8" rx="4"/>
+  </g>
+</svg>
