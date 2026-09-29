@@ -11,8 +11,8 @@
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",Arial,sans-serif}
 body{min-height:100dvh}
-a,button,input{-webkit-tap-highlight-color:transparent}
-button,input{font:inherit}
+a,button,input,select{-webkit-tap-highlight-color:transparent}
+button,input,select{font:inherit}
 .page{width:min(880px,100%);margin:0 auto;padding:14px 14px calc(24px + env(safe-area-inset-bottom))}
 .topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:18px}
 .brand{font-size:13px;font-weight:850;letter-spacing:.15em;color:#aaa}
@@ -23,7 +23,11 @@ button,input{font:inherit}
 h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045em}
 .provider{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#777;text-align:right;font-weight:850}
 .provider strong{display:block;margin-top:4px;color:#d5d5d5;font-size:11px}
-.search{display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:20px}
+.portSelect{margin-top:18px}
+.portSelect label{display:block;margin:0 0 7px;color:#7e7e7e;font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
+.portSelect select{width:100%;height:54px;border:1px solid #3a3a3a;border-radius:16px;background:#101010;color:#fff;padding:0 14px;font-size:16px;font-weight:850;outline:none}
+.portSelect select:focus{border-color:#777}
+.search{display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:12px}
 .search input{min-width:0;height:56px;border:1px solid #3a3a3a;border-radius:16px;background:#0f0f0f;color:#fff;padding:0 16px;font-size:19px;font-weight:800;outline:none}
 .search input:focus{border-color:#777}
 .search button{height:56px;border:0;border-radius:16px;background:var(--yellow);color:#111;padding:0 18px;font-weight:900}
@@ -77,7 +81,35 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
   <section class="hero">
     <div class="heroTop">
       <div><h1>Navi</h1></div>
-      <div class="provider">Porto<strong>Civitavecchia</strong></div>
+      <div class="provider">Porto<strong id="portName">Civitavecchia</strong></div>
+    </div>
+
+    <div class="portSelect">
+      <label for="portSelect">Porto crocieristico</label>
+      <select id="portSelect">
+        <option value="civitavecchia">Civitavecchia (Roma)</option>
+        <option value="ancona">Ancona</option>
+        <option value="bari">Bari</option>
+        <option value="brindisi">Brindisi</option>
+        <option value="cagliari">Cagliari</option>
+        <option value="catania">Catania</option>
+        <option value="genova">Genova</option>
+        <option value="laspezia">La Spezia</option>
+        <option value="livorno">Livorno</option>
+        <option value="messina">Messina</option>
+        <option value="napoli">Napoli</option>
+        <option value="olbia">Olbia</option>
+        <option value="palermo">Palermo</option>
+        <option value="portoferraio">Portoferraio</option>
+        <option value="ravenna">Ravenna</option>
+        <option value="salerno">Salerno</option>
+        <option value="savona">Savona</option>
+        <option value="siracusa">Siracusa</option>
+        <option value="taranto">Taranto</option>
+        <option value="trapani">Trapani</option>
+        <option value="trieste">Trieste</option>
+        <option value="venezia">Venezia</option>
+      </select>
     </div>
 
     <div class="search">
@@ -90,7 +122,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
       <button id="weekBtn" type="button">Programmazione</button>
     </div>
 
-    <div class="notice">Orari di banchina e attracco da Port Mobility Civitavecchia. Gli orari possono subire variazioni operative.</div>
+    <div id="sourceNotice" class="notice">Orari di banchina e attracco da Port Mobility Civitavecchia. Gli orari possono subire variazioni operative.</div>
   </section>
 
   <div class="sectionHead">
@@ -103,12 +135,13 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
   </div>
 </main>
 
-<script src="flight-config.js?v=ships3"></script>
+<script src="flight-config.js?v=ships4"></script>
 <script>
 (function(){
   "use strict";
 
   var STORAGE_KEY = "codriver_monitored_ships_v1";
+  var PORT_KEY = "codriver_ship_port_v1";
   var list = document.getElementById("list");
   var count = document.getElementById("count");
   var sectionTitle = document.getElementById("sectionTitle");
@@ -116,8 +149,26 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
   var searchBtn = document.getElementById("searchBtn");
   var todayBtn = document.getElementById("todayBtn");
   var weekBtn = document.getElementById("weekBtn");
+  var portSelect = document.getElementById("portSelect");
+  var portName = document.getElementById("portName");
+  var sourceNotice = document.getElementById("sourceNotice");
   var mode = "today";
   var lastItems = [];
+  var selectedPort = localStorage.getItem(PORT_KEY) || "civitavecchia";
+
+  if(!Array.prototype.some.call(portSelect.options,function(o){return o.value===selectedPort;})){
+    selectedPort = "civitavecchia";
+  }
+  portSelect.value = selectedPort;
+
+  function currentPortLabel(){
+    var option = portSelect.options[portSelect.selectedIndex];
+    return option ? option.text.replace(" (Roma)","") : "Civitavecchia";
+  }
+
+  function updatePortHeader(){
+    portName.textContent = currentPortLabel();
+  }
 
   function localDateISO(){
     var d = new Date();
@@ -175,7 +226,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
           '<div class="timeCell"><div class="timeLabel">Arrivo</div><div class="timeValue">'+escapeHtml(s.arrival||"—")+'</div></div>' +
           '<div class="timeCell"><div class="timeLabel">Partenza</div><div class="timeValue">'+escapeHtml(s.departure||"—")+'</div></div>' +
         '</div>' +
-        '<div class="cardActions"><div class="port">Civitavecchia</div><button class="follow '+(followed?"followed":"")+'" type="button" data-follow="'+escapeHtml(s.id)+'">'+(followed?"✓ Nel Monitor":"+ Segui")+'</button></div>' +
+        '<div class="cardActions"><div class="port">'+escapeHtml(s.port||currentPortLabel())+'</div><button class="follow '+(followed?"followed":"")+'" type="button" data-follow="'+escapeHtml(s.id)+'">'+(followed?"✓ Nel Monitor":"+ Segui")+'</button></div>' +
       '</article>';
     }).join("");
 
@@ -203,7 +254,9 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     list.innerHTML = '<div class="empty"><strong>Aggiorno il porto…</strong></div>';
     count.textContent = "";
 
-    var qs = new URLSearchParams(params || {});
+    var query = Object.assign({},params||{});
+    query.port = selectedPort;
+    var qs = new URLSearchParams(query);
     try{
       var res = await fetch(window.CODRIVER_SHIPS_API + "?" + qs.toString(),{
         cache:"no-store",
@@ -211,6 +264,15 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
       });
       var data = await res.json().catch(function(){return {};});
       if(!res.ok) throw new Error(data.error||"api");
+
+      if(data.connected===false){
+        count.textContent = "";
+        sourceNotice.textContent = "Il porto è selezionabile, ma la sua fonte dati non è ancora collegata in questa demo.";
+        list.innerHTML = '<div class="empty"><strong>'+escapeHtml(data.port||currentPortLabel())+'</strong>Selezione pronta. La fonte ufficiale di questo porto verrà collegata al backend CoDriver.</div>';
+        return;
+      }
+
+      sourceNotice.textContent = "Orari di banchina e attracco da Port Mobility Civitavecchia. Gli orari possono subire variazioni operative.";
       var items = Array.isArray(data.items)?data.items:[];
       if(params && params.date && !items.length){
         weekBtn.classList.add("active");
@@ -229,7 +291,8 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     todayBtn.classList.add("active");
     weekBtn.classList.remove("active");
     shipInput.value = "";
-    sectionTitle.textContent = "Oggi a Civitavecchia";
+    updatePortHeader();
+    sectionTitle.textContent = "Oggi a " + currentPortLabel();
     load({date:localDateISO()});
   }
 
@@ -238,7 +301,8 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     weekBtn.classList.add("active");
     todayBtn.classList.remove("active");
     shipInput.value = "";
-    sectionTitle.textContent = "Programmazione porto";
+    updatePortHeader();
+    sectionTitle.textContent = "Programmazione · " + currentPortLabel();
     load({});
   }
 
@@ -247,9 +311,17 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     if(!q){ mode==="today" ? showToday() : showWeek(); return; }
     todayBtn.classList.remove("active");
     weekBtn.classList.remove("active");
-    sectionTitle.textContent = "Risultati per “"+q+"”";
+    sectionTitle.textContent = "“"+q+"” · " + currentPortLabel();
     load({q:q});
   }
+
+  portSelect.onchange = function(){
+    selectedPort = portSelect.value;
+    localStorage.setItem(PORT_KEY,selectedPort);
+    shipInput.value = "";
+    updatePortHeader();
+  showToday();
+  };
 
   todayBtn.onclick = showToday;
   weekBtn.onclick = showWeek;
