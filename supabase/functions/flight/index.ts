@@ -119,18 +119,11 @@ function validDate(v:string){
   return /^20\d{2}-\d{2}-\d{2}$/.test(v);
 }
 
-function broadRange(targetDate:string|null){
+function broadRange(){
   const now=new Date();
-  if(!targetDate){
-    return {
-      start:new Date(now.getTime()-24*3600000).toISOString(),
-      end:new Date(now.getTime()+72*3600000).toISOString()
-    };
-  }
-  const [y,m,d]=targetDate.split("-").map(Number);
   return {
-    start:new Date(Date.UTC(y,m-1,d-1,0,0,0)).toISOString(),
-    end:new Date(Date.UTC(y,m-1,d+2,0,0,0)).toISOString()
+    start:new Date(now.getTime()-24*3600000).toISOString(),
+    end:new Date(now.getTime()+47*3600000).toISOString()
   };
 }
 
@@ -197,7 +190,7 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const range=broadRange(targetDate);
+    const range=broadRange();
     const endpoint =
       "https://aeroapi.flightaware.com/aeroapi/flights/" +
       encodeURIComponent(ident) +
