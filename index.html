@@ -54,20 +54,20 @@ button{font:inherit}
   gap:16px;
 }
 .brand{
-  font-size:30px;
+  font-size:31px;
   font-weight:950;
   letter-spacing:-.035em;
   line-height:1;
-  margin-bottom:10px;
+  margin-bottom:0;
 }
 .brand .steer{color:#f7f7f7}
 .brand .will{color:#1168ff}
 .brandTag{
-  margin-top:5px;
-  color:#777;
+  margin-top:4px;
+  color:#818181;
   font-size:9px;
-  font-weight:800;
-  letter-spacing:.12em;
+  font-weight:760;
+  letter-spacing:.105em;
   text-transform:uppercase;
 }
 .profileChip{
@@ -81,24 +81,19 @@ button{font:inherit}
   white-space:nowrap;
 }
 h1{
-  margin:16px 0 0;
-  font-size:clamp(24px,4vw,30px);
-  font-weight:650;
-  line-height:1.08;
-  letter-spacing:-.02em;
-  color:#e8e8e8;
+  margin:14px 0 0;
+  font-size:13px;
+  font-weight:620;
+  line-height:1.1;
+  letter-spacing:.06em;
+  color:#a0a0a0;
+  text-transform:uppercase;
 }
 .sub{
-  margin:10px 0 24px;
-  min-height:44px;
+  margin:8px 0 24px;
   color:var(--muted);
-  font-size:16px;
+  font-size:15px;
   line-height:1.35;
-  transition:opacity .24s ease,transform .24s ease;
-}
-.sub.fadeOut{
-  opacity:0;
-  transform:translateY(3px);
 }
 .section{
   margin-top:20px;
@@ -125,22 +120,24 @@ h1{
   user-select:none;
 }
 .cartelloHero{
-  min-height:190px;
-  padding:28px;
+  min-height:132px;
+  padding:18px 20px 19px;
   flex-direction:column;
   justify-content:space-between;
-  background:#f4f4f1;
-  color:#090909;
-  border-color:#f4f4f1;
+  background:#d4cdbc;
+  color:#111;
+  border-color:#e0d8c7;
   cursor:pointer;
   transition:transform .12s ease,opacity .12s ease;
 }
 .cartelloHero:active{transform:scale(.99);opacity:.93}
-.cartelloTop{
+.cartelloTop{display:flex;align-items:center;justify-content:flex-start}
+.cartelloMain{
   display:flex;
-  align-items:flex-start;
+  align-items:center;
   justify-content:space-between;
   gap:18px;
+  margin-top:13px;
 }
 .cartelloEyebrow{
   font-size:11px;
@@ -150,17 +147,17 @@ h1{
   opacity:.48;
 }
 .cartelloIcon{
-  width:78px;
-  height:78px;
-  flex:0 0 78px;
+  width:62px;
+  height:62px;
+  flex:0 0 62px;
   border:1.5px solid rgba(0,0,0,.22);
   border-radius:21px;
   display:grid;
   place-items:center;
 }
 .cartelloIcon svg{
-  width:46px;
-  height:46px;
+  width:38px;
+  height:38px;
   fill:none;
   stroke:currentColor;
   stroke-width:1.55;
@@ -168,11 +165,10 @@ h1{
   stroke-linejoin:round;
 }
 .cartelloTitle{
-  margin-top:24px;
-  font-size:clamp(50px,10vw,88px);
+  font-size:clamp(38px,8vw,62px);
   font-weight:950;
-  line-height:.82;
-  letter-spacing:-.05em;
+  line-height:.9;
+  letter-spacing:-.045em;
 }
 .travelSection{
   padding:18px;
@@ -215,38 +211,41 @@ h1{
   stroke:none;
 }
 .timestampCard{
-  min-height:142px;
-  padding:21px 23px;
-  align-items:center;
+  min-height:132px;
+  padding:18px 20px 19px;
+  flex-direction:column;
+  align-items:stretch;
   justify-content:space-between;
-  gap:20px;
-  background:#292929;
-  border-color:#474747;
+  gap:0;
+  background:#c8d4de;
+  color:#10151a;
+  border-color:#d9e2e9;
 }
+.timestampTop{display:flex;align-items:center;justify-content:flex-start}
+.timestampMain{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:13px}
 .timestampCopy{min-width:0}
 .timestampEyebrow{
   font-size:11px;
   font-weight:900;
   letter-spacing:.13em;
   text-transform:uppercase;
-  color:#888;
+  color:rgba(16,21,26,.52);
 }
 .timestampTitle{
-  margin-top:7px;
-  font-size:clamp(30px,5vw,43px);
+  font-size:clamp(32px,6vw,48px);
   font-weight:930;
   line-height:.95;
   letter-spacing:-.035em;
 }
 .timestampIcon{
-  width:76px;
-  height:76px;
-  flex:0 0 76px;
-  border:1px solid #4d4d4d;
+  width:62px;
+  height:62px;
+  flex:0 0 62px;
+  border:1px solid rgba(16,21,26,.24);
   border-radius:20px;
   display:grid;
   place-items:center;
-  color:#ddd;
+  color:#18222b;
 }
 .timestampIcon svg{
   width:42px;
@@ -262,7 +261,26 @@ h1{
   grid-template-columns:1fr 1fr;
   gap:12px;
 }
-.quoteTile{grid-column:1 / -1}
+.quoteTile{
+  grid-column:1 / -1;
+  min-height:126px!important;
+  padding:20px!important;
+  justify-content:space-between;
+  background:linear-gradient(135deg,#292715,#1f1e17);
+  border-color:#514b20;
+}
+.quoteTile .iconWrap{
+  width:58px!important;
+  height:58px!important;
+  border-radius:17px;
+  background:#f3d500;
+  color:#111;
+}
+.quoteTile .icon{width:38px!important;height:38px!important}
+.quoteCopy{display:grid;gap:5px;min-width:0}
+.quoteTitle{font-size:22px;font-weight:920;letter-spacing:-.025em}
+.tileMeta{font-size:11px;color:#818181;line-height:1.25}
+.quoteTile .tileMeta{color:#aaa36b}
 .utilityTile{
   min-height:96px;
   padding:16px 18px;
@@ -292,6 +310,23 @@ h1{
 }
 .utilityTile .iconWrap{width:46px;height:46px}
 .utilityTile .icon{width:34px;height:34px}
+.savedQuotesHome{
+  margin-top:12px;
+  padding:16px;
+  border:1px solid #343434;
+  border-radius:20px;
+  background:#1c1c1c;
+}
+.savedQuotesHead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.savedQuotesTitle{font-size:14px;font-weight:880}
+.savedQuotesLink{font-size:10px;color:#9a9a9a;text-decoration:none;font-weight:800}
+.savedQuotesList{display:grid;gap:8px}
+.savedQuoteMini{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 11px;border:1px solid #333;border-radius:14px;background:#232323;color:inherit;text-decoration:none}
+.savedQuoteText{min-width:0}
+.savedQuoteName{font-size:12px;font-weight:860;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.savedQuoteRoute{margin-top:3px;font-size:10px;color:#7f7f7f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.savedQuotePrice{font-size:13px;font-weight:900;white-space:nowrap}
+.savedQuoteEmpty{font-size:11px;color:#6f6f6f;padding:4px 2px}
 .managementGrid{
   display:grid;
   grid-template-columns:1.45fr 1fr 1fr;
@@ -459,15 +494,15 @@ h1{
 @media(max-width:680px){
   .page{padding:14px}
   .shell{padding:20px 16px;border-radius:24px}
-  .cartelloHero{min-height:176px;padding:22px;border-radius:20px}
-  .cartelloIcon{width:66px;height:66px;flex-basis:66px;border-radius:18px}
-  .cartelloIcon svg{width:40px;height:40px}
-  .cartelloTitle{margin-top:28px;font-size:clamp(50px,16vw,72px)}
+  .cartelloHero{min-height:124px;padding:17px 18px;border-radius:20px}
+  .cartelloIcon{width:56px;height:56px;flex-basis:56px;border-radius:17px}
+  .cartelloIcon svg{width:34px;height:34px}
+  .cartelloTitle{font-size:clamp(36px,12vw,54px)}
   .travelSection{border-radius:20px;padding:14px}
   .travelGrid{gap:9px}
-  .timestampCard{min-height:126px;padding:18px;border-radius:20px}
-  .timestampIcon{width:64px;height:64px;flex-basis:64px;border-radius:18px}
-  .timestampIcon svg{width:36px;height:36px}
+  .timestampCard{min-height:124px;padding:17px 18px;border-radius:20px}
+  .timestampIcon{width:56px;height:56px;flex-basis:56px;border-radius:17px}
+  .timestampIcon svg{width:34px;height:34px}
   .utilitiesGrid{grid-template-columns:1fr 1fr}
   .utilityTile{min-height:88px;border-radius:18px;padding:14px}
   .toolTile{min-height:104px;border-radius:18px}
@@ -500,6 +535,9 @@ h1{
       <a class="cartelloHero" href="cartello.html">
         <span class="cartelloTop">
           <span class="cartelloEyebrow">Accoglienza cliente</span>
+        </span>
+        <span class="cartelloMain">
+          <span class="cartelloTitle">CARTELLO</span>
           <span class="cartelloIcon" aria-hidden="true">
             <svg viewBox="0 0 64 64">
               <rect x="10" y="8" width="44" height="30" rx="4"/>
@@ -510,7 +548,6 @@ h1{
             </svg>
           </span>
         </span>
-        <span class="cartelloTitle">CARTELLO</span>
       </a>
     </section>
 
@@ -550,19 +587,21 @@ h1{
     </section>
 
     <section class="section">
-      <div class="sectionTitle">Timestamp</div>
+      <div class="sectionTitle">Prove fotografiche</div>
       <a class="timestampCard" href="timestamp.html">
-        <span class="timestampCopy">
+        <span class="timestampTop">
           <span class="timestampEyebrow">Foto geolocalizzata</span>
-          <span class="timestampTitle">Timestamp</span>
         </span>
-        <span class="timestampIcon" aria-hidden="true">
-          <svg viewBox="0 0 64 64">
-            <rect x="8" y="16" width="48" height="36" rx="7"/>
-            <path d="M20 16l4-7h16l4 7"/>
-            <circle cx="32" cy="34" r="10"/>
-            <path d="M43 43l8 8"/>
-          </svg>
+        <span class="timestampMain">
+          <span class="timestampTitle">Timestamp</span>
+          <span class="timestampIcon" aria-hidden="true">
+            <svg viewBox="0 0 64 64">
+              <rect x="8" y="16" width="48" height="36" rx="7"/>
+              <path d="M20 16l4-7h16l4 7"/>
+              <circle cx="32" cy="34" r="10"/>
+              <path d="M43 43l8 8"/>
+            </svg>
+          </span>
         </span>
       </a>
     </section>
@@ -571,6 +610,10 @@ h1{
       <div class="sectionTitle">Utility</div>
       <div class="utilitiesGrid">
         <a class="utilityTile quoteTile" href="preventivo.html">
+          <span class="quoteCopy">
+            <span class="quoteTitle">Preventivo rapido</span>
+            <span class="tileMeta">Tratta, tariffa, costi e marginalità</span>
+          </span>
           <span class="iconWrap" aria-hidden="true">
             <svg class="icon" viewBox="0 0 64 64">
               <path d="M10 18h44v32H10z"/>
@@ -579,7 +622,6 @@ h1{
               <path d="M46 29v10M43 31c1-2 6-2 6 1 0 4-6 1-6 5 0 3 5 3 7 1"/>
             </svg>
           </span>
-          <span class="tileTitle">Preventivo rapido</span>
         </a>
 
         <a class="utilityTile" href="monitor.html">
@@ -590,7 +632,7 @@ h1{
               <path d="M25 54h14"/>
             </svg>
           </span>
-          <span class="tileTitle">Monitor</span>
+          <span><span class="tileTitle">Monitor viaggi</span><span class="tileMeta">Voli · Treni · Navi</span></span>
         </a>
 
         <button class="utilityTile inactive" type="button" aria-disabled="true">
@@ -604,6 +646,14 @@ h1{
           </span>
           <span class="tileTitle">Traduttore</span>
         </button>
+      </div>
+
+      <div class="savedQuotesHome">
+        <div class="savedQuotesHead">
+          <div class="savedQuotesTitle">Preventivi salvati</div>
+          <a class="savedQuotesLink" href="preventivo.html#saved-quotes">Vedi tutti →</a>
+        </div>
+        <div id="savedQuotesHomeList" class="savedQuotesList"></div>
       </div>
     </section>
 
@@ -732,16 +782,16 @@ h1{
       </div>
     </section>
 
-    <div class="footer">MAINPAGE · STEERWILL V3.4</div>
+    <div class="footer">MAINPAGE · STEERWILL V3.5</div>
   </section>
 </main>
 
 <script>
 (function(){
-  var el = document.getElementById("driverTagline");
-  if(!el) return;
+  "use strict";
 
-  var lines = [
+  var el=document.getElementById("driverTagline");
+  var lines=[
     "Come sopravvivere ai propri clienti usando gli strumenti giusti.",
     "Per affrontare il turno con più strumenti e meno santi da chiamare.",
     "Gli strumenti giusti per quando il cliente scrive “esco ora” ma atterra tra 25 minuti.",
@@ -750,15 +800,38 @@ h1{
     "Tutto sotto controllo. Anche quando il cliente non aiuta."
   ];
 
-  var index = 0;
-  setInterval(function(){
-    el.classList.add("fadeOut");
-    setTimeout(function(){
-      index = (index + 1) % lines.length;
-      el.textContent = lines[index];
-      el.classList.remove("fadeOut");
-    },240);
-  },5200);
+  if(el){
+    var key="steerwill_home_phrase_v1";
+    var prev=Number(localStorage.getItem(key));
+    var next=Number.isFinite(prev)?(prev+1)%lines.length:0;
+    localStorage.setItem(key,String(next));
+    el.textContent=lines[next];
+  }
+
+  function esc(v){
+    return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+
+  var host=document.getElementById("savedQuotesHomeList");
+  if(host){
+    var items=[];
+    try{items=JSON.parse(localStorage.getItem("codriver_saved_quotes_v1")||"[]");}catch(e){}
+    items=Array.isArray(items)?items.slice(0,3):[];
+
+    if(!items.length){
+      host.innerHTML='<div class="savedQuoteEmpty">Nessun preventivo salvato.</div>';
+    }else{
+      host.innerHTML=items.map(function(q){
+        var price=q.priceDisplay||"—";
+        var route=[q.fromShort||q.from,q.toShort||q.to].filter(Boolean).join(" → ");
+        return '<a class="savedQuoteMini" href="preventivo.html#saved-quotes">'+
+          '<span class="savedQuoteText"><span class="savedQuoteName">'+esc(q.name||"Preventivo")+'</span>'+
+          '<span class="savedQuoteRoute">'+esc(route)+'</span></span>'+
+          '<span class="savedQuotePrice">'+esc(price)+'</span>'+
+        '</a>';
+      }).join("");
+    }
+  }
 })();
 </script>
 </body>
