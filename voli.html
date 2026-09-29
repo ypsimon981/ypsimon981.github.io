@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#090909">
-<title>CoDriver · Voli</title>
+<title>SteerWill · Voli</title>
+<link rel="icon" type="image/webp" href="assets/steerwill-icon.webp">
 <style>
 :root{--bg:#090909;--panel:#171717;--panel2:#222;--line:#343434;--text:#f7f7f7;--muted:#8d8d8d;--yellow:#f3d500}
 *{box-sizing:border-box}
@@ -68,7 +69,7 @@ h1{margin:0;font-size:clamp(40px,8vw,68px);line-height:.94;letter-spacing:-.045e
 <body>
 <main class="page">
   <div class="topbar">
-    <div class="brand">CODRIVER · VOLI</div>
+    <div class="brand">STEERWILL · VOLI</div>
     <div class="topActions">
       <a class="pillLink" href="monitor.html">Monitor</a>
       <a class="pillLink" href="index.html">← Home</a>
@@ -221,10 +222,10 @@ h1{margin:0;font-size:clamp(40px,8vw,68px);line-height:.94;letter-spacing:-.045e
     searchBtn.textContent = "Cerco…";
 
     try{
-      if(window.CODRIVER_FLIGHT_API){
-        var res = await fetch(window.CODRIVER_FLIGHT_API + "?ident=" + encodeURIComponent(id),{
+      if(window.STEERWILL_FLIGHT_API){
+        var res = await fetch(window.STEERWILL_FLIGHT_API + "?ident=" + encodeURIComponent(id),{
           cache:"no-store",
-          headers:{"apikey":window.CODRIVER_SUPABASE_PUBLIC_KEY || ""}
+          headers:{"apikey":window.STEERWILL_SUPABASE_PUBLIC_KEY || ""}
         });
         var data = await res.json().catch(function(){return {};});
         if(!res.ok) throw new Error(data.error || "api");
