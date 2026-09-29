@@ -37,8 +37,91 @@ async function geocode(query:string){
   return {
     lat:Number(f.geometry.coordinates[1]),
     lon:Number(f.geometry.coordinates[0]),
-    label
+    label,
+    city:p.city||p.name||null,
+    state:p.state||null,
+    country:p.country||null
   };
+}
+
+
+function normalizeRegion(value:string|null){
+  const s=String(value||"").trim().toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .replace(/[.'’]/g,"")
+    .replace(/\s+/g," ");
+  const map:Record<string,string>={
+    "abruzzo":"Abruzzo","basilicata":"Basilicata","calabria":"Calabria","campania":"Campania",
+    "emilia romagna":"Emilia Romagna","emilia-romagna":"Emilia Romagna",
+    "friuli venezia giulia":"Friuli Venezia Giulia","lazio":"Lazio","liguria":"Liguria",
+    "lombardia":"Lombardia","marche":"Marche","molise":"Molise","piemonte":"Piemonte",
+    "puglia":"Puglia","sardegna":"Sardegna","sicilia":"Sicilia","toscana":"Toscana",
+    "umbria":"Umbria","valle daosta":"Valle d'Aosta","valle d aosta":"Valle d'Aosta",
+    "veneto":"Veneto","trentino-alto adige":"Trento","trentino alto adige":"Trento",
+    "autonome provinz bozen sudtirol":"Bolzano","provincia autonoma di bolzano":"Bolzano",
+    "provincia autonoma di trento":"Trento"
+  };
+  if(map[s]) return map[s];
+  for(const k of Object.keys(map)) if(s.includes(k)||k.includes(s)) return map[k];
+  return null;
+}
+
+function parseNumber(v:string){
+  const n=Number(String(v||"").trim().replace(",","."));
+  return Number.isFinite(n)?n:null;
+}
+
+async function fuelPrices(regionRaw:string|null){
+  const region=normalizeRegion(regionRaw);
+  if(!region) return {region:null,updated:null,prices:null,source:null};
+
+  const source="https://www.mimit.gov.it/images/stories/carburanti/MediaRegionaleStradale.csv";
+  try{
+    const res=await fetch(source,{
+      headers:{
+        "User-Agent":"SteerWill/0.1 fuel-cost prototype (+https://ypsimon981.github.io/)",
+        "Accept":"text/csv,text/plain,*/*",
+        "Cache-Control":"no-cache"
+      }
+    });
+    if(!res.ok) throw new Error("fuel_"+res.status);
+    const text=await res.text();
+    const lines=text.replace(/^\uFEFF/,"").split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+    const prices:Record<string,number>={};
+    let updated:string|null=null;
+
+    for(const line of lines){
+      if(!updated){
+        const d=line.match(/(\d{1,2})[\/-](\d{1,2})[\/-](20\d{2})/);
+        if(d) updated=d[3]+"-"+String(d[2]).padStart(2,"0")+"-"+String(d[1]).padStart(2,"0");
+      }
+
+      const sep=line.includes(";")?";":line.includes("|")?"|":",";
+      const cells=line.split(sep).map(x=>x.replace(/^"|"$/g,"").trim());
+      const joined=cells.join(" ").toLowerCase();
+      if(!joined.includes(region.toLowerCase())) continue;
+
+      let fuel:string|null=null;
+      if(/\bgasolio\b/i.test(joined)) fuel="diesel";
+      else if(/\bbenzina\b/i.test(joined)) fuel="petrol";
+      else if(/\bgpl\b/i.test(joined)) fuel="lpg";
+      else if(/\bmetano\b/i.test(joined)) fuel="methane";
+      if(!fuel) continue;
+
+      for(let i=cells.length-1;i>=0;i--){
+        const n=parseNumber(cells[i]);
+        if(n!==null && n>0.3 && n<5){
+          prices[fuel]=n;
+          break;
+        }
+      }
+    }
+
+    if(!Object.keys(prices).length) throw new Error("fuel_parse");
+    return {region,updated,prices,source};
+  }catch(_){
+    return {region,updated:null,prices:null,source};
+  }
 }
 
 Deno.serve(async(req:Request)=>{
@@ -73,12 +156,15 @@ Deno.serve(async(req:Request)=>{
     const best=route&&route.routes&&route.routes[0];
     if(!best) return json({error:"route_not_found"},404,origin);
 
+    const fuel=await fuelPrices(a.state||null);
+
     return json({
       provider:"OpenStreetMap + OSRM",
       from:a,
       to:b,
       distance_km:Math.round((best.distance/1000)*10)/10,
-      duration_min:Math.round(best.duration/60)
+      duration_min:Math.round(best.duration/60),
+      fuel
     },200,origin);
   }catch(error){
     return json({
