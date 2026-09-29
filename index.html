@@ -11,10 +11,12 @@
 :root{
   --bg:#090909;
   --panel:#171717;
-  --panel2:#222;
+  --panel2:#202020;
+  --panel3:#262626;
   --line:#343434;
   --text:#f7f7f7;
   --muted:#8c8c8c;
+  --soft:#cfcfcf;
 }
 *{box-sizing:border-box}
 html,body{
@@ -36,13 +38,19 @@ button{font:inherit}
   padding:22px;
 }
 .shell{
-  width:min(760px,100%);
+  width:min(780px,100%);
   margin:auto 0;
   padding:28px;
   background:var(--panel);
   border:1px solid var(--line);
   border-radius:30px;
   box-shadow:0 22px 70px rgba(0,0,0,.35);
+}
+.headerRow{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
 }
 .brand{
   font-size:14px;
@@ -51,6 +59,16 @@ button{font:inherit}
   color:#a8a8a8;
   margin-bottom:8px;
 }
+.profileChip{
+  border:1px solid #383838;
+  background:#222;
+  color:#cfcfcf;
+  border-radius:999px;
+  padding:8px 12px;
+  font-size:12px;
+  font-weight:800;
+  white-space:nowrap;
+}
 h1{
   margin:0;
   font-size:clamp(40px,7vw,64px);
@@ -58,116 +76,205 @@ h1{
   letter-spacing:-.04em;
 }
 .sub{
-  margin:10px 0 26px;
+  margin:10px 0 24px;
   color:var(--muted);
   font-size:16px;
 }
-.topGrid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:12px;
+.section{
+  margin-top:20px;
 }
-.tile,
-.signTile,
-.monitorTile,
-.translateTile{
-  border:1px solid #3a3a3a;
+.sectionTitle{
+  margin-bottom:10px;
+  color:#8d8d8d;
+  font-size:12px;
+  font-weight:850;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.primaryTile,
+.toolTile,
+.wideTile,
+.smallTile,
+.managementTile{
+  border:1px solid #383838;
   background:var(--panel2);
   color:#fff;
-  text-decoration:none;
   border-radius:22px;
+  text-decoration:none;
   display:flex;
-  align-items:center;
-  justify-content:center;
   user-select:none;
 }
-.tile{
-  aspect-ratio:1/1;
-  flex-direction:column;
-  gap:12px;
-  min-height:120px;
+.primaryTile{
+  min-height:180px;
+  padding:24px;
+  align-items:center;
+  justify-content:space-between;
+  gap:22px;
+  background:#f4f4f2;
+  color:#0b0b0b;
+  border-color:#f4f4f2;
 }
-.iconWrap{
-  width:64px;
-  height:64px;
+.primaryCopy{min-width:0}
+.primaryEyebrow{
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  opacity:.5;
+  margin-bottom:7px;
+}
+.primaryTitle{
+  font-size:clamp(34px,6vw,52px);
+  font-weight:950;
+  line-height:.92;
+  letter-spacing:-.035em;
+}
+.primaryMeta{
+  margin-top:12px;
+  font-size:14px;
+  font-weight:700;
+  opacity:.58;
+}
+.primaryIcon{
+  width:112px;
+  height:112px;
+  flex:0 0 112px;
+  border:2px solid rgba(0,0,0,.14);
+  border-radius:28px;
   display:grid;
   place-items:center;
 }
+.primaryIcon svg{
+  width:64px;
+  height:64px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.6;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.quickGrid{
+  display:grid;
+  grid-template-columns:1.5fr 1fr 1fr;
+  gap:12px;
+}
+.wideTile{
+  min-height:118px;
+  padding:18px;
+  align-items:center;
+  gap:13px;
+}
+.smallTile{
+  min-height:118px;
+  padding:14px 12px;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  text-align:center;
+}
+.iconWrap{
+  width:50px;
+  height:50px;
+  display:grid;
+  place-items:center;
+  flex:0 0 auto;
+}
 .icon{
-  width:46px;
-  height:46px;
-  color:#ededed;
+  width:38px;
+  height:38px;
   fill:none;
   stroke:currentColor;
   stroke-width:1.65;
   stroke-linecap:round;
   stroke-linejoin:round;
 }
-.label{
+.tileTitle{
   font-size:17px;
-  font-weight:800;
+  font-weight:850;
+  line-height:1.1;
 }
-.signTile{
-  margin-top:14px;
-  min-height:128px;
+.tileMeta{
+  display:block;
+  margin-top:4px;
+  color:#858585;
+  font-size:11px;
+  font-weight:650;
+  line-height:1.25;
+}
+.travelGrid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+.toolTile{
+  aspect-ratio:1/1;
+  min-height:120px;
   flex-direction:column;
-  gap:4px;
-  background:#fff;
-  color:#080808;
-  border-color:#fff;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  text-align:center;
+}
+.toolTile .iconWrap{width:58px;height:58px}
+.toolTile .icon{width:43px;height:43px}
+.managementGrid{
+  display:grid;
+  grid-template-columns:1.45fr 1fr 1fr;
+  gap:12px;
+}
+.managementTile{
+  min-height:130px;
+  padding:18px;
+  flex-direction:column;
+  justify-content:space-between;
+}
+.managementTile.featured{
+  background:#242424;
+}
+.managementTop{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+}
+.managementTile .iconWrap{
+  width:45px;
+  height:45px;
+}
+.managementTile .icon{
+  width:34px;
+  height:34px;
+}
+.statusDot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#6f6f6f;
+  margin-top:4px;
+}
+.managementTitle{
+  margin-top:16px;
+  font-size:17px;
+  font-weight:850;
+  line-height:1.1;
+}
+.managementMeta{
+  margin-top:5px;
+  color:#858585;
+  font-size:11px;
+  line-height:1.3;
+}
+.inactive{cursor:default}
+.cartelloLink{
   cursor:pointer;
   transition:transform .12s ease,opacity .12s ease;
 }
-.signTile:active{transform:scale(.99);opacity:.92}
-.signBig{
-  font-size:clamp(44px,8vw,72px);
-  font-weight:950;
-  letter-spacing:.08em;
-  line-height:.95;
-}
-.signSub{
-  margin-top:8px;
-  font-size:13px;
-  font-weight:800;
-  letter-spacing:.12em;
-  text-transform:uppercase;
-  opacity:.55;
-}
-.bottomGrid{
-  display:grid;
-  grid-template-columns:2fr 1fr;
-  gap:12px;
-  margin-top:14px;
-}
-.monitorTile{
-  min-height:112px;
-  justify-content:flex-start;
-  padding:0 24px;
-  gap:14px;
-}
-.translateTile{
-  min-height:112px;
-  flex-direction:column;
-  gap:7px;
-}
-.monitorTile .iconWrap{width:50px;height:50px}
-.monitorTile .icon{width:38px;height:38px}
-.translateTile .iconWrap{width:46px;height:46px}
-.translateTile .icon{width:34px;height:34px}
-.monitorTitle,.translateTitle{
-  font-size:19px;
-  font-weight:850;
-}
-.monitorMeta{
-  display:block;
-  margin-top:3px;
-  color:#858585;
-  font-size:12px;
-  font-weight:650;
-}
-.inactive{cursor:default}
+.cartelloLink:active{transform:scale(.985);opacity:.9}
+
+/* Prodotti / futura monetizzazione */
 .productsSection{
-  margin-top:22px;
+  margin-top:24px;
   padding-top:18px;
   border-top:1px solid #2d2d2d;
 }
@@ -179,7 +286,7 @@ h1{
   margin-bottom:12px;
 }
 .productsTitle{
-  font-size:20px;
+  font-size:19px;
   font-weight:850;
 }
 .productsNote{
@@ -198,39 +305,37 @@ h1{
 }
 .productsRail::-webkit-scrollbar{display:none}
 .productCard{
-  flex:0 0 190px;
+  flex:0 0 180px;
   scroll-snap-align:start;
   overflow:hidden;
   background:#202020;
   border:1px solid #343434;
-  border-radius:20px;
+  border-radius:19px;
 }
 .productVisual{
-  height:132px;
+  height:112px;
   display:grid;
   place-items:center;
   overflow:hidden;
-  background:linear-gradient(145deg,#f0f0ed,#d8d9d5);
+  background:linear-gradient(145deg,#efefec,#d6d7d3);
 }
 .productVisual svg{
-  width:112px;
-  height:112px;
+  width:92px;
+  height:92px;
   display:block;
 }
-.productBody{
-  padding:13px 14px 14px;
-}
+.productBody{padding:12px 13px 13px}
 .productName{
-  font-size:15px;
+  font-size:14px;
   font-weight:820;
   line-height:1.2;
-  min-height:36px;
+  min-height:34px;
 }
 .productMeta{
-  margin-top:6px;
-  min-height:30px;
+  margin-top:5px;
+  min-height:28px;
   color:#8d8d8d;
-  font-size:12px;
+  font-size:11px;
   line-height:1.25;
 }
 .productBottom{
@@ -238,10 +343,10 @@ h1{
   align-items:center;
   justify-content:space-between;
   gap:8px;
-  margin-top:10px;
+  margin-top:9px;
 }
 .productPrice{
-  font-size:16px;
+  font-size:15px;
   font-weight:850;
 }
 .productCta{
@@ -249,8 +354,8 @@ h1{
   background:#2b2b2b;
   color:#dcdcdc;
   border-radius:999px;
-  padding:7px 10px;
-  font-size:11px;
+  padding:6px 9px;
+  font-size:10px;
   font-weight:800;
 }
 .footer{
@@ -260,113 +365,209 @@ h1{
   text-align:center;
   letter-spacing:.08em;
 }
-@media(max-width:600px){
+@media(max-width:680px){
   .page{padding:14px}
   .shell{padding:20px 16px;border-radius:24px}
-  .tile{min-height:104px;border-radius:18px}
-  .iconWrap{width:54px;height:54px}
-  .icon{width:40px;height:40px}
-  .label{font-size:15px}
-  .signTile{min-height:112px;border-radius:20px}
-  .bottomGrid{grid-template-columns:1.65fr 1fr}
-  .monitorTile,.translateTile{min-height:96px;border-radius:18px}
-  .monitorTile{padding:0 16px}
-  .monitorTitle,.translateTitle{font-size:16px}
-  .productCard{flex-basis:172px}
-  .productVisual{height:120px}
-  .productsTitle{font-size:18px}
+  .primaryTile{min-height:158px;padding:20px}
+  .primaryIcon{width:88px;height:88px;flex-basis:88px;border-radius:22px}
+  .primaryIcon svg{width:52px;height:52px}
+  .quickGrid{grid-template-columns:1.35fr 1fr}
+  .quickGrid .smallTile:last-child{grid-column:1 / -1;min-height:88px;flex-direction:row}
+  .wideTile,.smallTile{border-radius:18px}
+  .travelGrid{gap:9px}
+  .toolTile{min-height:104px;border-radius:18px}
+  .toolTile .iconWrap{width:48px;height:48px}
+  .toolTile .icon{width:36px;height:36px}
+  .tileTitle{font-size:15px}
+  .managementGrid{grid-template-columns:1fr 1fr}
+  .managementGrid .featured{grid-column:1 / -1;min-height:112px}
+  .managementTile{min-height:118px;border-radius:18px}
   .productsNote{display:none}
+  .productCard{flex-basis:168px}
 }
 </style>
 </head>
 <body>
 <main class="page">
   <section class="shell">
-    <div class="brand">CODRIVER</div>
-    <h1>Driver tools</h1>
-    <p class="sub">Gli strumenti essenziali per il lavoro NCC, in un solo posto.</p>
-
-    <div class="topGrid">
-      <button class="tile inactive" type="button" aria-disabled="true">
-        <span class="iconWrap" aria-hidden="true">
-          <svg class="icon" viewBox="0 0 64 64">
-            <path d="M11 18l14 8 18-11c2-1 5-2 7-1 2 1 2 4 0 6L36 34l10 8-4 4-14-5-8 8-4-2 5-11-12-8z"/>
-            <path d="M9 54h46"/>
-          </svg>
-        </span>
-        <span class="label">Voli</span>
-      </button>
-
-      <button class="tile inactive" type="button" aria-disabled="true">
-        <span class="iconWrap" aria-hidden="true">
-          <svg class="icon" viewBox="0 0 64 64">
-            <rect x="14" y="8" width="36" height="42" rx="8"/>
-            <path d="M20 16h24v17H20z"/>
-            <circle cx="23" cy="41" r="2.5"/>
-            <circle cx="41" cy="41" r="2.5"/>
-            <path d="M19 56l6-6M45 56l-6-6"/>
-          </svg>
-        </span>
-        <span class="label">Treni</span>
-      </button>
-
-      <button class="tile inactive" type="button" aria-disabled="true">
-        <span class="iconWrap" aria-hidden="true">
-          <svg class="icon" viewBox="0 0 64 64">
-            <path d="M18 34V18h8V10h12v8h8v16"/>
-            <path d="M10 34h44l-6 12c-3 6-8 8-14 5l-2-1-2 1c-6 3-11 1-14-5z"/>
-            <path d="M8 55c4-3 8-3 12 0 4 3 8 3 12 0 4-3 8-3 12 0 4 3 8 3 12 0"/>
-          </svg>
-        </span>
-        <span class="label">Navi</span>
-      </button>
+    <div class="headerRow">
+      <div>
+        <div class="brand">CODRIVER</div>
+        <h1>Driver tools</h1>
+      </div>
+      <div class="profileChip">Profilo autista</div>
     </div>
+    <p class="sub">Gli strumenti del turno, senza trasformare CoDriver in un gestionale.</p>
 
-    <a class="signTile" href="cartello.html">
-      <span class="signBig">SIGN</span>
-      <span class="signSub">Cartello passeggero</span>
-    </a>
-
-    <div class="bottomGrid">
-      <button class="monitorTile inactive" type="button" aria-disabled="true">
-        <span class="iconWrap" aria-hidden="true">
-          <svg class="icon" viewBox="0 0 64 64">
-            <rect x="8" y="11" width="48" height="37" rx="5"/>
-            <path d="M16 38V28M26 38V20M36 38V31M46 38V16"/>
-            <path d="M25 54h14"/>
+    <section class="section">
+      <div class="sectionTitle">Funzione principale</div>
+      <button class="primaryTile inactive" type="button" aria-disabled="true">
+        <span class="primaryCopy">
+          <span class="primaryEyebrow">Foto professionale</span>
+          <span class="primaryTitle">Timestamp</span>
+          <span class="primaryMeta">Data · ora · posizione opzionale</span>
+        </span>
+        <span class="primaryIcon" aria-hidden="true">
+          <svg viewBox="0 0 64 64">
+            <rect x="8" y="16" width="48" height="36" rx="7"/>
+            <path d="M20 16l4-7h16l4 7"/>
+            <circle cx="32" cy="34" r="10"/>
+            <path d="M43 43l8 8"/>
+            <path d="M46 12v10M41 17h10"/>
           </svg>
         </span>
-        <span>
-          <span class="monitorTitle">Monitor</span>
-          <span class="monitorMeta">Voli · Treni · Navi</span>
-        </span>
       </button>
+    </section>
 
-      <button class="translateTile inactive" type="button" aria-disabled="true">
-        <span class="iconWrap" aria-hidden="true">
-          <svg class="icon" viewBox="0 0 64 64">
-            <path d="M8 12h28v24H20l-9 8v-8H8z"/>
-            <path d="M28 28h28v22H44l-8 7v-7h-8"/>
-            <path d="M15 19h14M22 16v6M17 28c5-3 8-7 10-12"/>
-            <path d="M39 35h6l6 11M42 42h7"/>
-          </svg>
-        </span>
-        <span class="translateTitle">Traduttore</span>
-      </button>
-    </div>
+    <section class="section">
+      <div class="sectionTitle">Durante il servizio</div>
+      <div class="quickGrid">
+        <button class="wideTile inactive" type="button" aria-disabled="true">
+          <span class="iconWrap" aria-hidden="true">
+            <svg class="icon" viewBox="0 0 64 64">
+              <rect x="8" y="11" width="48" height="37" rx="5"/>
+              <path d="M16 38V28M26 38V20M36 38V31M46 38V16"/>
+              <path d="M25 54h14"/>
+            </svg>
+          </span>
+          <span>
+            <span class="tileTitle">Monitor</span>
+            <span class="tileMeta">Voli · Treni · Navi del giorno</span>
+          </span>
+        </button>
+
+        <a class="smallTile cartelloLink" href="cartello.html">
+          <span class="iconWrap" aria-hidden="true">
+            <svg class="icon" viewBox="0 0 64 64">
+              <rect x="10" y="13" width="44" height="36" rx="5"/>
+              <path d="M18 25h28M18 33h20"/>
+              <path d="M25 55h14M32 49v6"/>
+            </svg>
+          </span>
+          <span class="tileTitle">Cartello</span>
+        </a>
+
+        <button class="smallTile inactive" type="button" aria-disabled="true">
+          <span class="iconWrap" aria-hidden="true">
+            <svg class="icon" viewBox="0 0 64 64">
+              <path d="M8 12h28v24H20l-9 8v-8H8z"/>
+              <path d="M28 28h28v22H44l-8 7v-7h-8"/>
+              <path d="M15 19h14M22 16v6M17 28c5-3 8-7 10-12"/>
+              <path d="M39 35h6l6 11M42 42h7"/>
+            </svg>
+          </span>
+          <span class="tileTitle">Traduttore</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="sectionTitle">Viaggi</div>
+      <div class="travelGrid">
+        <button class="toolTile inactive" type="button" aria-disabled="true">
+          <span class="iconWrap" aria-hidden="true">
+            <svg class="icon" viewBox="0 0 64 64">
+              <path d="M11 18l14 8 18-11c2-1 5-2 7-1 2 1 2 4 0 6L36 34l10 8-4 4-14-5-8 8-4-2 5-11-12-8z"/>
+              <path d="M9 54h46"/>
+            </svg>
+          </span>
+          <span class="tileTitle">Voli</span>
+        </button>
+
+        <button class="toolTile inactive" type="button" aria-disabled="true">
+          <span class="iconWrap" aria-hidden="true">
+            <svg class="icon" viewBox="0 0 64 64">
+              <rect x="14" y="8" width="36" height="42" rx="8"/>
+              <path d="M20 16h24v17H20z"/>
+              <circle cx="23" cy="41" r="2.5"/>
+              <circle cx="41" cy="41" r="2.5"/>
+              <path d="M19 56l6-6M45 56l-6-6"/>
+            </svg>
+          </span>
+          <span class="tileTitle">Treni</span>
+        </button>
+
+        <button class="toolTile inactive" type="button" aria-disabled="true">
+          <span class="iconWrap" aria-hidden="true">
+            <svg class="icon" viewBox="0 0 64 64">
+              <path d="M18 34V18h8V10h12v8h8v16"/>
+              <path d="M10 34h44l-6 12c-3 6-8 8-14 5l-2-1-2 1c-6 3-11 1-14-5z"/>
+              <path d="M8 55c4-3 8-3 12 0 4 3 8 3 12 0 4-3 8-3 12 0 4 3 8 3 12 0"/>
+            </svg>
+          </span>
+          <span class="tileTitle">Navi</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="sectionTitle">Gestione</div>
+      <div class="managementGrid">
+        <button class="managementTile featured inactive" type="button" aria-disabled="true">
+          <span class="managementTop">
+            <span class="iconWrap" aria-hidden="true">
+              <svg class="icon" viewBox="0 0 64 64">
+                <path d="M14 39l5-15h26l5 15"/>
+                <path d="M10 39h44v12H10z"/>
+                <circle cx="20" cy="45" r="3"/>
+                <circle cx="44" cy="45" r="3"/>
+                <path d="M21 24l4-7h14l4 7"/>
+              </svg>
+            </span>
+            <span class="statusDot"></span>
+          </span>
+          <span>
+            <span class="managementTitle">Veicolo & scadenze</span>
+            <span class="managementMeta">Assicurazione · bollo · ZTL · manutenzione</span>
+          </span>
+        </button>
+
+        <button class="managementTile inactive" type="button" aria-disabled="true">
+          <span class="managementTop">
+            <span class="iconWrap" aria-hidden="true">
+              <svg class="icon" viewBox="0 0 64 64">
+                <path d="M12 10h40v44H12z"/>
+                <path d="M20 20h24M20 29h24M20 38h16"/>
+                <path d="M44 46l5 5 7-9"/>
+              </svg>
+            </span>
+          </span>
+          <span>
+            <span class="managementTitle">Autorizzazioni</span>
+            <span class="managementMeta">Bandi · licenze · opportunità NCC</span>
+          </span>
+        </button>
+
+        <button class="managementTile inactive" type="button" aria-disabled="true">
+          <span class="managementTop">
+            <span class="iconWrap" aria-hidden="true">
+              <svg class="icon" viewBox="0 0 64 64">
+                <path d="M12 39l5-14h30l5 14"/>
+                <path d="M9 39h46v12H9z"/>
+                <circle cx="19" cy="45" r="3"/>
+                <circle cx="45" cy="45" r="3"/>
+                <path d="M23 17h18M32 9v16"/>
+              </svg>
+            </span>
+          </span>
+          <span>
+            <span class="managementTitle">Mercato mezzi</span>
+            <span class="managementMeta">Auto · van · occasioni · partner</span>
+          </span>
+        </button>
+      </div>
+    </section>
 
     <section class="productsSection" aria-label="Prodotti consigliati">
       <div class="productsHead">
-        <div class="productsTitle">Prodotti consigliati</div>
-        <div class="productsNote">Demo · link affiliati in futuro</div>
+        <div class="productsTitle">Per il tuo lavoro</div>
+        <div class="productsNote">Demo · affiliazioni in futuro</div>
       </div>
-
       <div class="productsRail">
         <article class="productCard">
           <div class="productVisual">
             <svg viewBox="0 0 120 120" aria-hidden="true">
-              <defs><linearGradient id="magsafe" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#333"/><stop offset="1" stop-color="#111"/></linearGradient></defs>
-              <rect x="29" y="15" width="62" height="90" rx="16" fill="url(#magsafe)"/>
+              <rect x="29" y="15" width="62" height="90" rx="16" fill="#1b1b1b"/>
               <circle cx="60" cy="49" r="22" fill="none" stroke="#858585" stroke-width="5"/>
               <rect x="55" y="75" width="10" height="24" rx="5" fill="#777"/>
             </svg>
@@ -426,41 +627,10 @@ h1{
             <div class="productBottom"><span class="productPrice">€27,90</span><span class="productCta">Vedi</span></div>
           </div>
         </article>
-
-        <article class="productCard">
-          <div class="productVisual">
-            <svg viewBox="0 0 120 120" aria-hidden="true">
-              <path d="M31 78c0-21 12-36 29-36h18c8 0 14 6 14 14v22z" fill="#1f1f1f"/>
-              <rect x="36" y="74" width="61" height="15" rx="7" fill="#333"/>
-              <path d="M54 42l8-17h12l-4 17z" fill="#555"/>
-              <circle cx="83" cy="61" r="7" fill="#666"/>
-            </svg>
-          </div>
-          <div class="productBody">
-            <div class="productName">Aspiratore portatile</div>
-            <div class="productMeta">Pulizia rapida tra un servizio e l'altro</div>
-            <div class="productBottom"><span class="productPrice">€39,90</span><span class="productCta">Vedi</span></div>
-          </div>
-        </article>
-
-        <article class="productCard">
-          <div class="productVisual">
-            <svg viewBox="0 0 120 120" aria-hidden="true">
-              <rect x="21" y="39" width="78" height="50" rx="9" fill="#202020"/>
-              <path d="M47 39v50M73 39v50" stroke="#555" stroke-width="4"/>
-              <path d="M36 39c2-12 11-18 24-18s22 6 24 18" fill="none" stroke="#333" stroke-width="6"/>
-            </svg>
-          </div>
-          <div class="productBody">
-            <div class="productName">Organizer bagagliaio</div>
-            <div class="productMeta">Cavi, acqua, panni e accessori</div>
-            <div class="productBottom"><span class="productPrice">€22,90</span><span class="productCta">Vedi</span></div>
-          </div>
-        </article>
       </div>
     </section>
 
-    <div class="footer">MAINPAGE · V1.3</div>
+    <div class="footer">MAINPAGE · V2</div>
   </section>
 </main>
 </body>
