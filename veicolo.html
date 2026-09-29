@@ -70,6 +70,35 @@ h1{margin:0;font-size:clamp(38px,7vw,64px);line-height:.95;letter-spacing:-.045e
 .maintTitle{font-size:12px;font-weight:900}
 .maintMain{margin-top:7px;font-size:20px;font-weight:950}
 .maintSub{margin-top:3px;color:#818181;font-size:11px}
+.partnerSlot{
+  grid-column:2;
+  display:block;
+  padding:13px 14px;
+  border:1px solid #3f454b;
+  border-radius:17px;
+  background:linear-gradient(135deg,#24292f,#1e2227);
+  color:#fff;
+  text-decoration:none;
+}
+.partnerEyebrow{
+  font-size:8px;
+  color:#7f8891;
+  font-weight:900;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+.partnerTitle{
+  margin-top:5px;
+  font-size:13px;
+  font-weight:900;
+}
+.partnerCta{
+  margin-top:5px;
+  color:#b7c7d8;
+  font-size:11px;
+  font-weight:800;
+}
+.partnerSlot:active{opacity:.88}
 .vehicleActions{display:flex;justify-content:flex-end;gap:8px;padding:0 16px 16px}
 .vehicleActions button{border:1px solid #3b3b3b;background:#242424;color:#ccc;border-radius:999px;padding:8px 11px;font-size:11px;font-weight:850}
 .vehicleActions .delete{color:#ff9a97}
@@ -84,6 +113,7 @@ h1{margin:0;font-size:clamp(38px,7vw,64px);line-height:.95;letter-spacing:-.045e
   .deadline:nth-child(2){border-right:0}
   .deadline:nth-child(-n+2){border-bottom:1px solid #303030}
   .maintenance{grid-template-columns:1fr}
+  .partnerSlot{grid-column:1}
 }
 </style>
 </head>
@@ -312,6 +342,11 @@ h1{margin:0;font-size:clamp(38px,7vw,64px);line-height:.95;letter-spacing:-.045e
         '<div class="maintenance">' +
           maintenanceCard("Tagliando",v.serviceKm,v.serviceDate,km) +
           maintenanceCard("Gomme",v.tyresKm,v.tyresDate,km) +
+          '<a class="partnerSlot" href="https://www.pneumatici.it/" target="_blank" rel="noopener sponsored">' +
+            '<div class="partnerEyebrow">Spazio partner</div>' +
+            '<div class="partnerTitle">È ora di cambiare pneumatici?</div>' +
+            '<div class="partnerCta">Scopri le offerte su Pneumatici.it →</div>' +
+          '</a>' +
         '</div>' +
         '<div class="vehicleActions">' +
           '<button type="button" data-edit="'+escapeHtml(v.id)+'">Modifica</button>' +
