@@ -14,7 +14,7 @@ const PORTS: Record<string, { label: string; kind: string; source?: string; base
   catania:{label:"Catania",kind:"gph",source:"https://cataniacruiseport.com/schedule/"},
   genova:{label:"Genova",kind:"ct",base:"genoaitaly"},
   laspezia:{label:"La Spezia",kind:"ct",base:"laspeziaitaly"},
-  livorno:{label:"Livorno",kind:"ct",base:"livornoitaly"},
+  livorno:{label:"Livorno",kind:"ct",base:"livornoflorencepisaitaly"},
   messina:{label:"Messina",kind:"ct",base:"messinasicily"},
   napoli:{label:"Napoli",kind:"ct",base:"naplesitaly"},
   olbia:{label:"Olbia",kind:"olbia"},
@@ -23,9 +23,9 @@ const PORTS: Record<string, { label: string; kind: string; source?: string; base
   ravenna:{label:"Ravenna",kind:"ct",base:"ravennaitaly"},
   salerno:{label:"Salerno",kind:"ct",base:"salernoitaly"},
   savona:{label:"Savona",kind:"ct",base:"savonaitaly"},
-  siracusa:{label:"Siracusa",kind:"ct",base:"syracusesicily"},
+  siracusa:{label:"Siracusa",kind:"ct",base:"siracusasicily"},
   taranto:{label:"Taranto",kind:"gph",source:"https://tarantocruiseport.com/schedule/"},
-  trapani:{label:"Trapani",kind:"ct",base:"trapanisicily"},
+  trapani:{label:"Trapani",kind:"ct",base:"trapaniitaly"},
   trieste:{label:"Trieste",kind:"ct",base:"triesteitaly"},
   venezia:{label:"Venezia",kind:"ct",base:"veniceitaly"}
 };
