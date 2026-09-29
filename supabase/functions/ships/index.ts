@@ -257,6 +257,54 @@ Deno.serve(async (req: Request) => {
     return json({ error: "origin_not_allowed" }, 403, origin);
   }
 
+  const requestUrl = new URL(req.url);
+  const selectedPort = (requestUrl.searchParams.get("port") || "civitavecchia")
+    .toLowerCase()
+    .trim();
+
+  const portLabels: Record<string, string> = {
+    civitavecchia: "Civitavecchia",
+    ancona: "Ancona",
+    bari: "Bari",
+    brindisi: "Brindisi",
+    cagliari: "Cagliari",
+    catania: "Catania",
+    genova: "Genova",
+    laspezia: "La Spezia",
+    livorno: "Livorno",
+    messina: "Messina",
+    napoli: "Napoli",
+    olbia: "Olbia",
+    palermo: "Palermo",
+    portoferraio: "Portoferraio",
+    ravenna: "Ravenna",
+    salerno: "Salerno",
+    savona: "Savona",
+    siracusa: "Siracusa",
+    taranto: "Taranto",
+    trapani: "Trapani",
+    trieste: "Trieste",
+    venezia: "Venezia"
+  };
+
+  const portLabel = portLabels[selectedPort];
+  if (!portLabel) {
+    return json({ error: "invalid_port" }, 400, origin);
+  }
+
+  // La prima fonte live collegata è Civitavecchia.
+  // Gli altri porti sono già previsti dall'interfaccia e verranno collegati con adapter dedicati.
+  if (selectedPort !== "civitavecchia") {
+    return json({
+      provider: null,
+      port: portLabel,
+      port_slug: selectedPort,
+      connected: false,
+      total: 0,
+      items: []
+    }, 200, origin);
+  }
+
   try {
     const now = new Date();
     const currentYear = now.getUTCFullYear();
@@ -287,9 +335,8 @@ Deno.serve(async (req: Request) => {
     // CoDriver mostra solo le navi da oggi in avanti.
     combined = combined.filter(x => x.date >= today);
 
-    const url = new URL(req.url);
-    const q = (url.searchParams.get("q") || "").trim().toUpperCase();
-    const date = (url.searchParams.get("date") || "").trim();
+    const q = (requestUrl.searchParams.get("q") || "").trim().toUpperCase();
+    const date = (requestUrl.searchParams.get("date") || "").trim();
 
     if (date) combined = combined.filter(x => x.date === date);
     if (q) combined = combined.filter(x => x.name.toUpperCase().includes(q));
@@ -297,6 +344,8 @@ Deno.serve(async (req: Request) => {
     return json({
       provider: "Port Mobility Civitavecchia",
       port: "Civitavecchia",
+      port_slug: "civitavecchia",
+      connected: true,
       planning: weekly.planning,
       weekly_current: weekLooksCurrent,
       monthly_source: monthUrl,
