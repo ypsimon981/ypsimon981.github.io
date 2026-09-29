@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" role="img" aria-label="SteerWill — Tools for more professional drivers">
+  <rect width="900" height="620" rx="48" fill="#ffffff"/>
+  <g transform="translate(450 245)">
+    <circle r="150" fill="none" stroke="#0b1930" stroke-width="42"/>
+    <path d="M-28-28 L-113-72 M28-28 L113-72 M0 35 L0 126" stroke="#0b1930" stroke-width="40" stroke-linecap="round"/>
+    <circle r="42" fill="#ffffff" stroke="#0b1930" stroke-width="28"/>
+    <circle r="14" fill="#1168ff"/>
+    <g fill="#1168ff" stroke="#ffffff" stroke-width="11" stroke-linejoin="round">
+      <g transform="translate(-108 -108) rotate(-45)">
+        <path d="M-38 18 Q-38-16-5-16 H30 Q46-16 46 0 Q46 16 30 16 H10 V28 H42 Q58 28 58 44 Q58 60 42 60 H0 Q-38 60-38 18Z"/>
+      </g>
+      <g transform="translate(108 -108) rotate(45)">
+        <path d="M38 18 Q38-16 5-16 H-30 Q-46-16-46 0 Q-46 16-30 16 H-10 V28 H-42 Q-58 28-58 44 Q-58 60-42 60 H0 Q38 60 38 18Z" fill="#4db8ff"/>
+      </g>
+      <g transform="translate(-108 108) rotate(45)">
+        <path d="M-38-18 Q-38 16-5 16 H30 Q46 16 46 0 Q46-16 30-16 H10 V-28 H42 Q58-28 58-44 Q58-60 42-60 H0 Q-38-60-38-18Z" fill="#185be8"/>
+      </g>
+      <g transform="translate(108 108) rotate(-45)">
+        <path d="M38-18 Q38 16 5 16 H-30 Q-46 16-46 0 Q-46-16-30-16 H-10 V-28 H-42 Q-58-28-58-44 Q-58-60-42-60 H0 Q38-60 38-18Z" fill="#12b8b0"/>
+      </g>
+    </g>
+  </g>
+
+  <text x="450" y="485" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif" font-size="88" font-weight="850" letter-spacing="-4">
+    <tspan fill="#0b1930">Steer</tspan><tspan fill="#1168ff">Will</tspan>
+  </text>
+  <text x="450" y="548" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif" font-size="20" font-weight="600" letter-spacing="7" fill="#0b1930">TOOLS FOR MORE PROFESSIONAL DRIVERS</text>
+</svg>
