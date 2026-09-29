@@ -31,12 +31,13 @@ button{font:inherit}
 .page{
   min-height:100dvh;
   display:flex;
-  align-items:center;
+  align-items:flex-start;
   justify-content:center;
   padding:22px;
 }
 .shell{
   width:min(760px,100%);
+  margin:auto 0;
   padding:28px;
   background:var(--panel);
   border:1px solid var(--line);
@@ -78,7 +79,6 @@ h1{
   display:flex;
   align-items:center;
   justify-content:center;
-  cursor:default;
   user-select:none;
 }
 .tile{
@@ -87,24 +87,21 @@ h1{
   gap:12px;
   min-height:120px;
 }
-.iconBadge{
-  width:82px;
-  height:82px;
-  border-radius:20px;
-  background:#d9ddda;
+.iconWrap{
+  width:64px;
+  height:64px;
   display:grid;
   place-items:center;
-  overflow:hidden;
-  flex:0 0 auto;
 }
 .icon{
-  width:48px;
-  height:48px;
-  display:block;
-  color:#3d3d3d;
-  fill:currentColor;
-  stroke:none;
-  filter:drop-shadow(11px 11px 0 rgba(0,0,0,.11));
+  width:46px;
+  height:46px;
+  color:#ededed;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.65;
+  stroke-linecap:round;
+  stroke-linejoin:round;
 }
 .label{
   font-size:17px;
@@ -146,17 +143,17 @@ h1{
   min-height:112px;
   justify-content:flex-start;
   padding:0 24px;
-  gap:15px;
+  gap:14px;
 }
 .translateTile{
   min-height:112px;
   flex-direction:column;
-  gap:8px;
+  gap:7px;
 }
-.monitorTile .iconBadge{width:70px;height:70px;border-radius:17px}
-.monitorTile .icon{width:40px;height:40px}
-.translateTile .iconBadge{width:64px;height:64px;border-radius:16px}
-.translateTile .icon{width:36px;height:36px}
+.monitorTile .iconWrap{width:50px;height:50px}
+.monitorTile .icon{width:38px;height:38px}
+.translateTile .iconWrap{width:46px;height:46px}
+.translateTile .icon{width:34px;height:34px}
 .monitorTitle,.translateTitle{
   font-size:19px;
   font-weight:850;
@@ -168,30 +165,117 @@ h1{
   font-size:12px;
   font-weight:650;
 }
-.inactive{
-  cursor:default;
-}
-.inactive:active{transform:none}
-.footer{
+.inactive{cursor:default}
+.productsSection{
   margin-top:22px;
+  padding-top:18px;
+  border-top:1px solid #2d2d2d;
+}
+.productsHead{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:12px;
+}
+.productsTitle{
+  font-size:20px;
+  font-weight:850;
+}
+.productsNote{
+  font-size:11px;
+  color:#777;
+  white-space:nowrap;
+}
+.productsRail{
+  display:flex;
+  gap:12px;
+  overflow-x:auto;
+  padding:2px 2px 10px;
+  scroll-snap-type:x mandatory;
+  scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+}
+.productsRail::-webkit-scrollbar{display:none}
+.productCard{
+  flex:0 0 190px;
+  scroll-snap-align:start;
+  overflow:hidden;
+  background:#202020;
+  border:1px solid #343434;
+  border-radius:20px;
+}
+.productVisual{
+  height:132px;
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+  background:linear-gradient(145deg,#f0f0ed,#d8d9d5);
+}
+.productVisual svg{
+  width:112px;
+  height:112px;
+  display:block;
+}
+.productBody{
+  padding:13px 14px 14px;
+}
+.productName{
+  font-size:15px;
+  font-weight:820;
+  line-height:1.2;
+  min-height:36px;
+}
+.productMeta{
+  margin-top:6px;
+  min-height:30px;
+  color:#8d8d8d;
+  font-size:12px;
+  line-height:1.25;
+}
+.productBottom{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-top:10px;
+}
+.productPrice{
+  font-size:16px;
+  font-weight:850;
+}
+.productCta{
+  border:1px solid #3f3f3f;
+  background:#2b2b2b;
+  color:#dcdcdc;
+  border-radius:999px;
+  padding:7px 10px;
+  font-size:11px;
+  font-weight:800;
+}
+.footer{
+  margin-top:18px;
   font-size:11px;
   color:#666;
   text-align:center;
   letter-spacing:.08em;
 }
-svg{display:block}
 @media(max-width:600px){
   .page{padding:14px}
   .shell{padding:20px 16px;border-radius:24px}
   .tile{min-height:104px;border-radius:18px}
-  .iconBadge{width:70px;height:70px;border-radius:17px}
-  .icon{width:42px;height:42px}
+  .iconWrap{width:54px;height:54px}
+  .icon{width:40px;height:40px}
   .label{font-size:15px}
   .signTile{min-height:112px;border-radius:20px}
   .bottomGrid{grid-template-columns:1.65fr 1fr}
   .monitorTile,.translateTile{min-height:96px;border-radius:18px}
   .monitorTile{padding:0 16px}
   .monitorTitle,.translateTitle{font-size:16px}
+  .productCard{flex-basis:172px}
+  .productVisual{height:120px}
+  .productsTitle{font-size:18px}
+  .productsNote{display:none}
 }
 </style>
 </head>
@@ -204,31 +288,34 @@ svg{display:block}
 
     <div class="topGrid">
       <button class="tile inactive" type="button" aria-disabled="true">
-        <span class="iconBadge" aria-hidden="true">
+        <span class="iconWrap" aria-hidden="true">
           <svg class="icon" viewBox="0 0 64 64">
-            <path d="M8 39h16l12-9 8-17c1-3 4-5 7-5 2 0 4 2 3 5l-5 17 8 7c2 2 2 4 0 5l-4 3-12-5-8 7-1 8-4 3-4-13H8z"/>
-            <rect x="8" y="52" width="48" height="5" rx="2.5"/>
+            <path d="M11 18l14 8 18-11c2-1 5-2 7-1 2 1 2 4 0 6L36 34l10 8-4 4-14-5-8 8-4-2 5-11-12-8z"/>
+            <path d="M9 54h46"/>
           </svg>
         </span>
         <span class="label">Voli</span>
       </button>
 
       <button class="tile inactive" type="button" aria-disabled="true">
-        <span class="iconBadge" aria-hidden="true">
+        <span class="iconWrap" aria-hidden="true">
           <svg class="icon" viewBox="0 0 64 64">
-            <path d="M17 8h30c5 0 9 4 9 9v27c0 6-5 11-11 11H19C13 55 8 50 8 44V17c0-5 4-9 9-9zm1 8v14h28V16H18zm2 23a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm24 0a5 5 0 1 0 0 10 5 5 0 0 0 0-10z"/>
-            <path d="M16 54h8l-5 8h-8zm32 0h-8l5 8h8z"/>
+            <rect x="14" y="8" width="36" height="42" rx="8"/>
+            <path d="M20 16h24v17H20z"/>
+            <circle cx="23" cy="41" r="2.5"/>
+            <circle cx="41" cy="41" r="2.5"/>
+            <path d="M19 56l6-6M45 56l-6-6"/>
           </svg>
         </span>
         <span class="label">Treni</span>
       </button>
 
       <button class="tile inactive" type="button" aria-disabled="true">
-        <span class="iconBadge" aria-hidden="true">
+        <span class="iconWrap" aria-hidden="true">
           <svg class="icon" viewBox="0 0 64 64">
-            <path d="M27 5h10v8h9v8h6v19H12V21h6v-8h9V5zm-5 16v15h20V21H22z"/>
-            <path d="M6 39h52l-6 13c-3 6-8 8-15 6l-5-2-5 2c-7 2-12 0-15-6L6 39z"/>
-            <path d="M5 58c5-4 9-4 14 0 5 4 9 4 14 0 5-4 9-4 14 0 4 3 8 3 12 1v5H5z"/>
+            <path d="M18 34V18h8V10h12v8h8v16"/>
+            <path d="M10 34h44l-6 12c-3 6-8 8-14 5l-2-1-2 1c-6 3-11 1-14-5z"/>
+            <path d="M8 55c4-3 8-3 12 0 4 3 8 3 12 0 4-3 8-3 12 0 4 3 8 3 12 0"/>
           </svg>
         </span>
         <span class="label">Navi</span>
@@ -242,13 +329,11 @@ svg{display:block}
 
     <div class="bottomGrid">
       <button class="monitorTile inactive" type="button" aria-disabled="true">
-        <span class="iconBadge" aria-hidden="true">
+        <span class="iconWrap" aria-hidden="true">
           <svg class="icon" viewBox="0 0 64 64">
-            <rect x="7" y="10" width="50" height="39" rx="5"/>
-            <rect x="13" y="16" width="8" height="25" rx="2"/>
-            <rect x="27" y="23" width="8" height="18" rx="2"/>
-            <rect x="41" y="14" width="8" height="27" rx="2"/>
-            <rect x="24" y="51" width="16" height="5" rx="2"/>
+            <rect x="8" y="11" width="48" height="37" rx="5"/>
+            <path d="M16 38V28M26 38V20M36 38V31M46 38V16"/>
+            <path d="M25 54h14"/>
           </svg>
         </span>
         <span>
@@ -258,19 +343,124 @@ svg{display:block}
       </button>
 
       <button class="translateTile inactive" type="button" aria-disabled="true">
-        <span class="iconBadge" aria-hidden="true">
+        <span class="iconWrap" aria-hidden="true">
           <svg class="icon" viewBox="0 0 64 64">
-            <path d="M7 9h31v27H21L10 45V36H7z"/>
-            <path d="M27 27h30v24h-8v8l-10-8H27z"/>
-            <path d="M14 16h17v4h-6c-1 4-3 7-6 10l-3-3c2-2 4-4 5-7h-7zm6-4h5v4h-5z"/>
-            <path d="M37 33h6l8 14h-6l-1-3h-8l-1 3h-6zm1 7h4l-2-5z"/>
+            <path d="M8 12h28v24H20l-9 8v-8H8z"/>
+            <path d="M28 28h28v22H44l-8 7v-7h-8"/>
+            <path d="M15 19h14M22 16v6M17 28c5-3 8-7 10-12"/>
+            <path d="M39 35h6l6 11M42 42h7"/>
           </svg>
         </span>
         <span class="translateTitle">Traduttore</span>
       </button>
     </div>
 
-    <div class="footer">MAINPAGE · V1.2</div>
+    <section class="productsSection" aria-label="Prodotti consigliati">
+      <div class="productsHead">
+        <div class="productsTitle">Prodotti consigliati</div>
+        <div class="productsNote">Demo · link affiliati in futuro</div>
+      </div>
+
+      <div class="productsRail">
+        <article class="productCard">
+          <div class="productVisual">
+            <svg viewBox="0 0 120 120" aria-hidden="true">
+              <defs><linearGradient id="magsafe" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#333"/><stop offset="1" stop-color="#111"/></linearGradient></defs>
+              <rect x="29" y="15" width="62" height="90" rx="16" fill="url(#magsafe)"/>
+              <circle cx="60" cy="49" r="22" fill="none" stroke="#858585" stroke-width="5"/>
+              <rect x="55" y="75" width="10" height="24" rx="5" fill="#777"/>
+            </svg>
+          </div>
+          <div class="productBody">
+            <div class="productName">Supporto MagSafe auto</div>
+            <div class="productMeta">Aggancio rapido per smartphone</div>
+            <div class="productBottom"><span class="productPrice">€24,90</span><span class="productCta">Vedi</span></div>
+          </div>
+        </article>
+
+        <article class="productCard">
+          <div class="productVisual">
+            <svg viewBox="0 0 120 120" aria-hidden="true">
+              <rect x="34" y="25" width="52" height="70" rx="13" fill="#171717"/>
+              <rect x="49" y="18" width="8" height="16" rx="3" fill="#555"/>
+              <rect x="63" y="18" width="8" height="16" rx="3" fill="#555"/>
+              <rect x="45" y="49" width="30" height="9" rx="4.5" fill="#676767"/>
+              <rect x="45" y="64" width="30" height="9" rx="4.5" fill="#676767"/>
+            </svg>
+          </div>
+          <div class="productBody">
+            <div class="productName">Caricatore USB-C 100W</div>
+            <div class="productMeta">Telefono, tablet e accessori</div>
+            <div class="productBottom"><span class="productPrice">€29,90</span><span class="productCta">Vedi</span></div>
+          </div>
+        </article>
+
+        <article class="productCard">
+          <div class="productVisual">
+            <svg viewBox="0 0 120 120" aria-hidden="true">
+              <rect x="22" y="35" width="76" height="50" rx="12" fill="#191919"/>
+              <rect x="31" y="44" width="38" height="32" rx="6" fill="#2e2e2e"/>
+              <circle cx="83" cy="60" r="8" fill="#555"/>
+              <rect x="98" y="51" width="5" height="18" rx="2.5" fill="#777"/>
+            </svg>
+          </div>
+          <div class="productBody">
+            <div class="productName">Power bank compatto</div>
+            <div class="productMeta">Riserva energia per il turno</div>
+            <div class="productBottom"><span class="productPrice">€34,90</span><span class="productCta">Vedi</span></div>
+          </div>
+        </article>
+
+        <article class="productCard">
+          <div class="productVisual">
+            <svg viewBox="0 0 120 120" aria-hidden="true">
+              <rect x="22" y="22" width="76" height="52" rx="8" fill="#1d1d1d"/>
+              <rect x="30" y="30" width="60" height="36" rx="4" fill="#555"/>
+              <rect x="56" y="74" width="8" height="20" rx="4" fill="#333"/>
+              <rect x="40" y="92" width="40" height="8" rx="4" fill="#222"/>
+            </svg>
+          </div>
+          <div class="productBody">
+            <div class="productName">Supporto tablet</div>
+            <div class="productMeta">Per cartello e lavoro a bordo</div>
+            <div class="productBottom"><span class="productPrice">€27,90</span><span class="productCta">Vedi</span></div>
+          </div>
+        </article>
+
+        <article class="productCard">
+          <div class="productVisual">
+            <svg viewBox="0 0 120 120" aria-hidden="true">
+              <path d="M31 78c0-21 12-36 29-36h18c8 0 14 6 14 14v22z" fill="#1f1f1f"/>
+              <rect x="36" y="74" width="61" height="15" rx="7" fill="#333"/>
+              <path d="M54 42l8-17h12l-4 17z" fill="#555"/>
+              <circle cx="83" cy="61" r="7" fill="#666"/>
+            </svg>
+          </div>
+          <div class="productBody">
+            <div class="productName">Aspiratore portatile</div>
+            <div class="productMeta">Pulizia rapida tra un servizio e l'altro</div>
+            <div class="productBottom"><span class="productPrice">€39,90</span><span class="productCta">Vedi</span></div>
+          </div>
+        </article>
+
+        <article class="productCard">
+          <div class="productVisual">
+            <svg viewBox="0 0 120 120" aria-hidden="true">
+              <rect x="21" y="39" width="78" height="50" rx="9" fill="#202020"/>
+              <path d="M47 39v50M73 39v50" stroke="#555" stroke-width="4"/>
+              <path d="M36 39c2-12 11-18 24-18s22 6 24 18" fill="none" stroke="#333" stroke-width="6"/>
+            </svg>
+          </div>
+          <div class="productBody">
+            <div class="productName">Organizer bagagliaio</div>
+            <div class="productMeta">Cavi, acqua, panni e accessori</div>
+            <div class="productBottom"><span class="productPrice">€22,90</span><span class="productCta">Vedi</span></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <div class="footer">MAINPAGE · V1.3</div>
   </section>
 </main>
 </body>
