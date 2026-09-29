@@ -188,11 +188,11 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
 
     <div class="metaGrid">
       <div class="metaCell">
-        <div class="metaLabel">Distanza tratta</div>
+        <div id="distanceLabel" class="metaLabel">Tratta solo andata</div>
         <div id="distance" class="metaValue">—</div>
       </div>
       <div class="metaCell">
-        <div class="metaLabel">Tempo stimato</div>
+        <div class="metaLabel">Tempo guida stimato</div>
         <div id="duration" class="metaValue">—</div>
       </div>
       <div class="metaCell">
@@ -437,8 +437,19 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     if(calc.vat>0) detail+=" + IVA 10% ("+money(calc.vat)+")";
     if(roundPrice) detail+=" · arrotondato ai 5 €";
     document.getElementById("priceDetail").textContent=detail;
-    document.getElementById("distance").textContent=calc.oneWayKm.toLocaleString("it-IT",{maximumFractionDigits:1})+" km";
-    var totalMinutes=Number(data.duration_min||0)*calc.factors.cost + (calc.hours*60);
+    var oneWayText=calc.oneWayKm.toLocaleString("it-IT",{maximumFractionDigits:1});
+    var distanceLabel=document.getElementById("distanceLabel");
+    if(calc.factors.label==="Andata e ritorno cliente"){
+      distanceLabel.textContent="Tratta A/R";
+      document.getElementById("distance").textContent=calc.costKm.toLocaleString("it-IT",{maximumFractionDigits:1})+" km";
+    }else if(calc.factors.label==="Ritorno a vuoto"){
+      distanceLabel.textContent="Tratta";
+      document.getElementById("distance").textContent=oneWayText+" + "+oneWayText+" km vuoto";
+    }else{
+      distanceLabel.textContent="Tratta solo andata";
+      document.getElementById("distance").textContent=oneWayText+" km";
+    }
+    var totalMinutes=Number(data.duration_min||0)*calc.factors.cost;
     document.getElementById("duration").textContent=hhmm(totalMinutes);
     document.getElementById("rateView").textContent=money(calc.rate)+"/km";
     document.getElementById("fromResolved").textContent=(data.from&&data.from.label)||fromInput.value;
@@ -533,8 +544,12 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
       "Da: "+((lastQuote.from&&lastQuote.from.label)||fromInput.value)+"\n"+
       "A: "+((lastQuote.to&&lastQuote.to.label)||toInput.value)+"\n"+
       "Tipo corsa: "+calc.factors.label+"\n"+
-      "Distanza tratta: "+calc.oneWayKm+" km\n"+
-      "Tempo stimato: "+hhmm(Number(lastQuote.duration_min||0)*calc.factors.cost+(calc.hours*60))+"\n"+
+      (calc.factors.label==="Andata e ritorno cliente"
+        ? "Tratta A/R: "+calc.costKm.toFixed(1)+" km\n"
+        : calc.factors.label==="Ritorno a vuoto"
+          ? "Tratta: "+calc.oneWayKm.toFixed(1)+" + "+calc.oneWayKm.toFixed(1)+" km vuoto\n"
+          : "Tratta solo andata: "+calc.oneWayKm.toFixed(1)+" km\n")+
+      "Tempo guida stimato: "+hhmm(Number(lastQuote.duration_min||0)*calc.factors.cost)+"\n"+
       "Km di costo: "+calc.costKm.toFixed(1)+" km\n"+
       "Tariffa: "+money(calc.rate)+"/km\n"+
       (calc.hours>0 ? "Disponibilità: "+calc.hours+" h × "+money(calc.hourlyRate)+"/h = "+money(calc.availabilityQuote)+"\n" : "")+
