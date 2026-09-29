@@ -390,6 +390,27 @@ h1{
 .vehicleDeadline.bad{border-color:#633331;background:#301c1c}
 .vehicleMiniMaint{margin-top:9px;color:#717981;font-size:9px;line-height:1.35}
 .vehicleHomeEmpty{padding:18px 16px;color:#747b82;font-size:11px}
+.homePartnerAlerts{display:grid;gap:8px;padding:0 12px 12px}
+.homePartnerAlert{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:11px 12px;
+  border:1px solid #3b4148;
+  border-radius:14px;
+  background:#20252a;
+  color:#fff;
+  text-decoration:none;
+}
+.homePartnerAlert.insurance{border-color:#514b2c;background:#292719}
+.homePartnerAlert.tyres{border-color:#34434d;background:#20272c}
+.homePartnerCopy{min-width:0}
+.homePartnerEyebrow{font-size:8px;color:#77818a;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+.homePartnerTitle{margin-top:3px;font-size:12px;font-weight:900;line-height:1.2}
+.homePartnerCta{font-size:10px;font-weight:900;color:#b8c8d6;white-space:nowrap}
+.homePartnerAlert.insurance .homePartnerCta{color:#ded18a}
+.homePartnerAlert:active{opacity:.88}
 .cartelloLink{
   cursor:pointer;
   transition:transform .12s ease,opacity .12s ease;
@@ -699,6 +720,7 @@ h1{
           <a class="vehicleHomeLink" href="veicolo.html">Gestisci →</a>
         </div>
         <div id="vehicleHomeList" class="vehicleHomeList"></div>
+        <div id="vehiclePartnerAlerts" class="homePartnerAlerts"></div>
       </div>
     </section>
 
@@ -758,7 +780,7 @@ h1{
       </div>
     </section>
 
-    <div class="footer">MAINPAGE · STEERWILL V4.4</div>
+    <div class="footer">MAINPAGE · STEERWILL V4.5</div>
   </section>
 </main>
 
@@ -865,12 +887,60 @@ h1{
     }catch(e){return [];}
   }
 
+  function daysUntilDate(value){
+    if(!value) return null;
+    var d=new Date(value+"T12:00:00");
+    if(isNaN(d)) return null;
+    var today=new Date();
+    today.setHours(0,0,0,0);
+    return Math.ceil((d.getTime()-today.getTime())/86400000);
+  }
+
+  function renderPartnerAlerts(vehicles){
+    var host=document.getElementById("vehiclePartnerAlerts");
+    if(!host) return;
+    var alerts=[];
+
+    vehicles.forEach(function(v){
+      var plate=esc(v.plate||"Veicolo");
+      var insuranceDays=daysUntilDate(v.insurance);
+      if(insuranceDays!==null && insuranceDays<=90){
+        alerts.push(
+          '<a class="homePartnerAlert insurance" href="https://www.segugio.it/assicurazioni/" target="_blank" rel="noopener sponsored">'+
+            '<span class="homePartnerCopy"><span class="homePartnerEyebrow">Partner · '+plate+'</span>'+
+            '<span class="homePartnerTitle">Assicurazione in scadenza?</span></span>'+
+            '<span class="homePartnerCta">Nuovo preventivo →</span>'+
+          '</a>'
+        );
+      }
+
+      var km=Number(v.km||0);
+      var tyresKm=Number(v.tyresKm||0);
+      var tyresLeft=tyresKm>0?tyresKm-km:null;
+      var tyresDays=daysUntilDate(v.tyresDate);
+      var tyresDue=(tyresLeft!==null && tyresLeft<=1000) || (tyresDays!==null && tyresDays<=30);
+      if(tyresDue){
+        alerts.push(
+          '<a class="homePartnerAlert tyres" href="https://www.pneumatici.it/" target="_blank" rel="noopener sponsored">'+
+            '<span class="homePartnerCopy"><span class="homePartnerEyebrow">Partner · '+plate+'</span>'+
+            '<span class="homePartnerTitle">È ora di cambiare pneumatici?</span></span>'+
+            '<span class="homePartnerCta">Vedi offerte →</span>'+
+          '</a>'
+        );
+      }
+    });
+
+    host.innerHTML=alerts.join("");
+    host.style.display=alerts.length?"grid":"none";
+  }
+
   function renderVehiclesHome(){
     var vehicleHost=document.getElementById("vehicleHomeList");
     if(!vehicleHost) return;
     var vehicles=readVehicles();
     if(!vehicles.length){
       vehicleHost.innerHTML='<a class="vehicleMini" href="veicolo.html"><div class="vehicleHomeEmpty">Nessun veicolo inserito · aggiungi il primo mezzo →</div></a>';
+      renderPartnerAlerts([]);
       return;
     }
     vehicleHost.innerHTML=vehicles.map(function(v){
@@ -891,6 +961,7 @@ h1{
         (maint.length?'<div class="vehicleMiniMaint">'+esc(maint.join(" · "))+'</div>':"")+
       '</a>';
     }).join("");
+    renderPartnerAlerts(vehicles);
   }
 
   function localDayKey(){
