@@ -103,7 +103,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
   </div>
 </main>
 
-<script src="flight-config.js"></script>
+<script src="flight-config.js?v=ships3"></script>
 <script>
 (function(){
   "use strict";
@@ -211,7 +211,14 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
       });
       var data = await res.json().catch(function(){return {};});
       if(!res.ok) throw new Error(data.error||"api");
-      render(Array.isArray(data.items)?data.items:[]);
+      var items = Array.isArray(data.items)?data.items:[];
+      if(params && params.date && !items.length){
+        weekBtn.classList.add("active");
+        todayBtn.classList.remove("active");
+        sectionTitle.textContent = "Programmazione disponibile";
+        return load({});
+      }
+      render(items);
     }catch(e){
       list.innerHTML = '<div class="empty error"><strong>Dati porto non disponibili</strong>Riprova tra poco.</div>';
     }
