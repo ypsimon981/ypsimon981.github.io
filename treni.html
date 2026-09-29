@@ -113,7 +113,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
       <button id="searchBtn" type="button">Filtra</button>
     </div>
 
-    <div class="notice">Tabellone RFI in tempo reale: comprende Trenitalia, Italo e gli altri operatori presenti in stazione. RFI avverte che il monitor web può essere in ritardo fino a circa 3 minuti rispetto ai display in stazione.</div>
+    <div class="notice">Tabellone live RFI con orizzonte esteso fino a circa 12 ore. I treni più vicini usano i dati in tempo reale; quelli più lontani sono indicati come programmati.</div>
   </section>
 
   <div class="sectionHead">
@@ -189,6 +189,11 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
       var place=mode==="departures"?(t.destination||"—"):(t.origin||"—");
       var delay=t.delay_minutes;
       var delayText=t.status||"—";
+      var dayText="";
+      if(t.service_date){
+        var dd=new Date(t.service_date+"T12:00:00");
+        if(!isNaN(dd)) dayText=dd.toLocaleDateString("it-IT",{weekday:"short",day:"2-digit",month:"short"});
+      }
       return '<article class="card">'+
         '<div class="cardMain">'+
           '<div><div class="trainNo">'+escapeHtml(t.train)+'</div><div class="operator">'+escapeHtml(t.operator||"")+'</div></div>'+
@@ -200,7 +205,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
           '<div class="timeCell"><div class="timeLabel">Previsto</div><div class="timeValue">'+escapeHtml(t.estimated||"—")+'</div></div>'+
           '<div class="timeCell"><div class="timeLabel">Ritardo</div><div class="timeValue '+(delay>0?"delay":"")+'">'+(delay==null?"—":delay>0?"+"+delay+" min":"0 min")+'</div></div>'+
         '</div>'+
-        '<div class="cardActions"><div class="meta">'+escapeHtml(stationLabel())+'</div><button class="follow '+(followed?"followed":"")+'" type="button" data-follow="'+escapeHtml(t.id)+'">'+(followed?"✓ Nel Monitor":"+ Segui")+'</button></div>'+
+        '<div class="cardActions"><div class="meta">'+escapeHtml(stationLabel()+(dayText?" · "+dayText:""))+'</div><button class="follow '+(followed?"followed":"")+'" type="button" data-follow="'+escapeHtml(t.id)+'">'+(followed?"✓ Nel Monitor":"+ Segui")+'</button></div>'+
       '</article>';
     }).join("");
 
