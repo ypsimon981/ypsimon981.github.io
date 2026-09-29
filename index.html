@@ -91,9 +91,10 @@ h1{
   letter-spacing:.12em;
   text-transform:uppercase;
 }
-.heroTile,
+.cartelloHero,
 .toolTile,
 .utilityTile,
+.timestampCard,
 .managementTile{
   border:1px solid #383838;
   background:var(--panel2);
@@ -103,65 +104,131 @@ h1{
   display:flex;
   user-select:none;
 }
-.heroGrid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:12px;
-}
-.heroTile{
-  min-height:174px;
-  padding:22px;
+.cartelloHero{
+  min-height:238px;
+  padding:28px;
   flex-direction:column;
   justify-content:space-between;
+  background:#f4f4f1;
+  color:#090909;
+  border-color:#f4f4f1;
+  cursor:pointer;
+  transition:transform .12s ease,opacity .12s ease;
 }
-.heroTile.timestamp{
-  background:#f4f4f2;
-  color:#0b0b0b;
-  border-color:#f4f4f2;
-}
-.heroTile.cartello{
-  background:#2a2a2a;
-}
-.heroTop{
+.cartelloHero:active{transform:scale(.99);opacity:.93}
+.cartelloTop{
   display:flex;
   align-items:flex-start;
   justify-content:space-between;
-  gap:14px;
+  gap:18px;
 }
-.heroEyebrow{
+.cartelloEyebrow{
   font-size:11px;
   font-weight:900;
-  letter-spacing:.14em;
+  letter-spacing:.15em;
   text-transform:uppercase;
-  opacity:.5;
+  opacity:.48;
 }
-.heroTitle{
-  margin-top:18px;
-  font-size:clamp(30px,5.2vw,46px);
-  font-weight:950;
-  line-height:.94;
-  letter-spacing:-.035em;
-}
-.heroMeta{
-  margin-top:9px;
-  font-size:13px;
-  font-weight:700;
-  opacity:.58;
-  line-height:1.3;
-}
-.heroIcon{
-  width:64px;
-  height:64px;
-  flex:0 0 64px;
-  border:1px solid currentColor;
-  border-radius:18px;
+.cartelloIcon{
+  width:78px;
+  height:78px;
+  flex:0 0 78px;
+  border:1.5px solid rgba(0,0,0,.22);
+  border-radius:21px;
   display:grid;
   place-items:center;
-  opacity:.65;
 }
-.heroIcon svg{
-  width:38px;
-  height:38px;
+.cartelloIcon svg{
+  width:46px;
+  height:46px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.55;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.cartelloTitle{
+  margin-top:32px;
+  font-size:clamp(50px,10vw,88px);
+  font-weight:950;
+  line-height:.82;
+  letter-spacing:-.05em;
+}
+.cartelloMeta{
+  margin-top:17px;
+  max-width:520px;
+  font-size:14px;
+  font-weight:700;
+  line-height:1.35;
+  opacity:.58;
+}
+.travelSection{
+  padding:18px;
+  border:1px solid #3b3b3b;
+  border-radius:22px;
+  background:#1f1f1f;
+}
+.travelSection .sectionTitle{margin-bottom:13px}
+.travelGrid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+.toolTile{
+  aspect-ratio:1/1;
+  min-height:120px;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  text-align:center;
+  background:#252525;
+}
+.toolTile .iconWrap{width:58px;height:58px}
+.toolTile .icon{width:43px;height:43px}
+.timestampCard{
+  min-height:142px;
+  padding:21px 23px;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+  background:#292929;
+  border-color:#474747;
+}
+.timestampCopy{min-width:0}
+.timestampEyebrow{
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+  color:#888;
+}
+.timestampTitle{
+  margin-top:7px;
+  font-size:clamp(30px,5vw,43px);
+  font-weight:930;
+  line-height:.95;
+  letter-spacing:-.035em;
+}
+.timestampMeta{
+  margin-top:8px;
+  color:#9a9a9a;
+  font-size:13px;
+  font-weight:650;
+}
+.timestampIcon{
+  width:76px;
+  height:76px;
+  flex:0 0 76px;
+  border:1px solid #4d4d4d;
+  border-radius:20px;
+  display:grid;
+  place-items:center;
+  color:#ddd;
+}
+.timestampIcon svg{
+  width:42px;
+  height:42px;
   fill:none;
   stroke:currentColor;
   stroke-width:1.6;
@@ -208,22 +275,8 @@ h1{
   font-weight:650;
   line-height:1.25;
 }
-.travelGrid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:12px;
-}
-.toolTile{
-  aspect-ratio:1/1;
-  min-height:120px;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:10px;
-  text-align:center;
-}
-.toolTile .iconWrap{width:58px;height:58px}
-.toolTile .icon{width:43px;height:43px}
+.utilityTile .iconWrap{width:46px;height:46px}
+.utilityTile .icon{width:34px;height:34px}
 .managementGrid{
   display:grid;
   grid-template-columns:1.45fr 1fr 1fr;
@@ -277,15 +330,6 @@ h1{
   transition:transform .12s ease,opacity .12s ease;
 }
 .cartelloLink:active{transform:scale(.985);opacity:.9}
-.travelSection{
-  padding:16px;
-  border:1px solid #3a3a3a;
-  border-radius:22px;
-  background:#1e1e1e;
-}
-.travelSection .sectionTitle{margin-bottom:12px}
-.utilityTile .iconWrap{width:46px;height:46px}
-.utilityTile .icon{width:34px;height:34px}
 
 /* Prodotti / futura monetizzazione */
 .productsSection{
@@ -383,11 +427,15 @@ h1{
 @media(max-width:680px){
   .page{padding:14px}
   .shell{padding:20px 16px;border-radius:24px}
-  .heroGrid{grid-template-columns:1fr}
-  .heroTile{min-height:148px;border-radius:20px}
-  .heroTop{align-items:center}
+  .cartelloHero{min-height:210px;padding:22px;border-radius:20px}
+  .cartelloIcon{width:66px;height:66px;flex-basis:66px;border-radius:18px}
+  .cartelloIcon svg{width:40px;height:40px}
+  .cartelloTitle{margin-top:28px;font-size:clamp(50px,16vw,72px)}
   .travelSection{border-radius:20px;padding:14px}
   .travelGrid{gap:9px}
+  .timestampCard{min-height:126px;padding:18px;border-radius:20px}
+  .timestampIcon{width:64px;height:64px;flex-basis:64px;border-radius:18px}
+  .timestampIcon svg{width:36px;height:36px}
   .utilitiesGrid{grid-template-columns:1fr 1fr}
   .utilityTile{min-height:88px;border-radius:18px;padding:14px}
   .toolTile{min-height:104px;border-radius:18px}
@@ -415,43 +463,23 @@ h1{
     <p class="sub">Gli strumenti del turno, senza trasformare CoDriver in un gestionale.</p>
 
     <section class="section">
-      <div class="sectionTitle">Funzioni principali</div>
-      <div class="heroGrid">
-        <button class="heroTile timestamp inactive" type="button" aria-disabled="true">
-          <span>
-            <span class="heroTop">
-              <span class="heroEyebrow">Foto professionale</span>
-              <span class="heroIcon" aria-hidden="true">
-                <svg viewBox="0 0 64 64">
-                  <rect x="8" y="16" width="48" height="36" rx="7"/>
-                  <path d="M20 16l4-7h16l4 7"/>
-                  <circle cx="32" cy="34" r="10"/>
-                  <path d="M43 43l8 8"/>
-                </svg>
-              </span>
-            </span>
-            <span class="heroTitle">Timestamp</span>
-            <span class="heroMeta">Foto con data, ora e posizione opzionale.</span>
+      <div class="sectionTitle">Funzione principale</div>
+      <a class="cartelloHero" href="cartello.html">
+        <span class="cartelloTop">
+          <span class="cartelloEyebrow">Accoglienza cliente</span>
+          <span class="cartelloIcon" aria-hidden="true">
+            <svg viewBox="0 0 64 64">
+              <rect x="8" y="12" width="48" height="38" rx="5"/>
+              <path d="M17 24h30M17 33h22"/>
+              <path d="M24 56h16M32 50v6"/>
+            </svg>
           </span>
-        </button>
-
-        <a class="heroTile cartello cartelloLink" href="cartello.html">
-          <span>
-            <span class="heroTop">
-              <span class="heroEyebrow">Accoglienza cliente</span>
-              <span class="heroIcon" aria-hidden="true">
-                <svg viewBox="0 0 64 64">
-                  <rect x="9" y="13" width="46" height="36" rx="5"/>
-                  <path d="M17 25h30M17 33h22"/>
-                  <path d="M25 55h14M32 49v6"/>
-                </svg>
-              </span>
-            </span>
-            <span class="heroTitle">Cartello</span>
-            <span class="heroMeta">Nome passeggero, colori, font e modalità di visualizzazione.</span>
-          </span>
-        </a>
-      </div>
+        </span>
+        <span>
+          <span class="cartelloTitle">CARTELLO</span>
+          <span class="cartelloMeta">Nome passeggero, font, colori e modalità di visualizzazione. Pronto per l'accoglienza in aeroporto, stazione o porto.</span>
+        </span>
+      </a>
     </section>
 
     <section class="section">
@@ -493,6 +521,25 @@ h1{
           </button>
         </div>
       </div>
+    </section>
+
+    <section class="section">
+      <div class="sectionTitle">Timestamp</div>
+      <button class="timestampCard inactive" type="button" aria-disabled="true">
+        <span class="timestampCopy">
+          <span class="timestampEyebrow">Foto professionale</span>
+          <span class="timestampTitle">Timestamp</span>
+          <span class="timestampMeta">Foto con data, ora e posizione opzionale.</span>
+        </span>
+        <span class="timestampIcon" aria-hidden="true">
+          <svg viewBox="0 0 64 64">
+            <rect x="8" y="16" width="48" height="36" rx="7"/>
+            <path d="M20 16l4-7h16l4 7"/>
+            <circle cx="32" cy="34" r="10"/>
+            <path d="M43 43l8 8"/>
+          </svg>
+        </span>
+      </button>
     </section>
 
     <section class="section">
@@ -659,7 +706,7 @@ h1{
       </div>
     </section>
 
-    <div class="footer">MAINPAGE · V2.1</div>
+    <div class="footer">MAINPAGE · V2.2</div>
   </section>
 </main>
 </body>
