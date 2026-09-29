@@ -551,8 +551,8 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
       ? calc.consumption.toLocaleString("it-IT",{maximumFractionDigits:1})+" "+unit+" × "+money(calc.energy.price)+(calc.fuelKind==="electric"?"/kWh":calc.fuelKind==="methane"?"/kg":"/l")
       : (calc.vehicle ? "Completa alimentazione e consumo nell'anagrafica del mezzo" : "Seleziona un mezzo nelle impostazioni");
     document.getElementById("costSource").textContent=fuelDetail+" · "+calc.energy.source;
-    renderMap(data,tripMode.value);
     result.classList.add("show");
+    renderMap(data,tripMode.value);
   }
 
   async function calculate(){
