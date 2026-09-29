@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#090909">
-<title>CoDriver · Monitor</title>
+<title>SteerWill · Monitor</title>
+<link rel="icon" type="image/webp" href="assets/steerwill-icon.webp">
 <style>
 :root{--bg:#090909;--panel:#171717;--line:#353535;--text:#f7f7f7;--muted:#858585;--yellow:#f3d500}
 *{box-sizing:border-box}
@@ -62,7 +63,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
 <body>
 <main class="page">
   <div class="topbar">
-    <div class="brand">CODRIVER · MONITOR</div>
+    <div class="brand">STEERWILL · MONITOR</div>
     <div class="topActions">
       <a class="pillLink" href="voli.html">+ Volo</a>
       <a class="pillLink" href="treni.html">+ Treno</a>
@@ -282,15 +283,15 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
 
   async function refreshFlights(){
     var items=read(FLIGHT_KEY);
-    if(!items.length||!window.CODRIVER_FLIGHT_API) return;
+    if(!items.length||!window.STEERWILL_FLIGHT_API) return;
 
     var updated=[];
     for(var i=0;i<items.length;i++){
       var old=items[i];
       try{
-        var res=await fetch(window.CODRIVER_FLIGHT_API+"?ident="+encodeURIComponent(old.ident),{
+        var res=await fetch(window.STEERWILL_FLIGHT_API+"?ident="+encodeURIComponent(old.ident),{
           cache:"no-store",
-          headers:{"apikey":window.CODRIVER_SUPABASE_PUBLIC_KEY||""}
+          headers:{"apikey":window.STEERWILL_SUPABASE_PUBLIC_KEY||""}
         });
         var data=await res.json().catch(function(){return {};});
         if(!res.ok) throw new Error(data.error||"api");
@@ -302,7 +303,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
 
   async function refreshTrains(){
     var followed=read(TRAIN_KEY);
-    if(!followed.length||!window.CODRIVER_TRAINS_API) return;
+    if(!followed.length||!window.STEERWILL_TRAINS_API) return;
 
     var groups={};
     followed.forEach(function(t){
@@ -317,9 +318,9 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
       var bits=key.split("|");
       var stationSlug=bits[0], mode=bits[1];
       try{
-        var res=await fetch(window.CODRIVER_TRAINS_API+"?station="+encodeURIComponent(stationSlug)+"&mode="+encodeURIComponent(mode),{
+        var res=await fetch(window.STEERWILL_TRAINS_API+"?station="+encodeURIComponent(stationSlug)+"&mode="+encodeURIComponent(mode),{
           cache:"no-store",
-          headers:{"apikey":window.CODRIVER_SUPABASE_PUBLIC_KEY||""}
+          headers:{"apikey":window.STEERWILL_SUPABASE_PUBLIC_KEY||""}
         });
         var data=await res.json().catch(function(){return {};});
         if(!res.ok||!Array.isArray(data.items)) continue;
@@ -342,7 +343,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
 
   async function refreshShips(){
     var followed=read(SHIP_KEY);
-    if(!followed.length||!window.CODRIVER_SHIPS_API) return;
+    if(!followed.length||!window.STEERWILL_SHIPS_API) return;
 
     var groups={};
     followed.forEach(function(s){
@@ -355,9 +356,9 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
 
     for(var slug in groups){
       try{
-        var res=await fetch(window.CODRIVER_SHIPS_API+"?port="+encodeURIComponent(slug),{
+        var res=await fetch(window.STEERWILL_SHIPS_API+"?port="+encodeURIComponent(slug),{
           cache:"no-store",
-          headers:{"apikey":window.CODRIVER_SUPABASE_PUBLIC_KEY||""}
+          headers:{"apikey":window.STEERWILL_SUPABASE_PUBLIC_KEY||""}
         });
         var data=await res.json().catch(function(){return {};});
         if(!res.ok||data.connected===false||!Array.isArray(data.items)) continue;
