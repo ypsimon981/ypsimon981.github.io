@@ -174,7 +174,7 @@ Deno.serve(async(req:Request)=>{
 
     const routeUrl="https://router.project-osrm.org/route/v1/driving/"
       +a.lon+","+a.lat+";"+b.lon+","+b.lat
-      +"?overview=false&steps=false&alternatives=false";
+      +"?overview=full&geometries=geojson&steps=false&alternatives=false";
 
     const routeRes=await fetch(routeUrl,{
       headers:{"User-Agent":"CoDriver/0.1 quick-quote prototype"}
@@ -192,6 +192,7 @@ Deno.serve(async(req:Request)=>{
       to:b,
       distance_km:Math.round((best.distance/1000)*10)/10,
       duration_min:Math.round(best.duration/60),
+      route_geometry:best.geometry&&Array.isArray(best.geometry.coordinates)?best.geometry.coordinates:null,
       fuel
     },200,origin);
   }catch(error){
