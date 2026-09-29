@@ -80,7 +80,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     <button id="refreshAll" class="refresh" type="button">Aggiorna</button>
   </div>
 
-  <div class="notice">Voli: FlightAware live. Treni: tabelloni RFI live. Navi: programmazione del porto selezionato.</div>
+  <div class="notice">Voli: FlightAware live. Treni: tabelloni RFI live. Navi: programmazione del porto selezionato. I viaggi conclusi da oltre 12 ore vengono rimossi automaticamente.</div>
   <div id="list" class="list"></div>
 </main>
 
@@ -100,6 +100,42 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     catch(e){return [];}
   }
   function write(key,items){localStorage.setItem(key,JSON.stringify(items));}
+
+  var AUTO_REMOVE_AFTER = 12 * 60 * 60 * 1000;
+
+  function parseLocalEvent(date,time){
+    if(!date||!time) return NaN;
+    var d=new Date(String(date)+"T"+String(time)+":00");
+    return d.getTime();
+  }
+
+  function flightIsExpired(f,now){
+    var status=String(f.status||"").toLowerCase();
+    var arrived=!!f.actual_in || /arriv|landed|complete|complet/.test(status);
+    if(!arrived) return false;
+    var ts=new Date(f.actual_in||f.estimated_in||f.scheduled_in||0).getTime();
+    return Number.isFinite(ts) && now-ts>AUTO_REMOVE_AFTER;
+  }
+
+  function trainIsExpired(t,now){
+    var ts=Number(t.service_ts)||0;
+    if(!ts && t.service_date){
+      ts=parseLocalEvent(t.service_date,t.estimated||t.scheduled);
+    }
+    return Number.isFinite(ts) && ts>0 && now-ts>AUTO_REMOVE_AFTER;
+  }
+
+  function shipIsExpired(s,now){
+    var ts=parseLocalEvent(s.date,s.arrival||s.departure);
+    return Number.isFinite(ts) && now-ts>AUTO_REMOVE_AFTER;
+  }
+
+  function pruneExpired(){
+    var now=Date.now();
+    write(FLIGHT_KEY,read(FLIGHT_KEY).filter(function(f){return !flightIsExpired(f,now);}));
+    write(TRAIN_KEY,read(TRAIN_KEY).filter(function(t){return !trainIsExpired(t,now);}));
+    write(SHIP_KEY,read(SHIP_KEY).filter(function(s){return !shipIsExpired(s,now);}));
+  }
 
   function formatTime(v){
     if(!v) return "—";
@@ -403,17 +439,20 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     refreshAll.disabled=true;
     refreshAll.textContent="Aggiorno…";
     await Promise.all([refreshFlights(),refreshTrains(),refreshShips()]);
+    pruneExpired();
     refreshAll.disabled=false;
     refreshAll.textContent="Aggiorna";
     render();
   }
 
   refreshAll.onclick=refresh;
+  pruneExpired();
   render();
   refresh();
 
   setInterval(async function(){
     await Promise.all([refreshFlights(),refreshTrains()]);
+    pruneExpired();
     render();
   },60000);
 })();
