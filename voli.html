@@ -28,7 +28,10 @@ h1{margin:0;font-size:clamp(40px,8vw,68px);line-height:.94;letter-spacing:-.045e
 .search input{min-width:0;height:58px;border:1px solid #3b3b3b;border-radius:17px;background:#0e0e0e;color:#fff;padding:0 18px;font-size:22px;font-weight:850;text-transform:uppercase;outline:none}
 .search input:focus{border-color:#777}
 .search button{height:58px;border:0;border-radius:17px;background:var(--yellow);color:#111;padding:0 20px;font-weight:900}
-.quick{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.dayTabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.dayTabs button{height:44px;border:1px solid #3a3a3a;border-radius:14px;background:#232323;color:#cfcfcf;font-weight:900}
+.dayTabs button.active{background:#fff;color:#111;border-color:#fff}
+.quick{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .quick button{border:1px solid #383838;background:#232323;color:#d8d8d8;border-radius:999px;padding:8px 12px;font-size:12px;font-weight:800}
 .notice{margin-top:13px;padding:10px 12px;border:1px solid #303030;border-radius:13px;background:#121212;color:#858585;font-size:11px;line-height:1.35}
 .result{display:none;margin-top:16px;border:1px solid #3b3b3b;border-radius:24px;background:#1c1c1c;overflow:hidden}
@@ -42,6 +45,10 @@ h1{margin:0;font-size:clamp(40px,8vw,68px);line-height:.94;letter-spacing:-.045e
 .airportName{margin-top:3px;color:#858585;font-size:11px}
 .routeArrow{font-size:28px;color:#767676}
 .route .right{text-align:right}
+.landingBlock{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin:0 20px 18px;padding:16px 17px;border:1px solid #4b4625;border-radius:18px;background:linear-gradient(135deg,#2a2819,#1f211e)}
+.landingEyebrow{font-size:9px;color:#a79d62;font-weight:900;letter-spacing:.11em;text-transform:uppercase}
+.landingDate{margin-top:5px;font-size:18px;font-weight:900}
+.landingTime{font-size:clamp(34px,8vw,54px);font-weight:950;letter-spacing:-.04em;color:#f2c94c;line-height:.9}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid #303030;border-bottom:1px solid #303030}
 .stat{padding:15px 12px;text-align:center;border-right:1px solid #303030}
 .stat:last-child{border-right:0}
@@ -88,6 +95,10 @@ h1{margin:0;font-size:clamp(40px,8vw,68px);line-height:.94;letter-spacing:-.045e
       <input id="flightInput" type="text" placeholder="Es. AZ61" autocapitalize="characters" autocomplete="off" spellcheck="false">
       <button id="searchBtn" type="button">Cerca volo</button>
     </div>
+    <div class="dayTabs">
+      <button id="todayBtn" class="active" type="button">Oggi</button>
+      <button id="tomorrowBtn" type="button">Domani</button>
+    </div>
     <div class="quick">
       <button type="button" data-flight="AZ61">AZ61</button>
       <button type="button" data-flight="FR9981">FR9981</button>
@@ -116,9 +127,17 @@ h1{margin:0;font-size:clamp(40px,8vw,68px);line-height:.94;letter-spacing:-.045e
       </div>
     </div>
 
+    <div class="landingBlock">
+      <div>
+        <div class="landingEyebrow">Atterraggio previsto</div>
+        <div id="landingDate" class="landingDate">—</div>
+      </div>
+      <div id="landingTime" class="landingTime">—</div>
+    </div>
+
     <div class="stats">
-      <div class="stat"><div class="statLabel">Programmato</div><div id="scheduled" class="statValue">—</div></div>
-      <div class="stat"><div class="statLabel">Stimato</div><div id="estimated" class="statValue">—</div></div>
+      <div class="stat"><div class="statLabel">Arrivo programmato</div><div id="scheduled" class="statValue">—</div></div>
+      <div class="stat"><div class="statLabel">Arrivo stimato</div><div id="estimated" class="statValue">—</div></div>
       <div class="stat"><div class="statLabel">Terminal</div><div id="terminal" class="statValue">—</div></div>
       <div class="stat"><div class="statLabel">Gate</div><div id="gate" class="statValue">—</div></div>
     </div>
@@ -141,10 +160,19 @@ h1{margin:0;font-size:clamp(40px,8vw,68px);line-height:.94;letter-spacing:-.045e
   var searchBtn = document.getElementById("searchBtn");
   var refreshBtn = document.getElementById("refreshBtn");
   var followBtn = document.getElementById("followBtn");
+  var todayBtn = document.getElementById("todayBtn");
+  var tomorrowBtn = document.getElementById("tomorrowBtn");
   var currentFlight = null;
+  var selectedDate = localDateOffset(0);
 
   function normalizeIdent(v){
     return String(v||"").toUpperCase().replace(/\s+/g,"").trim();
+  }
+
+  function localDateOffset(days){
+    var d=new Date();
+    d.setDate(d.getDate()+days);
+    return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
   }
 
   function formatTime(v){
@@ -152,6 +180,20 @@ h1{margin:0;font-size:clamp(40px,8vw,68px);line-height:.94;letter-spacing:-.045e
     var d = new Date(v);
     if(isNaN(d)) return "—";
     return d.toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"});
+  }
+
+  function formatDate(v){
+    if(!v) return "—";
+    var d=new Date(v);
+    if(isNaN(d)) return "—";
+    return d.toLocaleDateString("it-IT",{weekday:"long",day:"numeric",month:"long"});
+  }
+
+  function formatDateTime(v){
+    if(!v) return "—";
+    var d=new Date(v);
+    if(isNaN(d)) return "—";
+    return d.toLocaleDateString("it-IT",{day:"2-digit",month:"short"})+" · "+d.toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"});
   }
 
   function getMonitored(){
@@ -163,13 +205,15 @@ h1{margin:0;font-size:clamp(40px,8vw,68px);line-height:.94;letter-spacing:-.045e
     localStorage.setItem(STORAGE_KEY,JSON.stringify(items));
   }
 
-  function isFollowed(ident){
-    return getMonitored().some(function(f){return f.ident===ident;});
+  function isFollowed(ident,targetDate){
+    return getMonitored().some(function(f){
+      return f.ident===ident && String(f.target_date||"")===String(targetDate||"");
+    });
   }
 
   function updateFollowButton(){
     if(!currentFlight) return;
-    var followed = isFollowed(currentFlight.ident);
+    var followed = isFollowed(currentFlight.ident,currentFlight.target_date);
     followBtn.textContent = followed ? "✓ Nel Monitor" : "+ Segui nel Monitor";
     followBtn.classList.toggle("followed",followed);
   }
@@ -183,8 +227,11 @@ h1{margin:0;font-size:clamp(40px,8vw,68px);line-height:.94;letter-spacing:-.045e
     document.getElementById("originName").textContent = (f.origin&&f.origin.name)||"Origine";
     document.getElementById("destinationCode").textContent = (f.destination&&f.destination.code)||"—";
     document.getElementById("destinationName").textContent = (f.destination&&f.destination.name)||"Destinazione";
-    document.getElementById("scheduled").textContent = formatTime(f.scheduled_in);
-    document.getElementById("estimated").textContent = formatTime(f.estimated_in || f.scheduled_in);
+    var landing=f.estimated_in || f.scheduled_in;
+    document.getElementById("landingDate").textContent = formatDate(landing);
+    document.getElementById("landingTime").textContent = formatTime(landing);
+    document.getElementById("scheduled").textContent = formatDateTime(f.scheduled_in);
+    document.getElementById("estimated").textContent = formatDateTime(landing);
     document.getElementById("terminal").textContent = f.terminal_destination || "—";
     document.getElementById("gate").textContent = f.gate_destination || "—";
     result.classList.add("show");
@@ -211,7 +258,8 @@ h1{margin:0;font-size:clamp(40px,8vw,68px);line-height:.94;letter-spacing:-.045e
       terminal_destination:f.terminal_destination || "—",
       gate_destination:f.gate_destination || "—",
       status:f.status || "—",
-      fa_flight_id:f.fa_flight_id || ""
+      fa_flight_id:f.fa_flight_id || "",
+      target_date:f.target_date || (data&&data.target_date) || selectedDate
     };
   }
 
@@ -223,7 +271,7 @@ h1{margin:0;font-size:clamp(40px,8vw,68px);line-height:.94;letter-spacing:-.045e
 
     try{
       if(window.STEERWILL_FLIGHT_API){
-        var res = await fetch(window.STEERWILL_FLIGHT_API + "?ident=" + encodeURIComponent(id),{
+        var res = await fetch(window.STEERWILL_FLIGHT_API + "?ident=" + encodeURIComponent(id) + "&date=" + encodeURIComponent(selectedDate),{
           cache:"no-store",
           headers:{"apikey":window.STEERWILL_SUPABASE_PUBLIC_KEY || ""}
         });
@@ -243,6 +291,8 @@ h1{margin:0;font-size:clamp(40px,8vw,68px);line-height:.94;letter-spacing:-.045e
       document.getElementById("originName").textContent = "Origine";
       document.getElementById("destinationCode").textContent = "—";
       document.getElementById("destinationName").textContent = "Destinazione";
+      document.getElementById("landingDate").textContent = selectedDate===localDateOffset(1) ? "Domani" : "Oggi";
+      document.getElementById("landingTime").textContent = "—";
       document.getElementById("scheduled").textContent = "—";
       document.getElementById("estimated").textContent = "—";
       document.getElementById("terminal").textContent = "—";
@@ -255,8 +305,22 @@ h1{margin:0;font-size:clamp(40px,8vw,68px);line-height:.94;letter-spacing:-.045e
     }
   }
 
+  function setDay(offset){
+    selectedDate=localDateOffset(offset);
+    todayBtn.classList.toggle("active",offset===0);
+    tomorrowBtn.classList.toggle("active",offset===1);
+    if(input.value.trim()) loadFlight(input.value);
+  }
+
+  todayBtn.onclick=function(){setDay(0);};
+  tomorrowBtn.onclick=function(){setDay(1);};
   searchBtn.onclick = function(){ loadFlight(input.value); };
-  refreshBtn.onclick = function(){ if(currentFlight) loadFlight(currentFlight.ident); };
+  refreshBtn.onclick = function(){
+    if(currentFlight){
+      selectedDate=currentFlight.target_date||selectedDate;
+      loadFlight(currentFlight.ident);
+    }
+  };
   input.addEventListener("keydown",function(e){ if(e.key==="Enter"){e.preventDefault();loadFlight(input.value);} });
 
   Array.prototype.forEach.call(document.querySelectorAll("[data-flight]"),function(btn){
@@ -269,7 +333,9 @@ h1{margin:0;font-size:clamp(40px,8vw,68px);line-height:.94;letter-spacing:-.045e
   followBtn.onclick = function(){
     if(!currentFlight) return;
     var items = getMonitored();
-    var idx = items.findIndex(function(f){return f.ident===currentFlight.ident;});
+    var idx = items.findIndex(function(f){
+      return f.ident===currentFlight.ident && String(f.target_date||"")===String(currentFlight.target_date||"");
+    });
     if(idx >= 0){
       items.splice(idx,1);
     }else{
