@@ -379,6 +379,29 @@ h1{
   background:#202020;
   border:1px solid #343434;
   border-radius:19px;
+  color:inherit;
+  text-decoration:none;
+  transition:transform .12s ease,border-color .12s ease;
+}
+.productCard:active{transform:scale(.985);border-color:#555}
+.amazonBadge{
+  display:inline-flex;
+  align-items:center;
+  min-height:24px;
+  padding:0 8px;
+  border-radius:999px;
+  background:#f3a847;
+  color:#111;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+.productsDisclosure{
+  margin-top:3px;
+  color:#696969;
+  font-size:10px;
+  line-height:1.35;
 }
 .productVisual{
   height:112px;
@@ -633,12 +656,17 @@ h1{
       </div>
     </section>
 
-    <section class="productsSection" aria-label="Prodotti consigliati">
+    <section class="productsSection" aria-label="Prodotti Amazon">
       <div class="productsHead">
-        <div class="productsTitle">Per il tuo lavoro</div>
+        <div>
+          <div class="productsTitle">Per il tuo lavoro</div>
+          <div class="productsDisclosure">Selezioni utili per il turno · link esterni Amazon</div>
+        </div>
+        <div class="productsNote">Amazon</div>
       </div>
+
       <div class="productsRail">
-        <article class="productCard">
+        <a class="productCard" href="https://www.amazon.it/s?k=supporto+magsafe+auto" target="_blank" rel="noopener">
           <div class="productVisual">
             <svg viewBox="0 0 120 120" aria-hidden="true">
               <rect x="29" y="15" width="62" height="90" rx="16" fill="#1b1b1b"/>
@@ -649,11 +677,11 @@ h1{
           <div class="productBody">
             <div class="productName">Supporto MagSafe auto</div>
             <div class="productMeta">Aggancio rapido per smartphone</div>
-            <div class="productBottom"><span class="productPrice">€24,90</span><span class="productCta">Vedi</span></div>
+            <div class="productBottom"><span class="amazonBadge">Amazon</span><span class="productCta">Apri ↗</span></div>
           </div>
-        </article>
+        </a>
 
-        <article class="productCard">
+        <a class="productCard" href="https://www.amazon.it/s?k=caricatore+auto+usb+c+100w" target="_blank" rel="noopener">
           <div class="productVisual">
             <svg viewBox="0 0 120 120" aria-hidden="true">
               <rect x="34" y="25" width="52" height="70" rx="13" fill="#171717"/>
@@ -664,13 +692,13 @@ h1{
             </svg>
           </div>
           <div class="productBody">
-            <div class="productName">Caricatore USB-C 100W</div>
-            <div class="productMeta">Telefono, tablet e accessori</div>
-            <div class="productBottom"><span class="productPrice">€29,90</span><span class="productCta">Vedi</span></div>
+            <div class="productName">Caricatore auto USB-C</div>
+            <div class="productMeta">Alta potenza per telefono e tablet</div>
+            <div class="productBottom"><span class="amazonBadge">Amazon</span><span class="productCta">Apri ↗</span></div>
           </div>
-        </article>
+        </a>
 
-        <article class="productCard">
+        <a class="productCard" href="https://www.amazon.it/s?k=power+bank+magsafe" target="_blank" rel="noopener">
           <div class="productVisual">
             <svg viewBox="0 0 120 120" aria-hidden="true">
               <rect x="22" y="35" width="76" height="50" rx="12" fill="#191919"/>
@@ -680,13 +708,13 @@ h1{
             </svg>
           </div>
           <div class="productBody">
-            <div class="productName">Power bank compatto</div>
-            <div class="productMeta">Riserva energia per il turno</div>
-            <div class="productBottom"><span class="productPrice">€34,90</span><span class="productCta">Vedi</span></div>
+            <div class="productName">Power bank MagSafe</div>
+            <div class="productMeta">Riserva energia durante il turno</div>
+            <div class="productBottom"><span class="amazonBadge">Amazon</span><span class="productCta">Apri ↗</span></div>
           </div>
-        </article>
+        </a>
 
-        <article class="productCard">
+        <a class="productCard" href="https://www.amazon.it/s?k=supporto+tablet+auto" target="_blank" rel="noopener">
           <div class="productVisual">
             <svg viewBox="0 0 120 120" aria-hidden="true">
               <rect x="22" y="22" width="76" height="52" rx="8" fill="#1d1d1d"/>
@@ -696,15 +724,15 @@ h1{
             </svg>
           </div>
           <div class="productBody">
-            <div class="productName">Supporto tablet</div>
-            <div class="productMeta">Per cartello e lavoro a bordo</div>
-            <div class="productBottom"><span class="productPrice">€27,90</span><span class="productCta">Vedi</span></div>
+            <div class="productName">Supporto tablet auto</div>
+            <div class="productMeta">Utile per cartello e lavoro a bordo</div>
+            <div class="productBottom"><span class="amazonBadge">Amazon</span><span class="productCta">Apri ↗</span></div>
           </div>
-        </article>
+        </a>
       </div>
     </section>
 
-    <div class="footer">MAINPAGE · STEERWILL V3.3</div>
+    <div class="footer">MAINPAGE · STEERWILL V3.4</div>
   </section>
 </main>
 
