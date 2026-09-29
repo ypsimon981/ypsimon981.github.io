@@ -32,9 +32,13 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
 .routeActions{display:grid;grid-template-columns:auto 1fr;gap:10px}
 .swap{height:54px;border:1px solid #3a3a3a;border-radius:16px;background:#242424;color:#fff;padding:0 15px;font-weight:900}
 .calculate{height:54px;border:0;border-radius:16px;background:var(--yellow);color:#111;font-weight:950}
-.settings{display:none;margin-top:14px;padding:16px;border:1px solid #373737;border-radius:18px;background:#111}
+.settingsBackdrop{display:none;position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.62);backdrop-filter:blur(4px)}
+.settingsBackdrop.show{display:block}
+.settings{display:none;position:fixed;z-index:100;top:max(12px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);width:min(620px,calc(100% - 24px));padding:16px;border:1px solid #3d3d3d;border-radius:20px;background:#151515;box-shadow:0 18px 60px rgba(0,0,0,.5)}
 .settings.show{display:block}
-.settingsTitle{font-size:15px;font-weight:900;margin-bottom:12px}
+.settingsHead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.settingsTitle{font-size:15px;font-weight:900}
+.settingsClose{width:38px;height:38px;border:1px solid #3a3a3a;border-radius:999px;background:#232323;color:#fff;font-size:20px;line-height:1}
 .settingsSection{margin-top:16px;padding-top:14px;border-top:1px solid #292929}
 .settingsSection:first-of-type{margin-top:0;padding-top:0;border-top:0}
 .settingsLabel{margin-bottom:9px;color:#747474;font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
@@ -174,18 +178,27 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
       </div>
     </div>
 
-    <div id="settings" class="settings">
-      <div class="settingsTitle">Impostazioni preventivo</div>
-      <div class="settingsGrid">
-        <div class="field">
-          <label for="vehicleSelect">Mezzo usato</label>
-          <select id="vehicleSelect"></select>
-        </div>
-      </div>
-      <div class="note">Consumo e alimentazione vengono letti dall'anagrafica del mezzo selezionato.</div>
-      <button id="saveRateBtn" class="saveRate" type="button">Salva impostazioni</button>
-    </div>
   </section>
+
+  <div id="settingsBackdrop" class="settingsBackdrop"></div>
+  <div id="settings" class="settings" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <div class="settingsHead">
+      <div id="settingsTitle" class="settingsTitle">Impostazioni preventivo</div>
+      <button id="settingsClose" class="settingsClose" type="button" aria-label="Chiudi impostazioni">×</button>
+    </div>
+    <div class="settingsGrid">
+      <div class="field">
+        <label for="rateSettingsInput">Tariffa €/km</label>
+        <input id="rateSettingsInput" type="number" min="0.05" step="0.05" inputmode="decimal" placeholder="1,50">
+      </div>
+      <div class="field">
+        <label for="vehicleSelect">Mezzo usato</label>
+        <select id="vehicleSelect"></select>
+      </div>
+    </div>
+    <div class="note">La tariffa qui e quella mostrata nel preventivo sono lo stesso valore. Consumo e alimentazione vengono letti dall'anagrafica del mezzo selezionato.</div>
+    <button id="saveRateBtn" class="saveRate" type="button">Salva impostazioni</button>
+  </div>
 
   <div id="errorBox" class="error"></div>
 
@@ -277,7 +290,10 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
   var settingsBtn=document.getElementById("settingsBtn");
   var settings=document.getElementById("settings");
   var rateQuickInput=document.getElementById("rateQuickInput");
+  var rateSettingsInput=document.getElementById("rateSettingsInput");
   var saveRateBtn=document.getElementById("saveRateBtn");
+  var settingsBackdrop=document.getElementById("settingsBackdrop");
+  var settingsClose=document.getElementById("settingsClose");
   var hourlyRateInput=document.getElementById("hourlyRateInput");
   var availabilityHours=document.getElementById("availabilityHours");
   var availabilityField=document.getElementById("availabilityField");
@@ -385,6 +401,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     populateVehicles();
     var prefs=readCostPrefs();
     rateQuickInput.value=getRate().toFixed(2);
+    rateSettingsInput.value=getRate().toFixed(2);
     tripMode.value=prefs.tripMode||"oneway";
     hourlyRateInput.value=prefs.hourlyRate||"";
     availabilityHours.value=prefs.availabilityHours||"";
@@ -394,7 +411,10 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
   }
 
   function saveSettings(){
-    var old=readCostPrefs();
+    var rate=num(rateSettingsInput.value);
+    if(rate<=0){rateSettingsInput.focus();return;}
+    localStorage.setItem(RATE_KEY,String(rate));
+    rateQuickInput.value=rate.toFixed(2);
     var prefs={
       vehicleId:vehicleSelect.value||"",
       tripMode:tripMode.value,
@@ -404,6 +424,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     };
     localStorage.setItem(COST_KEY,JSON.stringify(prefs));
     settings.classList.remove("show");
+    settingsBackdrop.classList.remove("show");
     if(lastQuote){
       buildVariants(lastQuote);
       renderQuote(lastQuote);
@@ -678,10 +699,21 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     }
   }
 
-  settingsBtn.onclick=function(){
+  function openSettings(){
     loadSettings();
-    settings.classList.toggle("show");
-  };
+    settings.classList.add("show");
+    settingsBackdrop.classList.add("show");
+    setTimeout(function(){rateSettingsInput.focus();rateSettingsInput.select();},40);
+  }
+
+  function closeSettings(){
+    settings.classList.remove("show");
+    settingsBackdrop.classList.remove("show");
+  }
+
+  settingsBtn.onclick=openSettings;
+  settingsClose.onclick=closeSettings;
+  settingsBackdrop.onclick=closeSettings;
 
   saveRateBtn.onclick=saveSettings;
   vehicleSelect.addEventListener("change",applyVehicle);
@@ -690,6 +722,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     var rate=num(rateQuickInput.value);
     if(rate<=0) return;
     localStorage.setItem(RATE_KEY,String(rate));
+    rateSettingsInput.value=rateQuickInput.value;
     if(lastQuote){
       buildVariants(lastQuote);
       renderQuote(lastQuote);
@@ -701,6 +734,18 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
       rateQuickInput.value=getRate().toFixed(2);
     }else{
       rateQuickInput.value=rate.toFixed(2);
+      rateSettingsInput.value=rate.toFixed(2);
+    }
+  });
+
+  rateSettingsInput.addEventListener("input",function(){
+    var rate=num(rateSettingsInput.value);
+    if(rate<=0) return;
+    localStorage.setItem(RATE_KEY,String(rate));
+    rateQuickInput.value=rateSettingsInput.value;
+    if(lastQuote){
+      buildVariants(lastQuote);
+      renderQuote(lastQuote);
     }
   });
   tripMode.addEventListener("change",function(){
