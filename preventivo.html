@@ -62,6 +62,10 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
 .metaCell:last-child{border-right:0}
 .metaLabel{font-size:9px;color:#777;text-transform:uppercase;letter-spacing:.08em;font-weight:850}
 .metaValue{margin-top:4px;font-size:18px;font-weight:920}
+.rateInline{margin:5px auto 0;display:flex;align-items:center;justify-content:center;gap:4px}
+.rateInline span{font-size:15px;font-weight:900;color:#bdbdbd}
+.rateInline input{width:74px;height:36px;border:1px solid #4a4a4a;border-radius:10px;background:#111;color:#fff;text-align:center;font-size:18px;font-weight:920;outline:none;padding:0 6px}
+.rateInline input:focus{border-color:#f3d500}
 .addresses{padding:16px 18px;display:grid;gap:10px;border-bottom:1px solid #303030}
 .addressLine{font-size:12px;color:#aaa;line-height:1.35}
 .addressLine strong{color:#ddd}
@@ -174,10 +178,6 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
       <div class="settingsTitle">Impostazioni preventivo</div>
       <div class="settingsGrid">
         <div class="field">
-          <label for="rateInput">Tariffa €/km</label>
-          <input id="rateInput" type="number" min="0" step="0.05" inputmode="decimal" placeholder="1,50">
-        </div>
-        <div class="field">
           <label for="vehicleSelect">Mezzo usato</label>
           <select id="vehicleSelect"></select>
         </div>
@@ -211,8 +211,8 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
         <div id="duration" class="metaValue">—</div>
       </div>
       <div class="metaCell">
-        <div class="metaLabel">Tariffa</div>
-        <div id="rateView" class="metaValue">—</div>
+        <div class="metaLabel">Tariffa €/km</div>
+        <div class="rateInline"><span>€</span><input id="rateQuickInput" type="number" min="0.05" step="0.05" inputmode="decimal" aria-label="Tariffa per chilometro"><span>/km</span></div>
       </div>
     </div>
 
@@ -276,7 +276,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
   var calculateBtn=document.getElementById("calculateBtn");
   var settingsBtn=document.getElementById("settingsBtn");
   var settings=document.getElementById("settings");
-  var rateInput=document.getElementById("rateInput");
+  var rateQuickInput=document.getElementById("rateQuickInput");
   var saveRateBtn=document.getElementById("saveRateBtn");
   var hourlyRateInput=document.getElementById("hourlyRateInput");
   var availabilityHours=document.getElementById("availabilityHours");
@@ -384,7 +384,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
   function loadSettings(){
     populateVehicles();
     var prefs=readCostPrefs();
-    rateInput.value=getRate().toFixed(2);
+    rateQuickInput.value=getRate().toFixed(2);
     tripMode.value=prefs.tripMode||"oneway";
     hourlyRateInput.value=prefs.hourlyRate||"";
     availabilityHours.value=prefs.availabilityHours||"";
@@ -394,9 +394,6 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
   }
 
   function saveSettings(){
-    var rate=num(rateInput.value);
-    if(rate<=0){rateInput.focus();return;}
-    localStorage.setItem(RATE_KEY,String(rate));
     var old=readCostPrefs();
     var prefs={
       vehicleId:vehicleSelect.value||"",
@@ -584,7 +581,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     }
     var totalMinutes=Number(data.duration_min||0)*calc.factors.cost;
     document.getElementById("duration").textContent=hhmm(totalMinutes);
-    document.getElementById("rateView").textContent=money(calc.rate)+"/km";
+    if(document.activeElement!==rateQuickInput) rateQuickInput.value=calc.rate.toFixed(2);
     document.getElementById("fromResolved").textContent=(data.from&&data.from.label)||fromInput.value;
     document.getElementById("toResolved").textContent=(data.to&&data.to.label)||toInput.value;
 
@@ -688,6 +685,24 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
 
   saveRateBtn.onclick=saveSettings;
   vehicleSelect.addEventListener("change",applyVehicle);
+
+  rateQuickInput.addEventListener("input",function(){
+    var rate=num(rateQuickInput.value);
+    if(rate<=0) return;
+    localStorage.setItem(RATE_KEY,String(rate));
+    if(lastQuote){
+      buildVariants(lastQuote);
+      renderQuote(lastQuote);
+    }
+  });
+  rateQuickInput.addEventListener("blur",function(){
+    var rate=num(rateQuickInput.value);
+    if(rate<=0){
+      rateQuickInput.value=getRate().toFixed(2);
+    }else{
+      rateQuickInput.value=rate.toFixed(2);
+    }
+  });
   tripMode.addEventListener("change",function(){
     updateTripFields();
     var prefs=readCostPrefs();
