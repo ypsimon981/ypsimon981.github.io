@@ -284,6 +284,9 @@ Deno.serve(async (req: Request) => {
       ? unique(weekly.items.concat(monthlyItems))
       : unique(monthlyItems.length ? monthlyItems : weekly.items);
 
+    // CoDriver mostra solo le navi da oggi in avanti.
+    combined = combined.filter(x => x.date >= today);
+
     const url = new URL(req.url);
     const q = (url.searchParams.get("q") || "").trim().toUpperCase();
     const date = (url.searchParams.get("date") || "").trim();
