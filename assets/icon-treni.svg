@@ -1,8 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Treni">
   <rect width="256" height="256" rx="34" fill="#F2B426"/>
   <g fill="#252931">
-    <path d="M45 137V92c0-19 12-34 33-42 18-7 40-10 60-10 22 0 44 3 62 11 20 9 31 24 31 43v43c0 14-8 25-22 31l-14 6H82l-15-6c-14-6-22-17-22-31zm38-57h90c8 0 14 5 18 12l10 20H63l10-20c4-7 10-12 20-12zm-18 50h130l-9 19c-3 7-9 11-17 11H91c-8 0-14-4-17-11l-9-19z"/>
-    <rect x="76" y="181" width="104" height="9" rx="4.5"/>
-    <rect x="58" y="197" width="140" height="8" rx="4"/>
+    <path d="M78 44h100c20 0 36 16 36 36v92c0 18-14 33-32 36l19 23h-24l-18-22H97l-18 22H55l19-23c-18-3-32-18-32-36V80c0-20 16-36 36-36zm8 21c-11 0-20 9-20 20v54c0 11 9 20 20 20h84c11 0 20-9 20-20V85c0-11-9-20-20-20H86z"/>
+    <rect x="78" y="78" width="44" height="54" rx="7"/>
+    <rect x="134" y="78" width="44" height="54" rx="7"/>
+    <rect x="104" y="55" width="48" height="10" rx="5"/>
+    <circle cx="88" cy="171" r="10"/>
+    <circle cx="168" cy="171" r="10"/>
+    <rect x="93" y="211" width="70" height="7" rx="3.5"/>
+    <rect x="82" y="226" width="92" height="7" rx="3.5"/>
   </g>
 </svg>
