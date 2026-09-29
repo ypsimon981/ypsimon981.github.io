@@ -1,5 +1,9 @@
 
-const SOURCE_URL = "https://civitavecchia.portmobility.it/en/port-civitavecchia-arrivals-and-departures-real-time";
+const WEEKLY_URL = "https://civitavecchia.portmobility.it/en/port-civitavecchia-arrivals-and-departures-real-time";
+const MONTH_SLUGS = [
+  "january","february","march","april","may","june",
+  "july","august","september","october","november","december"
+];
 const ALLOWED_ORIGINS = new Set([
   "https://ypsimon981.github.io",
   "http://localhost:3000",
@@ -43,6 +47,12 @@ function decodeEntities(input: string) {
     .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)));
 }
 
+function stripTags(input: string) {
+  return decodeEntities(input.replace(/<[^>]+>/g, " "))
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function htmlToLines(html: string) {
   const cleaned = html
     .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, " ")
@@ -63,8 +73,7 @@ function parseDateHeader(line: string, year: number) {
   if (!m) return null;
   const day = Number(m[1]);
   const month = MONTHS[m[2]];
-  const d = new Date(Date.UTC(year, month, day, 12, 0, 0));
-  return d.toISOString().slice(0, 10);
+  return new Date(Date.UTC(year, month, day, 12, 0, 0)).toISOString().slice(0, 10);
 }
 
 function parseTimes(raw: string) {
@@ -72,22 +81,22 @@ function parseTimes(raw: string) {
   let arrival: string | null = null;
   let departure: string | null = null;
 
-  const pair = text.match(/(\d{1,2}:\d{2})\s*\/\s*(\d{1,2}:\d{2})/);
+  const pair = text.match(/(\d{1,2}[:.]\d{2})\s*\/\s*(\d{1,2}[:.]\d{2})/);
   if (pair) {
-    arrival = pair[1].padStart(5, "0");
-    departure = pair[2].padStart(5, "0");
+    arrival = pair[1].replace(".", ":").padStart(5, "0");
+    departure = pair[2].replace(".", ":").padStart(5, "0");
     return { arrival, departure };
   }
 
-  const a = text.match(/(?:^|\s)A\.?\s*(\d{1,2}:\d{2})/);
-  const d = text.match(/(?:^|\s)D\.?\s*(\d{1,2}:\d{2})/);
-  if (a) arrival = a[1].padStart(5, "0");
-  if (d) departure = d[1].padStart(5, "0");
+  const a = text.match(/(?:^|\s)A\.?\s*(\d{1,2}[:.]\d{2})/);
+  const d = text.match(/(?:^|\s)D\.?\s*(\d{1,2}[:.]\d{2})/);
+  if (a) arrival = a[1].replace(".", ":").padStart(5, "0");
+  if (d) departure = d[1].replace(".", ":").padStart(5, "0");
 
   return { arrival, departure };
 }
 
-function parseSchedule(html: string) {
+function parseWeekly(html: string) {
   const lines = htmlToLines(html);
   const planning = lines.find(x => /Mooring Planning/i.test(x)) || "";
   const yearMatch = planning.match(/\b(20\d{2})\b/);
@@ -122,7 +131,7 @@ function parseSchedule(html: string) {
     const rawTimes = parts.slice(2).join(" | ");
 
     if (!name || name.length > 80 || /^(SHIP|DOCK)$/i.test(name)) continue;
-    if (!/\d{1,2}:\d{2}|STOP/i.test(rawTimes)) continue;
+    if (!/\d{1,2}[:.]\d{2}|STOP/i.test(rawTimes)) continue;
 
     const times = parseTimes(rawTimes);
     items.push({
@@ -135,11 +144,104 @@ function parseSchedule(html: string) {
       arrival: times.arrival,
       departure: times.departure,
       raw_times: rawTimes,
-      source: "Port Mobility Civitavecchia"
+      source: "Port Mobility Civitavecchia · settimanale"
     });
   }
 
   return { planning, items };
+}
+
+function extractRows(html: string) {
+  const rows: string[][] = [];
+  const trRe = /<tr\b[^>]*>([\s\S]*?)<\/tr>/gi;
+  let tr: RegExpExecArray | null;
+  while ((tr = trRe.exec(html))) {
+    const cells: string[] = [];
+    const tdRe = /<(?:td|th)\b[^>]*>([\s\S]*?)<\/(?:td|th)>/gi;
+    let td: RegExpExecArray | null;
+    while ((td = tdRe.exec(tr[1]))) {
+      cells.push(stripTags(td[1]));
+    }
+    if (cells.length) rows.push(cells);
+  }
+  return rows;
+}
+
+function parseMonthly(html: string, requestedYear: number) {
+  const text = stripTags(html);
+  const years = Array.from(text.matchAll(/\b(20\d{2})\b/g)).map(m => Number(m[1]));
+  const detectedYear = years.find(y => y >= requestedYear - 1 && y <= requestedYear + 1) || requestedYear;
+  if (detectedYear !== requestedYear) {
+    return { year: detectedYear, items: [] as any[] };
+  }
+
+  const items: any[] = [];
+  for (const cells of extractRows(html)) {
+    if (cells.length < 7) continue;
+
+    const day = Number(cells[1]);
+    const month = Number(cells[2]);
+    if (!Number.isInteger(day) || day < 1 || day > 31) continue;
+    if (!Number.isInteger(month) || month < 1 || month > 12) continue;
+
+    const arrivalRaw = (cells[3] || "").trim();
+    const departureRaw = (cells[4] || "").trim();
+    const name = (cells[5] || "").trim();
+    const dock = (cells[6] || "").trim();
+    if (!name || !dock) continue;
+
+    const date = new Date(Date.UTC(requestedYear, month - 1, day, 12, 0, 0))
+      .toISOString().slice(0, 10);
+
+    const arrival = /^\d{1,2}[:.]\d{2}$/.test(arrivalRaw)
+      ? arrivalRaw.replace(".", ":").padStart(5, "0")
+      : null;
+    const departure = /^\d{1,2}[:.]\d{2}$/.test(departureRaw)
+      ? departureRaw.replace(".", ":").padStart(5, "0")
+      : null;
+
+    items.push({
+      id: [date, name, dock, arrivalRaw, departureRaw].join("_").replace(/\s+/g, "-"),
+      type: "ship",
+      port: "Civitavecchia",
+      date,
+      name,
+      dock,
+      arrival,
+      departure,
+      raw_times: arrivalRaw + "/" + departureRaw,
+      source: "Port Mobility Civitavecchia · mensile"
+    });
+  }
+
+  return { year: detectedYear, items };
+}
+
+function unique(items: any[]) {
+  const map = new Map<string, any>();
+  for (const x of items) {
+    const key = (x.date + "|" + x.name).toUpperCase();
+    if (!map.has(key)) map.set(key, x);
+  }
+  return Array.from(map.values()).sort((a, b) => {
+    const ta = new Date(a.date + "T" + (a.arrival || a.departure || "23:59") + ":00").getTime();
+    const tb = new Date(b.date + "T" + (b.arrival || b.departure || "23:59") + ":00").getTime();
+    return ta - tb;
+  });
+}
+
+async function fetchText(url: string) {
+  const sep = url.includes("?") ? "&" : "?";
+  const bust = new Date().toISOString().slice(0, 13);
+  const res = await fetch(url + sep + "_codriver=" + encodeURIComponent(bust), {
+    headers: {
+      "User-Agent": "CoDriver/0.1 academic-prototype",
+      "Accept-Language": "en-GB,en;q=0.9",
+      "Cache-Control": "no-cache"
+    }
+  });
+  if (!res.ok) throw new Error("upstream_" + res.status);
+  return await res.text();
 }
 
 Deno.serve(async (req: Request) => {
@@ -156,35 +258,47 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const upstream = await fetch(SOURCE_URL, {
-      headers: {
-        "User-Agent": "CoDriver/0.1 academic-prototype",
-        "Accept-Language": "en-GB,en;q=0.9"
-      }
+    const now = new Date();
+    const currentYear = now.getUTCFullYear();
+    const currentMonth = now.getUTCMonth();
+    const monthUrl =
+      "https://civitavecchia.portmobility.it/en/cruises-port-civitavecchia-" +
+      MONTH_SLUGS[currentMonth];
+
+    const weeklyHtml = await fetchText(WEEKLY_URL).catch(() => "");
+    const weekly = weeklyHtml ? parseWeekly(weeklyHtml) : { planning: "", items: [] as any[] };
+
+    let monthlyItems: any[] = [];
+    try {
+      const monthlyHtml = await fetchText(monthUrl);
+      monthlyItems = parseMonthly(monthlyHtml, currentYear).items;
+    } catch (_) {}
+
+    const today = now.toISOString().slice(0, 10);
+    const weekLooksCurrent = weekly.items.some(x => {
+      const delta = Math.abs(new Date(x.date + "T12:00:00Z").getTime() - new Date(today + "T12:00:00Z").getTime());
+      return delta <= 8 * 86400000;
     });
 
-    if (!upstream.ok) {
-      return json({ error: "source_unavailable", status: upstream.status }, 502, origin);
-    }
-
-    const html = await upstream.text();
-    const parsed = parseSchedule(html);
+    let combined = weekLooksCurrent
+      ? unique(weekly.items.concat(monthlyItems))
+      : unique(monthlyItems.length ? monthlyItems : weekly.items);
 
     const url = new URL(req.url);
     const q = (url.searchParams.get("q") || "").trim().toUpperCase();
     const date = (url.searchParams.get("date") || "").trim();
 
-    let items = parsed.items;
-    if (date) items = items.filter(x => x.date === date);
-    if (q) items = items.filter(x => x.name.toUpperCase().includes(q));
+    if (date) combined = combined.filter(x => x.date === date);
+    if (q) combined = combined.filter(x => x.name.toUpperCase().includes(q));
 
     return json({
       provider: "Port Mobility Civitavecchia",
       port: "Civitavecchia",
-      planning: parsed.planning,
-      source_url: SOURCE_URL,
-      total: items.length,
-      items
+      planning: weekly.planning,
+      weekly_current: weekLooksCurrent,
+      monthly_source: monthUrl,
+      total: combined.length,
+      items: combined
     }, 200, origin);
   } catch (error) {
     return json({
