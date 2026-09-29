@@ -323,6 +323,12 @@ h1{
 }
 .alertTile .iconWrap{color:#9bbce7}
 .alertTile .tileMeta{color:#77899d}
+.translatorTile{
+  background:linear-gradient(135deg,#1b2927 0%,#1b2223 100%);
+  border-color:#2e4b46;
+}
+.translatorTile .iconWrap{color:#8ed8c7}
+.translatorTile .tileMeta{color:#759b92}
 .savedQuotesHome{
   margin-top:12px;
   padding:16px;
@@ -641,7 +647,7 @@ h1{
           <span><span class="tileTitle">Alert viaggi salvati</span><span class="tileMeta">Voli · Treni · Navi</span></span>
         </a>
 
-        <button class="utilityTile inactive" type="button" aria-disabled="true">
+        <a class="utilityTile translatorTile" href="traduttore.html">
           <span class="iconWrap" aria-hidden="true">
             <svg class="icon" viewBox="0 0 64 64">
               <path d="M8 12h28v24H20l-9 8v-8H8z"/>
@@ -650,8 +656,8 @@ h1{
               <path d="M39 35h6l6 11M42 42h7"/>
             </svg>
           </span>
-          <span class="tileTitle">Traduttore</span>
-        </button>
+          <span><span class="tileTitle">Traduttore</span><span class="tileMeta">Testo · voce · frasi rapide</span></span>
+        </a>
       </div>
 
       <div class="savedQuotesHome">
@@ -788,7 +794,7 @@ h1{
       </div>
     </section>
 
-    <div class="footer">MAINPAGE · STEERWILL V3.7</div>
+    <div class="footer">MAINPAGE · STEERWILL V3.8</div>
   </section>
 </main>
 
