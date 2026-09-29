@@ -135,7 +135,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
   </div>
 </main>
 
-<script src="flight-config.js?v=ships4"></script>
+<script src="flight-config.js?v=ships6"></script>
 <script>
 (function(){
   "use strict";
@@ -267,12 +267,14 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
 
       if(data.connected===false){
         count.textContent = "";
-        sourceNotice.textContent = "Il porto è selezionabile, ma la sua fonte dati non è ancora collegata in questa demo.";
-        list.innerHTML = '<div class="empty"><strong>'+escapeHtml(data.port||currentPortLabel())+'</strong>Selezione pronta. La fonte ufficiale di questo porto verrà collegata al backend CoDriver.</div>';
+        sourceNotice.textContent = "La fonte dati di questo porto non è disponibile.";
+        list.innerHTML = '<div class="empty"><strong>'+escapeHtml(data.port||currentPortLabel())+'</strong>Nessun calendario collegato al momento.</div>';
         return;
       }
 
-      sourceNotice.textContent = "Orari di banchina e attracco da Port Mobility Civitavecchia. Gli orari possono subire variazioni operative.";
+      sourceNotice.textContent = data.official
+        ? "Fonte ufficiale: " + (data.provider || data.port || currentPortLabel()) + ". Gli orari possono subire variazioni operative."
+        : "Calendario pubblico: " + (data.provider || "fonte esterna") + ". Verifica sempre eventuali variazioni operative del porto.";
       var items = Array.isArray(data.items)?data.items:[];
       if(params && params.date && !items.length){
         weekBtn.classList.add("active");
