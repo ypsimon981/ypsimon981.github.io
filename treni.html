@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#090909">
-<title>CoDriver · Treni</title>
+<title>SteerWill · Treni</title>
+<link rel="icon" type="image/webp" href="assets/steerwill-icon.webp">
 <style>
 :root{--bg:#090909;--panel:#171717;--line:#353535;--text:#f7f7f7;--muted:#858585;--yellow:#f3d500}
 *{box-sizing:border-box}
@@ -73,7 +74,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
 <body>
 <main class="page">
   <div class="topbar">
-    <div class="brand">CODRIVER · TRENI</div>
+    <div class="brand">STEERWILL · TRENI</div>
     <div class="topActions">
       <a class="pillLink" href="monitor.html">Monitor</a>
       <a class="pillLink" href="index.html">← Home</a>
@@ -238,7 +239,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
   }
 
   async function load(){
-    if(!window.CODRIVER_TRAINS_API){
+    if(!window.STEERWILL_TRAINS_API){
       list.innerHTML='<div class="empty"><strong>Servizio non configurato</strong></div>';
       return;
     }
@@ -248,8 +249,8 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     sectionTitle.textContent=(mode==="departures"?"Partenze":"Arrivi")+" · "+stationLabel();
 
     try{
-      var url=window.CODRIVER_TRAINS_API+"?station="+encodeURIComponent(stationSelect.value)+"&mode="+encodeURIComponent(mode);
-      var res=await fetch(url,{cache:"no-store",headers:{"apikey":window.CODRIVER_SUPABASE_PUBLIC_KEY||""}});
+      var url=window.STEERWILL_TRAINS_API+"?station="+encodeURIComponent(stationSelect.value)+"&mode="+encodeURIComponent(mode);
+      var res=await fetch(url,{cache:"no-store",headers:{"apikey":window.STEERWILL_SUPABASE_PUBLIC_KEY||""}});
       var data=await res.json().catch(function(){return {};});
       if(!res.ok) throw new Error(data.error||"api");
       allItems=Array.isArray(data.items)?data.items:[];
