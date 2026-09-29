@@ -72,7 +72,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     <button id="refreshAll" class="refresh" type="button">Aggiorna</button>
   </div>
 
-  <div id="modeNotice" class="notice">Monitor pronto. In modalità demo i voli restano salvati sul dispositivo; con il collegamento FlightAware verranno aggiornati automaticamente.</div>
+  <div id="modeNotice" class="notice">Dati live FlightAware. I voli vengono aggiornati automaticamente ogni minuto mentre questa pagina è aperta.</div>
   <div id="list" class="list"></div>
 </main>
 
@@ -135,7 +135,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
       return '<article class="card" data-ident="'+escapeHtml(f.ident)+'">' +
         '<div class="cardHead">' +
           '<div><div class="ident">'+escapeHtml(f.ident||"—")+'</div><div class="airline">'+escapeHtml(f.airline||"")+'</div></div>' +
-          '<div class="status">'+escapeHtml((f.status||"—") + (f.demo ? " · DEMO" : ""))+'</div>' +
+          '<div class="status">'+escapeHtml(f.status||"—")+'</div>' +
         '</div>' +
         '<div class="route"><div class="code">'+escapeHtml(origin.code||"—")+'</div><div class="line"></div><div class="code">'+escapeHtml(destination.code||"—")+'</div></div>' +
         '<div class="times">' +
@@ -161,25 +161,24 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     var f = data && data.flight ? data.flight : data;
     if(!f) return old;
     return {
-      ident:f.ident_iata || f.ident || old.ident,
-      airline:f.operator_name || f.operator || old.airline || "",
+      ident:f.ident || old.ident,
+      airline:f.airline || old.airline || "",
       origin:{
-        code:(f.origin&&(f.origin.code_iata||f.origin.code)) || f.origin_iata || f.origin || (old.origin&&old.origin.code) || "—",
+        code:(f.origin&&f.origin.code) || (old.origin&&old.origin.code) || "—",
         name:(f.origin&&(f.origin.name||f.origin.city)) || (old.origin&&old.origin.name) || "Origine"
       },
       destination:{
-        code:(f.destination&&(f.destination.code_iata||f.destination.code)) || f.destination_iata || f.destination || (old.destination&&old.destination.code) || "—",
+        code:(f.destination&&f.destination.code) || (old.destination&&old.destination.code) || "—",
         name:(f.destination&&(f.destination.name||f.destination.city)) || (old.destination&&old.destination.name) || "Destinazione"
       },
       scheduled_in:f.scheduled_in || old.scheduled_in || null,
-      estimated_in:f.estimated_in || f.estimated_on || old.estimated_in || null,
+      estimated_in:f.estimated_in || old.estimated_in || null,
       actual_in:f.actual_in || null,
-      terminal_destination:f.terminal_destination || f.terminal_dest || old.terminal_destination || "—",
-      gate_destination:f.gate_destination || f.gate_dest || old.gate_destination || "—",
-      status:f.status || (f.cancelled ? "Cancellato" : f.actual_in ? "Arrivato" : f.actual_off ? "In volo" : "Programmato"),
+      terminal_destination:f.terminal_destination || old.terminal_destination || "—",
+      gate_destination:f.gate_destination || old.gate_destination || "—",
+      status:f.status || old.status || "—",
       fa_flight_id:f.fa_flight_id || old.fa_flight_id || "",
-      followedAt:old.followedAt || Date.now(),
-      demo:false
+      followedAt:old.followedAt || Date.now()
     };
   }
 
@@ -194,9 +193,12 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     for(var i=0;i<items.length;i++){
       var old = items[i];
       try{
-        var res = await fetch(window.CODRIVER_FLIGHT_API + "?ident=" + encodeURIComponent(old.ident),{cache:"no-store"});
-        if(!res.ok) throw new Error("api");
-        var data = await res.json();
+        var res = await fetch(window.CODRIVER_FLIGHT_API + "?ident=" + encodeURIComponent(old.ident),{
+          cache:"no-store",
+          headers:{"apikey":window.CODRIVER_SUPABASE_PUBLIC_KEY || ""}
+        });
+        var data = await res.json().catch(function(){return {};});
+        if(!res.ok) throw new Error(data.error || "api");
         updated.push(normalizeApiFlight(data,old));
       }catch(e){
         updated.push(old);
