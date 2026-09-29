@@ -15,7 +15,7 @@
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",Arial,sans-serif}
 body{min-height:100dvh}
-a,button,input{font:inherit;-webkit-tap-highlight-color:transparent}
+a,button,input,select{font:inherit;-webkit-tap-highlight-color:transparent}
 button{cursor:pointer}
 .page{width:min(900px,100%);margin:0 auto;padding:14px 14px calc(24px + env(safe-area-inset-bottom))}
 .topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:18px}
@@ -38,8 +38,8 @@ h1{margin:0;font-size:clamp(38px,7vw,64px);line-height:.95;letter-spacing:-.045e
 .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .field{display:flex;flex-direction:column;gap:7px}
 .field label{font-size:11px;color:#858585;font-weight:800}
-.field input{width:100%;min-height:50px;border:1px solid #393939;border-radius:14px;background:#101010;color:#fff;padding:0 13px;outline:none}
-.field input:focus{border-color:#777}
+.field input,.field select{width:100%;min-height:50px;border:1px solid #393939;border-radius:14px;background:#101010;color:#fff;padding:0 13px;outline:none}
+.field input:focus,.field select:focus{border-color:#777}
 .field input[type="text"]{text-transform:none}
 #plate{text-transform:uppercase;font-weight:900;letter-spacing:.05em}
 .formActions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
@@ -124,6 +124,25 @@ h1{margin:0;font-size:clamp(38px,7vw,64px);line-height:.95;letter-spacing:-.045e
         </div>
       </div>
 
+      <div class="sectionLabel">Consumi</div>
+      <div class="grid2">
+        <div class="field">
+          <label for="fuelType">Alimentazione</label>
+          <select id="fuelType" name="fuelType">
+            <option value="">Non impostata</option>
+            <option value="diesel">Gasolio</option>
+            <option value="petrol">Benzina</option>
+            <option value="lpg">GPL</option>
+            <option value="methane">Metano</option>
+            <option value="electric">Elettrico</option>
+          </select>
+        </div>
+        <div class="field">
+          <label id="consumptionLabel" for="consumption">Consumo medio · l/100 km</label>
+          <input id="consumption" name="consumption" type="number" min="0" step="0.1" inputmode="decimal" placeholder="7,5">
+        </div>
+      </div>
+
       <div class="sectionLabel">Scadenze</div>
       <div class="grid2">
         <div class="field">
@@ -201,11 +220,12 @@ h1{margin:0;font-size:clamp(38px,7vw,64px);line-height:.95;letter-spacing:-.045e
     formTitle.textContent = vehicle ? "Modifica veicolo" : "Aggiungi un veicolo";
 
     if(vehicle){
-      ["plate","model","km","revision","insurance","ztl","tax","serviceKm","serviceDate","tyresKm","tyresDate"].forEach(function(k){
+      ["plate","model","km","fuelType","consumption","revision","insurance","ztl","tax","serviceKm","serviceDate","tyresKm","tyresDate"].forEach(function(k){
         if(form.elements[k]) form.elements[k].value = vehicle[k] == null ? "" : vehicle[k];
       });
     }
 
+    updateConsumptionLabel();
     formWrap.classList.add("show");
     setTimeout(function(){document.getElementById("plate").focus();},80);
     formWrap.scrollIntoView({behavior:"smooth",block:"start"});
@@ -274,9 +294,13 @@ h1{margin:0;font-size:clamp(38px,7vw,64px);line-height:.95;letter-spacing:-.045e
 
     list.innerHTML = items.map(function(v){
       var km = Number(v.km||0);
+      var fuelNames={diesel:"Gasolio",petrol:"Benzina",lpg:"GPL",methane:"Metano",electric:"Elettrico"};
+      var unit=v.fuelType==="methane"?"kg/100 km":v.fuelType==="electric"?"kWh/100 km":"l/100 km";
+      var consume=v.consumption?(" · "+Number(v.consumption).toLocaleString("it-IT",{maximumFractionDigits:1})+" "+unit):"";
+      var vehicleMeta=(v.model||"Modello non inserito")+(v.fuelType?(" · "+(fuelNames[v.fuelType]||v.fuelType)+consume):"");
       return '<article class="vehicle">' +
         '<div class="vehicleHead">' +
-          '<div><div class="plate">'+escapeHtml(v.plate||"SENZA TARGA")+'</div><div class="model">'+escapeHtml(v.model||"Modello non inserito")+'</div></div>' +
+          '<div><div class="plate">'+escapeHtml(v.plate||"SENZA TARGA")+'</div><div class="model">'+escapeHtml(vehicleMeta)+'</div></div>' +
           '<div class="kmBox"><div class="km">'+(km ? km.toLocaleString("it-IT") : "—")+'</div><div class="kmLabel">km attuali</div></div>' +
         '</div>' +
         '<div class="deadlines">' +
@@ -314,6 +338,13 @@ h1{margin:0;font-size:clamp(38px,7vw,64px);line-height:.95;letter-spacing:-.045e
     });
   }
 
+  function updateConsumptionLabel(){
+    var fuel=(form.elements.fuelType&&form.elements.fuelType.value)||"";
+    var unit=fuel==="methane"?"kg/100 km":fuel==="electric"?"kWh/100 km":"l/100 km";
+    document.getElementById("consumptionLabel").textContent="Consumo medio · "+unit;
+  }
+
+  document.getElementById("fuelType").addEventListener("change",updateConsumptionLabel);
   document.getElementById("addBtn").onclick = function(){openForm(null);};
   document.getElementById("closeBtn").onclick = closeForm;
   document.getElementById("cancelBtn").onclick = closeForm;
@@ -327,6 +358,8 @@ h1{margin:0;font-size:clamp(38px,7vw,64px);line-height:.95;letter-spacing:-.045e
       plate:String(fd.get("plate")||"").toUpperCase().replace(/\s+/g,""),
       model:String(fd.get("model")||"").trim(),
       km:Number(fd.get("km")||0),
+      fuelType:String(fd.get("fuelType")||""),
+      consumption:Number(fd.get("consumption")||0),
       revision:String(fd.get("revision")||""),
       insurance:String(fd.get("insurance")||""),
       ztl:String(fd.get("ztl")||""),
