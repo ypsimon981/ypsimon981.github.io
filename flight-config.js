@@ -11,6 +11,8 @@ window.CODRIVER_TRAINS_API = "https://bboijzuzhgvfxqrsfatw.supabase.co/functions
 
 window.CODRIVER_QUOTE_API = "https://bboijzuzhgvfxqrsfatw.supabase.co/functions/v1/quick-quote";
 
+window.CODRIVER_TRANSLATE_API = "https://bboijzuzhgvfxqrsfatw.supabase.co/functions/v1/translate";
+
 // SteerWill browser aliases.
 // Keep the legacy CODRIVER_* names for backwards compatibility with older saved pages.
 window.STEERWILL_FLIGHT_API = window.CODRIVER_FLIGHT_API;
@@ -19,3 +21,4 @@ window.STEERWILL_FLIGHT_PROVIDER = window.CODRIVER_FLIGHT_PROVIDER;
 window.STEERWILL_SHIPS_API = window.CODRIVER_SHIPS_API;
 window.STEERWILL_TRAINS_API = window.CODRIVER_TRAINS_API;
 window.STEERWILL_QUOTE_API = window.CODRIVER_QUOTE_API;
+window.STEERWILL_TRANSLATE_API = window.CODRIVER_TRANSLATE_API;
