@@ -10,21 +10,28 @@
 <link rel="icon" type="image/svg+xml" href="assets/steerwill-icon.svg?v=1">
 <style>
 :root{
-  --bg:#090909;
-  --panel:#171717;
-  --panel2:#202020;
-  --panel3:#262626;
-  --line:#343434;
-  --text:#f7f7f7;
-  --muted:#8c8c8c;
-  --soft:#cfcfcf;
+  --bg:#0c0d0f;
+  --panel:#15171a;
+  --panel2:#1d2024;
+  --panel3:#24282d;
+  --line:#30343a;
+  --text:#f3f4f5;
+  --muted:#8b9097;
+  --soft:#cdd1d5;
+  --brand:#3b82f6;
+  --amber:#f2b426;
+  --amber-soft:#d8b45a;
+  --sand:#cfc2a5;
+  --steel:#aebfca;
 }
 *{box-sizing:border-box}
 html,body{
   margin:0;
   width:100%;
   min-height:100%;
-  background:var(--bg);
+  background:
+    radial-gradient(circle at 50% -10%,rgba(59,130,246,.07),transparent 34%),
+    var(--bg);
   color:var(--text);
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",Arial,sans-serif;
 }
@@ -42,10 +49,10 @@ button{font:inherit}
   width:min(780px,100%);
   margin:auto 0;
   padding:28px;
-  background:var(--panel);
-  border:1px solid var(--line);
+  background:linear-gradient(180deg,#17191c 0%,#141619 100%);
+  border:1px solid #2c3036;
   border-radius:30px;
-  box-shadow:0 22px 70px rgba(0,0,0,.35);
+  box-shadow:0 22px 70px rgba(0,0,0,.38);
 }
 .headerRow{
   display:flex;
@@ -61,7 +68,7 @@ button{font:inherit}
   margin-bottom:0;
 }
 .brand .steer{color:#f7f7f7}
-.brand .will{color:#1168ff}
+.brand .will{color:var(--brand)}
 .brandTag{
   margin-top:4px;
   color:#818181;
@@ -71,9 +78,9 @@ button{font:inherit}
   text-transform:uppercase;
 }
 .profileChip{
-  border:1px solid #383838;
-  background:#222;
-  color:#cfcfcf;
+  border:1px solid #34383e;
+  background:#1e2125;
+  color:#c6cbd0;
   border-radius:999px;
   padding:8px 12px;
   font-size:12px;
@@ -100,7 +107,7 @@ h1{
 }
 .sectionTitle{
   margin-bottom:10px;
-  color:#8d8d8d;
+  color:#9aa0a7;
   font-size:12px;
   font-weight:850;
   letter-spacing:.12em;
@@ -111,7 +118,7 @@ h1{
 .utilityTile,
 .timestampCard,
 .managementTile{
-  border:1px solid #383838;
+  border:1px solid var(--line);
   background:var(--panel2);
   color:#fff;
   border-radius:22px;
@@ -124,9 +131,9 @@ h1{
   padding:18px 20px 19px;
   flex-direction:column;
   justify-content:space-between;
-  background:#d4cdbc;
-  color:#111;
-  border-color:#e0d8c7;
+  background:linear-gradient(135deg,#d8cfbc 0%,#c7b999 100%);
+  color:#151515;
+  border-color:#ded4c1;
   cursor:pointer;
   transition:transform .12s ease,opacity .12s ease;
 }
@@ -172,9 +179,9 @@ h1{
 }
 .travelSection{
   padding:18px;
-  border:1px solid #3b3b3b;
+  border:1px solid #33383f;
   border-radius:22px;
-  background:#1f1f1f;
+  background:linear-gradient(180deg,#1b1e22 0%,#181b1f 100%);
 }
 .travelSection .sectionTitle{margin-bottom:13px}
 .travelGrid{
@@ -190,7 +197,7 @@ h1{
   justify-content:center;
   gap:10px;
   text-align:center;
-  background:#252525;
+  background:#23272c;
 }
 .toolTile .iconWrap{width:58px;height:58px}
 .toolTile .icon{width:43px;height:43px}
@@ -201,7 +208,7 @@ h1{
   place-items:center;
   border-radius:18px;
   overflow:hidden;
-  background:#f2b426;
+  background:var(--amber);
 }
 .travelBadge img{
   width:100%;
@@ -216,9 +223,9 @@ h1{
   align-items:stretch;
   justify-content:space-between;
   gap:0;
-  background:#c8d4de;
-  color:#10151a;
-  border-color:#d9e2e9;
+  background:linear-gradient(135deg,#b8c8d2 0%,#9fb2bf 100%);
+  color:#10161b;
+  border-color:#c9d5dd;
 }
 .timestampTop{display:flex;align-items:center;justify-content:flex-start}
 .timestampMain{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:13px}
@@ -265,26 +272,27 @@ h1{
   min-height:126px!important;
   padding:20px!important;
   justify-content:space-between;
-  background:linear-gradient(135deg,#292715,#1f1e17);
-  border-color:#514b20;
+  background:linear-gradient(135deg,#292719 0%,#20221f 100%);
+  border-color:#5a4d25;
 }
 .quoteTile .iconWrap{
   width:58px!important;
   height:58px!important;
   border-radius:17px;
-  background:#f3d500;
+  background:var(--amber);
   color:#111;
 }
 .quoteTile .icon{width:38px!important;height:38px!important}
 .quoteCopy{display:grid;gap:5px;min-width:0}
 .quoteTitle{font-size:22px;font-weight:920;letter-spacing:-.025em}
 .tileMeta{font-size:11px;color:#818181;line-height:1.25}
-.quoteTile .tileMeta{color:#aaa36b}
+.quoteTile .tileMeta{color:#b7a36c}
 .utilityTile{
   min-height:96px;
   padding:16px 18px;
   align-items:center;
   gap:12px;
+  background:#1e2227;
 }
 .iconWrap{
   width:50px;
@@ -312,15 +320,15 @@ h1{
 .savedQuotesHome{
   margin-top:12px;
   padding:16px;
-  border:1px solid #343434;
+  border:1px solid #30343a;
   border-radius:20px;
-  background:#1c1c1c;
+  background:#1a1d21;
 }
 .savedQuotesHead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
 .savedQuotesTitle{font-size:14px;font-weight:880}
 .savedQuotesLink{font-size:10px;color:#9a9a9a;text-decoration:none;font-weight:800}
 .savedQuotesList{display:grid;gap:8px}
-.savedQuoteMini{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 11px;border:1px solid #333;border-radius:14px;background:#232323;color:inherit;text-decoration:none}
+.savedQuoteMini{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 11px;border:1px solid #343940;border-radius:14px;background:#21252a;color:inherit;text-decoration:none}
 .savedQuoteText{min-width:0}
 .savedQuoteName{font-size:12px;font-weight:860;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .savedQuoteRoute{margin-top:3px;font-size:10px;color:#7f7f7f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -338,7 +346,7 @@ h1{
   justify-content:space-between;
 }
 .managementTile.featured{
-  background:#242424;
+  background:#20252a;
 }
 .managementTop{
   display:flex;
@@ -358,7 +366,7 @@ h1{
   width:8px;
   height:8px;
   border-radius:50%;
-  background:#6f6f6f;
+  background:#68727d;
   margin-top:4px;
 }
 .managementTitle{
@@ -378,7 +386,7 @@ h1{
 .productsSection{
   margin-top:24px;
   padding-top:18px;
-  border-top:1px solid #2d2d2d;
+  border-top:1px solid #2c3036;
 }
 .productsHead{
   display:flex;
@@ -410,8 +418,8 @@ h1{
   flex:0 0 180px;
   scroll-snap-align:start;
   overflow:hidden;
-  background:#202020;
-  border:1px solid #343434;
+  background:#1c2024;
+  border:1px solid #30353b;
   border-radius:19px;
   color:inherit;
   text-decoration:none;
@@ -476,8 +484,8 @@ h1{
 }
 .productCta{
   border:1px solid #3f3f3f;
-  background:#2b2b2b;
-  color:#dcdcdc;
+  background:#252a2f;
+  color:#d7dadd;
   border-radius:999px;
   padding:6px 9px;
   font-size:10px;
@@ -774,7 +782,7 @@ h1{
       </div>
     </section>
 
-    <div class="footer">MAINPAGE · STEERWILL V3.6</div>
+    <div class="footer">MAINPAGE · STEERWILL V3.7</div>
   </section>
 </main>
 
