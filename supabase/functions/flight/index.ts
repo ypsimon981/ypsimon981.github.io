@@ -119,14 +119,6 @@ function validDate(v:string){
   return /^20\d{2}-\d{2}-\d{2}$/.test(v);
 }
 
-function broadRange(){
-  const now=new Date();
-  return {
-    start:new Date(now.getTime()-24*3600000).toISOString(),
-    end:new Date(now.getTime()+47*3600000).toISOString()
-  };
-}
-
 Deno.serve(async (req: Request) => {
   const origin = req.headers.get("origin");
 
@@ -190,13 +182,10 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const range=broadRange();
     const endpoint =
       "https://aeroapi.flightaware.com/aeroapi/flights/" +
       encodeURIComponent(ident) +
-      "?start="+encodeURIComponent(range.start)+
-      "&end="+encodeURIComponent(range.end)+
-      "&max_pages=1";
+      "?max_pages=1";
 
     const upstream = await fetch(endpoint, {
       headers: {
