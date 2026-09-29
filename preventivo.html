@@ -8,12 +8,12 @@
 <title>SteerWill · Preventivo rapido</title>
 <link rel="icon" type="image/svg+xml" href="assets/steerwill-icon.svg?v=1">
 <style>
-:root{--bg:#090909;--panel:#171717;--panel2:#222;--line:#353535;--text:#f7f7f7;--muted:#858585;--yellow:#f3d500}
+:root{--bg:#090909;--panel:#171717;--panel2:#222;--line:#353535;--text:#f7f7f7;--muted:#858585;--yellow:#f3d500;--green:#8be8a1}
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",Arial,sans-serif}
 body{min-height:100dvh}
-a,button,input{-webkit-tap-highlight-color:transparent}
-button,input{font:inherit}
+a,button,input,select{-webkit-tap-highlight-color:transparent}
+button,input,select{font:inherit}
 .page{width:min(860px,100%);margin:0 auto;padding:14px 14px calc(24px + env(safe-area-inset-bottom))}
 .topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:18px}
 .brand{font-size:13px;font-weight:850;letter-spacing:.15em;color:#aaa}
@@ -26,17 +26,19 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
 .routeForm{margin-top:20px;display:grid;gap:10px}
 .field{display:grid;gap:7px}
 .field label{font-size:10px;color:#7e7e7e;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
-.field input{width:100%;height:56px;border:1px solid #3a3a3a;border-radius:16px;background:#101010;color:#fff;padding:0 15px;font-weight:800;outline:none}
-.field input:focus{border-color:#777}
+.field input,.field select{width:100%;height:56px;border:1px solid #3a3a3a;border-radius:16px;background:#101010;color:#fff;padding:0 15px;font-weight:800;outline:none}
+.field input:focus,.field select:focus{border-color:#777}
 .routeActions{display:grid;grid-template-columns:auto 1fr;gap:10px}
 .swap{height:54px;border:1px solid #3a3a3a;border-radius:16px;background:#242424;color:#fff;padding:0 15px;font-weight:900}
 .calculate{height:54px;border:0;border-radius:16px;background:var(--yellow);color:#111;font-weight:950}
 .settings{display:none;margin-top:14px;padding:16px;border:1px solid #373737;border-radius:18px;background:#111}
 .settings.show{display:block}
-.settingsTitle{font-size:13px;font-weight:900;margin-bottom:10px}
-.settingsRow{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end}
-.settingsRow input{height:50px}
-.saveRate{height:50px;border:0;border-radius:14px;background:#fff;color:#111;padding:0 16px;font-weight:900}
+.settingsTitle{font-size:15px;font-weight:900;margin-bottom:12px}
+.settingsSection{margin-top:16px;padding-top:14px;border-top:1px solid #292929}
+.settingsSection:first-of-type{margin-top:0;padding-top:0;border-top:0}
+.settingsLabel{margin-bottom:9px;color:#747474;font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
+.settingsGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.saveRate{width:100%;height:50px;margin-top:14px;border:0;border-radius:14px;background:#fff;color:#111;padding:0 16px;font-weight:900}
 .note{margin-top:8px;color:#777;font-size:11px;line-height:1.35}
 .result{display:none;margin-top:16px;border:1px solid #3b3b3b;border-radius:24px;background:#1b1b1b;overflow:hidden}
 .result.show{display:block}
@@ -48,9 +50,20 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
 .metaCell:last-child{border-right:0}
 .metaLabel{font-size:9px;color:#777;text-transform:uppercase;letter-spacing:.08em;font-weight:850}
 .metaValue{margin-top:4px;font-size:18px;font-weight:920}
-.addresses{padding:16px 18px;display:grid;gap:10px}
+.addresses{padding:16px 18px;display:grid;gap:10px;border-bottom:1px solid #303030}
 .addressLine{font-size:12px;color:#aaa;line-height:1.35}
 .addressLine strong{color:#ddd}
+.costBox{padding:18px}
+.costHead{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:10px}
+.costTitle{font-size:17px;font-weight:920}
+.costVehicle{font-size:10px;color:#777;text-align:right}
+.costRows{display:grid;gap:1px;border:1px solid #303030;border-radius:16px;overflow:hidden;background:#303030}
+.costRow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 13px;background:#202020}
+.costRow span{color:#939393;font-size:12px}
+.costRow strong{font-size:14px}
+.costRow.total span,.costRow.total strong{color:#fff;font-weight:900}
+.costRow.margin strong{color:var(--green);font-size:18px}
+.costSource{margin-top:9px;color:#666;font-size:10px;line-height:1.35}
 .resultActions{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 18px 18px}
 .resultActions button{height:48px;border-radius:14px;font-weight:900}
 .secondary{border:1px solid #3b3b3b;background:#242424;color:#fff}
@@ -66,7 +79,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
  .metaCell{border-right:0;border-bottom:1px solid #303030}
  .metaCell:last-child{border-bottom:0}
  .resultActions{grid-template-columns:1fr}
- .settingsRow{grid-template-columns:1fr}
+ .settingsGrid{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -82,7 +95,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
 
   <section class="hero">
     <h1>Preventivo rapido</h1>
-    <p class="sub">Inserisci partenza e destinazione. SteerWill calcola i km stradali e applica la tua tariffa.</p>
+    <p class="sub">Percorso, prezzo e costi operativi della corsa.</p>
 
     <div class="routeForm">
       <div class="field">
@@ -103,14 +116,57 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
 
     <div id="settings" class="settings">
       <div class="settingsTitle">Impostazioni preventivo</div>
-      <div class="settingsRow">
+
+      <div class="settingsSection">
+        <div class="settingsLabel">Tariffa</div>
         <div class="field">
           <label for="rateInput">Tariffa €/km</label>
           <input id="rateInput" type="number" min="0" step="0.05" inputmode="decimal" placeholder="1,50">
         </div>
-        <button id="saveRateBtn" class="saveRate" type="button">Salva</button>
       </div>
-      <div class="note">La tariffa resta salvata su questo dispositivo e viene usata nei prossimi preventivi.</div>
+
+      <div class="settingsSection">
+        <div class="settingsLabel">Costi viaggio</div>
+        <div class="settingsGrid">
+          <div class="field">
+            <label for="vehicleSelect">Veicolo</label>
+            <select id="vehicleSelect"></select>
+          </div>
+          <div class="field">
+            <label for="tripMode">Tipo corsa</label>
+            <select id="tripMode">
+              <option value="oneway">Solo andata</option>
+              <option value="roundtrip">Andata e ritorno cliente</option>
+              <option value="emptyreturn">Ritorno a vuoto</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="fuelType">Alimentazione</label>
+            <select id="fuelType">
+              <option value="diesel">Gasolio</option>
+              <option value="petrol">Benzina</option>
+              <option value="lpg">GPL</option>
+              <option value="methane">Metano</option>
+              <option value="electric">Elettrico</option>
+            </select>
+          </div>
+          <div class="field">
+            <label id="consumptionLabel" for="consumptionInput">Consumo · l/100 km</label>
+            <input id="consumptionInput" type="number" min="0" step="0.1" inputmode="decimal" placeholder="7,5">
+          </div>
+          <div class="field">
+            <label for="fuelPriceInput">Prezzo energia manuale</label>
+            <input id="fuelPriceInput" type="number" min="0" step="0.001" inputmode="decimal" placeholder="Automatico MIMIT">
+          </div>
+          <div class="field">
+            <label for="tollInput">Casello per tratta €</label>
+            <input id="tollInput" type="number" min="0" step="0.10" inputmode="decimal" placeholder="0,00">
+          </div>
+        </div>
+        <div class="note">Se il veicolo ha alimentazione e consumo in anagrafica vengono caricati automaticamente. Per benzina, gasolio, GPL e metano il prezzo viene preso dalla media regionale MIMIT del punto di partenza; il campo manuale, se compilato, ha la precedenza.</div>
+      </div>
+
+      <button id="saveRateBtn" class="saveRate" type="button">Salva impostazioni</button>
     </div>
   </section>
 
@@ -124,7 +180,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
 
     <div class="metaGrid">
       <div class="metaCell">
-        <div class="metaLabel">Distanza</div>
+        <div class="metaLabel">Distanza tratta</div>
         <div id="distance" class="metaValue">—</div>
       </div>
       <div class="metaCell">
@@ -142,22 +198,40 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
       <div class="addressLine"><strong>A:</strong> <span id="toResolved"></span></div>
     </div>
 
+    <div class="costBox">
+      <div class="costHead">
+        <div class="costTitle">Costi viaggio</div>
+        <div id="costVehicle" class="costVehicle"></div>
+      </div>
+      <div class="costRows">
+        <div class="costRow"><span>Km di costo</span><strong id="costKm">—</strong></div>
+        <div class="costRow"><span>Carburante</span><strong id="fuelCost">—</strong></div>
+        <div class="costRow"><span>Casello</span><strong id="tollCost">—</strong></div>
+        <div class="costRow total"><span>Costi viaggio</span><strong id="tripCost">—</strong></div>
+        <div class="costRow margin"><span>Residuo lordo</span><strong id="grossMargin">—</strong></div>
+      </div>
+      <div id="costSource" class="costSource"></div>
+    </div>
+
     <div class="resultActions">
       <button id="copyBtn" class="secondary" type="button">Copia riepilogo</button>
       <button id="recalcBtn" class="primary" type="button">Ricalcola</button>
     </div>
   </section>
 
-  <div class="footerNote">Stima basata su distanza stradale. Pedaggi, attese, parcheggi, supplementi e altre condizioni non sono inclusi automaticamente.</div>
+  <div class="footerNote">Il casello è manuale in questa versione. Il residuo lordo considera solo carburante e pedaggi: non include autista, manutenzione, ammortamento, parcheggi o altri costi.</div>
 </main>
 
-<script src="flight-config.js?v=steerwill2"></script>
+<script src="flight-config.js?v=steerwill3"></script>
 <script>
 (function(){
   "use strict";
 
   var RATE_KEY="codriver_quote_rate_v1";
+  var COST_KEY="codriver_quote_costs_v1";
+  var VEHICLE_KEY="codriver_vehicles_v1";
   var DEFAULT_RATE=1.50;
+
   var fromInput=document.getElementById("fromInput");
   var toInput=document.getElementById("toInput");
   var calculateBtn=document.getElementById("calculateBtn");
@@ -167,38 +241,180 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
   var saveRateBtn=document.getElementById("saveRateBtn");
   var result=document.getElementById("result");
   var errorBox=document.getElementById("errorBox");
+  var vehicleSelect=document.getElementById("vehicleSelect");
+  var tripMode=document.getElementById("tripMode");
+  var fuelType=document.getElementById("fuelType");
+  var consumptionInput=document.getElementById("consumptionInput");
+  var fuelPriceInput=document.getElementById("fuelPriceInput");
+  var tollInput=document.getElementById("tollInput");
   var lastQuote=null;
+
+  function num(v){
+    var n=Number(String(v==null?"":v).replace(",","."));
+    return Number.isFinite(n)?n:0;
+  }
 
   function getRate(){
     var v=Number(localStorage.getItem(RATE_KEY));
     return Number.isFinite(v)&&v>0?v:DEFAULT_RATE;
   }
 
-  function money(v){
-    return new Intl.NumberFormat("it-IT",{style:"currency",currency:"EUR"}).format(v);
+  function readVehicles(){
+    try{return JSON.parse(localStorage.getItem(VEHICLE_KEY)||"[]");}
+    catch(e){return [];}
   }
 
-  function saveRate(){
-    var v=Number(String(rateInput.value).replace(",","."));
-    if(!Number.isFinite(v)||v<=0){
-      rateInput.focus();
-      return;
+  function readCostPrefs(){
+    try{return JSON.parse(localStorage.getItem(COST_KEY)||"{}");}
+    catch(e){return {};}
+  }
+
+  function money(v){
+    return new Intl.NumberFormat("it-IT",{style:"currency",currency:"EUR"}).format(Number(v)||0);
+  }
+
+  function populateVehicles(){
+    var vehicles=readVehicles();
+    vehicleSelect.innerHTML='<option value="">Inserimento manuale</option>'+vehicles.map(function(v){
+      var name=[v.plate,v.model].filter(Boolean).join(" · ")||"Veicolo";
+      return '<option value="'+escapeHtml(v.id)+'">'+escapeHtml(name)+'</option>';
+    }).join("");
+    var prefs=readCostPrefs();
+    if(prefs.vehicleId && vehicles.some(function(v){return v.id===prefs.vehicleId;})){
+      vehicleSelect.value=prefs.vehicleId;
     }
-    localStorage.setItem(RATE_KEY,String(v));
+  }
+
+  function escapeHtml(v){
+    return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+
+  function vehicleById(id){
+    return readVehicles().find(function(v){return v.id===id;})||null;
+  }
+
+  function updateConsumptionLabel(){
+    var unit=fuelType.value==="methane"?"kg/100 km":fuelType.value==="electric"?"kWh/100 km":"l/100 km";
+    document.getElementById("consumptionLabel").textContent="Consumo · "+unit;
+  }
+
+  function applyVehicle(){
+    var v=vehicleById(vehicleSelect.value);
+    if(v){
+      if(v.fuelType) fuelType.value=v.fuelType;
+      if(v.consumption) consumptionInput.value=Number(v.consumption).toFixed(1);
+    }
+    updateConsumptionLabel();
+  }
+
+  function loadSettings(){
+    populateVehicles();
+    var prefs=readCostPrefs();
+    rateInput.value=getRate().toFixed(2);
+    tripMode.value=prefs.tripMode||"oneway";
+    fuelType.value=prefs.fuelType||"diesel";
+    consumptionInput.value=prefs.consumption||"";
+    fuelPriceInput.value=prefs.fuelPrice||"";
+    tollInput.value=prefs.toll||"";
+    applyVehicle();
+  }
+
+  function saveSettings(){
+    var rate=num(rateInput.value);
+    if(rate<=0){rateInput.focus();return;}
+    localStorage.setItem(RATE_KEY,String(rate));
+    var prefs={
+      vehicleId:vehicleSelect.value||"",
+      tripMode:tripMode.value,
+      fuelType:fuelType.value,
+      consumption:num(consumptionInput.value)||0,
+      fuelPrice:num(fuelPriceInput.value)||0,
+      toll:num(tollInput.value)||0
+    };
+    localStorage.setItem(COST_KEY,JSON.stringify(prefs));
     settings.classList.remove("show");
     if(lastQuote) renderQuote(lastQuote);
   }
 
+  function tripFactors(){
+    if(tripMode.value==="roundtrip") return {revenue:2,cost:2,label:"Andata e ritorno cliente"};
+    if(tripMode.value==="emptyreturn") return {revenue:1,cost:2,label:"Ritorno a vuoto"};
+    return {revenue:1,cost:1,label:"Solo andata"};
+  }
+
+  function selectedFuelPrice(data){
+    var manual=num(fuelPriceInput.value);
+    if(manual>0) return {price:manual,source:"Prezzo energia inserito manualmente"};
+
+    var key=fuelType.value;
+    var fuel=data&&data.fuel;
+    var price=fuel&&fuel.prices?Number(fuel.prices[key]):0;
+    if(price>0){
+      var date=fuel.updated?new Date(fuel.updated+"T12:00:00").toLocaleDateString("it-IT"):"";
+      return {
+        price:price,
+        source:"Media MIMIT "+(fuel.region||"")+" · "+(date||"aggiornamento giornaliero")
+      };
+    }
+    return {price:0,source:key==="electric"?"Inserisci manualmente il costo €/kWh nelle impostazioni.":"Prezzo carburante automatico non disponibile: inseriscilo manualmente."};
+  }
+
+  function currentVehicleName(){
+    var v=vehicleById(vehicleSelect.value);
+    return v?[v.plate,v.model].filter(Boolean).join(" · "):"Parametri manuali";
+  }
+
+  function calculateCosts(data){
+    var factors=tripFactors();
+    var oneWayKm=Number(data.distance_km||0);
+    var costKm=oneWayKm*factors.cost;
+    var billedKm=oneWayKm*factors.revenue;
+    var rate=getRate();
+    var quote=billedKm*rate;
+    var consumption=num(consumptionInput.value);
+    var energy=selectedFuelPrice(data);
+    var fuelCost=costKm*(consumption/100)*energy.price;
+    var toll=num(tollInput.value)*factors.cost;
+    var total=fuelCost+toll;
+    return {
+      factors:factors,
+      oneWayKm:oneWayKm,
+      costKm:costKm,
+      billedKm:billedKm,
+      rate:rate,
+      quote:quote,
+      consumption:consumption,
+      energy:energy,
+      fuelCost:fuelCost,
+      toll:toll,
+      total:total,
+      margin:quote-total
+    };
+  }
+
   function renderQuote(data){
     lastQuote=data;
-    var rate=getRate();
-    var price=Number(data.distance_km||0)*rate;
-    document.getElementById("price").textContent=money(price);
-    document.getElementById("distance").textContent=Number(data.distance_km||0).toLocaleString("it-IT",{maximumFractionDigits:1})+" km";
+    var calc=calculateCosts(data);
+
+    document.getElementById("price").textContent=money(calc.quote);
+    document.getElementById("distance").textContent=calc.oneWayKm.toLocaleString("it-IT",{maximumFractionDigits:1})+" km";
     document.getElementById("duration").textContent=Number(data.duration_min||0)+" min";
-    document.getElementById("rateView").textContent=money(rate)+"/km";
+    document.getElementById("rateView").textContent=money(calc.rate)+"/km";
     document.getElementById("fromResolved").textContent=(data.from&&data.from.label)||fromInput.value;
     document.getElementById("toResolved").textContent=(data.to&&data.to.label)||toInput.value;
+
+    document.getElementById("costVehicle").textContent=currentVehicleName()+" · "+calc.factors.label;
+    document.getElementById("costKm").textContent=calc.costKm.toLocaleString("it-IT",{maximumFractionDigits:1})+" km";
+    document.getElementById("fuelCost").textContent=money(calc.fuelCost);
+    document.getElementById("tollCost").textContent=money(calc.toll);
+    document.getElementById("tripCost").textContent=money(calc.total);
+    document.getElementById("grossMargin").textContent=money(calc.margin);
+
+    var unit=fuelType.value==="methane"?"kg/100 km":fuelType.value==="electric"?"kWh/100 km":"l/100 km";
+    var detail=calc.consumption>0 && calc.energy.price>0
+      ? calc.consumption.toLocaleString("it-IT",{maximumFractionDigits:1})+" "+unit+" × "+money(calc.energy.price)+(fuelType.value==="electric"?"/kWh":fuelType.value==="methane"?"/kg":"/l")
+      : "Consumo o prezzo energia non impostato";
+    document.getElementById("costSource").textContent=detail+" · "+calc.energy.source;
     result.classList.add("show");
   }
 
@@ -211,6 +427,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
       return;
     }
 
+    saveSettings();
     errorBox.classList.remove("show");
     result.classList.remove("show");
     calculateBtn.disabled=true;
@@ -235,11 +452,14 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
   }
 
   settingsBtn.onclick=function(){
-    rateInput.value=getRate().toFixed(2);
+    loadSettings();
     settings.classList.toggle("show");
   };
 
-  saveRateBtn.onclick=saveRate;
+  saveRateBtn.onclick=saveSettings;
+  vehicleSelect.addEventListener("change",applyVehicle);
+  fuelType.addEventListener("change",updateConsumptionLabel);
+
   document.getElementById("swapBtn").onclick=function(){
     var a=fromInput.value;
     fromInput.value=toInput.value;
@@ -250,15 +470,20 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
 
   document.getElementById("copyBtn").onclick=async function(){
     if(!lastQuote) return;
-    var rate=getRate();
-    var total=Number(lastQuote.distance_km||0)*rate;
+    var calc=calculateCosts(lastQuote);
     var text=
       "Preventivo SteerWill\n"+
       "Da: "+((lastQuote.from&&lastQuote.from.label)||fromInput.value)+"\n"+
       "A: "+((lastQuote.to&&lastQuote.to.label)||toInput.value)+"\n"+
-      "Distanza: "+lastQuote.distance_km+" km\n"+
-      "Tariffa: "+money(rate)+"/km\n"+
-      "Totale stimato: "+money(total);
+      "Tipo corsa: "+calc.factors.label+"\n"+
+      "Distanza tratta: "+calc.oneWayKm+" km\n"+
+      "Km di costo: "+calc.costKm.toFixed(1)+" km\n"+
+      "Tariffa: "+money(calc.rate)+"/km\n"+
+      "Preventivo: "+money(calc.quote)+"\n"+
+      "Carburante: "+money(calc.fuelCost)+"\n"+
+      "Casello: "+money(calc.toll)+"\n"+
+      "Costi viaggio: "+money(calc.total)+"\n"+
+      "Residuo lordo: "+money(calc.margin);
     try{
       await navigator.clipboard.writeText(text);
       this.textContent="Copiato ✓";
@@ -273,7 +498,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     });
   });
 
-  rateInput.value=getRate().toFixed(2);
+  loadSettings();
 })();
 </script>
 </body>
