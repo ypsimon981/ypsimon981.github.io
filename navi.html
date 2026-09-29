@@ -85,33 +85,9 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
       <div class="provider">Porto<strong id="portName">Civitavecchia</strong></div>
     </div>
 
-    <div class="portSelect">
-      <label for="portSelect">Porto crocieristico</label>
-      <select id="portSelect">
-        <option value="civitavecchia">Civitavecchia (Roma)</option>
-        <option value="ancona">Ancona</option>
-        <option value="bari">Bari</option>
-        <option value="brindisi">Brindisi</option>
-        <option value="cagliari">Cagliari</option>
-        <option value="catania">Catania</option>
-        <option value="genova">Genova</option>
-        <option value="laspezia">La Spezia</option>
-        <option value="livorno">Livorno</option>
-        <option value="messina">Messina</option>
-        <option value="napoli">Napoli</option>
-        <option value="olbia">Olbia</option>
-        <option value="palermo">Palermo</option>
-        <option value="portoferraio">Portoferraio</option>
-        <option value="ravenna">Ravenna</option>
-        <option value="salerno">Salerno</option>
-        <option value="savona">Savona</option>
-        <option value="siracusa">Siracusa</option>
-        <option value="taranto">Taranto</option>
-        <option value="trapani">Trapani</option>
-        <option value="trieste">Trieste</option>
-        <option value="venezia">Venezia</option>
-      </select>
-    </div>
+    <select id="portSelect" aria-label="Porto" style="display:none">
+      <option value="civitavecchia">Civitavecchia (Roma)</option>
+    </select>
 
     <div class="search">
       <input id="shipInput" type="text" placeholder="Es. MSC Seaview" autocomplete="off" spellcheck="false">
@@ -123,7 +99,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
       <button id="weekBtn" type="button">Programmazione</button>
     </div>
 
-    <div id="sourceNotice" class="notice">Orari di banchina e attracco da Port Mobility Civitavecchia. Gli orari possono subire variazioni operative.</div>
+    <div id="sourceNotice" class="notice">Civitavecchia · orari di banchina e attracco da Port Mobility. Gli orari possono subire variazioni operative.</div>
   </section>
 
   <div class="sectionHead">
