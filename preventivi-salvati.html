@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0c0d0f">
+<title>SteerWill · Preventivi salvati</title>
+<link rel="icon" type="image/svg+xml" href="assets/steerwill-icon.svg?v=1">
+<style>
+:root{--bg:#0c0d0f;--panel:#17191c;--panel2:#20242a;--line:#30363d;--text:#f3f4f5;--muted:#858b92;--yellow:#f2b426}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",Arial,sans-serif}
+body{min-height:100dvh}
+a,button{-webkit-tap-highlight-color:transparent}
+button{font:inherit}
+.page{width:min(860px,100%);margin:0 auto;padding:14px 14px calc(24px + env(safe-area-inset-bottom))}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:18px}
+.brand{font-size:13px;font-weight:850;letter-spacing:.15em;color:#aaa}
+.actions{display:flex;gap:8px}
+.pill{min-height:42px;padding:0 14px;border:1px solid #3a4047;border-radius:999px;background:#20242a;color:#fff;text-decoration:none;display:flex;align-items:center;font-size:12px;font-weight:850}
+.hero{padding:22px;border:1px solid var(--line);border-radius:24px;background:linear-gradient(180deg,#181b1f,#15171a)}
+h1{margin:0;font-size:clamp(38px,8vw,64px);line-height:.95;letter-spacing:-.045em}
+.sub{margin:8px 0 0;color:var(--muted);font-size:14px}
+.head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:20px 2px 10px}
+.headTitle{font-size:12px;font-weight:900;letter-spacing:.11em;text-transform:uppercase;color:#8d939a}
+.count{font-size:11px;color:#6f767d}
+.list{display:grid;gap:10px}
+.card{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;padding:15px 16px;border:1px solid #333940;border-radius:18px;background:#1c2024}
+.info{min-width:0}
+.name{font-size:16px;font-weight:930;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.route{margin-top:5px;font-size:12px;color:#a2a7ac;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta{margin-top:6px;font-size:10px;color:#6e757c;line-height:1.35}
+.right{text-align:right}
+.price{font-size:18px;font-weight:950;white-space:nowrap}
+.date{margin-top:4px;color:#70777f;font-size:9px}
+.delete{margin-top:8px;border:0;background:transparent;color:#9a6d6b;font-size:10px;font-weight:850;padding:3px 0}
+.empty{padding:30px 18px;border:1px dashed #353a40;border-radius:20px;text-align:center;color:#80868d}
+.empty strong{display:block;color:#ddd;font-size:18px;margin-bottom:6px}
+@media(max-width:620px){
+ .page{padding:12px 12px calc(18px + env(safe-area-inset-bottom))}
+ .hero{padding:19px}
+ .card{grid-template-columns:1fr}
+ .right{text-align:left;display:flex;align-items:center;justify-content:space-between;gap:12px}
+ .delete{margin-top:0}
+}
+</style>
+</head>
+<body>
+<main class="page">
+  <div class="topbar">
+    <div class="brand">STEERWILL · PREVENTIVI</div>
+    <div class="actions">
+      <a class="pill" href="preventivo.html">+ Nuovo</a>
+      <a class="pill" href="index.html">← Home</a>
+    </div>
+  </div>
+
+  <section class="hero">
+    <h1>Preventivi salvati</h1>
+    <p class="sub">Tutti i preventivi che hai deciso di conservare, separati dal calcolatore.</p>
+  </section>
+
+  <div class="head">
+    <div class="headTitle">Archivio</div>
+    <div id="count" class="count"></div>
+  </div>
+  <div id="list" class="list"></div>
+</main>
+
+<script>
+(function(){
+  "use strict";
+  var KEY="codriver_saved_quotes_v1";
+  var list=document.getElementById("list");
+  var count=document.getElementById("count");
+
+  function read(){
+    try{
+      var x=JSON.parse(localStorage.getItem(KEY)||"[]");
+      return Array.isArray(x)?x:[];
+    }catch(e){return [];}
+  }
+  function write(items){localStorage.setItem(KEY,JSON.stringify(items.slice(0,60)));}
+  function esc(v){return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+  function dateText(v){
+    if(!v) return "";
+    var d=new Date(v);
+    if(isNaN(d)) return "";
+    return d.toLocaleDateString("it-IT",{day:"2-digit",month:"short",year:"numeric"});
+  }
+  function render(){
+    var items=read();
+    count.textContent=items.length?items.length+" salvati":"";
+    if(!items.length){
+      list.innerHTML='<div class="empty"><strong>Nessun preventivo salvato</strong>Quando ne salvi uno dal calcolatore comparirà qui.</div>';
+      return;
+    }
+    list.innerHTML=items.map(function(q){
+      var route=[q.fromShort||q.from,q.toShort||q.to].filter(Boolean).join(" → ");
+      var meta=[q.modeLabel,q.distanceText,q.durationText].filter(Boolean).join(" · ");
+      return '<article class="card">'+
+        '<div class="info"><div class="name">'+esc(q.name||"Preventivo")+'</div>'+
+        '<div class="route">'+esc(route)+'</div><div class="meta">'+esc(meta)+'</div></div>'+
+        '<div class="right"><div><div class="price">'+esc(q.priceDisplay||"—")+'</div><div class="date">'+esc(dateText(q.createdAt))+'</div></div>'+
+        '<button class="delete" type="button" data-delete="'+esc(q.id)+'">Elimina</button></div>'+
+      '</article>';
+    }).join("");
+    Array.prototype.forEach.call(document.querySelectorAll("[data-delete]"),function(btn){
+      btn.onclick=function(){
+        var id=btn.getAttribute("data-delete");
+        write(read().filter(function(x){return x.id!==id;}));
+        render();
+      };
+    });
+  }
+  render();
+})();
+</script>
+</body>
+</html>
