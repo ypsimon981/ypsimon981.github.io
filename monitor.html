@@ -108,6 +108,13 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     return d.toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"});
   }
 
+  function formatDateTime(v){
+    if(!v) return "—";
+    var d=new Date(v);
+    if(isNaN(d)) return "—";
+    return d.toLocaleDateString("it-IT",{day:"2-digit",month:"short"})+" · "+d.toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"});
+  }
+
   function formatDate(v){
     if(!v) return "—";
     var d = new Date(v+"T12:00:00");
@@ -157,12 +164,12 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
       '</div>'+
       '<div class="route"><div class="code">'+escapeHtml(origin.code||"—")+'</div><div class="line"></div><div class="code">'+escapeHtml(destination.code||"—")+'</div></div>'+
       '<div class="times">'+
-        '<div class="cell"><div class="cellLabel">Programmato</div><div class="cellValue">'+formatTime(f.scheduled_in)+'</div></div>'+
-        '<div class="cell"><div class="cellLabel">Stimato</div><div class="cellValue">'+formatTime(f.estimated_in||f.scheduled_in)+'</div></div>'+
+        '<div class="cell"><div class="cellLabel">Programmato</div><div class="cellValue">'+formatDateTime(f.scheduled_in)+'</div></div>'+
+        '<div class="cell"><div class="cellLabel">Previsto</div><div class="cellValue">'+formatDateTime(f.estimated_in||f.scheduled_in)+'</div></div>'+
         '<div class="cell"><div class="cellLabel">Ritardo</div><div class="cellValue '+(delay>0?"delay":"")+'">'+delayText+'</div></div>'+
         '<div class="cell"><div class="cellLabel">Terminal</div><div class="cellValue">'+escapeHtml(f.terminal_destination||"—")+'</div></div>'+
       '</div>'+
-      '<div class="cardActions"><div class="meta">Gate '+escapeHtml(f.gate_destination||"—")+'</div><button class="remove" type="button" data-remove-flight="'+escapeHtml(f.ident)+'">Rimuovi</button></div>'+
+      '<div class="cardActions"><div class="meta">Gate '+escapeHtml(f.gate_destination||"—")+'</div><button class="remove" type="button" data-remove-flight="'+escapeHtml(f.ident)+'" data-flight-date="'+escapeHtml(f.target_date||"")+'">Rimuovi</button></div>'+
     '</article>';
   }
 
@@ -230,7 +237,10 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     Array.prototype.forEach.call(document.querySelectorAll("[data-remove-flight]"),function(btn){
       btn.onclick=function(){
         var ident=btn.getAttribute("data-remove-flight");
-        write(FLIGHT_KEY,read(FLIGHT_KEY).filter(function(f){return f.ident!==ident;}));
+        var targetDate=btn.getAttribute("data-flight-date")||"";
+        write(FLIGHT_KEY,read(FLIGHT_KEY).filter(function(f){
+          return !(f.ident===ident && String(f.target_date||"")===targetDate);
+        }));
         render();
       };
     });
@@ -277,6 +287,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
       gate_destination:f.gate_destination||old.gate_destination||"—",
       status:f.status||old.status||"—",
       fa_flight_id:f.fa_flight_id||old.fa_flight_id||"",
+      target_date:f.target_date||old.target_date||"",
       followedAt:old.followedAt||Date.now()
     };
   }
@@ -289,7 +300,9 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     for(var i=0;i<items.length;i++){
       var old=items[i];
       try{
-        var res=await fetch(window.STEERWILL_FLIGHT_API+"?ident="+encodeURIComponent(old.ident),{
+        var flightUrl=window.STEERWILL_FLIGHT_API+"?ident="+encodeURIComponent(old.ident);
+        if(old.target_date) flightUrl+="&date="+encodeURIComponent(old.target_date);
+        var res=await fetch(flightUrl,{
           cache:"no-store",
           headers:{"apikey":window.STEERWILL_SUPABASE_PUBLIC_KEY||""}
         });
