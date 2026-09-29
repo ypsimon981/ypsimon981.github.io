@@ -7,6 +7,7 @@
 <meta name="theme-color" content="#090909">
 <title>SteerWill · Preventivo rapido</title>
 <link rel="icon" type="image/svg+xml" href="assets/steerwill-icon.svg?v=1">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
 :root{--bg:#090909;--panel:#171717;--panel2:#222;--line:#353535;--text:#f7f7f7;--muted:#858585;--yellow:#f3d500;--green:#8be8a1}
 *{box-sizing:border-box}
@@ -64,6 +65,12 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
 .addresses{padding:16px 18px;display:grid;gap:10px;border-bottom:1px solid #303030}
 .addressLine{font-size:12px;color:#aaa;line-height:1.35}
 .addressLine strong{color:#ddd}
+.mapWrap{display:none;padding:0 18px 18px;border-bottom:1px solid #303030}
+.mapWrap.show{display:block}
+.routeMap{height:240px;border:1px solid #333;border-radius:17px;overflow:hidden;background:#111}
+.mapNote{margin-top:8px;color:#777;font-size:10px;line-height:1.35}
+.leaflet-container{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Arial,sans-serif}
+.leaflet-control-attribution{font-size:9px}
 .costBox{padding:18px}
 .costHead{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:10px}
 .costTitle{font-size:17px;font-weight:920}
@@ -206,6 +213,11 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
       <div class="addressLine"><strong>A:</strong> <span id="toResolved"></span></div>
     </div>
 
+    <div id="mapWrap" class="mapWrap">
+      <div id="routeMap" class="routeMap" aria-label="Mappa del percorso"></div>
+      <div id="mapNote" class="mapNote">Percorso stradale OpenStreetMap · OSRM</div>
+    </div>
+
     <div class="costBox">
       <div class="costHead">
         <div class="costTitle">Costi viaggio</div>
@@ -231,6 +243,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
 </main>
 
 <script src="flight-config.js?v=steerwill3"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 (function(){
   "use strict";
@@ -256,9 +269,15 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
   var tripMode=document.getElementById("tripMode");
   var vatIncluded=document.getElementById("vatIncluded");
   var roundBtn=document.getElementById("roundBtn");
+  var mapWrap=document.getElementById("mapWrap");
+  var mapNote=document.getElementById("mapNote");
 
   var lastQuote=null;
+  var quoteVariants=null;
   var roundPrice=false;
+  var routeMap=null;
+  var routeLayer=null;
+  var pointLayers=[];
 
   function num(v){
     var n=Number(String(v==null?"":v).replace(",","."));
@@ -341,7 +360,10 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     };
     localStorage.setItem(COST_KEY,JSON.stringify(prefs));
     settings.classList.remove("show");
-    if(lastQuote) renderQuote(lastQuote);
+    if(lastQuote){
+      buildVariants(lastQuote);
+      renderQuote(lastQuote);
+    }
   }
 
   function updateTripFields(){
@@ -349,9 +371,9 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     availabilityField.classList.toggle("show",show);
   }
 
-  function tripFactors(){
-    if(tripMode.value==="roundtrip") return {revenue:2,cost:2,label:"Andata e ritorno cliente"};
-    if(tripMode.value==="emptyreturn") return {revenue:2,cost:2,label:"Ritorno a vuoto"};
+  function tripFactors(mode){
+    if(mode==="roundtrip") return {revenue:2,cost:2,label:"Andata e ritorno cliente"};
+    if(mode==="emptyreturn") return {revenue:2,cost:2,label:"Ritorno a vuoto"};
     return {revenue:1,cost:1,label:"Solo andata"};
   }
 
@@ -377,8 +399,8 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     return v?[v.plate,v.model].filter(Boolean).join(" · "):"Parametri manuali";
   }
 
-  function calculateCosts(data){
-    var factors=tripFactors();
+  function calculateCosts(data,mode){
+    var factors=tripFactors(mode);
     var oneWayKm=Number(data.distance_km||0);
     var costKm=oneWayKm*factors.cost;
     var billedKm=oneWayKm*factors.revenue;
@@ -425,9 +447,71 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     };
   }
 
+  function buildVariants(data){
+    quoteVariants={
+      oneway:calculateCosts(data,"oneway"),
+      roundtrip:calculateCosts(data,"roundtrip"),
+      emptyreturn:calculateCosts(data,"emptyreturn")
+    };
+    return quoteVariants;
+  }
+
+  function renderMap(data,mode){
+    if(!window.L || !data || !Array.isArray(data.route_geometry) || data.route_geometry.length<2){
+      mapWrap.classList.remove("show");
+      return;
+    }
+
+    mapWrap.classList.add("show");
+    var latlngs=data.route_geometry.map(function(p){return [Number(p[1]),Number(p[0])];});
+
+    if(!routeMap){
+      routeMap=L.map("routeMap",{zoomControl:true,scrollWheelZoom:false});
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{
+        maxZoom:19,
+        attribution:"&copy; OpenStreetMap contributors"
+      }).addTo(routeMap);
+    }
+
+    if(routeLayer){routeMap.removeLayer(routeLayer);}
+    pointLayers.forEach(function(layer){routeMap.removeLayer(layer);});
+    pointLayers=[];
+
+    routeLayer=L.polyline(latlngs,{
+      color:"#f3d500",
+      weight:5,
+      opacity:.9,
+      lineCap:"round",
+      lineJoin:"round"
+    }).addTo(routeMap);
+
+    if(data.from){
+      pointLayers.push(L.circleMarker([data.from.lat,data.from.lon],{
+        radius:7,color:"#fff",weight:3,fillColor:"#111",fillOpacity:1
+      }).bindTooltip("A",{permanent:false}).addTo(routeMap));
+    }
+    if(data.to){
+      pointLayers.push(L.circleMarker([data.to.lat,data.to.lon],{
+        radius:7,color:"#fff",weight:3,fillColor:"#f3d500",fillOpacity:1
+      }).bindTooltip("B",{permanent:false}).addTo(routeMap));
+    }
+
+    routeMap.fitBounds(routeLayer.getBounds(),{padding:[22,22]});
+    setTimeout(function(){routeMap.invalidateSize();},60);
+
+    if(mode==="roundtrip"){
+      mapNote.textContent="Percorso OpenStreetMap · andata e ritorno con cliente sullo stesso itinerario";
+    }else if(mode==="emptyreturn"){
+      mapNote.textContent="Percorso OpenStreetMap · ritorno a vuoto sullo stesso itinerario";
+    }else{
+      mapNote.textContent="Percorso stradale OpenStreetMap · OSRM";
+    }
+  }
+
   function renderQuote(data){
     lastQuote=data;
-    var calc=calculateCosts(data);
+    if(!quoteVariants) buildVariants(data);
+    var calc=quoteVariants[tripMode.value]||quoteVariants.oneway;
 
     document.getElementById("price").textContent=money(calc.quote);
     var detail=calc.billedKm.toLocaleString("it-IT",{maximumFractionDigits:1})+" km × "+money(calc.rate)+"/km";
@@ -467,6 +551,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
       ? calc.consumption.toLocaleString("it-IT",{maximumFractionDigits:1})+" "+unit+" × "+money(calc.energy.price)+(calc.fuelKind==="electric"?"/kWh":calc.fuelKind==="methane"?"/kg":"/l")
       : (calc.vehicle ? "Completa alimentazione e consumo nell'anagrafica del mezzo" : "Seleziona un mezzo nelle impostazioni");
     document.getElementById("costSource").textContent=fuelDetail+" · "+calc.energy.source;
+    renderMap(data,tripMode.value);
     result.classList.add("show");
   }
 
@@ -481,6 +566,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
 
     saveSettings();
     roundPrice=false;
+    quoteVariants=null;
     roundBtn.classList.remove("active");
     roundBtn.textContent="Arrotonda";
     errorBox.classList.remove("show");
@@ -496,6 +582,8 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
       });
       var data=await res.json().catch(function(){return {};});
       if(!res.ok) throw new Error(data.error||"api");
+      lastQuote=data;
+      buildVariants(data);
       renderQuote(data);
     }catch(e){
       errorBox.textContent="Non riesco a calcolare questa tratta. Prova a scrivere gli indirizzi in modo più completo.";
@@ -513,20 +601,43 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
 
   saveRateBtn.onclick=saveSettings;
   vehicleSelect.addEventListener("change",applyVehicle);
-  tripMode.addEventListener("change",updateTripFields);
+  tripMode.addEventListener("change",function(){
+    updateTripFields();
+    var prefs=readCostPrefs();
+    prefs.tripMode=tripMode.value;
+    localStorage.setItem(COST_KEY,JSON.stringify(prefs));
+    if(lastQuote) renderQuote(lastQuote);
+  });
   vatIncluded.addEventListener("change",function(){
     var prefs=readCostPrefs();
     prefs.vatIncluded=vatIncluded.checked;
     localStorage.setItem(COST_KEY,JSON.stringify(prefs));
-    if(lastQuote) renderQuote(lastQuote);
+    if(lastQuote){
+      buildVariants(lastQuote);
+      renderQuote(lastQuote);
+    }
   });
   roundBtn.onclick=function(){
     if(!lastQuote) return;
     roundPrice=!roundPrice;
     roundBtn.classList.toggle("active",roundPrice);
     roundBtn.textContent=roundPrice?"Arrotondato ✓":"Arrotonda";
+    buildVariants(lastQuote);
     renderQuote(lastQuote);
   };
+
+  [availabilityHours,hourlyRateInput].forEach(function(el){
+    el.addEventListener("input",function(){
+      var prefs=readCostPrefs();
+      prefs.availabilityHours=num(availabilityHours.value)||0;
+      prefs.hourlyRate=num(hourlyRateInput.value)||0;
+      localStorage.setItem(COST_KEY,JSON.stringify(prefs));
+      if(lastQuote){
+        buildVariants(lastQuote);
+        renderQuote(lastQuote);
+      }
+    });
+  });
 
   document.getElementById("swapBtn").onclick=function(){
     var a=fromInput.value;
@@ -538,7 +649,8 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
 
   document.getElementById("copyBtn").onclick=async function(){
     if(!lastQuote) return;
-    var calc=calculateCosts(lastQuote);
+    if(!quoteVariants) buildVariants(lastQuote);
+    var calc=quoteVariants[tripMode.value]||quoteVariants.oneway;
     var text=
       "Preventivo SteerWill\n"+
       "Da: "+((lastQuote.from&&lastQuote.from.label)||fromInput.value)+"\n"+
