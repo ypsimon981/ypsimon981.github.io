@@ -303,6 +303,10 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     return new Intl.NumberFormat("it-IT",{style:"currency",currency:"EUR"}).format(Number(v)||0);
   }
 
+  function moneyCompact(v){
+    return new Intl.NumberFormat("it-IT",{minimumFractionDigits:2,maximumFractionDigits:2}).format(Number(v)||0)+"€";
+  }
+
   function hhmm(minutes){
     var total=Math.max(0,Math.round(Number(minutes)||0));
     var h=Math.floor(total/60);
@@ -513,7 +517,9 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     if(!quoteVariants) buildVariants(data);
     var calc=quoteVariants[tripMode.value]||quoteVariants.oneway;
 
-    document.getElementById("price").textContent=money(calc.quote);
+    document.getElementById("price").textContent=vatIncluded.checked
+      ? moneyCompact(calc.quote)
+      : moneyCompact(calc.quote)+" + IVA";
     var detail=calc.billedKm.toLocaleString("it-IT",{maximumFractionDigits:1})+" km × "+money(calc.rate)+"/km";
     if(calc.availabilityQuote>0){
       detail+=" + "+calc.hours.toLocaleString("it-IT",{maximumFractionDigits:1})+" h × "+money(calc.hourlyRate)+"/h";
@@ -667,7 +673,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
       (calc.hours>0 ? "Disponibilità: "+calc.hours+" h × "+money(calc.hourlyRate)+"/h = "+money(calc.availabilityQuote)+"\n" : "")+
       (calc.vat>0 ? "IVA 10%: "+money(calc.vat)+"\n" : "")+
       (roundPrice ? "Arrotondamento: "+money(calc.rounding)+"\n" : "")+
-      "Preventivo: "+money(calc.quote)+"\n"+
+      "Preventivo: "+(vatIncluded.checked ? moneyCompact(calc.quote)+" IVA inclusa" : moneyCompact(calc.quote)+" + IVA")+"\n"+
       "Carburante: "+money(calc.fuelCost)+"\n"+
       "Casello: da integrare\n"+
       "Costi viaggio: "+money(calc.total)+"\n"+
