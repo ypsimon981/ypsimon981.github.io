@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#090909">
+<title>CoDriver · Veicolo & scadenze</title>
+<style>
+:root{
+  --bg:#090909;--panel:#171717;--panel2:#222;--panel3:#292929;--line:#373737;
+  --text:#f7f7f7;--muted:#8c8c8c;--green:#42c96b;--amber:#f0c94f;--red:#ff625f;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",Arial,sans-serif}
+body{min-height:100dvh}
+a,button,input{font:inherit;-webkit-tap-highlight-color:transparent}
+button{cursor:pointer}
+.page{width:min(900px,100%);margin:0 auto;padding:14px 14px calc(24px + env(safe-area-inset-bottom))}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:18px}
+.brand{font-size:13px;font-weight:850;letter-spacing:.15em;color:#aaa}
+.home{min-height:42px;padding:0 14px;border:1px solid #3b3b3b;border-radius:999px;background:#222;color:#fff;text-decoration:none;display:flex;align-items:center;font-size:13px;font-weight:800}
+.hero{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:18px}
+h1{margin:0;font-size:clamp(38px,7vw,64px);line-height:.95;letter-spacing:-.045em}
+.sub{margin:7px 0 0;color:#888;font-size:14px}
+.addBtn{min-height:48px;border:0;border-radius:15px;background:#fff;color:#111;padding:0 16px;font-weight:900;white-space:nowrap}
+.panel{border:1px solid var(--line);border-radius:24px;background:var(--panel);overflow:hidden}
+.formWrap{display:none;margin-bottom:16px}
+.formWrap.show{display:block}
+.formHead{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid #303030}
+.formTitle{font-size:20px;font-weight:900}
+.closeBtn{border:1px solid #3b3b3b;border-radius:999px;background:#222;color:#bbb;padding:7px 11px;font-size:12px;font-weight:800}
+.formBody{padding:18px 20px 20px}
+.sectionLabel{margin:14px 0 9px;color:#858585;font-size:11px;font-weight:900;letter-spacing:.11em;text-transform:uppercase}
+.sectionLabel:first-child{margin-top:0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.field{display:flex;flex-direction:column;gap:7px}
+.field label{font-size:11px;color:#858585;font-weight:800}
+.field input{width:100%;min-height:50px;border:1px solid #393939;border-radius:14px;background:#101010;color:#fff;padding:0 13px;outline:none}
+.field input:focus{border-color:#777}
+.field input[type="text"]{text-transform:none}
+#plate{text-transform:uppercase;font-weight:900;letter-spacing:.05em}
+.formActions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px}
+.formActions button{min-height:52px;border-radius:15px;font-weight:900}
+.secondary{border:1px solid #3c3c3c;background:#242424;color:#fff}
+.primary{border:0;background:#fff;color:#111}
+.list{display:grid;gap:14px}
+.empty{padding:34px 20px;border:1px dashed #383838;border-radius:22px;text-align:center;color:#888}
+.empty strong{display:block;color:#ddd;font-size:20px;margin-bottom:6px}
+.vehicle{border:1px solid #393939;border-radius:24px;background:#1b1b1b;overflow:hidden}
+.vehicleHead{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:19px 20px 15px}
+.plate{font-size:29px;font-weight:950;letter-spacing:.035em}
+.model{margin-top:3px;color:#909090;font-size:13px;font-weight:700}
+.kmBox{text-align:right}
+.km{font-size:19px;font-weight:900}
+.kmLabel{margin-top:3px;color:#777;font-size:10px;text-transform:uppercase;font-weight:850}
+.deadlines{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid #303030;border-bottom:1px solid #303030}
+.deadline{padding:14px 10px;text-align:center;border-right:1px solid #303030;min-width:0}
+.deadline:last-child{border-right:0}
+.deadlineName{font-size:9px;color:#777;text-transform:uppercase;letter-spacing:.07em;font-weight:850}
+.deadlineDate{margin-top:4px;font-size:14px;font-weight:900}
+.state{display:inline-flex;margin-top:6px;padding:4px 7px;border-radius:999px;font-size:9px;font-weight:900;background:#292929;color:#999}
+.state.ok{background:#18331f;color:#9be7ac}
+.state.warn{background:#3d3311;color:#f4d96f}
+.state.bad{background:#421b1a;color:#ff9794}
+.maintenance{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px 16px}
+.maintCard{padding:14px;border:1px solid #333;border-radius:17px;background:#202020}
+.maintTitle{font-size:12px;font-weight:900}
+.maintMain{margin-top:7px;font-size:20px;font-weight:950}
+.maintSub{margin-top:3px;color:#818181;font-size:11px}
+.vehicleActions{display:flex;justify-content:flex-end;gap:8px;padding:0 16px 16px}
+.vehicleActions button{border:1px solid #3b3b3b;background:#242424;color:#ccc;border-radius:999px;padding:8px 11px;font-size:11px;font-weight:850}
+.vehicleActions .delete{color:#ff9a97}
+.note{margin-top:14px;padding:11px 13px;border:1px solid #303030;border-radius:14px;background:#121212;color:#7f7f7f;font-size:11px;line-height:1.35}
+@media(max-width:680px){
+  .page{padding:12px 12px calc(18px + env(safe-area-inset-bottom))}
+  .hero{align-items:flex-start;flex-direction:column}
+  .addBtn{width:100%}
+  .grid3{grid-template-columns:1fr}
+  .grid2{grid-template-columns:1fr}
+  .deadlines{grid-template-columns:1fr 1fr}
+  .deadline:nth-child(2){border-right:0}
+  .deadline:nth-child(-n+2){border-bottom:1px solid #303030}
+  .maintenance{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<main class="page">
+  <div class="topbar">
+    <div class="brand">CODRIVER · VEICOLO</div>
+    <a class="home" href="index.html">← Home</a>
+  </div>
+
+  <div class="hero">
+    <div>
+      <h1>Veicolo & scadenze</h1>
+      <p class="sub">Documenti, chilometri e manutenzione in un posto solo.</p>
+    </div>
+    <button id="addBtn" class="addBtn" type="button">+ Aggiungi un veicolo</button>
+  </div>
+
+  <section id="formWrap" class="panel formWrap">
+    <div class="formHead">
+      <div id="formTitle" class="formTitle">Aggiungi un veicolo</div>
+      <button id="closeBtn" class="closeBtn" type="button">Chiudi</button>
+    </div>
+    <form id="vehicleForm" class="formBody">
+      <div class="sectionLabel">Veicolo</div>
+      <div class="grid3">
+        <div class="field">
+          <label for="plate">Targa</label>
+          <input id="plate" name="plate" type="text" maxlength="10" placeholder="AB123CD" required autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="model">Modello</label>
+          <input id="model" name="model" type="text" placeholder="Mercedes Vito">
+        </div>
+        <div class="field">
+          <label for="km">Km attuali</label>
+          <input id="km" name="km" type="number" min="0" step="1" placeholder="85000">
+        </div>
+      </div>
+
+      <div class="sectionLabel">Scadenze</div>
+      <div class="grid2">
+        <div class="field">
+          <label for="revision">Revisione</label>
+          <input id="revision" name="revision" type="date">
+        </div>
+        <div class="field">
+          <label for="insurance">Assicurazione</label>
+          <input id="insurance" name="insurance" type="date">
+        </div>
+        <div class="field">
+          <label for="ztl">ZTL / permesso</label>
+          <input id="ztl" name="ztl" type="date">
+        </div>
+        <div class="field">
+          <label for="tax">Bollo</label>
+          <input id="tax" name="tax" type="date">
+        </div>
+      </div>
+
+      <div class="sectionLabel">Manutenzione</div>
+      <div class="grid2">
+        <div class="field">
+          <label for="serviceKm">Prossimo tagliando · km</label>
+          <input id="serviceKm" name="serviceKm" type="number" min="0" step="1" placeholder="100000">
+        </div>
+        <div class="field">
+          <label for="serviceDate">Prossimo tagliando · data</label>
+          <input id="serviceDate" name="serviceDate" type="date">
+        </div>
+        <div class="field">
+          <label for="tyresKm">Controllo / cambio gomme · km</label>
+          <input id="tyresKm" name="tyresKm" type="number" min="0" step="1" placeholder="95000">
+        </div>
+        <div class="field">
+          <label for="tyresDate">Controllo / cambio gomme · data</label>
+          <input id="tyresDate" name="tyresDate" type="date">
+        </div>
+      </div>
+
+      <div class="formActions">
+        <button id="cancelBtn" class="secondary" type="button">Annulla</button>
+        <button class="primary" type="submit">Salva veicolo</button>
+      </div>
+    </form>
+  </section>
+
+  <div id="list" class="list"></div>
+  <div class="note">Questa prima versione salva i veicoli sul dispositivo. Le scadenze vengono evidenziate quando mancano 30 giorni; tagliando e gomme anche quando mancano 1.000 km.</div>
+</main>
+
+<script>
+(function(){
+  "use strict";
+
+  var STORAGE_KEY = "codriver_vehicles_v1";
+  var editId = null;
+  var formWrap = document.getElementById("formWrap");
+  var form = document.getElementById("vehicleForm");
+  var list = document.getElementById("list");
+  var formTitle = document.getElementById("formTitle");
+
+  function getVehicles(){
+    try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");}
+    catch(e){return [];}
+  }
+
+  function saveVehicles(items){
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(items));
+  }
+
+  function openForm(vehicle){
+    form.reset();
+    editId = vehicle ? vehicle.id : null;
+    formTitle.textContent = vehicle ? "Modifica veicolo" : "Aggiungi un veicolo";
+
+    if(vehicle){
+      ["plate","model","km","revision","insurance","ztl","tax","serviceKm","serviceDate","tyresKm","tyresDate"].forEach(function(k){
+        if(form.elements[k]) form.elements[k].value = vehicle[k] == null ? "" : vehicle[k];
+      });
+    }
+
+    formWrap.classList.add("show");
+    setTimeout(function(){document.getElementById("plate").focus();},80);
+    formWrap.scrollIntoView({behavior:"smooth",block:"start"});
+  }
+
+  function closeForm(){
+    formWrap.classList.remove("show");
+    form.reset();
+    editId = null;
+  }
+
+  function dateInfo(value){
+    if(!value) return {date:"—",text:"Non inserita",cls:""};
+    var d = new Date(value+"T12:00:00");
+    var today = new Date();
+    today.setHours(0,0,0,0);
+    var days = Math.ceil((d.getTime()-today.getTime())/86400000);
+
+    var date = d.toLocaleDateString("it-IT",{day:"2-digit",month:"2-digit",year:"2-digit"});
+    if(days < 0) return {date:date,text:"Scaduta",cls:"bad"};
+    if(days === 0) return {date:date,text:"Oggi",cls:"warn"};
+    if(days <= 30) return {date:date,text:days+" gg",cls:"warn"};
+    return {date:date,text:days+" gg",cls:"ok"};
+  }
+
+  function kmText(target,current){
+    var t = Number(target||0);
+    var c = Number(current||0);
+    if(!t) return {main:"—",sub:"Non impostato",cls:""};
+    var left = t-c;
+    if(left < 0) return {main:t.toLocaleString("it-IT")+" km",sub:"Superato di "+Math.abs(left).toLocaleString("it-IT")+" km",cls:"bad"};
+    if(left <= 1000) return {main:t.toLocaleString("it-IT")+" km",sub:"Mancano "+left.toLocaleString("it-IT")+" km",cls:"warn"};
+    return {main:t.toLocaleString("it-IT")+" km",sub:"Mancano "+left.toLocaleString("it-IT")+" km",cls:"ok"};
+  }
+
+  function escapeHtml(v){
+    return String(v==null?"":v)
+      .replace(/&/g,"&amp;")
+      .replace(/</g,"&lt;")
+      .replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;");
+  }
+
+  function deadlineCell(name,value){
+    var x = dateInfo(value);
+    return '<div class="deadline"><div class="deadlineName">'+name+'</div><div class="deadlineDate">'+x.date+'</div><div class="state '+x.cls+'">'+x.text+'</div></div>';
+  }
+
+  function maintenanceCard(title,kmTarget,dateTarget,currentKm){
+    var k = kmText(kmTarget,currentKm);
+    var d = dateInfo(dateTarget);
+    var cls = k.cls==="bad"||d.cls==="bad" ? "bad" : (k.cls==="warn"||d.cls==="warn" ? "warn" : (k.cls==="ok"||d.cls==="ok" ? "ok" : ""));
+    var subParts = [];
+    if(kmTarget) subParts.push(k.sub);
+    if(dateTarget) subParts.push(d.date+" · "+d.text);
+    return '<div class="maintCard"><div class="maintTitle">'+title+'</div><div class="maintMain">'+k.main+'</div><div class="maintSub">'+(subParts.join(" · ")||"Non impostato")+'</div><div class="state '+cls+'">'+(cls==="bad"?"Da fare":cls==="warn"?"In arrivo":cls==="ok"?"OK":"—")+'</div></div>';
+  }
+
+  function render(){
+    var items = getVehicles();
+
+    if(!items.length){
+      list.innerHTML = '<div class="empty"><strong>Nessun veicolo</strong>Aggiungi il primo mezzo per iniziare a controllare scadenze e manutenzione.</div>';
+      return;
+    }
+
+    list.innerHTML = items.map(function(v){
+      var km = Number(v.km||0);
+      return '<article class="vehicle">' +
+        '<div class="vehicleHead">' +
+          '<div><div class="plate">'+escapeHtml(v.plate||"SENZA TARGA")+'</div><div class="model">'+escapeHtml(v.model||"Modello non inserito")+'</div></div>' +
+          '<div class="kmBox"><div class="km">'+(km ? km.toLocaleString("it-IT") : "—")+'</div><div class="kmLabel">km attuali</div></div>' +
+        '</div>' +
+        '<div class="deadlines">' +
+          deadlineCell("Revisione",v.revision) +
+          deadlineCell("Assicurazione",v.insurance) +
+          deadlineCell("ZTL",v.ztl) +
+          deadlineCell("Bollo",v.tax) +
+        '</div>' +
+        '<div class="maintenance">' +
+          maintenanceCard("Tagliando",v.serviceKm,v.serviceDate,km) +
+          maintenanceCard("Gomme",v.tyresKm,v.tyresDate,km) +
+        '</div>' +
+        '<div class="vehicleActions">' +
+          '<button type="button" data-edit="'+escapeHtml(v.id)+'">Modifica</button>' +
+          '<button class="delete" type="button" data-delete="'+escapeHtml(v.id)+'">Elimina</button>' +
+        '</div>' +
+      '</article>';
+    }).join("");
+
+    Array.prototype.forEach.call(document.querySelectorAll("[data-edit]"),function(btn){
+      btn.onclick = function(){
+        var id = btn.getAttribute("data-edit");
+        var vehicle = getVehicles().find(function(x){return x.id===id;});
+        if(vehicle) openForm(vehicle);
+      };
+    });
+
+    Array.prototype.forEach.call(document.querySelectorAll("[data-delete]"),function(btn){
+      btn.onclick = function(){
+        var id = btn.getAttribute("data-delete");
+        var items = getVehicles().filter(function(x){return x.id!==id;});
+        saveVehicles(items);
+        render();
+      };
+    });
+  }
+
+  document.getElementById("addBtn").onclick = function(){openForm(null);};
+  document.getElementById("closeBtn").onclick = closeForm;
+  document.getElementById("cancelBtn").onclick = closeForm;
+
+  form.addEventListener("submit",function(e){
+    e.preventDefault();
+    var fd = new FormData(form);
+    var items = getVehicles();
+    var vehicle = {
+      id:editId || ("veh_"+Date.now()),
+      plate:String(fd.get("plate")||"").toUpperCase().replace(/\s+/g,""),
+      model:String(fd.get("model")||"").trim(),
+      km:Number(fd.get("km")||0),
+      revision:String(fd.get("revision")||""),
+      insurance:String(fd.get("insurance")||""),
+      ztl:String(fd.get("ztl")||""),
+      tax:String(fd.get("tax")||""),
+      serviceKm:Number(fd.get("serviceKm")||0),
+      serviceDate:String(fd.get("serviceDate")||""),
+      tyresKm:Number(fd.get("tyresKm")||0),
+      tyresDate:String(fd.get("tyresDate")||"")
+    };
+
+    if(editId){
+      items = items.map(function(x){return x.id===editId ? vehicle : x;});
+    }else{
+      items.push(vehicle);
+    }
+
+    saveVehicles(items);
+    closeForm();
+    render();
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
