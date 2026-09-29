@@ -11,6 +11,7 @@
 <style>
 :root{
   --bg:#0c0d0f;
+  --scrollShift:0px;
   --panel:#15171a;
   --panel2:#1d2024;
   --panel3:#24282d;
@@ -29,13 +30,19 @@ html,body{
   margin:0;
   width:100%;
   min-height:100%;
-  background:
-    radial-gradient(circle at 50% -10%,rgba(59,130,246,.07),transparent 34%),
-    var(--bg);
   color:var(--text);
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",Arial,sans-serif;
 }
-body{min-height:100dvh}
+html{background:var(--bg)}
+body{
+  min-height:100dvh;
+  background:
+    radial-gradient(circle at 18% calc(10% + var(--scrollShift)),rgba(59,130,246,.12),transparent 31%),
+    radial-gradient(circle at 86% calc(48% - var(--scrollShift)),rgba(61,168,151,.08),transparent 30%),
+    radial-gradient(circle at 42% calc(92% + var(--scrollShift)),rgba(242,180,38,.055),transparent 28%),
+    linear-gradient(155deg,#0a0c0f 0%,#10141a 50%,#0b0e12 100%);
+  background-attachment:fixed;
+}
 a,button{-webkit-tap-highlight-color:transparent}
 button{font:inherit}
 .page{
@@ -354,48 +361,45 @@ h1{
 .savedQuoteRoute{margin-top:3px;font-size:10px;color:#7f7f7f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .savedQuotePrice{font-size:13px;font-weight:900;white-space:nowrap}
 .savedQuoteEmpty{font-size:11px;color:#6f6f6f;padding:4px 2px}
-.managementGrid{
-  display:grid;
-  grid-template-columns:1.45fr 1fr 1fr;
-  gap:12px;
+.vehicleHome{
+  border:1px solid #30363d;
+  border-radius:22px;
+  background:linear-gradient(180deg,#1b1f24,#181b1f);
+  overflow:hidden;
 }
-.managementTile{
-  min-height:130px;
-  padding:18px;
-  flex-direction:column;
-  justify-content:space-between;
-}
-.managementTile.featured{
-  background:#20252a;
-}
-.managementTop{
+.vehicleHomeHead{
   display:flex;
-  align-items:flex-start;
+  align-items:center;
   justify-content:space-between;
-  gap:10px;
+  gap:12px;
+  padding:15px 16px;
+  border-bottom:1px solid #2c3137;
 }
-.managementTile .iconWrap{
-  width:45px;
-  height:45px;
+.vehicleHomeTitle{font-size:15px;font-weight:900}
+.vehicleHomeLink{font-size:10px;color:#9ca3aa;text-decoration:none;font-weight:850}
+.vehicleHomeList{display:grid}
+.vehicleMini{
+  display:block;
+  padding:15px 16px;
+  border-bottom:1px solid #2b3035;
+  color:inherit;
+  text-decoration:none;
 }
-.managementTile .icon{
-  width:34px;
-  height:34px;
-}
-.statusDot{
-  width:8px;
-  height:8px;
-  border-radius:50%;
-  background:#68727d;
-  margin-top:4px;
-}
-.managementTitle{
-  margin-top:16px;
-  font-size:17px;
-  font-weight:850;
-  line-height:1.1;
-}
-.inactive{cursor:default}
+.vehicleMini:last-child{border-bottom:0}
+.vehicleMiniTop{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.vehicleMiniPlate{font-size:20px;font-weight:950;letter-spacing:.035em}
+.vehicleMiniModel{margin-top:3px;color:#858d95;font-size:11px;font-weight:700}
+.vehicleMiniKm{text-align:right;font-size:15px;font-weight:900;white-space:nowrap}
+.vehicleMiniKm span{display:block;margin-top:3px;color:#687079;font-size:8px;text-transform:uppercase;letter-spacing:.08em}
+.vehicleDeadlineGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:11px}
+.vehicleDeadline{padding:8px 7px;border:1px solid #30363c;border-radius:11px;background:#20242a;text-align:center;min-width:0}
+.vehicleDeadlineName{font-size:7px;color:#707981;font-weight:900;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vehicleDeadlineDate{margin-top:3px;font-size:10px;font-weight:900}
+.vehicleDeadline.ok{border-color:#294735;background:#1b2a20}
+.vehicleDeadline.warn{border-color:#5d4c21;background:#2d2818}
+.vehicleDeadline.bad{border-color:#633331;background:#301c1c}
+.vehicleMiniMaint{margin-top:9px;color:#717981;font-size:9px;line-height:1.35}
+.vehicleHomeEmpty{padding:18px 16px;color:#747b82;font-size:11px}
 .cartelloLink{
   cursor:pointer;
   transition:transform .12s ease,opacity .12s ease;
@@ -536,9 +540,7 @@ h1{
   .toolTile .iconWrap{width:48px;height:48px}
   .toolTile .icon{width:36px;height:36px}
   .tileTitle{font-size:15px}
-  .managementGrid{grid-template-columns:1fr 1fr}
-  .managementGrid .featured{grid-column:1 / -1;min-height:112px}
-  .managementTile{min-height:118px;border-radius:18px}
+  .vehicleDeadlineGrid{grid-template-columns:1fr 1fr}
   .productsNote{display:none}
   .productCard{flex-basis:168px}
 }
@@ -671,58 +673,20 @@ h1{
       <div class="savedQuotesHome">
         <div class="savedQuotesHead">
           <div class="savedQuotesTitle">Preventivi salvati</div>
-          <a class="savedQuotesLink" href="preventivo.html#saved-quotes">Vedi tutti →</a>
+          <a class="savedQuotesLink" href="preventivi-salvati.html">Vedi tutti →</a>
         </div>
         <div id="savedQuotesHomeList" class="savedQuotesList"></div>
       </div>
     </section>
 
     <section class="section">
-      <div class="sectionTitle">Gestione</div>
-      <div class="managementGrid">
-        <a class="managementTile featured" href="veicolo.html">
-          <span class="managementTop">
-            <span class="iconWrap" aria-hidden="true">
-              <svg class="icon" viewBox="0 0 64 64">
-                <path d="M14 39l5-15h26l5 15"/>
-                <path d="M10 39h44v12H10z"/>
-                <circle cx="20" cy="45" r="3"/>
-                <circle cx="44" cy="45" r="3"/>
-                <path d="M21 24l4-7h14l4 7"/>
-              </svg>
-            </span>
-            <span class="statusDot"></span>
-          </span>
-          <span class="managementTitle">Veicolo & scadenze</span>
-        </a>
-
-        <button class="managementTile inactive" type="button" aria-disabled="true">
-          <span class="managementTop">
-            <span class="iconWrap" aria-hidden="true">
-              <svg class="icon" viewBox="0 0 64 64">
-                <path d="M12 10h40v44H12z"/>
-                <path d="M20 20h24M20 29h24M20 38h16"/>
-                <path d="M44 46l5 5 7-9"/>
-              </svg>
-            </span>
-          </span>
-          <span class="managementTitle">Autorizzazioni</span>
-        </button>
-
-        <button class="managementTile inactive" type="button" aria-disabled="true">
-          <span class="managementTop">
-            <span class="iconWrap" aria-hidden="true">
-              <svg class="icon" viewBox="0 0 64 64">
-                <path d="M12 39l5-14h30l5 14"/>
-                <path d="M9 39h46v12H9z"/>
-                <circle cx="19" cy="45" r="3"/>
-                <circle cx="45" cy="45" r="3"/>
-                <path d="M23 17h18M32 9v16"/>
-              </svg>
-            </span>
-          </span>
-          <span class="managementTitle">Mercato mezzi</span>
-        </button>
+      <div class="sectionTitle">Veicoli & scadenze</div>
+      <div class="vehicleHome">
+        <div class="vehicleHomeHead">
+          <div class="vehicleHomeTitle">Situazione mezzi</div>
+          <a class="vehicleHomeLink" href="veicolo.html">Gestisci →</a>
+        </div>
+        <div id="vehicleHomeList" class="vehicleHomeList"></div>
       </div>
     </section>
 
@@ -802,7 +766,7 @@ h1{
       </div>
     </section>
 
-    <div class="footer">MAINPAGE · STEERWILL V3.9</div>
+    <div class="footer">MAINPAGE · STEERWILL V4.0</div>
   </section>
 </main>
 
@@ -832,6 +796,13 @@ h1{
     return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
   }
 
+  function setBackgroundShift(){
+    var shift=Math.min(window.scrollY*0.075,120);
+    document.documentElement.style.setProperty("--scrollShift",shift.toFixed(1)+"px");
+  }
+  setBackgroundShift();
+  window.addEventListener("scroll",setBackgroundShift,{passive:true});
+
   var host=document.getElementById("savedQuotesHomeList");
   if(host){
     var items=[];
@@ -844,10 +815,57 @@ h1{
       host.innerHTML=items.map(function(q){
         var price=q.priceDisplay||"—";
         var route=[q.fromShort||q.from,q.toShort||q.to].filter(Boolean).join(" → ");
-        return '<a class="savedQuoteMini" href="preventivo.html#saved-quotes">'+
+        return '<a class="savedQuoteMini" href="preventivi-salvati.html">'+
           '<span class="savedQuoteText"><span class="savedQuoteName">'+esc(q.name||"Preventivo")+'</span>'+
           '<span class="savedQuoteRoute">'+esc(route)+'</span></span>'+
           '<span class="savedQuotePrice">'+esc(price)+'</span>'+
+        '</a>';
+      }).join("");
+    }
+  }
+
+  function vehicleDateInfo(value){
+    if(!value) return {date:"—",cls:""};
+    var d=new Date(value+"T12:00:00");
+    if(isNaN(d)) return {date:value,cls:""};
+    var now=new Date();
+    now.setHours(0,0,0,0);
+    var days=Math.ceil((d.getTime()-now.getTime())/86400000);
+    return {
+      date:d.toLocaleDateString("it-IT",{day:"2-digit",month:"2-digit"}),
+      cls:days<0?"bad":days<=30?"warn":"ok"
+    };
+  }
+
+  function vehicleDeadline(name,value){
+    var x=vehicleDateInfo(value);
+    return '<div class="vehicleDeadline '+x.cls+'"><div class="vehicleDeadlineName">'+esc(name)+'</div><div class="vehicleDeadlineDate">'+esc(x.date)+'</div></div>';
+  }
+
+  var vehicleHost=document.getElementById("vehicleHomeList");
+  if(vehicleHost){
+    var vehicles=[];
+    try{vehicles=JSON.parse(localStorage.getItem("codriver_vehicles_v1")||"[]");}catch(e){}
+    vehicles=Array.isArray(vehicles)?vehicles:[];
+    if(!vehicles.length){
+      vehicleHost.innerHTML='<a class="vehicleMini" href="veicolo.html"><div class="vehicleHomeEmpty">Nessun veicolo inserito · aggiungi il primo mezzo →</div></a>';
+    }else{
+      vehicleHost.innerHTML=vehicles.map(function(v){
+        var km=Number(v.km||0);
+        var maint=[];
+        if(v.serviceKm) maint.push("Tagliando "+Number(v.serviceKm).toLocaleString("it-IT")+" km");
+        if(v.tyresKm) maint.push("Gomme "+Number(v.tyresKm).toLocaleString("it-IT")+" km");
+        return '<a class="vehicleMini" href="veicolo.html">'+
+          '<div class="vehicleMiniTop"><div><div class="vehicleMiniPlate">'+esc(v.plate||"SENZA TARGA")+'</div>'+
+          '<div class="vehicleMiniModel">'+esc(v.model||"Modello non inserito")+'</div></div>'+
+          '<div class="vehicleMiniKm">'+(km?km.toLocaleString("it-IT"):"—")+'<span>km</span></div></div>'+
+          '<div class="vehicleDeadlineGrid">'+
+            vehicleDeadline("Assicurazione",v.insurance)+
+            vehicleDeadline("Revisione",v.revision)+
+            vehicleDeadline("ZTL",v.ztl)+
+            vehicleDeadline("Bollo",v.tax)+
+          '</div>'+
+          (maint.length?'<div class="vehicleMiniMaint">'+esc(maint.join(" · "))+'</div>':"")+
         '</a>';
       }).join("");
     }
