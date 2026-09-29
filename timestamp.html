@@ -120,27 +120,27 @@ h1{
   pointer-events:none;
 }
 .stampDate{
-  font-size:18px;
+  font-size:24px;
   font-weight:850;
   line-height:1.05;
 }
 .stampTime{
-  margin-top:2px;
-  font-size:28px;
+  margin-top:3px;
+  font-size:40px;
   font-weight:950;
   line-height:1;
 }
 .stampPlace{
-  margin-top:7px;
-  font-size:13px;
-  font-weight:750;
-  line-height:1.25;
+  margin-top:9px;
+  font-size:18px;
+  font-weight:800;
+  line-height:1.2;
 }
 .stampCoords{
-  margin-top:3px;
-  font-size:12px;
-  font-weight:700;
-  opacity:.92;
+  margin-top:4px;
+  font-size:16px;
+  font-weight:750;
+  opacity:.96;
 }
 .miniMap{
   position:absolute;
@@ -289,6 +289,19 @@ h1{
   background:#fff;
   color:#000;
 }
+.backupState{
+  display:none;
+  margin-top:10px;
+  padding:10px 12px;
+  border:1px solid #303030;
+  border-radius:13px;
+  background:#141414;
+  color:#8f8f8f;
+  font-size:11px;
+  line-height:1.35;
+  text-align:center;
+}
+.backupState.show{display:block}
 .note{
   margin-top:14px;
   color:#737373;
@@ -306,10 +319,10 @@ h1{
     border-radius:22px;
   }
   .stamp{top:15px;right:15px}
-  .stampDate{font-size:15px}
-  .stampTime{font-size:24px}
-  .stampPlace{font-size:11px}
-  .stampCoords{font-size:10px}
+  .stampDate{font-size:20px}
+  .stampTime{font-size:34px}
+  .stampPlace{font-size:15px}
+  .stampCoords{font-size:13px}
   .miniMap{
     left:14px;
     bottom:14px;
@@ -372,10 +385,11 @@ h1{
 
   <div id="reviewControls" class="reviewControls">
     <button id="retakeBtn" class="retake" type="button">Scatta di nuovo</button>
-    <button id="shareBtn" class="share" type="button">Condividi / Salva</button>
+    <button id="shareBtn" class="share" type="button">Salva nel rullino</button>
   </div>
+  <div id="backupState" class="backupState">Backup locale automatico attivo.</div>
 
-  <p class="note">La foto finale include realmente la stampa in alto a destra e la minimappa in basso a sinistra. La minimappa usa dati © OpenStreetMap.</p>
+  <p class="note">La foto finale include realmente la stampa in alto a destra e la minimappa in basso a sinistra. Su iPhone il salvataggio nel rullino passa dal pannello iOS; CoDriver conserva anche una copia locale automatica per evitare perdite accidentali.</p>
   <canvas id="canvas"></canvas>
 </main>
 
@@ -403,6 +417,7 @@ h1{
   var reviewControls = document.getElementById("reviewControls");
   var retakeBtn = document.getElementById("retakeBtn");
   var shareBtn = document.getElementById("shareBtn");
+  var backupState = document.getElementById("backupState");
 
   var stream = null;
   var facing = "environment";
@@ -413,6 +428,78 @@ h1{
   var geocodeTimer = null;
   var watchId = null;
   var mapZoom = 15;
+  var DB_NAME = "CoDriverTimestamp";
+  var DB_STORE = "photos";
+
+  function openPhotoDb(){
+    return new Promise(function(resolve,reject){
+      if(!("indexedDB" in window)){ reject(new Error("indexedDB")); return; }
+      var req = indexedDB.open(DB_NAME,1);
+      req.onupgradeneeded = function(){
+        var db = req.result;
+        if(!db.objectStoreNames.contains(DB_STORE)){
+          db.createObjectStore(DB_STORE,{keyPath:"id"});
+        }
+      };
+      req.onsuccess = function(){ resolve(req.result); };
+      req.onerror = function(){ reject(req.error || new Error("db")); };
+    });
+  }
+
+  async function saveLocalBackup(blob,filename){
+    try{
+      var db = await openPhotoDb();
+      var tx = db.transaction(DB_STORE,"readwrite");
+      var store = tx.objectStore(DB_STORE);
+      var createdAt = Date.now();
+
+      store.put({
+        id:createdAt,
+        createdAt:createdAt,
+        filename:filename,
+        blob:blob,
+        lat:latestPosition ? latestPosition.lat : null,
+        lon:latestPosition ? latestPosition.lon : null,
+        city:place.city || "",
+        country:place.country || ""
+      });
+
+      await new Promise(function(resolve,reject){
+        tx.oncomplete = resolve;
+        tx.onerror = function(){ reject(tx.error || new Error("tx")); };
+        tx.onabort = function(){ reject(tx.error || new Error("abort")); };
+      });
+
+      var pruneTx = db.transaction(DB_STORE,"readwrite");
+      var pruneStore = pruneTx.objectStore(DB_STORE);
+      var allReq = pruneStore.getAllKeys();
+      allReq.onsuccess = function(){
+        var keys = (allReq.result || []).sort(function(a,b){ return b-a; });
+        keys.slice(25).forEach(function(key){ pruneStore.delete(key); });
+      };
+
+      backupState.textContent = "✓ Copia salvata automaticamente in CoDriver";
+      backupState.classList.add("show");
+      db.close();
+      return true;
+    }catch(e){
+      backupState.textContent = "Backup locale non disponibile su questo browser";
+      backupState.classList.add("show");
+      return false;
+    }
+  }
+
+  function makeFilename(){
+    var n = new Date();
+    return "CoDriver-Timestamp-" +
+      n.getFullYear() +
+      pad(n.getMonth()+1) +
+      pad(n.getDate()) + "-" +
+      pad(n.getHours()) +
+      pad(n.getMinutes()) +
+      pad(n.getSeconds()) +
+      ".jpg";
+  }
 
   function pad(n){ return String(n).padStart(2,"0"); }
 
@@ -695,7 +782,7 @@ h1{
     var padX = w*.035;
     var x = w-padX;
     var y = h*.04;
-    var base = Math.max(18,w*.021);
+    var base = Math.max(24,w*.029);
 
     ctx.save();
     ctx.textAlign = "right";
@@ -757,7 +844,7 @@ h1{
 
     drawStamp(ctx,outW,outH);
 
-    canvas.toBlob(function(blob){
+    canvas.toBlob(async function(blob){
       if(!blob){
         captureBtn.disabled = false;
         statusEl.textContent = "Errore durante lo scatto";
@@ -765,6 +852,8 @@ h1{
       }
 
       photoBlob = blob;
+      var filename = makeFilename();
+      await saveLocalBackup(blob,filename);
       if(photoUrl) URL.revokeObjectURL(photoUrl);
       photoUrl = URL.createObjectURL(blob);
       review.src = photoUrl;
@@ -773,7 +862,7 @@ h1{
       miniMap.style.display = "none";
       liveControls.style.display = "none";
       reviewControls.classList.add("show");
-      statusEl.textContent = "Foto pronta";
+      statusEl.textContent = "Foto pronta · backup eseguito";
       captureBtn.disabled = false;
     },"image/jpeg",.94);
   }
@@ -785,27 +874,23 @@ h1{
     liveControls.style.display = "grid";
     reviewControls.classList.remove("show");
     photoBlob = null;
+    if(backupState.classList.contains("show")){
+      backupState.textContent = "L'ultimo scatto resta salvato nel backup locale di CoDriver.";
+    }
     updateStatus();
   }
 
   async function sharePhoto(){
     if(!photoBlob) return;
-    var n = new Date();
-    var filename =
-      "CoDriver-Timestamp-" +
-      n.getFullYear() +
-      pad(n.getMonth()+1) +
-      pad(n.getDate()) + "-" +
-      pad(n.getHours()) +
-      pad(n.getMinutes()) +
-      pad(n.getSeconds()) +
-      ".jpg";
+    var filename = makeFilename();
 
     var file = new File([photoBlob],filename,{type:"image/jpeg"});
 
     try{
       if(navigator.canShare && navigator.canShare({files:[file]}) && navigator.share){
         await navigator.share({files:[file],title:"CoDriver Timestamp"});
+        backupState.textContent = "Dal pannello iOS scegli “Salva immagine” per inserirla nel rullino.";
+        backupState.classList.add("show");
         return;
       }
     }catch(e){
