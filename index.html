@@ -87,10 +87,24 @@ h1{
   gap:12px;
   min-height:120px;
 }
+.iconBadge{
+  width:82px;
+  height:82px;
+  border-radius:20px;
+  background:#d9ddda;
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+  flex:0 0 auto;
+}
 .icon{
-  width:44px;
-  height:44px;
+  width:48px;
+  height:48px;
   display:block;
+  color:#3d3d3d;
+  fill:currentColor;
+  stroke:none;
+  filter:drop-shadow(11px 11px 0 rgba(0,0,0,.11));
 }
 .label{
   font-size:17px;
@@ -139,6 +153,10 @@ h1{
   flex-direction:column;
   gap:8px;
 }
+.monitorTile .iconBadge{width:70px;height:70px;border-radius:17px}
+.monitorTile .icon{width:40px;height:40px}
+.translateTile .iconBadge{width:64px;height:64px;border-radius:16px}
+.translateTile .icon{width:36px;height:36px}
 .monitorTitle,.translateTitle{
   font-size:19px;
   font-weight:850;
@@ -161,18 +179,13 @@ h1{
   text-align:center;
   letter-spacing:.08em;
 }
-svg{
-  stroke:currentColor;
-  fill:none;
-  stroke-width:1.8;
-  stroke-linecap:round;
-  stroke-linejoin:round;
-}
+svg{display:block}
 @media(max-width:600px){
   .page{padding:14px}
   .shell{padding:20px 16px;border-radius:24px}
   .tile{min-height:104px;border-radius:18px}
-  .icon{width:38px;height:38px}
+  .iconBadge{width:70px;height:70px;border-radius:17px}
+  .icon{width:42px;height:42px}
   .label{font-size:15px}
   .signTile{min-height:112px;border-radius:20px}
   .bottomGrid{grid-template-columns:1.65fr 1fr}
@@ -191,32 +204,33 @@ svg{
 
     <div class="topGrid">
       <button class="tile inactive" type="button" aria-disabled="true">
-        <svg class="icon" viewBox="0 0 48 48" aria-hidden="true">
-          <path d="M8 12l27 13 6-1-2 5-7 4-22-8"/>
-          <path d="M15 16l-2 7M25 20l-1 8"/>
-          <path d="M7 37h34"/>
-        </svg>
+        <span class="iconBadge" aria-hidden="true">
+          <svg class="icon" viewBox="0 0 64 64">
+            <path d="M8 39h16l12-9 8-17c1-3 4-5 7-5 2 0 4 2 3 5l-5 17 8 7c2 2 2 4 0 5l-4 3-12-5-8 7-1 8-4 3-4-13H8z"/>
+            <rect x="8" y="52" width="48" height="5" rx="2.5"/>
+          </svg>
+        </span>
         <span class="label">Voli</span>
       </button>
 
       <button class="tile inactive" type="button" aria-disabled="true">
-        <svg class="icon" viewBox="0 0 48 48" aria-hidden="true">
-          <rect x="12" y="7" width="24" height="29" rx="5"/>
-          <path d="M16 31h16M17 13h14M16 20h16"/>
-          <circle cx="18" cy="33" r="2"/>
-          <circle cx="30" cy="33" r="2"/>
-          <path d="M15 40l5-4M33 40l-5-4"/>
-        </svg>
+        <span class="iconBadge" aria-hidden="true">
+          <svg class="icon" viewBox="0 0 64 64">
+            <path d="M17 8h30c5 0 9 4 9 9v27c0 6-5 11-11 11H19C13 55 8 50 8 44V17c0-5 4-9 9-9zm1 8v14h28V16H18zm2 23a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm24 0a5 5 0 1 0 0 10 5 5 0 0 0 0-10z"/>
+            <path d="M16 54h8l-5 8h-8zm32 0h-8l5 8h8z"/>
+          </svg>
+        </span>
         <span class="label">Treni</span>
       </button>
 
       <button class="tile inactive" type="button" aria-disabled="true">
-        <svg class="icon" viewBox="0 0 48 48" aria-hidden="true">
-          <path d="M8 29h31l-5 7H15z"/>
-          <path d="M17 29V15h13l5 14"/>
-          <path d="M21 15V9h7v6"/>
-          <path d="M7 40c3-2 6-2 9 0 3 2 6 2 9 0 3-2 6-2 9 0 3 2 6 2 8 0"/>
-        </svg>
+        <span class="iconBadge" aria-hidden="true">
+          <svg class="icon" viewBox="0 0 64 64">
+            <path d="M27 5h10v8h9v8h6v19H12V21h6v-8h9V5zm-5 16v15h20V21H22z"/>
+            <path d="M6 39h52l-6 13c-3 6-8 8-15 6l-5-2-5 2c-7 2-12 0-15-6L6 39z"/>
+            <path d="M5 58c5-4 9-4 14 0 5 4 9 4 14 0 5-4 9-4 14 0 4 3 8 3 12 1v5H5z"/>
+          </svg>
+        </span>
         <span class="label">Navi</span>
       </button>
     </div>
@@ -228,10 +242,15 @@ svg{
 
     <div class="bottomGrid">
       <button class="monitorTile inactive" type="button" aria-disabled="true">
-        <svg class="icon" viewBox="0 0 48 48" aria-hidden="true">
-          <path d="M8 37V23M18 37V15M28 37V27M38 37V10"/>
-          <path d="M6 40h35"/>
-        </svg>
+        <span class="iconBadge" aria-hidden="true">
+          <svg class="icon" viewBox="0 0 64 64">
+            <rect x="7" y="10" width="50" height="39" rx="5"/>
+            <rect x="13" y="16" width="8" height="25" rx="2"/>
+            <rect x="27" y="23" width="8" height="18" rx="2"/>
+            <rect x="41" y="14" width="8" height="27" rx="2"/>
+            <rect x="24" y="51" width="16" height="5" rx="2"/>
+          </svg>
+        </span>
         <span>
           <span class="monitorTitle">Monitor</span>
           <span class="monitorMeta">Voli · Treni · Navi</span>
@@ -239,17 +258,19 @@ svg{
       </button>
 
       <button class="translateTile inactive" type="button" aria-disabled="true">
-        <svg class="icon" viewBox="0 0 48 48" aria-hidden="true">
-          <path d="M7 11h19v16H15l-7 6V11z"/>
-          <path d="M24 21h17v16H31l-6 5"/>
-          <path d="M12 17h9M16.5 14v6"/>
-          <path d="M30 27l5 8M40 27l-5 8M31.5 32h7"/>
-        </svg>
+        <span class="iconBadge" aria-hidden="true">
+          <svg class="icon" viewBox="0 0 64 64">
+            <path d="M7 9h31v27H21L10 45V36H7z"/>
+            <path d="M27 27h30v24h-8v8l-10-8H27z"/>
+            <path d="M14 16h17v4h-6c-1 4-3 7-6 10l-3-3c2-2 4-4 5-7h-7zm6-4h5v4h-5z"/>
+            <path d="M37 33h6l8 14h-6l-1-3h-8l-1 3h-6zm1 7h4l-2-5z"/>
+          </svg>
+        </span>
         <span class="translateTitle">Traduttore</span>
       </button>
     </div>
 
-    <div class="footer">MAINPAGE · V1.1</div>
+    <div class="footer">MAINPAGE · V1.2</div>
   </section>
 </main>
 </body>
