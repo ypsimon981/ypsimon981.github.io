@@ -21,16 +21,44 @@ function json(body:unknown,status=200,origin:string|null=null){
 }
 
 async function geocode(query:string){
-  const url="https://photon.komoot.io/api/?limit=1&lang=default&q="+encodeURIComponent(query);
+  const url="https://photon.komoot.io/api/?limit=8&lang=default&q="+encodeURIComponent(query);
   const res=await fetch(url,{
     headers:{
-      "User-Agent":"CoDriver/0.1 quick-quote prototype (+https://ypsimon981.github.io/)",
+      "User-Agent":"SteerWill/0.1 quick-quote prototype (+https://ypsimon981.github.io/)",
       "Accept-Language":"it-IT,it;q=0.9,en;q=0.7"
     }
   });
   if(!res.ok) throw new Error("geocode_"+res.status);
   const data=await res.json();
-  const f=data&&Array.isArray(data.features)?data.features[0]:null;
+  const features=data&&Array.isArray(data.features)?data.features:[];
+  if(!features.length) return null;
+
+  const q=query.trim().toLowerCase();
+  function score(f:any){
+    const p=f&&f.properties||{};
+    const type=String(p.type||"").toLowerCase();
+    const key=String(p.osm_key||"").toLowerCase();
+    const value=String(p.osm_value||"").toLowerCase();
+    const name=String(p.name||"").toLowerCase();
+    const city=String(p.city||"").toLowerCase();
+    let s=0;
+
+    if(["house","street","city","town","village","suburb","district"].includes(type)) s+=40;
+    if(key==="place" && ["city","town","village","suburb"].includes(value)) s+=45;
+    if(["railway","aeroway","amenity","tourism"].includes(key)) s+=30;
+
+    if(type==="county" || type==="state" || key==="boundary" || value==="administrative") s-=55;
+
+    if(name && q===name) s+=25;
+    if(city && q===city) s+=20;
+    if(name && q.includes(name)) s+=10;
+    if(city && q.includes(city)) s+=8;
+
+    return s;
+  }
+
+  features.sort((a:any,b:any)=>score(b)-score(a));
+  const f=features[0];
   if(!f||!f.geometry||!Array.isArray(f.geometry.coordinates)) return null;
   const p=f.properties||{};
   const label=[p.name,p.street,p.city,p.state,p.country].filter(Boolean).filter(function(v,i,a){return a.indexOf(v)===i;}).join(", ")||query;
