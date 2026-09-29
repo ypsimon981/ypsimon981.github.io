@@ -151,7 +151,7 @@ textarea{display:block;width:100%;min-height:150px;resize:vertical;border:0;back
   <div id="fullscreenText" class="fullscreenText"></div>
 </div>
 
-<script src="flight-config.js?v=steerwill4"></script>
+<script src="flight-config.js?v=steerwill5"></script>
 <script>
 (function(){
   "use strict";
@@ -297,13 +297,12 @@ textarea{display:block;width:100%;min-height:150px;resize:vertical;border:0;back
     translateBtn.textContent="Traduzione…";
 
     try{
-      var res=await fetch(window.STEERWILL_TRANSLATE_API,{
+      var api=window.STEERWILL_TRANSLATE_API||window.CODRIVER_TRANSLATE_API||
+        "https://bboijzuzhgvfxqrsfatw.supabase.co/functions/v1/translate";
+      var res=await fetch(api,{
         method:"POST",
         cache:"no-store",
-        headers:{
-          "Content-Type":"application/json",
-          "apikey":window.STEERWILL_SUPABASE_PUBLIC_KEY||""
-        },
+        headers:{"Content-Type":"application/json"},
         body:JSON.stringify({text:text,from:fromLang.value,to:toLang.value})
       });
       var data=await res.json().catch(function(){return {};});
@@ -316,7 +315,8 @@ textarea{display:block;width:100%;min-height:150px;resize:vertical;border:0;back
       output.classList.add("show");
       addHistory(text,translated);
     }catch(e){
-      errorBox.textContent="Il traduttore non è disponibile in questo momento. Riprova tra poco.";
+      console.error("SteerWill translate error",e);
+      errorBox.textContent="Traduzione non riuscita. Riprova.";
       errorBox.classList.add("show");
     }finally{
       translateBtn.disabled=false;
