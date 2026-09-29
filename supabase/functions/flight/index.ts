@@ -1,6 +1,4 @@
-// Supabase Edge Function: CoDriver FlightAware proxy
-// Secret richiesto: FLIGHTAWARE_API_KEY
-// Deploy target: /functions/v1/flight
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 const ALLOWED_ORIGINS = new Set([
   "https://ypsimon981.github.io",
@@ -9,10 +7,13 @@ const ALLOWED_ORIGINS = new Set([
 ]);
 
 function corsHeaders(origin: string | null) {
-  const allowed = origin && ALLOWED_ORIGINS.has(origin) ? origin : "https://ypsimon981.github.io";
+  const allowed = origin && ALLOWED_ORIGINS.has(origin)
+    ? origin
+    : "https://ypsimon981.github.io";
+
   return {
     "Access-Control-Allow-Origin": allowed,
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Headers": "apikey, authorization, content-type",
     "Access-Control-Allow-Methods": "GET, OPTIONS",
     "Vary": "Origin",
     "Content-Type": "application/json; charset=utf-8"
@@ -40,23 +41,21 @@ function scoreFlight(f: any, now: number): number {
   const actualIn = ts(f.actual_in);
 
   if (Number.isFinite(actualIn)) {
-    const age = Math.abs(now - actualIn);
-    return 5000000000 - age;
+    return 5_000_000_000 - Math.abs(now - actualIn);
   }
 
   if (Number.isFinite(actualOut)) {
     const ref = Number.isFinite(estIn) ? estIn : schedIn;
-    const distance = Number.isFinite(ref) ? Math.abs(ref - now) : 0;
-    return 9000000000 - distance;
+    return 9_000_000_000 - (Number.isFinite(ref) ? Math.abs(ref - now) : 0);
   }
 
   const dep = Number.isFinite(estOut) ? estOut : schedOut;
   if (Number.isFinite(dep)) {
     const delta = dep - now;
     if (delta >= -6 * 3600000 && delta <= 36 * 3600000) {
-      return 8000000000 - Math.abs(delta);
+      return 8_000_000_000 - Math.abs(delta);
     }
-    return 3000000000 - Math.abs(delta);
+    return 3_000_000_000 - Math.abs(delta);
   }
 
   return 0;
@@ -115,6 +114,20 @@ Deno.serve(async (req: Request) => {
     return json({ error: "method_not_allowed" }, 405, origin);
   }
 
+  if (origin && !ALLOWED_ORIGINS.has(origin)) {
+    return json({ error: "origin_not_allowed" }, 403, origin);
+  }
+
+  const publishableKeys = JSON.parse(
+    Deno.env.get("SUPABASE_PUBLISHABLE_KEYS") || "{}"
+  );
+  const expectedPublicKey = publishableKeys["default"];
+  const suppliedKey = req.headers.get("apikey");
+
+  if (!expectedPublicKey || suppliedKey !== expectedPublicKey) {
+    return json({ error: "unauthorized" }, 401, origin);
+  }
+
   const url = new URL(req.url);
   const ident = (url.searchParams.get("ident") || "")
     .toUpperCase()
@@ -124,8 +137,29 @@ Deno.serve(async (req: Request) => {
     return json({ error: "invalid_ident" }, 400, origin);
   }
 
-  const apiKey = Deno.env.get("FLIGHTAWARE_API_KEY");
-  if (!apiKey) {
+  const secretKeys = JSON.parse(
+    Deno.env.get("SUPABASE_SECRET_KEYS") || "{}"
+  );
+  const adminKey =
+    secretKeys["default"] || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+
+  if (!adminKey) {
+    return json({ error: "supabase_admin_key_missing" }, 500, origin);
+  }
+
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL") || "",
+    adminKey,
+    { auth: { persistSession: false } }
+  );
+
+  const { data: secretRow, error: secretError } = await supabase
+    .from("app_secrets")
+    .select("value")
+    .eq("key", "flightaware_api_key")
+    .maybeSingle();
+
+  if (secretError || !secretRow?.value) {
     return json({ error: "flightaware_key_missing" }, 500, origin);
   }
 
@@ -137,7 +171,7 @@ Deno.serve(async (req: Request) => {
 
     const upstream = await fetch(endpoint, {
       headers: {
-        "x-apikey": apiKey,
+        "x-apikey": secretRow.value,
         "Accept": "application/json"
       }
     });
@@ -153,6 +187,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const flights = Array.isArray(raw?.flights) ? raw.flights : [];
+
     if (!flights.length) {
       return json({ error: "flight_not_found", ident }, 404, origin);
     }
