@@ -1,0 +1,853 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#090909">
+<title>CoDriver · Timestamp</title>
+<style>
+:root{
+  --bg:#090909;
+  --panel:#171717;
+  --panel2:#222;
+  --line:#343434;
+  --text:#f7f7f7;
+  --muted:#8d8d8d;
+}
+*{box-sizing:border-box}
+html,body{
+  margin:0;
+  width:100%;
+  min-height:100%;
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",Arial,sans-serif;
+}
+body{min-height:100dvh}
+button,a{-webkit-tap-highlight-color:transparent}
+button{font:inherit}
+.page{
+  width:min(900px,100%);
+  margin:0 auto;
+  padding:16px 16px calc(22px + env(safe-area-inset-bottom));
+}
+.topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  margin-bottom:14px;
+}
+.brand{
+  font-size:13px;
+  font-weight:850;
+  letter-spacing:.15em;
+  color:#aaa;
+}
+.home{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:42px;
+  padding:0 15px;
+  border:1px solid #3b3b3b;
+  border-radius:999px;
+  background:#222;
+  color:#fff;
+  text-decoration:none;
+  font-size:14px;
+  font-weight:800;
+}
+.titleRow{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:14px;
+}
+h1{
+  margin:0;
+  font-size:clamp(34px,7vw,56px);
+  line-height:.95;
+  letter-spacing:-.035em;
+}
+.subtitle{
+  margin:7px 0 0;
+  color:#888;
+  font-size:14px;
+}
+.status{
+  max-width:44%;
+  text-align:right;
+  color:#8d8d8d;
+  font-size:11px;
+  line-height:1.25;
+}
+.cameraShell{
+  position:relative;
+  width:100%;
+  height:min(70dvh,680px);
+  min-height:430px;
+  overflow:hidden;
+  background:#030303;
+  border:1px solid #343434;
+  border-radius:26px;
+}
+#video,#review{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  background:#000;
+}
+#review{
+  display:none;
+  z-index:3;
+}
+.stamp{
+  position:absolute;
+  z-index:2;
+  top:18px;
+  right:18px;
+  max-width:66%;
+  color:#fff;
+  text-align:right;
+  font-variant-numeric:tabular-nums;
+  text-shadow:0 1px 4px rgba(0,0,0,.95),0 0 10px rgba(0,0,0,.55);
+  pointer-events:none;
+}
+.stampDate{
+  font-size:18px;
+  font-weight:850;
+  line-height:1.05;
+}
+.stampTime{
+  margin-top:2px;
+  font-size:28px;
+  font-weight:950;
+  line-height:1;
+}
+.stampPlace{
+  margin-top:7px;
+  font-size:13px;
+  font-weight:750;
+  line-height:1.25;
+}
+.stampCoords{
+  margin-top:3px;
+  font-size:12px;
+  font-weight:700;
+  opacity:.92;
+}
+.miniMap{
+  position:absolute;
+  z-index:2;
+  left:18px;
+  bottom:18px;
+  width:190px;
+  height:126px;
+  overflow:hidden;
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.34);
+  background:rgba(0,0,0,.3);
+  pointer-events:none;
+}
+.mapTiles{
+  position:absolute;
+  inset:0;
+  overflow:hidden;
+}
+.mapTile{
+  position:absolute;
+  width:256px;
+  height:256px;
+  opacity:.5;
+  user-select:none;
+}
+.mapShade{
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,.08);
+}
+.mapPin{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:20px;
+  height:20px;
+  transform:translate(-50%,-75%);
+  border-radius:50% 50% 50% 0;
+  background:#fff;
+  border:2px solid #111;
+  rotate:-45deg;
+  box-shadow:0 2px 7px rgba(0,0,0,.55);
+}
+.mapPin:after{
+  content:"";
+  position:absolute;
+  width:6px;
+  height:6px;
+  left:5px;
+  top:5px;
+  border-radius:50%;
+  background:#111;
+}
+.mapCredit{
+  position:absolute;
+  right:4px;
+  bottom:3px;
+  padding:2px 4px;
+  border-radius:4px;
+  color:#fff;
+  background:rgba(0,0,0,.45);
+  font-size:7px;
+  font-weight:700;
+}
+.permissionOverlay{
+  position:absolute;
+  z-index:4;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+  background:rgba(0,0,0,.78);
+  text-align:center;
+}
+.permissionOverlay.show{display:flex}
+.permissionCard{
+  width:min(360px,100%);
+}
+.permissionCard strong{
+  display:block;
+  font-size:22px;
+}
+.permissionCard p{
+  color:#aaa;
+  line-height:1.4;
+  font-size:14px;
+}
+.permissionCard button{
+  width:100%;
+  min-height:48px;
+  border:0;
+  border-radius:14px;
+  background:#fff;
+  color:#000;
+  font-weight:850;
+}
+.controls{
+  display:grid;
+  grid-template-columns:1fr 94px 1fr;
+  align-items:center;
+  gap:12px;
+  margin-top:15px;
+}
+.ctrl{
+  min-height:54px;
+  border:1px solid #3b3b3b;
+  border-radius:17px;
+  background:#222;
+  color:#fff;
+  font-size:14px;
+  font-weight:820;
+}
+.capture{
+  width:76px;
+  height:76px;
+  margin:auto;
+  padding:0;
+  border:6px solid #ddd;
+  border-radius:50%;
+  background:#fff;
+  box-shadow:0 0 0 3px #333 inset;
+}
+.capture:active{transform:scale(.96)}
+.reviewControls{
+  display:none;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin-top:15px;
+}
+.reviewControls.show{display:grid}
+.reviewControls button{
+  min-height:56px;
+  border-radius:17px;
+  font-size:15px;
+  font-weight:850;
+}
+.retake{
+  border:1px solid #3b3b3b;
+  background:#222;
+  color:#fff;
+}
+.share{
+  border:0;
+  background:#fff;
+  color:#000;
+}
+.note{
+  margin-top:14px;
+  color:#737373;
+  font-size:11px;
+  line-height:1.4;
+}
+#canvas{display:none}
+@media(max-width:640px){
+  .page{padding:12px 12px calc(18px + env(safe-area-inset-bottom))}
+  .titleRow{align-items:flex-start}
+  .status{max-width:42%}
+  .cameraShell{
+    height:66dvh;
+    min-height:420px;
+    border-radius:22px;
+  }
+  .stamp{top:15px;right:15px}
+  .stampDate{font-size:15px}
+  .stampTime{font-size:24px}
+  .stampPlace{font-size:11px}
+  .stampCoords{font-size:10px}
+  .miniMap{
+    left:14px;
+    bottom:14px;
+    width:156px;
+    height:104px;
+    border-radius:14px;
+  }
+  .controls{grid-template-columns:1fr 84px 1fr}
+  .capture{width:70px;height:70px}
+}
+</style>
+</head>
+<body>
+<main class="page">
+  <div class="topbar">
+    <div class="brand">CODRIVER · TIMESTAMP</div>
+    <a class="home" href="index.html">← Home</a>
+  </div>
+
+  <div class="titleRow">
+    <div>
+      <h1>Timestamp</h1>
+      <p class="subtitle">Scatta una foto con data, ora e posizione impressi.</p>
+    </div>
+    <div id="status" class="status">Avvio fotocamera e GPS…</div>
+  </div>
+
+  <section id="cameraShell" class="cameraShell">
+    <video id="video" autoplay muted playsinline></video>
+    <img id="review" alt="Anteprima foto con timestamp">
+
+    <div id="stamp" class="stamp">
+      <div id="stampDate" class="stampDate">--/--/----</div>
+      <div id="stampTime" class="stampTime">--:--:--</div>
+      <div id="stampPlace" class="stampPlace">Posizione in acquisizione…</div>
+      <div id="stampCoords" class="stampCoords">Lat -- · Lon --</div>
+    </div>
+
+    <div id="miniMap" class="miniMap" aria-label="Mappa della posizione attuale">
+      <div id="mapTiles" class="mapTiles"></div>
+      <div class="mapShade"></div>
+      <div class="mapPin"></div>
+      <div class="mapCredit">© OpenStreetMap</div>
+    </div>
+
+    <div id="permissionOverlay" class="permissionOverlay">
+      <div class="permissionCard">
+        <strong>Servono fotocamera e posizione</strong>
+        <p>CoDriver usa la fotocamera per lo scatto e il GPS per imprimere coordinate, città, nazione e minimappa.</p>
+        <button id="retryBtn" type="button">Attiva</button>
+      </div>
+    </div>
+  </section>
+
+  <div id="liveControls" class="controls">
+    <button id="switchBtn" class="ctrl" type="button">↻ Fotocamera</button>
+    <button id="captureBtn" class="capture" type="button" aria-label="Scatta foto"></button>
+    <button id="refreshGpsBtn" class="ctrl" type="button">⌖ GPS</button>
+  </div>
+
+  <div id="reviewControls" class="reviewControls">
+    <button id="retakeBtn" class="retake" type="button">Scatta di nuovo</button>
+    <button id="shareBtn" class="share" type="button">Condividi / Salva</button>
+  </div>
+
+  <p class="note">La foto finale include realmente la stampa in alto a destra e la minimappa in basso a sinistra. La minimappa usa dati © OpenStreetMap.</p>
+  <canvas id="canvas"></canvas>
+</main>
+
+<script>
+(function(){
+  "use strict";
+
+  var video = document.getElementById("video");
+  var review = document.getElementById("review");
+  var canvas = document.getElementById("canvas");
+  var shell = document.getElementById("cameraShell");
+  var statusEl = document.getElementById("status");
+  var stampDate = document.getElementById("stampDate");
+  var stampTime = document.getElementById("stampTime");
+  var stampPlace = document.getElementById("stampPlace");
+  var stampCoords = document.getElementById("stampCoords");
+  var mapTiles = document.getElementById("mapTiles");
+  var miniMap = document.getElementById("miniMap");
+  var permissionOverlay = document.getElementById("permissionOverlay");
+  var retryBtn = document.getElementById("retryBtn");
+  var captureBtn = document.getElementById("captureBtn");
+  var switchBtn = document.getElementById("switchBtn");
+  var refreshGpsBtn = document.getElementById("refreshGpsBtn");
+  var liveControls = document.getElementById("liveControls");
+  var reviewControls = document.getElementById("reviewControls");
+  var retakeBtn = document.getElementById("retakeBtn");
+  var shareBtn = document.getElementById("shareBtn");
+
+  var stream = null;
+  var facing = "environment";
+  var latestPosition = null;
+  var place = {city:"", country:""};
+  var photoBlob = null;
+  var photoUrl = "";
+  var geocodeTimer = null;
+  var watchId = null;
+  var mapZoom = 15;
+
+  function pad(n){ return String(n).padStart(2,"0"); }
+
+  function nowParts(){
+    var d = new Date();
+    return {
+      date: pad(d.getDate()) + "/" + pad(d.getMonth()+1) + "/" + d.getFullYear(),
+      time: pad(d.getHours()) + ":" + pad(d.getMinutes()) + ":" + pad(d.getSeconds())
+    };
+  }
+
+  function updateClock(){
+    var n = nowParts();
+    stampDate.textContent = n.date;
+    stampTime.textContent = n.time;
+  }
+
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  async function startCamera(){
+    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+      statusEl.textContent = "Fotocamera non supportata";
+      permissionOverlay.classList.add("show");
+      return;
+    }
+    if(stream){
+      stream.getTracks().forEach(function(t){ t.stop(); });
+    }
+    try{
+      stream = await navigator.mediaDevices.getUserMedia({
+        video:{
+          facingMode:{ideal:facing},
+          width:{ideal:1920},
+          height:{ideal:1080}
+        },
+        audio:false
+      });
+      video.srcObject = stream;
+      await video.play();
+      permissionOverlay.classList.remove("show");
+      updateStatus();
+    }catch(err){
+      statusEl.textContent = "Permesso fotocamera necessario";
+      permissionOverlay.classList.add("show");
+    }
+  }
+
+  function startLocation(){
+    if(!navigator.geolocation){
+      statusEl.textContent = "GPS non supportato";
+      stampPlace.textContent = "Posizione non disponibile";
+      return;
+    }
+    if(watchId !== null) navigator.geolocation.clearWatch(watchId);
+    watchId = navigator.geolocation.watchPosition(
+      onPosition,
+      function(){
+        stampPlace.textContent = "Posizione non disponibile";
+        stampCoords.textContent = "GPS non autorizzato";
+        updateStatus();
+      },
+      {enableHighAccuracy:true, maximumAge:5000, timeout:15000}
+    );
+  }
+
+  function onPosition(pos){
+    var old = latestPosition;
+    latestPosition = {
+      lat:pos.coords.latitude,
+      lon:pos.coords.longitude,
+      accuracy:pos.coords.accuracy
+    };
+
+    stampCoords.textContent =
+      latestPosition.lat.toFixed(5) + ", " + latestPosition.lon.toFixed(5);
+
+    renderMiniMap(latestPosition.lat, latestPosition.lon);
+    updateStatus();
+
+    var shouldLookup = !old ||
+      Math.abs(old.lat-latestPosition.lat) > .002 ||
+      Math.abs(old.lon-latestPosition.lon) > .002 ||
+      !place.city;
+
+    if(shouldLookup){
+      clearTimeout(geocodeTimer);
+      geocodeTimer = setTimeout(function(){
+        reverseGeocode(latestPosition.lat, latestPosition.lon);
+      }, 300);
+    }
+  }
+
+  async function reverseGeocode(lat,lon){
+    try{
+      var url = "https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=" +
+        encodeURIComponent(lat) + "&longitude=" + encodeURIComponent(lon) +
+        "&localityLanguage=it";
+      var res = await fetch(url);
+      if(!res.ok) throw new Error("geocode");
+      var data = await res.json();
+      place.city = data.city || data.locality || data.principalSubdivision || "";
+      place.country = data.countryName || "";
+      var label = [place.city, place.country].filter(Boolean).join(", ");
+      stampPlace.textContent = label || "Posizione rilevata";
+    }catch(e){
+      place.city = "";
+      place.country = "";
+      stampPlace.textContent = "Posizione rilevata";
+    }
+  }
+
+  function updateStatus(){
+    var bits = [];
+    if(stream) bits.push("Fotocamera attiva");
+    if(latestPosition){
+      bits.push("GPS ±" + Math.round(latestPosition.accuracy || 0) + " m");
+    }else{
+      bits.push("GPS in acquisizione");
+    }
+    statusEl.textContent = bits.join(" · ");
+  }
+
+  function lonToWorldX(lon,z){
+    return ((lon + 180) / 360) * Math.pow(2,z) * 256;
+  }
+
+  function latToWorldY(lat,z){
+    var r = lat * Math.PI / 180;
+    return (1 - Math.log(Math.tan(r) + 1/Math.cos(r)) / Math.PI) / 2 *
+      Math.pow(2,z) * 256;
+  }
+
+  function renderMiniMap(lat,lon){
+    var w = miniMap.clientWidth || 190;
+    var h = miniMap.clientHeight || 126;
+    var worldX = lonToWorldX(lon,mapZoom);
+    var worldY = latToWorldY(lat,mapZoom);
+    var tileX = Math.floor(worldX/256);
+    var tileY = Math.floor(worldY/256);
+    mapTiles.innerHTML = "";
+
+    for(var dx=-1;dx<=1;dx++){
+      for(var dy=-1;dy<=1;dy++){
+        var x = tileX + dx;
+        var y = tileY + dy;
+        var img = document.createElement("img");
+        img.className = "mapTile";
+        img.alt = "";
+        img.draggable = false;
+        img.src = "https://tile.openstreetmap.org/" + mapZoom + "/" + x + "/" + y + ".png";
+        img.style.left = ((x*256-worldX)+(w/2)) + "px";
+        img.style.top = ((y*256-worldY)+(h/2)) + "px";
+        mapTiles.appendChild(img);
+      }
+    }
+  }
+
+  async function loadImage(url){
+    return new Promise(function(resolve,reject){
+      var img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = function(){ resolve(img); };
+      img.onerror = reject;
+      img.src = url;
+    });
+  }
+
+  function roundedRect(ctx,x,y,w,h,r){
+    var rr = Math.min(r,w/2,h/2);
+    ctx.beginPath();
+    ctx.moveTo(x+rr,y);
+    ctx.arcTo(x+w,y,x+w,y+h,rr);
+    ctx.arcTo(x+w,y+h,x,y+h,rr);
+    ctx.arcTo(x,y+h,x,y,rr);
+    ctx.arcTo(x,y,x+w,y,rr);
+    ctx.closePath();
+  }
+
+  function drawCover(ctx, source, dw, dh){
+    var sw = source.videoWidth;
+    var sh = source.videoHeight;
+    var targetRatio = dw/dh;
+    var sourceRatio = sw/sh;
+    var sx=0, sy=0, sW=sw, sH=sh;
+
+    if(sourceRatio > targetRatio){
+      sW = sh * targetRatio;
+      sx = (sw-sW)/2;
+    }else{
+      sH = sw / targetRatio;
+      sy = (sh-sH)/2;
+    }
+    ctx.drawImage(source,sx,sy,sW,sH,0,0,dw,dh);
+  }
+
+  async function drawMapOnCanvas(ctx,w,h,lat,lon){
+    var mapW = Math.round(Math.min(w*.30, 460));
+    var mapH = Math.round(mapW*.66);
+    var x0 = Math.round(w*.035);
+    var y0 = Math.round(h-mapH-h*.035);
+    var z = mapZoom;
+
+    ctx.save();
+    roundedRect(ctx,x0,y0,mapW,mapH,mapW*.06);
+    ctx.clip();
+
+    ctx.fillStyle = "rgba(0,0,0,.28)";
+    ctx.fillRect(x0,y0,mapW,mapH);
+
+    var worldX = lonToWorldX(lon,z);
+    var worldY = latToWorldY(lat,z);
+    var tileX = Math.floor(worldX/256);
+    var tileY = Math.floor(worldY/256);
+    var scale = mapW / (miniMap.clientWidth || 190);
+    var tileSize = 256 * scale;
+
+    ctx.globalAlpha = .5;
+
+    var jobs = [];
+    for(var dx=-1;dx<=1;dx++){
+      for(var dy=-1;dy<=1;dy++){
+        (function(x,y){
+          var url = "https://tile.openstreetmap.org/" + z + "/" + x + "/" + y + ".png";
+          jobs.push(
+            loadImage(url).then(function(img){
+              var left = x0 + ((x*256-worldX)+(miniMap.clientWidth||190)/2)*scale;
+              var top = y0 + ((y*256-worldY)+(miniMap.clientHeight||126)/2)*scale;
+              ctx.drawImage(img,left,top,tileSize,tileSize);
+            }).catch(function(){})
+          );
+        })(tileX+dx,tileY+dy);
+      }
+    }
+    await Promise.all(jobs);
+    ctx.globalAlpha = 1;
+
+    var px = x0 + mapW/2;
+    var py = y0 + mapH/2;
+    var pinR = Math.max(8,mapW*.045);
+
+    ctx.fillStyle = "#fff";
+    ctx.strokeStyle = "#111";
+    ctx.lineWidth = Math.max(2,w*.0015);
+    ctx.beginPath();
+    ctx.arc(px,py-pinR*.5,pinR,0,Math.PI*2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = "#111";
+    ctx.beginPath();
+    ctx.arc(px,py-pinR*.5,pinR*.32,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.fillStyle = "rgba(0,0,0,.5)";
+    ctx.fillRect(x0+mapW*.53,y0+mapH-18*scale,mapW*.47,18*scale);
+    ctx.fillStyle = "#fff";
+    ctx.font = Math.max(9,mapW*.035) + "px -apple-system,Arial,sans-serif";
+    ctx.textAlign = "right";
+    ctx.textBaseline = "bottom";
+    ctx.fillText("© OpenStreetMap",x0+mapW-5*scale,y0+mapH-4*scale);
+    ctx.restore();
+
+    ctx.save();
+    ctx.strokeStyle = "rgba(255,255,255,.55)";
+    ctx.lineWidth = Math.max(2,w*.0015);
+    roundedRect(ctx,x0,y0,mapW,mapH,mapW*.06);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawStamp(ctx,w,h){
+    var n = nowParts();
+    var cityCountry = [place.city,place.country].filter(Boolean).join(", ");
+    if(!cityCountry) cityCountry = latestPosition ? "Posizione rilevata" : "Posizione non disponibile";
+    var coords = latestPosition ?
+      latestPosition.lat.toFixed(5) + ", " + latestPosition.lon.toFixed(5) :
+      "GPS non disponibile";
+
+    var padX = w*.035;
+    var x = w-padX;
+    var y = h*.04;
+    var base = Math.max(18,w*.021);
+
+    ctx.save();
+    ctx.textAlign = "right";
+    ctx.textBaseline = "top";
+    ctx.fillStyle = "#fff";
+    ctx.shadowColor = "rgba(0,0,0,.92)";
+    ctx.shadowBlur = Math.max(8,w*.008);
+    ctx.shadowOffsetY = Math.max(2,w*.0015);
+
+    ctx.font = "800 " + base + "px -apple-system,BlinkMacSystemFont,Arial,sans-serif";
+    ctx.fillText(n.date,x,y);
+
+    y += base*1.12;
+    ctx.font = "900 " + (base*1.55) + "px -apple-system,BlinkMacSystemFont,Arial,sans-serif";
+    ctx.fillText(n.time,x,y);
+
+    y += base*1.72;
+    ctx.font = "750 " + (base*.9) + "px -apple-system,BlinkMacSystemFont,Arial,sans-serif";
+    ctx.fillText(cityCountry,x,y);
+
+    y += base*1.12;
+    ctx.font = "700 " + (base*.78) + "px -apple-system,BlinkMacSystemFont,Arial,sans-serif";
+    ctx.fillText(coords,x,y);
+
+    ctx.restore();
+  }
+
+  async function capture(){
+    if(!stream || !video.videoWidth){
+      permissionOverlay.classList.add("show");
+      return;
+    }
+
+    captureBtn.disabled = true;
+    statusEl.textContent = "Elaborazione foto…";
+
+    var cssW = shell.clientWidth;
+    var cssH = shell.clientHeight;
+    var outW = 1600;
+    var outH = Math.round(outW * cssH / cssW);
+    if(outH > 2200){
+      outH = 2200;
+      outW = Math.round(outH * cssW / cssH);
+    }
+
+    canvas.width = outW;
+    canvas.height = outH;
+    var ctx = canvas.getContext("2d");
+
+    drawCover(ctx,video,outW,outH);
+
+    if(latestPosition){
+      await drawMapOnCanvas(
+        ctx,outW,outH,
+        latestPosition.lat,
+        latestPosition.lon
+      );
+    }
+
+    drawStamp(ctx,outW,outH);
+
+    canvas.toBlob(function(blob){
+      if(!blob){
+        captureBtn.disabled = false;
+        statusEl.textContent = "Errore durante lo scatto";
+        return;
+      }
+
+      photoBlob = blob;
+      if(photoUrl) URL.revokeObjectURL(photoUrl);
+      photoUrl = URL.createObjectURL(blob);
+      review.src = photoUrl;
+      review.style.display = "block";
+      document.getElementById("stamp").style.display = "none";
+      miniMap.style.display = "none";
+      liveControls.style.display = "none";
+      reviewControls.classList.add("show");
+      statusEl.textContent = "Foto pronta";
+      captureBtn.disabled = false;
+    },"image/jpeg",.94);
+  }
+
+  function retake(){
+    review.style.display = "none";
+    document.getElementById("stamp").style.display = "";
+    miniMap.style.display = "";
+    liveControls.style.display = "grid";
+    reviewControls.classList.remove("show");
+    photoBlob = null;
+    updateStatus();
+  }
+
+  async function sharePhoto(){
+    if(!photoBlob) return;
+    var n = new Date();
+    var filename =
+      "CoDriver-Timestamp-" +
+      n.getFullYear() +
+      pad(n.getMonth()+1) +
+      pad(n.getDate()) + "-" +
+      pad(n.getHours()) +
+      pad(n.getMinutes()) +
+      pad(n.getSeconds()) +
+      ".jpg";
+
+    var file = new File([photoBlob],filename,{type:"image/jpeg"});
+
+    try{
+      if(navigator.canShare && navigator.canShare({files:[file]}) && navigator.share){
+        await navigator.share({files:[file],title:"CoDriver Timestamp"});
+        return;
+      }
+    }catch(e){
+      if(e && e.name === "AbortError") return;
+    }
+
+    var a = document.createElement("a");
+    a.href = photoUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+
+  switchBtn.onclick = async function(){
+    facing = facing === "environment" ? "user" : "environment";
+    await startCamera();
+  };
+
+  refreshGpsBtn.onclick = function(){
+    statusEl.textContent = "Aggiornamento GPS…";
+    startLocation();
+  };
+
+  retryBtn.onclick = function(){
+    startCamera();
+    startLocation();
+  };
+
+  captureBtn.onclick = capture;
+  retakeBtn.onclick = retake;
+  shareBtn.onclick = sharePhoto;
+
+  document.addEventListener("visibilitychange",function(){
+    if(document.visibilityState === "visible" && !stream){
+      startCamera();
+    }
+  });
+
+  startCamera();
+  startLocation();
+})();
+</script>
+</body>
+</html>
