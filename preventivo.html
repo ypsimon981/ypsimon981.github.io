@@ -111,6 +111,28 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
         <input id="toInput" type="text" placeholder="Es. Fiumicino Aeroporto" autocomplete="off">
       </div>
 
+      <div class="field">
+        <label for="tripMode">Tipo corsa</label>
+        <select id="tripMode">
+          <option value="oneway">Solo andata</option>
+          <option value="roundtrip">Andata e ritorno con cliente</option>
+          <option value="emptyreturn">Ritorno a vuoto</option>
+        </select>
+      </div>
+
+      <div id="availabilityField" class="conditional">
+        <div class="settingsGrid">
+          <div class="field">
+            <label for="availabilityHours">Ore a disposizione</label>
+            <input id="availabilityHours" type="number" min="0" step="0.5" inputmode="decimal" placeholder="0">
+          </div>
+          <div class="field">
+            <label for="hourlyRateInput">Tariffa disponibilità €/ora</label>
+            <input id="hourlyRateInput" type="number" min="0" step="1" inputmode="decimal" placeholder="Es. 40">
+          </div>
+        </div>
+      </div>
+
       <div class="routeActions">
         <button id="swapBtn" class="swap" type="button">⇅ Inverti</button>
         <button id="calculateBtn" class="calculate" type="button">Calcola preventivo</button>
@@ -119,66 +141,17 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
 
     <div id="settings" class="settings">
       <div class="settingsTitle">Impostazioni preventivo</div>
-
-      <div class="settingsSection">
-        <div class="settingsLabel">Tariffa</div>
-        <div class="settingsGrid">
-          <div class="field">
-            <label for="rateInput">Tariffa €/km</label>
-            <input id="rateInput" type="number" min="0" step="0.05" inputmode="decimal" placeholder="1,50">
-          </div>
-          <div class="field">
-            <label for="hourlyRateInput">Disponibilità €/ora</label>
-            <input id="hourlyRateInput" type="number" min="0" step="1" inputmode="decimal" placeholder="Es. 40">
-          </div>
+      <div class="settingsGrid">
+        <div class="field">
+          <label for="rateInput">Tariffa €/km</label>
+          <input id="rateInput" type="number" min="0" step="0.05" inputmode="decimal" placeholder="1,50">
+        </div>
+        <div class="field">
+          <label for="vehicleSelect">Mezzo usato</label>
+          <select id="vehicleSelect"></select>
         </div>
       </div>
-
-      <div class="settingsSection">
-        <div class="settingsLabel">Costi viaggio</div>
-        <div class="settingsGrid">
-          <div class="field">
-            <label for="vehicleSelect">Veicolo</label>
-            <select id="vehicleSelect"></select>
-          </div>
-          <div class="field">
-            <label for="tripMode">Tipo corsa</label>
-            <select id="tripMode">
-              <option value="oneway">Solo andata</option>
-              <option value="roundtrip">Andata e ritorno cliente</option>
-              <option value="emptyreturn">Ritorno a vuoto</option>
-            </select>
-          </div>
-          <div id="availabilityField" class="field conditional">
-            <label for="availabilityHours">Ore a disposizione</label>
-            <input id="availabilityHours" type="number" min="0" step="0.5" inputmode="decimal" placeholder="0">
-          </div>
-          <div class="field">
-            <label for="fuelType">Alimentazione</label>
-            <select id="fuelType">
-              <option value="diesel">Gasolio</option>
-              <option value="petrol">Benzina</option>
-              <option value="lpg">GPL</option>
-              <option value="methane">Metano</option>
-              <option value="electric">Elettrico</option>
-            </select>
-          </div>
-          <div class="field">
-            <label id="consumptionLabel" for="consumptionInput">Consumo · l/100 km</label>
-            <input id="consumptionInput" type="number" min="0" step="0.1" inputmode="decimal" placeholder="7,5">
-          </div>
-          <div class="field">
-            <label for="fuelPriceInput">Prezzo energia manuale</label>
-            <input id="fuelPriceInput" type="number" min="0" step="0.001" inputmode="decimal" placeholder="Automatico MIMIT">
-          </div>
-          <div class="field">
-            <label for="tollInput">Casello per tratta €</label>
-            <input id="tollInput" type="number" min="0" step="0.10" inputmode="decimal" placeholder="0,00">
-          </div>
-        </div>
-        <div class="note">Se il veicolo ha alimentazione e consumo in anagrafica vengono caricati automaticamente. Per benzina, gasolio, GPL e metano il prezzo viene preso dalla media regionale MIMIT del punto di partenza; il campo manuale, se compilato, ha la precedenza.</div>
-      </div>
-
+      <div class="note">Consumo e alimentazione vengono letti dall'anagrafica del mezzo selezionato.</div>
       <button id="saveRateBtn" class="saveRate" type="button">Salva impostazioni</button>
     </div>
   </section>
@@ -233,7 +206,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     </div>
   </section>
 
-  <div class="footerNote">Il casello resta manuale finché non colleghiamo un provider di pedaggi. Il residuo lordo considera solo carburante e pedaggi: non include autista, manutenzione, ammortamento, parcheggi o altri costi.</div>
+  <div class="footerNote">Il pedaggio verrà calcolato automaticamente quando collegheremo un provider dedicato. Il residuo lordo considera solo carburante e pedaggi: non include autista, manutenzione, ammortamento, parcheggi o altri costi.</div>
 </main>
 
 <script src="flight-config.js?v=steerwill3"></script>
@@ -260,10 +233,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
   var errorBox=document.getElementById("errorBox");
   var vehicleSelect=document.getElementById("vehicleSelect");
   var tripMode=document.getElementById("tripMode");
-  var fuelType=document.getElementById("fuelType");
-  var consumptionInput=document.getElementById("consumptionInput");
-  var fuelPriceInput=document.getElementById("fuelPriceInput");
-  var tollInput=document.getElementById("tollInput");
+
   var lastQuote=null;
 
   function num(v){
@@ -310,18 +280,8 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     return readVehicles().find(function(v){return v.id===id;})||null;
   }
 
-  function updateConsumptionLabel(){
-    var unit=fuelType.value==="methane"?"kg/100 km":fuelType.value==="electric"?"kWh/100 km":"l/100 km";
-    document.getElementById("consumptionLabel").textContent="Consumo · "+unit;
-  }
-
   function applyVehicle(){
-    var v=vehicleById(vehicleSelect.value);
-    if(v){
-      if(v.fuelType) fuelType.value=v.fuelType;
-      if(v.consumption) consumptionInput.value=Number(v.consumption).toFixed(1);
-    }
-    updateConsumptionLabel();
+    return vehicleById(vehicleSelect.value);
   }
 
   function loadSettings(){
@@ -331,10 +291,6 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     tripMode.value=prefs.tripMode||"oneway";
     hourlyRateInput.value=prefs.hourlyRate||"";
     availabilityHours.value=prefs.availabilityHours||"";
-    fuelType.value=prefs.fuelType||"diesel";
-    consumptionInput.value=prefs.consumption||"";
-    fuelPriceInput.value=prefs.fuelPrice||"";
-    tollInput.value=prefs.toll||"";
     applyVehicle();
     updateTripFields();
   }
@@ -343,15 +299,12 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     var rate=num(rateInput.value);
     if(rate<=0){rateInput.focus();return;}
     localStorage.setItem(RATE_KEY,String(rate));
+    var old=readCostPrefs();
     var prefs={
       vehicleId:vehicleSelect.value||"",
       tripMode:tripMode.value,
       hourlyRate:num(hourlyRateInput.value)||0,
-      availabilityHours:num(availabilityHours.value)||0,
-      fuelType:fuelType.value,
-      consumption:num(consumptionInput.value)||0,
-      fuelPrice:num(fuelPriceInput.value)||0,
-      toll:num(tollInput.value)||0
+      availabilityHours:num(availabilityHours.value)||0
     };
     localStorage.setItem(COST_KEY,JSON.stringify(prefs));
     settings.classList.remove("show");
@@ -369,11 +322,11 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     return {revenue:1,cost:1,label:"Solo andata"};
   }
 
-  function selectedFuelPrice(data){
-    var manual=num(fuelPriceInput.value);
-    if(manual>0) return {price:manual,source:"Prezzo energia inserito manualmente"};
+  function selectedFuelPrice(data,vehicle){
+    var key=vehicle&&vehicle.fuelType?vehicle.fuelType:"";
+    if(!key) return {price:0,source:"Alimentazione non impostata nel mezzo selezionato."};
+    if(key==="electric") return {price:0,source:"Costo energia elettrica non ancora configurato nel mezzo."};
 
-    var key=fuelType.value;
     var fuel=data&&data.fuel;
     var price=fuel&&fuel.prices?Number(fuel.prices[key]):0;
     if(price>0){
@@ -383,7 +336,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
         source:"Media MIMIT "+(fuel.region||"")+" · "+(date||"aggiornamento giornaliero")
       };
     }
-    return {price:0,source:key==="electric"?"Inserisci manualmente il costo €/kWh nelle impostazioni.":"Prezzo carburante automatico non disponibile: inseriscilo manualmente."};
+    return {price:0,source:"Prezzo carburante automatico non disponibile."};
   }
 
   function currentVehicleName(){
@@ -402,11 +355,13 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     var hours=factors.label==="Andata e ritorno cliente"?num(availabilityHours.value):0;
     var availabilityQuote=hours*hourlyRate;
     var quote=kmQuote+availabilityQuote;
-    var consumption=num(consumptionInput.value);
-    var energy=selectedFuelPrice(data);
+    var vehicle=applyVehicle();
+    var consumption=vehicle?num(vehicle.consumption):0;
+    var fuelKind=vehicle&&vehicle.fuelType?vehicle.fuelType:"";
+    var energy=selectedFuelPrice(data,vehicle);
     var fuelCost=costKm*(consumption/100)*energy.price;
-    var toll=num(tollInput.value)*factors.cost;
-    var total=fuelCost+toll;
+    var toll=0;
+    var total=fuelCost;
     return {
       factors:factors,
       oneWayKm:oneWayKm,
@@ -418,6 +373,8 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
       hours:hours,
       availabilityQuote:availabilityQuote,
       quote:quote,
+      vehicle:vehicle,
+      fuelKind:fuelKind,
       consumption:consumption,
       energy:energy,
       fuelCost:fuelCost,
@@ -447,14 +404,14 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     document.getElementById("costVehicle").textContent=currentVehicleName()+" · "+calc.factors.label;
     document.getElementById("costKm").textContent=calc.costKm.toLocaleString("it-IT",{maximumFractionDigits:1})+" km";
     document.getElementById("fuelCost").textContent=money(calc.fuelCost);
-    document.getElementById("tollCost").textContent=money(calc.toll);
+    document.getElementById("tollCost").textContent="Da integrare";
     document.getElementById("tripCost").textContent=money(calc.total);
     document.getElementById("grossMargin").textContent=money(calc.margin);
 
-    var unit=fuelType.value==="methane"?"kg/100 km":fuelType.value==="electric"?"kWh/100 km":"l/100 km";
+    var unit=calc.fuelKind==="methane"?"kg/100 km":calc.fuelKind==="electric"?"kWh/100 km":"l/100 km";
     var fuelDetail=calc.consumption>0 && calc.energy.price>0
-      ? calc.consumption.toLocaleString("it-IT",{maximumFractionDigits:1})+" "+unit+" × "+money(calc.energy.price)+(fuelType.value==="electric"?"/kWh":fuelType.value==="methane"?"/kg":"/l")
-      : "Consumo o prezzo energia non impostato";
+      ? calc.consumption.toLocaleString("it-IT",{maximumFractionDigits:1})+" "+unit+" × "+money(calc.energy.price)+(calc.fuelKind==="electric"?"/kWh":calc.fuelKind==="methane"?"/kg":"/l")
+      : (calc.vehicle ? "Completa alimentazione e consumo nell'anagrafica del mezzo" : "Seleziona un mezzo nelle impostazioni");
     document.getElementById("costSource").textContent=fuelDetail+" · "+calc.energy.source;
     result.classList.add("show");
   }
@@ -500,7 +457,6 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
   saveRateBtn.onclick=saveSettings;
   vehicleSelect.addEventListener("change",applyVehicle);
   tripMode.addEventListener("change",updateTripFields);
-  fuelType.addEventListener("change",updateConsumptionLabel);
 
   document.getElementById("swapBtn").onclick=function(){
     var a=fromInput.value;
@@ -524,7 +480,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
       (calc.hours>0 ? "Disponibilità: "+calc.hours+" h × "+money(calc.hourlyRate)+"/h = "+money(calc.availabilityQuote)+"\n" : "")+
       "Preventivo: "+money(calc.quote)+"\n"+
       "Carburante: "+money(calc.fuelCost)+"\n"+
-      "Casello: "+money(calc.toll)+"\n"+
+      "Casello: da integrare\n"+
       "Costi viaggio: "+money(calc.total)+"\n"+
       "Residuo lordo: "+money(calc.margin);
     try{
