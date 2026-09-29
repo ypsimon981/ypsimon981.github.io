@@ -249,6 +249,7 @@ h1{
   grid-template-columns:1fr 1fr;
   gap:12px;
 }
+.quoteTile{grid-column:1 / -1}
 .utilityTile{
   min-height:96px;
   padding:16px 18px;
@@ -532,6 +533,18 @@ h1{
     <section class="section">
       <div class="sectionTitle">Utility</div>
       <div class="utilitiesGrid">
+        <a class="utilityTile quoteTile" href="preventivo.html">
+          <span class="iconWrap" aria-hidden="true">
+            <svg class="icon" viewBox="0 0 64 64">
+              <path d="M10 18h44v32H10z"/>
+              <path d="M17 26h18M17 34h12M17 42h16"/>
+              <circle cx="46" cy="34" r="7"/>
+              <path d="M46 29v10M43 31c1-2 6-2 6 1 0 4-6 1-6 5 0 3 5 3 7 1"/>
+            </svg>
+          </span>
+          <span class="tileTitle">Preventivo rapido</span>
+        </a>
+
         <a class="utilityTile" href="monitor.html">
           <span class="iconWrap" aria-hidden="true">
             <svg class="icon" viewBox="0 0 64 64">
@@ -677,7 +690,7 @@ h1{
       </div>
     </section>
 
-    <div class="footer">MAINPAGE · V2.9</div>
+    <div class="footer">MAINPAGE · V3.0</div>
   </section>
 </main>
 
