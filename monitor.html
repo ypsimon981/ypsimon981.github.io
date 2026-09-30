@@ -80,7 +80,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     <button id="refreshAll" class="refresh" type="button">Aggiorna</button>
   </div>
 
-  <div class="notice">Voli: FlightAware live. Treni: RFI + Italo In Viaggio. Navi: programmazione del porto selezionato. I viaggi conclusi da oltre 12 ore vengono rimossi automaticamente.</div>
+  <div class="notice">Voli: FlightAware live. Treni: RFI + Italo In Viaggio. Navi: programmazione del porto selezionato. I viaggi conclusi da oltre 2 ore vengono rimossi automaticamente.</div>
   <div id="list" class="list"></div>
 </main>
 
@@ -101,7 +101,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
   }
   function write(key,items){localStorage.setItem(key,JSON.stringify(items));}
 
-  var AUTO_REMOVE_AFTER = 12 * 60 * 60 * 1000;
+  var AUTO_REMOVE_AFTER = 2 * 60 * 60 * 1000;
 
   function parseLocalEvent(date,time){
     if(!date||!time) return NaN;
