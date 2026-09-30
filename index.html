@@ -5,25 +5,25 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#0c0d0f">
+<meta name="theme-color" content="#0F1012">
 <title>SteerWill</title>
-<link rel="icon" type="image/svg+xml" href="assets/steerwill-icon.svg?v=1">
+<link rel="icon" type="image/svg+xml" href="assets/steerwill-icon.svg?v=2">
 <style>
 :root{
-  --bg:#0c0d0f;
+  --bg:#0F1012;
   --scrollShift:0px;
-  --panel:#15171a;
-  --panel2:#1d2024;
-  --panel3:#24282d;
-  --line:#30343a;
-  --text:#f3f4f5;
-  --muted:#8b9097;
-  --soft:#cdd1d5;
-  --brand:#3b82f6;
-  --amber:#f2b426;
-  --amber-soft:#d8b45a;
-  --sand:#cfc2a5;
-  --steel:#aebfca;
+  --panel:#1A1D20;
+  --panel2:#25292D;
+  --panel3:#2D3237;
+  --line:#3A3D40;
+  --text:#F5F1EC;
+  --muted:#A59A93;
+  --soft:#D8A58E;
+  --brand:#B9785B;
+  --amber:#B9785B;
+  --amber-soft:#D8A58E;
+  --sand:#C89A83;
+  --steel:#B9A39A;
 }
 *{box-sizing:border-box}
 html,body{
@@ -37,10 +37,10 @@ html{background:var(--bg)}
 body{
   min-height:100dvh;
   background:
-    radial-gradient(circle at 18% calc(10% + var(--scrollShift)),rgba(59,130,246,.12),transparent 31%),
-    radial-gradient(circle at 86% calc(48% - var(--scrollShift)),rgba(61,168,151,.08),transparent 30%),
-    radial-gradient(circle at 42% calc(92% + var(--scrollShift)),rgba(242,180,38,.055),transparent 28%),
-    linear-gradient(155deg,#0a0c0f 0%,#10141a 50%,#0b0e12 100%);
+    radial-gradient(circle at 18% calc(10% + var(--scrollShift)),rgba(185,120,91,.14),transparent 31%),
+    radial-gradient(circle at 86% calc(48% - var(--scrollShift)),rgba(216,165,142,.08),transparent 30%),
+    radial-gradient(circle at 42% calc(92% + var(--scrollShift)),rgba(165,154,147,.055),transparent 28%),
+    linear-gradient(155deg,#0D0E10 0%,#151719 50%,#0F1012 100%);
   background-attachment:fixed;
 }
 a,button{-webkit-tap-highlight-color:transparent}
@@ -56,8 +56,8 @@ button{font:inherit}
   width:min(780px,100%);
   margin:auto 0;
   padding:28px;
-  background:linear-gradient(180deg,#17191c 0%,#141619 100%);
-  border:1px solid #2c3036;
+  background:linear-gradient(180deg,#1A1D20 0%,#151719 100%);
+  border:1px solid #34373A;
   border-radius:30px;
   box-shadow:0 22px 70px rgba(0,0,0,.38);
 }
@@ -75,7 +75,7 @@ button{font:inherit}
   line-height:.88;
   white-space:nowrap;
 }
-.brand .steer{color:#f7f7f7}
+.brand .steer{color:#F5F1EC}
 .brand .will{color:var(--brand)}
 .brandIconWrap{
   display:flex;
@@ -92,7 +92,7 @@ button{font:inherit}
 }
 .brandTag{
   margin-top:8px;
-  color:#818181;
+  color:#A59A93;
   font-size:9px;
   font-weight:760;
   letter-spacing:.105em;
@@ -127,9 +127,9 @@ button{font:inherit}
   padding:18px 20px 19px;
   flex-direction:column;
   justify-content:space-between;
-  background:linear-gradient(135deg,#d8cfbc 0%,#c7b999 100%);
-  color:#151515;
-  border-color:#ded4c1;
+  background:linear-gradient(135deg,#D8A58E 0%,#B9785B 100%);
+  color:#1A1110;
+  border-color:#D7A38B;
   cursor:pointer;
   transition:transform .12s ease,opacity .12s ease;
 }
@@ -175,9 +175,9 @@ button{font:inherit}
 }
 .travelSection{
   padding:18px;
-  border:1px solid #33383f;
+  border:1px solid #39393A;
   border-radius:22px;
-  background:linear-gradient(180deg,#1b1e22 0%,#181b1f 100%);
+  background:linear-gradient(180deg,#202326 0%,#1A1D20 100%);
 }
 .travelSection .sectionTitle{
   margin-bottom:13px;
@@ -199,8 +199,8 @@ button{font:inherit}
   justify-content:center;
   gap:10px;
   text-align:center;
-  background:#22262a;
-  border-color:#2b3036;
+  background:#25292D;
+  border-color:#383A3D;
 }
 .toolTile .iconWrap{width:58px;height:58px}
 .toolTile .icon{width:43px;height:43px}
@@ -227,9 +227,9 @@ button{font:inherit}
   align-items:stretch;
   justify-content:space-between;
   gap:0;
-  background:linear-gradient(135deg,#b8c8d2 0%,#9fb2bf 100%);
-  color:#10161b;
-  border-color:#c9d5dd;
+  background:linear-gradient(135deg,#C6ACA0 0%,#A77F6D 100%);
+  color:#17100D;
+  border-color:#D0B6AA;
 }
 .timestampTop{display:flex;align-items:center;justify-content:flex-start}
 .timestampMain{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:13px}
@@ -239,7 +239,7 @@ button{font:inherit}
   font-weight:900;
   letter-spacing:.13em;
   text-transform:uppercase;
-  color:rgba(16,21,26,.52);
+  color:rgba(23,16,13,.54);
 }
 .timestampTitle{
   font-size:clamp(32px,6vw,48px);
@@ -255,7 +255,7 @@ button{font:inherit}
   border-radius:20px;
   display:grid;
   place-items:center;
-  color:#18222b;
+  color:#241814;
 }
 .timestampIcon svg{
   width:42px;
@@ -276,8 +276,8 @@ button{font:inherit}
   min-height:126px!important;
   padding:20px!important;
   justify-content:space-between;
-  background:linear-gradient(135deg,#292719 0%,#20221f 100%);
-  border-color:#5a4d25;
+  background:linear-gradient(135deg,#32231E 0%,#231C19 100%);
+  border-color:#704B3C;
 }
 .quoteTile .iconWrap{
   width:58px!important;
@@ -322,44 +322,44 @@ button{font:inherit}
 .utilityTile .iconWrap{width:46px;height:46px}
 .utilityTile .icon{width:34px;height:34px}
 .alertTile{
-  background:linear-gradient(135deg,#1d252f 0%,#1c2127 100%);
-  border-color:#314151;
+  background:linear-gradient(135deg,#2A211E 0%,#211D1C 100%);
+  border-color:#5A4036;
 }
-.alertTile .iconWrap{color:#9bbce7}
-.alertTile .tileMeta{color:#77899d}
+.alertTile .iconWrap{color:#D8A58E}
+.alertTile .tileMeta{color:#A98D81}
 .translatorTile{
-  background:linear-gradient(135deg,#1b2927 0%,#1b2223 100%);
-  border-color:#2e4b46;
+  background:linear-gradient(135deg,#292321 0%,#211D1C 100%);
+  border-color:#4D3A33;
   flex-direction:column;
   justify-content:center;
   text-align:center;
   padding:12px 8px;
 }
-.translatorTile .iconWrap{color:#8ed8c7;width:40px;height:40px}
+.translatorTile .iconWrap{color:#C99078;width:40px;height:40px}
 .translatorTile .icon{width:30px;height:30px}
 .translatorTile .tileTitle{font-size:14px}
-.translatorTile .tileMeta{color:#759b92}
+.translatorTile .tileMeta{color:#A98D81}
 .savedQuotesHome{
   margin-top:12px;
   padding:16px;
-  border:1px solid #30343a;
+  border:1px solid #3A3D40;
   border-radius:20px;
-  background:#1a1d21;
+  background:#1D2023;
 }
 .savedQuotesHead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
 .savedQuotesTitle{font-size:14px;font-weight:880}
 .savedQuotesLink{font-size:10px;color:#9a9a9a;text-decoration:none;font-weight:800}
 .savedQuotesList{display:grid;gap:8px}
-.savedQuoteMini{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 11px;border:1px solid #343940;border-radius:14px;background:#21252a;color:inherit;text-decoration:none}
+.savedQuoteMini{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 11px;border:1px solid #343940;border-radius:14px;background:#25292D;color:inherit;text-decoration:none}
 .savedQuoteText{min-width:0}
 .savedQuoteName{font-size:12px;font-weight:860;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .savedQuoteRoute{margin-top:3px;font-size:10px;color:#7f7f7f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .savedQuotePrice{font-size:13px;font-weight:900;white-space:nowrap}
 .savedQuoteEmpty{font-size:11px;color:#6f6f6f;padding:4px 2px}
 .vehicleHome{
-  border:1px solid #30363d;
+  border:1px solid #3A3D40;
   border-radius:22px;
-  background:linear-gradient(180deg,#1b1f24,#181b1f);
+  background:linear-gradient(180deg,#202326,#191B1E);
   overflow:hidden;
 }
 .vehicleHomeHead{
@@ -387,7 +387,7 @@ button{font:inherit}
 .vehicleMiniKm{text-align:right;font-size:15px;font-weight:900;white-space:nowrap}
 .vehicleMiniKm span{display:block;margin-top:3px;color:#687079;font-size:8px;text-transform:uppercase;letter-spacing:.08em}
 .vehicleDeadlineGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:11px}
-.vehicleDeadline{padding:8px 7px;border:1px solid #30363c;border-radius:11px;background:#20242a;text-align:center;min-width:0}
+.vehicleDeadline{padding:8px 7px;border:1px solid #30363c;border-radius:11px;background:#25292D;text-align:center;min-width:0}
 .vehicleDeadlineName{font-size:7px;color:#707981;font-weight:900;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .vehicleDeadlineDate{margin-top:3px;font-size:10px;font-weight:900}
 .vehicleDeadline.ok{border-color:#294735;background:#1b2a20}
@@ -408,13 +408,13 @@ button{font:inherit}
   color:#fff;
   text-decoration:none;
 }
-.homePartnerAlert.insurance{border-color:#514b2c;background:#292719}
-.homePartnerAlert.tyres{border-color:#34434d;background:#20272c}
+.homePartnerAlert.insurance{border-color:#6B493C;background:#2D211D}
+.homePartnerAlert.tyres{border-color:#5B4339;background:#27211F}
 .homePartnerCopy{min-width:0}
 .homePartnerEyebrow{font-size:8px;color:#77818a;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
 .homePartnerTitle{margin-top:3px;font-size:12px;font-weight:900;line-height:1.2}
-.homePartnerCta{font-size:10px;font-weight:900;color:#b8c8d6;white-space:nowrap}
-.homePartnerAlert.insurance .homePartnerCta{color:#ded18a}
+.homePartnerCta{font-size:10px;font-weight:900;color:#D8A58E;white-space:nowrap}
+.homePartnerAlert.insurance .homePartnerCta{color:#D8A58E}
 .homePartnerAlert:active{opacity:.88}
 .cartelloLink{
   cursor:pointer;
@@ -426,7 +426,7 @@ button{font:inherit}
 .productsSection{
   margin-top:24px;
   padding-top:18px;
-  border-top:1px solid #2c3036;
+  border-top:1px solid #34373A;
 }
 .productsHead{
   display:flex;
@@ -458,8 +458,8 @@ button{font:inherit}
   flex:0 0 180px;
   scroll-snap-align:start;
   overflow:hidden;
-  background:#1c2024;
-  border:1px solid #30353b;
+  background:#202326;
+  border:1px solid #393C3F;
   border-radius:19px;
   color:inherit;
   text-decoration:none;
@@ -531,8 +531,8 @@ button{font:inherit}
 }
 .productCta{
   border:1px solid #3f3f3f;
-  background:#252a2f;
-  color:#d7dadd;
+  background:#2B2929;
+  color:#E1D2CB;
   border-radius:999px;
   padding:6px 9px;
   font-size:10px;
@@ -591,7 +591,7 @@ button{font:inherit}
     <div class="headerRow">
       <div class="brand"><span class="steer">Steer</span><span class="will">Will</span></div>
       <div class="brandIconWrap">
-        <img class="brandIcon" src="assets/steerwill-icon.svg?v=1" alt="Logo SteerWill">
+        <img class="brandIcon" src="assets/steerwill-icon.svg?v=2" alt="Logo SteerWill">
       </div>
     </div>
     <div class="brandTag">Strumenti per autisti ancora più professionali.</div>
@@ -781,7 +781,7 @@ button{font:inherit}
       </div>
     </section>
 
-    <div class="footer">MAINPAGE · STEERWILL V4.7</div>
+    <div class="footer">MAINPAGE · STEERWILL V4.8</div>
   </section>
 </main>
 
