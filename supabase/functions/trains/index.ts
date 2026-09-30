@@ -4,17 +4,17 @@ const ALLOWED_ORIGINS = new Set([
   "http://127.0.0.1:3000"
 ]);
 
-const STATIONS: Record<string,{label:string,placeId:string,vtCode:string}> = {
-  roma_termini:{label:"Roma Termini",placeId:"2416",vtCode:"S08409"},
-  roma_tiburtina:{label:"Roma Tiburtina",placeId:"2385",vtCode:"S08217"},
+const STATIONS: Record<string,{label:string,placeId:string,vtCode:string,italoCode?:string}> = {
+  roma_termini:{label:"Roma Termini",placeId:"2416",vtCode:"S08409",italoCode:"RMT"},
+  roma_tiburtina:{label:"Roma Tiburtina",placeId:"2385",vtCode:"S08217",italoCode:"RTB"},
   fiumicino_aeroporto:{label:"Fiumicino Aeroporto",placeId:"1327",vtCode:"S08411"},
-  milano_centrale:{label:"Milano Centrale",placeId:"1728",vtCode:"S01700"},
-  firenze_smn:{label:"Firenze S. M. Novella",placeId:"1325",vtCode:"S06421"},
-  bologna_centrale:{label:"Bologna Centrale",placeId:"683",vtCode:"S05043"},
-  napoli_centrale:{label:"Napoli Centrale",placeId:"1888",vtCode:"S09218"},
-  torino_porta_nuova:{label:"Torino Porta Nuova",placeId:"2876",vtCode:"S00219"},
-  venezia_s_lucia:{label:"Venezia S. Lucia",placeId:"3009",vtCode:"S02593"},
-  salerno:{label:"Salerno",placeId:"2617",vtCode:"S09818"}
+  milano_centrale:{label:"Milano Centrale",placeId:"1728",vtCode:"S01700",italoCode:"MC_"},
+  firenze_smn:{label:"Firenze S. M. Novella",placeId:"1325",vtCode:"S06421",italoCode:"SMN"},
+  bologna_centrale:{label:"Bologna Centrale",placeId:"683",vtCode:"S05043",italoCode:"BC_"},
+  napoli_centrale:{label:"Napoli Centrale",placeId:"1888",vtCode:"S09218",italoCode:"NAC"},
+  torino_porta_nuova:{label:"Torino Porta Nuova",placeId:"2876",vtCode:"S00219",italoCode:"TOP"},
+  venezia_s_lucia:{label:"Venezia S. Lucia",placeId:"3009",vtCode:"S02593",italoCode:"VSL"},
+  salerno:{label:"Salerno",placeId:"2617",vtCode:"S09818",italoCode:"SAL"}
 };
 
 function corsHeaders(origin:string|null){
@@ -234,6 +234,88 @@ async function fetchFuture(code:string,mode:"arrivals"|"departures"){
   });
 }
 
+
+function italoClock(value:any){
+  const s=String(value||"").trim();
+  const m=s.match(/(\d{1,2}):(\d{2})/);
+  return m?String(Number(m[1])).padStart(2,"0")+":"+m[2]:"";
+}
+
+function normalizeStationName(value:any){
+  return String(value||"").toUpperCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .replace(/[^A-Z0-9]/g,"");
+}
+
+function findItaloStop(schedule:any,station:{label:string,italoCode?:string}){
+  const stops:any[]=[];
+  if(schedule?.StazionePartenza) stops.push(schedule.StazionePartenza);
+  if(Array.isArray(schedule?.StazioniFerme)) stops.push(...schedule.StazioniFerme);
+  if(Array.isArray(schedule?.StazioniNonFerme)) stops.push(...schedule.StazioniNonFerme);
+  const code=String(station.italoCode||"").toUpperCase();
+  const wanted=normalizeStationName(station.label);
+  return stops.find((x:any)=>{
+    if(code && String(x?.LocationCode||"").toUpperCase()===code) return true;
+    const name=normalizeStationName(x?.LocationDescription);
+    return !!name && (name===wanted || name.includes(wanted) || wanted.includes(name));
+  })||null;
+}
+
+async function fetchItaloTrain(trainNumber:string,station:{label:string,italoCode?:string},mode:"arrivals"|"departures"){
+  if(!/^\d{3,5}$/.test(trainNumber)||!station.italoCode) return null;
+  const endpoints=[
+    "https://italoinviaggio.italotreno.com/api/RicercaTrenoService?TrainNumber="+encodeURIComponent(trainNumber),
+    "https://italoinviaggio.italotreno.it/api/RicercaTrenoService?TrainNumber="+encodeURIComponent(trainNumber)
+  ];
+  for(const endpoint of endpoints){
+    try{
+      const res=await fetch(endpoint,{
+        headers:{"Accept":"application/json","Cache-Control":"no-cache","User-Agent":"Mozilla/5.0 (compatible; SteerWill/0.1)"},
+        redirect:"follow"
+      });
+      if(!res.ok) continue;
+      const raw=await res.json().catch(()=>null);
+      const schedule=raw?.TrainSchedule;
+      if(!raw||raw?.IsEmpty||!schedule) continue;
+      const stop=findItaloStop(schedule,station);
+      if(!stop) return null;
+
+      const actual=italoClock(mode==="departures"?stop?.ActualDepartureTime:stop?.ActualArrivalTime);
+      const forecast=italoClock(mode==="departures"?stop?.EstimatedDepartureTime:stop?.EstimatedArrivalTime);
+      const effective=actual||forecast;
+      if(!effective) return null;
+
+      const rawDelay=Number(schedule?.Distruption?.DelayAmount);
+      const delay=Number.isFinite(rawDelay)?Math.round(rawDelay):null;
+      const scheduled=delay==null?effective:(addDelay(effective,-delay)||effective);
+      const serviceDate=localIsoDate(Date.now());
+      const place=mode==="departures"
+        ?String(schedule?.ArrivalStationDescription||"—")
+        :String(schedule?.DepartureStationDescription||"—");
+
+      return {
+        id:["italo",mode,trainNumber,station.italoCode].join("_"),
+        type:"train",
+        train:String(schedule?.TrainNumber||trainNumber),
+        operator:"Italo",
+        station_role:mode,
+        destination:mode==="departures"?place:null,
+        origin:mode==="arrivals"?place:null,
+        scheduled,
+        estimated:effective,
+        delay_minutes:delay,
+        status:delay==null?"Italo live":delay>0?"Ritardo "+delay+" min":delay<0?"Anticipo "+Math.abs(delay)+" min":"In orario",
+        platform:String(stop?.ActualArrivalPlatform||"—").trim()||"—",
+        service_date:serviceDate,
+        service_ts:null,
+        live:true,
+        source:"Italo In Viaggio"
+      };
+    }catch(_){}
+  }
+  return null;
+}
+
 function mergeItems(future:any[],live:any[]){
   const map=new Map<string,any>();
   for(const x of future){
@@ -274,10 +356,16 @@ Deno.serve(async(req:Request)=>{
     const live=parseBoard(source.html,mode);
     let items=mergeItems(future,live);
     const q=(url.searchParams.get("q")||"").trim().toUpperCase();
-    if(q) items=items.filter((x:any)=>String(x.train).toUpperCase().includes(q)||String(x.destination||x.origin||"").toUpperCase().includes(q));
+    if(q){
+      items=items.filter((x:any)=>String(x.train).toUpperCase().includes(q)||String(x.destination||x.origin||"").toUpperCase().includes(q)||String(x.operator||"").toUpperCase().includes(q));
+      if(/^\d{3,5}$/.test(q) && !items.some((x:any)=>String(x.train)===q)){
+        const italo=await fetchItaloTrain(q,station,mode);
+        if(italo) items.push(italo);
+      }
+    }
 
     return json({
-      provider:"RFI Live + ViaggiaTreno",
+      provider:"RFI Live + ViaggiaTreno + Italo lookup",
       station:station.label,
       station_slug:stationSlug,
       place_id:station.placeId,
