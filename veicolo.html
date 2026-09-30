@@ -112,6 +112,12 @@ h1{margin:0;font-size:clamp(38px,7vw,64px);line-height:.95;letter-spacing:-.045e
   font-weight:800;
   white-space:nowrap;
 }
+.partnerSlot.servicePartner{
+  grid-column:1;
+  border-color:#5A4036;
+  background:linear-gradient(135deg,#2B211E,#211C1A);
+}
+.partnerSlot.servicePartner .partnerCta{color:#D8A58E}
 .partnerSlot:active{opacity:.88}
 .insuranceBanner{
   display:block;
@@ -332,6 +338,18 @@ h1{margin:0;font-size:clamp(38px,7vw,64px);line-height:.95;letter-spacing:-.045e
     '</a>';
   }
 
+  function servicePartner(v,currentKm){
+    var target=Number(v.serviceKm||0);
+    var current=Number(currentKm||0);
+    if(!target || target-current>5000) return "";
+    return '<a class="partnerSlot servicePartner" href="https://www.norauto.it/" target="_blank" rel="noopener sponsored">' +
+      '<div class="partnerEyebrow">Partner</div>' +
+      '<div class="partnerVehicle">'+escapeHtml(partnerVehicleLabel(v))+'</div>' +
+      '<div class="partnerBannerRow"><div class="partnerTitle">Tagliando in arrivo?</div>' +
+      '<div class="partnerCta">Scopri Norauto →</div></div>' +
+    '</a>';
+  }
+
   function kmText(target,current){
     var t = Number(target||0);
     var c = Number(current||0);
@@ -394,6 +412,7 @@ h1{margin:0;font-size:clamp(38px,7vw,64px);line-height:.95;letter-spacing:-.045e
         '<div class="maintenance">' +
           maintenanceCard("Prossimo tagliando",v.serviceKm,v.serviceDate,km) +
           maintenanceCard("Prossimo cambio gomme",v.tyresKm,v.tyresDate,km) +
+          servicePartner(v,km) +
           '<a class="partnerSlot" href="https://www.pneumatici.it/" target="_blank" rel="noopener sponsored">' +
             '<div class="partnerEyebrow">Partner</div>' +
             '<div class="partnerVehicle">'+escapeHtml(partnerVehicleLabel(v))+'</div>' +
