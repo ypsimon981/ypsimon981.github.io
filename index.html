@@ -90,33 +90,6 @@ button{font:inherit}
   max-width:100%;
   border-radius:18%;
 }
-.introTop{
-  display:flex;
-  justify-content:flex-end;
-  margin-bottom:10px;
-}
-.readmeBtn{
-  min-height:34px;
-  padding:0 13px;
-  border:1px solid #5B4035;
-  border-radius:999px;
-  background:#241D1A;
-  color:#D8A58E;
-  font-size:10px;
-  font-weight:950;
-  letter-spacing:.08em;
-  text-transform:uppercase;
-  cursor:pointer;
-}
-.readmeBtn:active{opacity:.86}
-.brandTag{
-  margin-top:8px;
-  color:#A59A93;
-  font-size:9px;
-  font-weight:760;
-  letter-spacing:.105em;
-  text-transform:uppercase;
-}
 .section{
   margin-top:16px;
 }
@@ -904,67 +877,6 @@ button{font:inherit}
   font-size:10px;
   text-align:center;
 }
-.readmeBackdrop{
-  display:none;
-  position:fixed;
-  inset:0;
-  z-index:200;
-  background:rgba(0,0,0,.76);
-  backdrop-filter:blur(6px);
-  padding:14px;
-}
-.readmeBackdrop.show{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-.readmeModal{
-  width:min(620px,100%);
-  max-height:min(82dvh,760px);
-  overflow:auto;
-  padding:20px;
-  border:1px solid #4A403B;
-  border-radius:24px;
-  background:linear-gradient(180deg,#211D1B,#17181A);
-  box-shadow:0 28px 90px rgba(0,0,0,.55);
-}
-.readmeHead{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  margin-bottom:14px;
-}
-.readmeTitle{
-  font-size:25px;
-  font-weight:950;
-  letter-spacing:-.03em;
-}
-.readmeClose{
-  min-height:36px;
-  padding:0 12px;
-  border:1px solid #51443E;
-  border-radius:999px;
-  background:#28201D;
-  color:#D8A58E;
-  font-weight:900;
-}
-.readmeText{
-  color:#D5CCC7;
-  font-size:13px;
-  line-height:1.55;
-}
-.readmeText p{margin:0 0 12px}
-.readmeFinal{
-  margin-top:17px;
-  padding:14px 15px;
-  border:1px solid #684838;
-  border-radius:16px;
-  background:#2A201C;
-  color:#F0D8CC;
-  font-weight:900;
-  line-height:1.45;
-}
 .footer{
   margin-top:18px;
   font-size:11px;
@@ -1025,13 +937,9 @@ button{font:inherit}
 <body>
 <main class="page">
   <section class="shell">
-    <div class="introTop">
-      <button id="readmeBtn" class="readmeBtn" type="button">Leggimi</button>
-    </div>
     <div class="headerRow" style="display:block">
-      <img src="assets/steerwill-brush-logo.svg?v=brush20261001" alt="SteerWill" style="display:block;width:100%;max-width:100%;height:auto">
+      <img src="assets/steerwill-clear-logo.svg?v=clear20261001" alt="SteerWill — Strumenti per autisti ancora più professionali." style="display:block;width:100%;max-width:100%;height:auto">
     </div>
-    <div class="brandTag">Strumenti per autisti ancora più professionali.</div>
 
     <section class="section">
       <a class="cartelloHero" href="cartello.html?v=mobile20260930">
@@ -1267,26 +1175,6 @@ button{font:inherit}
   </section>
 </main>
 
-<div id="readmeBackdrop" class="readmeBackdrop" role="dialog" aria-modal="true" aria-labelledby="readmeTitle">
-  <div class="readmeModal">
-    <div class="readmeHead">
-      <div id="readmeTitle" class="readmeTitle">Cos’è SteerWill</div>
-      <button id="readmeClose" class="readmeClose" type="button">Chiudi</button>
-    </div>
-    <div class="readmeText">
-      <p><strong>SteerWill nasce da un’idea molto semplice: chi lavora come autista NCC oggi usa troppe app diverse.</strong> Una per controllare un volo, una per i treni, Google per cercare informazioni, il traduttore, la fotocamera per documentare dove sei stato, note o calcolatrice per fare un preventivo e promemoria per le scadenze della macchina.</p>
-      <p>L’obiettivo è mettere queste cose <strong>tutte nello stesso posto</strong>, in maniera veloce e pensata specificamente per chi fa questo lavoro.</p>
-      <p>Dalla schermata principale puoi aprire il <strong>cartello cliente</strong>, controllare <strong>voli, treni e navi</strong>, salvare quelli che ti interessano e ritrovarli nel <strong>Monitor viaggi</strong>, dove vedi subito l’orario aggiornato e l’eventuale ritardo.</p>
-      <p>Ci sono poi il <strong>traduttore</strong>, il <strong>Timestamp</strong> per fare una fotografia con data, ora e posizione, il <strong>preventivo rapido</strong> e una sezione dedicata al veicolo, dove puoi registrare chilometri, assicurazione, revisione, ZTL, bollo, prossimo tagliando e cambio gomme.</p>
-      <p>All’inizio della giornata SteerWill può chiederti <strong>con quale macchina stai lavorando e quanti chilometri ha</strong>, così aggiorna automaticamente le scadenze legate al chilometraggio.</p>
-      <p>L’idea non è sostituire le app che già funzionano bene quando servono, ma evitare di doverne aprire dieci diverse per fare dieci piccole cose.</p>
-      <p><strong>Questa è ancora una versione di prova.</strong> La stiamo facendo usare prima agli autisti perché vogliamo capire cosa è realmente utile e cosa invece va cambiato o eliminato.</p>
-      <p>Non ci interessa sentirci dire che è bella: ci interessa sapere <strong>cosa useresti davvero durante il turno, cosa non useresti mai e cosa ti fa perdere tempo.</strong> Se manca una funzione che potrebbe semplificarti il lavoro, scrivicelo in fondo alla pagina.</p>
-      <div class="readmeFinal">Provala durante un turno normale. Se a fine giornata ti ha evitato di aprire cinque applicazioni diverse, sta facendo il suo lavoro.</div>
-    </div>
-  </div>
-</div>
-
 <div id="dailyKmBackdrop" class="dailyBackdrop"></div>
 <div id="dailyKmSheet" class="dailyKmSheet" role="dialog" aria-modal="true" aria-labelledby="dailyKmTitle">
   <div class="dailyEyebrow">Inizio giornata</div>
@@ -1320,29 +1208,6 @@ button{font:inherit}
   }
   setBackgroundShift();
   window.addEventListener("scroll",setBackgroundShift,{passive:true});
-
-  var readmeBtn=document.getElementById("readmeBtn");
-  var readmeBackdrop=document.getElementById("readmeBackdrop");
-  var readmeClose=document.getElementById("readmeClose");
-
-  function openReadme(){
-    readmeBackdrop.classList.add("show");
-    document.body.style.overflow="hidden";
-  }
-  function closeReadme(){
-    readmeBackdrop.classList.remove("show");
-    document.body.style.overflow="";
-  }
-  if(readmeBtn) readmeBtn.onclick=openReadme;
-  if(readmeClose) readmeClose.onclick=closeReadme;
-  if(readmeBackdrop){
-    readmeBackdrop.addEventListener("click",function(e){
-      if(e.target===readmeBackdrop) closeReadme();
-    });
-  }
-  document.addEventListener("keydown",function(e){
-    if(e.key==="Escape" && readmeBackdrop && readmeBackdrop.classList.contains("show")) closeReadme();
-  });
 
   var FEEDBACK_ENDPOINT="https://bboijzuzhgvfxqrsfatw.supabase.co/functions/v1/feedback";
   var FEEDBACK_APIKEY="sb_publishable_IYGuSSUStiK95becoD-OQQ_aj_2sGIN";
