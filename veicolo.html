@@ -82,21 +82,35 @@ h1{margin:0;font-size:clamp(38px,7vw,64px);line-height:.95;letter-spacing:-.045e
 }
 .partnerEyebrow{
   font-size:8px;
-  color:#7f8891;
-  font-weight:900;
+  color:#9b8d86;
+  font-weight:950;
   letter-spacing:.1em;
   text-transform:uppercase;
 }
+.partnerVehicle{
+  margin-top:4px;
+  color:#bfb1aa;
+  font-size:10px;
+  font-weight:800;
+}
+.partnerBannerRow{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-top:9px;
+  padding-top:9px;
+  border-top:1px solid rgba(255,255,255,.08);
+}
 .partnerTitle{
-  margin-top:5px;
   font-size:13px;
   font-weight:900;
 }
 .partnerCta{
-  margin-top:5px;
   color:#b7c7d8;
   font-size:11px;
   font-weight:800;
+  white-space:nowrap;
 }
 .partnerSlot:active{opacity:.88}
 .insuranceBanner{
@@ -303,13 +317,18 @@ h1{margin:0;font-size:clamp(38px,7vw,64px);line-height:.95;letter-spacing:-.045e
     return Math.ceil((d.getTime()-today.getTime())/86400000);
   }
 
-  function insuranceBanner(value){
-    var days=daysUntil(value);
+  function partnerVehicleLabel(v){
+    return [v.plate,v.model].filter(Boolean).join(" · ")||"Veicolo";
+  }
+
+  function insuranceBanner(v){
+    var days=daysUntil(v.insurance);
     if(days===null || days>90) return "";
     return '<a class="insuranceBanner" href="https://www.segugio.it/assicurazioni/" target="_blank" rel="noopener sponsored">' +
-      '<div class="partnerEyebrow">Spazio partner</div>' +
-      '<div class="partnerTitle">Assicurazione in scadenza?</div>' +
-      '<div class="partnerCta">Fai un nuovo preventivo →</div>' +
+      '<div class="partnerEyebrow">Partner</div>' +
+      '<div class="partnerVehicle">'+escapeHtml(partnerVehicleLabel(v))+'</div>' +
+      '<div class="partnerBannerRow"><div class="partnerTitle">Assicurazione in scadenza?</div>' +
+      '<div class="partnerCta">Nuovo preventivo →</div></div>' +
     '</a>';
   }
 
@@ -371,14 +390,15 @@ h1{margin:0;font-size:clamp(38px,7vw,64px);line-height:.95;letter-spacing:-.045e
           deadlineCell("ZTL",v.ztl) +
           deadlineCell("Bollo",v.tax) +
         '</div>' +
-        insuranceBanner(v.insurance) +
+        insuranceBanner(v) +
         '<div class="maintenance">' +
           maintenanceCard("Tagliando",v.serviceKm,v.serviceDate,km) +
           maintenanceCard("Gomme",v.tyresKm,v.tyresDate,km) +
           '<a class="partnerSlot" href="https://www.pneumatici.it/" target="_blank" rel="noopener sponsored">' +
-            '<div class="partnerEyebrow">Spazio partner</div>' +
-            '<div class="partnerTitle">È ora di cambiare pneumatici?</div>' +
-            '<div class="partnerCta">Scopri le offerte su Pneumatici.it →</div>' +
+            '<div class="partnerEyebrow">Partner</div>' +
+            '<div class="partnerVehicle">'+escapeHtml(partnerVehicleLabel(v))+'</div>' +
+            '<div class="partnerBannerRow"><div class="partnerTitle">È ora di cambiare pneumatici?</div>' +
+            '<div class="partnerCta">Vedi offerte →</div></div>' +
           '</a>' +
         '</div>' +
         '<div class="vehicleActions">' +
