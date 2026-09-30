@@ -119,9 +119,80 @@ function romeDate(value:any):string|null{
 }
 
 function validDate(v:string){
-  return /^20\d{2}-\d{2}-\d{2}$/.test(v);
+  const d=new Date(v+'T12:00:00Z');
+  return /^20\d{2}-\d{2}-\d{2}$/.test(v) && Number.isFinite(d.getTime()) && d.toISOString().slice(0,10)===v;
 }
 
+// Demand-driven shared cache. A database lease protects all edge instances.
+function cacheLifetime(f:any,now:number){
+  const actual=ts(f.actual_on);
+  if(Number.isFinite(actual) && actual<=now)return {finalized:true,ttl:0};
+  const expected=ts(f.estimated_on||f.estimated_in||f.scheduled_on||f.scheduled_in);
+  return {finalized:false,ttl:Number.isFinite(expected)&&expected-now<=2*3600000?60000:5*60000};
+}
+
+async function cachedFlight(db:any,ident:string,date:string,key:string){
+  const cacheKey='flight:'+ident+':'+date;
+  const read=async()=>{
+    const {data,error}=await db.from('flight_status_cache')
+      .select('payload,response_status,fetched_at,expires_at,finalized').eq('cache_key',cacheKey).maybeSingle();
+    if(error)throw new Error('flight_cache_unavailable');
+    return data;
+  };
+  const fresh=(row:any)=>row?.payload&&(row.finalized||Date.parse(row.expires_at)>Date.now());
+  const respond=(row:any,cached:boolean,stale=false)=>({
+    status:row.response_status,
+    body:{...row.payload,cached,stale,fetched_at:row.fetched_at,
+      next_refresh_at:row.finalized?null:row.expires_at,finalized:row.finalized}
+  });
+  let old=await read();
+  if(fresh(old))return respond(old,true);
+  const token=crypto.randomUUID();
+  const {data:claimed,error}=await db.rpc('claim_flight_refresh',{p_key:cacheKey,p_token:token});
+  if(error)throw new Error('flight_cache_unavailable');
+  if(!claimed){
+    // An expired response is usable while another caller refreshes it.
+    if(old?.payload&&old.response_status===200&&Date.now()-Date.parse(old.fetched_at)<30*60000)
+      return respond(old,true,true);
+    for(let n=0;n<50;n++){
+      await new Promise(r=>setTimeout(r,320));
+      old=await read();if(fresh(old))return respond(old,true);
+    }
+    return {status:503,body:{error:'flight_refresh_pending',retry_after:15}};
+  }
+  // Recheck after claiming: never replace a response completed by another owner.
+  old=await read();
+  if(fresh(old))return respond(old,true);
+  try{
+    const upstream=await fetch('https://aeroapi.flightaware.com/aeroapi/flights/'+encodeURIComponent(ident)+'?max_pages=1',{
+      headers:{'x-apikey':key,Accept:'application/json'},signal:AbortSignal.timeout(15000)
+    });
+    const raw=await upstream.json().catch(()=>null);
+    if(!upstream.ok)throw new Error('flightaware_'+upstream.status);
+    if(!Array.isArray(raw?.flights))throw new Error('flight_invalid_payload');
+    const flights=raw.flights.filter((f:any)=>romeDate(f.scheduled_in||f.estimated_in||f.scheduled_out||f.estimated_out)===date);
+    const best=flights.slice().sort((a:any,b:any)=>scoreFlight(b,Date.now())-scoreFlight(a,Date.now()))[0];
+    const life=best?cacheLifetime(best,Date.now()):{finalized:false,ttl:5*60000};
+    const row={payload:best?{provider:'FlightAware',target_date:date,flight:normalizeFlight(best,date)}:
+        {error:'flight_not_found_for_date',ident,target_date:date},
+      response_status:best?200:404,fetched_at:new Date().toISOString(),
+      expires_at:new Date(Date.now()+life.ttl).toISOString(),finalized:life.finalized,
+      refresh_until:new Date(0).toISOString(),refresh_token:null};
+    const {data:saved,error:writeError}=await db.from('flight_status_cache').update(row)
+      .eq('cache_key',cacheKey).eq('refresh_token',token).select('cache_key');
+    if(writeError||!saved?.length)throw new Error('flight_cache_write_failed');
+    return respond(row,false);
+  }catch(e){
+    // Back off after failure; database faults must never bypass the cache.
+    const fallback=old?.payload&&old.response_status===200&&Date.now()-Date.parse(old.fetched_at)<30*60000;
+    await db.from('flight_status_cache').update(fallback?{refresh_until:new Date(Date.now()+30000).toISOString()}:
+      {payload:{error:'flight_temporarily_unavailable'},response_status:503,fetched_at:new Date().toISOString(),
+        expires_at:new Date(Date.now()+30000).toISOString(),refresh_until:new Date(0).toISOString(),refresh_token:null})
+      .eq('cache_key',cacheKey).eq('refresh_token',token);
+    if(fallback)return respond(old,true,true);
+    return {status:503,body:{error:'flight_temporarily_unavailable',retry_after:30}};
+  }
+}
 
 // Durable airport cache and atomic lease shared by every edge instance.
 async function cachedAirport(db:any,id:string,key:string){
@@ -180,7 +251,8 @@ Deno.serve(async (req: Request) => {
     .toUpperCase()
     .replace(/\s+/g, "");
   const requestedDate=(url.searchParams.get("date")||"").trim();
-  const targetDate=validDate(requestedDate)?requestedDate:null;
+  if(requestedDate&&!validDate(requestedDate))return json({error:'invalid_date'},400,origin);
+  const targetDate=requestedDate||romeDate(new Date().toISOString())!;
   const radarAirport=(url.searchParams.get("airport")||"").toUpperCase();
   if(radarAirport && radarAirport!=="FCO") return json({error:"airport_not_supported"},400,origin);
 
@@ -231,51 +303,8 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const endpoint =
-      "https://aeroapi.flightaware.com/aeroapi/flights/" +
-      encodeURIComponent(ident) +
-      "?max_pages=1";
-
-    const upstream = await fetch(endpoint, {
-      headers: {
-        "x-apikey": secretRow.value,
-        "Accept": "application/json"
-      }
-    });
-
-    const raw = await upstream.json().catch(() => null);
-
-    if (!upstream.ok) {
-      return json({
-        error: "flightaware_error",
-        status: upstream.status,
-        detail: raw
-      }, upstream.status, origin);
-    }
-
-    let flights = Array.isArray(raw?.flights) ? raw.flights : [];
-
-    if(targetDate){
-      flights=flights.filter((f:any)=>{
-        const ref=f.estimated_in||f.scheduled_in||f.estimated_out||f.scheduled_out;
-        return romeDate(ref)===targetDate;
-      });
-    }
-
-    if (!flights.length) {
-      return json({ error: targetDate?"flight_not_found_for_date":"flight_not_found", ident, target_date:targetDate }, 404, origin);
-    }
-
-    const now = Date.now();
-    const best = flights
-      .slice()
-      .sort((a: any, b: any) => scoreFlight(b, now) - scoreFlight(a, now))[0];
-
-    return json({
-      provider: "FlightAware",
-      target_date:targetDate,
-      flight: normalizeFlight(best,targetDate)
-    }, 200, origin);
+    const result=await cachedFlight(supabase,ident,targetDate,secretRow.value);
+    return json(result.body,result.status,origin);
   } catch (error) {
     return json({
       error: "proxy_error",
