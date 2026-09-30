@@ -405,7 +405,7 @@ button{font:inherit}
 }
 .monitorTrip{
   display:grid;
-  grid-template-columns:auto 1fr auto;
+  grid-template-columns:44px minmax(0,1fr) auto auto;
   align-items:center;
   gap:10px;
   min-height:42px;
@@ -423,26 +423,32 @@ button{font:inherit}
 }
 .monitorTripMain{min-width:0}
 .monitorTripName{
+  display:block;
   font-size:11px;
   font-weight:900;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
 }
-.monitorTripMeta{
-  margin-top:2px;
-  color:#9C8A82;
-  font-size:9px;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
 .monitorTripWhen{
-  color:#D8A58E;
-  font-size:10px;
-  font-weight:900;
+  color:#F5F1EC;
+  font-size:11px;
+  font-weight:950;
   white-space:nowrap;
 }
+.monitorTripDelay{
+  min-width:42px;
+  padding:4px 6px;
+  border:1px solid #5B4035;
+  border-radius:999px;
+  color:#D8A58E;
+  font-size:9px;
+  font-weight:950;
+  text-align:center;
+  white-space:nowrap;
+}
+.monitorTripDelay.early{color:#B9C7B5;border-color:#43533F}
+.monitorTripDelay.onTime{color:#AAA19C;border-color:#4A4441}
 .monitorTripsEmpty{
   padding:11px 16px 14px;
   border-top:1px solid #3A302C;
@@ -519,11 +525,8 @@ button{font:inherit}
 .vehicleHomeEmpty{padding:18px 16px;color:#747b82;font-size:11px}
 .homePartnerAlerts{display:grid;gap:8px;padding:0 12px 12px}
 .homePartnerAlert{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  padding:11px 12px;
+  display:block;
+  padding:11px 12px 12px;
   border:1px solid #3b4148;
   border-radius:14px;
   background:#20252a;
@@ -532,10 +535,36 @@ button{font:inherit}
 }
 .homePartnerAlert.insurance{border-color:#6B493C;background:#2D211D}
 .homePartnerAlert.tyres{border-color:#5B4339;background:#27211F}
-.homePartnerCopy{min-width:0}
-.homePartnerEyebrow{font-size:8px;color:#77818a;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
-.homePartnerTitle{margin-top:3px;font-size:12px;font-weight:900;line-height:1.2}
-.homePartnerCta{font-size:10px;font-weight:900;color:#D8A58E;white-space:nowrap}
+.homePartnerTop{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.homePartnerEyebrow{
+  font-size:8px;
+  color:#9A8D87;
+  font-weight:950;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+.homePartnerVehicle{
+  margin-top:4px;
+  color:#C7B7AF;
+  font-size:9px;
+  font-weight:800;
+}
+.homePartnerBanner{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-top:9px;
+  padding-top:9px;
+  border-top:1px solid rgba(216,165,142,.16);
+}
+.homePartnerTitle{font-size:12px;font-weight:950;line-height:1.15}
+.homePartnerCta{font-size:10px;font-weight:950;color:#D8A58E;white-space:nowrap}
 .homePartnerAlert.insurance .homePartnerCta{color:#D8A58E}
 .homePartnerAlert:active{opacity:.88}
 .cartelloLink{
@@ -916,7 +945,7 @@ button{font:inherit}
       </div>
     </section>
 
-    <div class="footer">MAINPAGE · STEERWILL V5.0</div>
+    <div class="footer">MAINPAGE · STEERWILL V5.1</div>
   </section>
 </main>
 
@@ -968,7 +997,7 @@ button{font:inherit}
 
   function homeTripTimestamp(item){
     if(item.kind==="flight"){
-      return new Date(item.data.estimated_in||item.data.scheduled_in||0).getTime()||0;
+      return new Date(item.data.actual_in||item.data.estimated_in||item.data.scheduled_in||0).getTime()||0;
     }
     if(item.kind==="train"){
       var t=item.data;
@@ -981,29 +1010,37 @@ button{font:inherit}
 
   function homeTripInfo(item){
     var d=item.data||{};
+    if(item.kind==="flight") return {type:"Volo",name:d.ident||"Volo"};
+    if(item.kind==="train") return {type:"Treno",name:String(d.train||"—")};
+    return {type:"Nave",name:d.name||"Nave"};
+  }
+
+  function homeTripDelay(item){
+    var d=item.data||{};
     if(item.kind==="flight"){
-      var origin=d.origin&&d.origin.code?d.origin.code:"—";
-      var destination=d.destination&&d.destination.code?d.destination.code:"—";
-      return {type:"Volo",name:d.ident||"Volo",meta:origin+" → "+destination};
+      var scheduled=new Date(d.scheduled_in||0).getTime();
+      var actual=new Date(d.actual_in||d.estimated_in||0).getTime();
+      if(!scheduled||!actual||isNaN(scheduled)||isNaN(actual)) return null;
+      return Math.round((actual-scheduled)/60000);
     }
-    if(item.kind==="train"){
-      var place=d.mode==="arrivals"?(d.origin||"—"):(d.destination||"—");
-      return {type:"Treno",name:"Treno "+(d.train||"—"),meta:(d.station||"Stazione")+" · "+(d.mode==="arrivals"?"da ":"per ")+place};
+    if(item.kind==="train" && d.delay_minutes!==undefined && d.delay_minutes!==null){
+      var n=Number(d.delay_minutes);
+      return Number.isFinite(n)?Math.round(n):null;
     }
-    return {type:"Nave",name:d.name||"Nave",meta:d.port||"Civitavecchia"};
+    return null;
   }
 
   function homeTripWhen(ts){
     var d=new Date(ts);
     if(isNaN(d)) return "—";
-    var today=new Date();
-    var tomorrow=new Date();
-    tomorrow.setDate(today.getDate()+1);
-    var same=function(a,b){return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();};
-    var time=d.toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"});
-    if(same(d,today)) return "Oggi "+time;
-    if(same(d,tomorrow)) return "Domani "+time;
-    return d.toLocaleDateString("it-IT",{day:"2-digit",month:"2-digit"})+" "+time;
+    return d.toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"});
+  }
+
+  function homeDelayView(minutes){
+    if(minutes===null) return {text:"—",cls:"onTime"};
+    if(minutes>0) return {text:"+"+minutes+" min",cls:""};
+    if(minutes<0) return {text:minutes+" min",cls:"early"};
+    return {text:"0 min",cls:"onTime"};
   }
 
   function renderHomeMonitor(){
@@ -1028,11 +1065,12 @@ button{font:inherit}
 
     target.innerHTML=trips.map(function(item){
       var info=homeTripInfo(item);
+      var delay=homeDelayView(homeTripDelay(item));
       return '<span class="monitorTrip">'+
         '<span class="monitorTripType">'+esc(info.type)+'</span>'+
-        '<span class="monitorTripMain"><span class="monitorTripName">'+esc(info.name)+'</span>'+
-        '<span class="monitorTripMeta">'+esc(info.meta)+'</span></span>'+
+        '<span class="monitorTripMain"><span class="monitorTripName">'+esc(info.name)+'</span></span>'+
         '<span class="monitorTripWhen">'+esc(homeTripWhen(item.ts))+'</span>'+
+        '<span class="monitorTripDelay '+delay.cls+'">'+esc(delay.text)+'</span>'+
       '</span>';
     }).join("");
   }
@@ -1106,13 +1144,15 @@ button{font:inherit}
 
     vehicles.forEach(function(v){
       var plate=esc(v.plate||"Veicolo");
+      var vehicleName=esc([v.plate,v.model].filter(Boolean).join(" · ")||"Veicolo");
       var insuranceDays=daysUntilDate(v.insurance);
       if(insuranceDays!==null && insuranceDays<=90){
         alerts.push(
           '<a class="homePartnerAlert insurance" href="https://www.segugio.it/assicurazioni/" target="_blank" rel="noopener sponsored">'+
-            '<span class="homePartnerCopy"><span class="homePartnerEyebrow">Partner · '+plate+'</span>'+
-            '<span class="homePartnerTitle">Assicurazione in scadenza?</span></span>'+
-            '<span class="homePartnerCta">Nuovo preventivo →</span>'+
+            '<span class="homePartnerTop"><span class="homePartnerEyebrow">Partner</span></span>'+
+            '<span class="homePartnerVehicle">'+vehicleName+'</span>'+
+            '<span class="homePartnerBanner"><span class="homePartnerTitle">Assicurazione in scadenza?</span>'+
+            '<span class="homePartnerCta">Nuovo preventivo →</span></span>'+
           '</a>'
         );
       }
@@ -1125,9 +1165,10 @@ button{font:inherit}
       if(tyresDue){
         alerts.push(
           '<a class="homePartnerAlert tyres" href="https://www.pneumatici.it/" target="_blank" rel="noopener sponsored">'+
-            '<span class="homePartnerCopy"><span class="homePartnerEyebrow">Partner · '+plate+'</span>'+
-            '<span class="homePartnerTitle">È ora di cambiare pneumatici?</span></span>'+
-            '<span class="homePartnerCta">Vedi offerte →</span>'+
+            '<span class="homePartnerTop"><span class="homePartnerEyebrow">Partner</span></span>'+
+            '<span class="homePartnerVehicle">'+vehicleName+'</span>'+
+            '<span class="homePartnerBanner"><span class="homePartnerTitle">È ora di cambiare pneumatici?</span>'+
+            '<span class="homePartnerCta">Vedi offerte →</span></span>'+
           '</a>'
         );
       }
