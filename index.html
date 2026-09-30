@@ -62,45 +62,44 @@ button{font:inherit}
   box-shadow:0 22px 70px rgba(0,0,0,.38);
 }
 .headerRow{
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:16px;
+  display:grid;
+  grid-template-columns:4fr 1fr;
+  align-items:center;
+  gap:14px;
 }
 .brand{
-  font-size:31px;
+  min-width:0;
+  font-size:clamp(48px,10vw,76px);
   font-weight:950;
-  letter-spacing:-.035em;
-  line-height:1;
-  margin-bottom:0;
+  letter-spacing:-.055em;
+  line-height:.88;
+  white-space:nowrap;
 }
 .brand .steer{color:#f7f7f7}
 .brand .will{color:var(--brand)}
+.brandIconWrap{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  min-width:0;
+}
+.brandIcon{
+  display:block;
+  width:auto;
+  height:clamp(48px,10vw,76px);
+  max-width:100%;
+  border-radius:18%;
+}
 .brandTag{
-  margin-top:4px;
+  margin-top:8px;
   color:#818181;
   font-size:9px;
   font-weight:760;
   letter-spacing:.105em;
   text-transform:uppercase;
 }
-h1{
-  margin:14px 0 0;
-  font-size:13px;
-  font-weight:620;
-  line-height:1.1;
-  letter-spacing:.06em;
-  color:#a0a0a0;
-  text-transform:uppercase;
-}
-.sub{
-  margin:8px 0 24px;
-  color:var(--muted);
-  font-size:15px;
-  line-height:1.35;
-}
 .section{
-  margin-top:20px;
+  margin-top:16px;
 }
 .sectionTitle{
   margin-bottom:10px;
@@ -584,16 +583,14 @@ h1{
 <main class="page">
   <section class="shell">
     <div class="headerRow">
-      <div>
-        <div class="brand"><span class="steer">Steer</span><span class="will">Will</span></div>
-        <div class="brandTag">Tools for more professional drivers</div>
-        <h1>Driver tools</h1>
+      <div class="brand"><span class="steer">Steer</span><span class="will">Will</span></div>
+      <div class="brandIconWrap">
+        <img class="brandIcon" src="assets/steerwill-icon.svg?v=1" alt="Logo SteerWill">
       </div>
     </div>
-    <p id="driverTagline" class="sub">Come sopravvivere ai propri clienti usando gli strumenti giusti.</p>
+    <div class="brandTag">Strumenti per autisti ancora più professionali.</div>
 
     <section class="section">
-      <div class="sectionTitle">Funzione principale</div>
       <a class="cartelloHero" href="cartello.html">
         <span class="cartelloTop">
           <span class="cartelloEyebrow">Accoglienza cliente</span>
@@ -642,7 +639,6 @@ h1{
     </section>
 
     <section class="section">
-      <div class="sectionTitle">Prove fotografiche</div>
       <a class="timestampCard" href="timestamp.html">
         <span class="timestampTop">
           <span class="timestampEyebrow">Foto geolocalizzata</span>
@@ -662,7 +658,6 @@ h1{
     </section>
 
     <section class="section">
-      <div class="sectionTitle">Utility</div>
       <div class="utilitiesGrid">
         <a class="utilityTile quoteTile" href="preventivo.html">
           <span class="quoteCopy">
@@ -780,7 +775,7 @@ h1{
       </div>
     </section>
 
-    <div class="footer">MAINPAGE · STEERWILL V4.5</div>
+    <div class="footer">MAINPAGE · STEERWILL V4.6</div>
   </section>
 </main>
 
@@ -806,24 +801,6 @@ h1{
 <script>
 (function(){
   "use strict";
-
-  var el=document.getElementById("driverTagline");
-  var lines=[
-    "Come sopravvivere ai propri clienti usando gli strumenti giusti.",
-    "Per affrontare il turno con più strumenti e meno santi da chiamare.",
-    "Gli strumenti giusti per quando il cliente scrive “esco ora” ma atterra tra 25 minuti.",
-    "Per quando il volo ritarda, il cliente non risponde e tu devi restare elegante.",
-    "Pensata per chi guida davvero, non per chi immagina il lavoro da una scrivania.",
-    "Tutto sotto controllo. Anche quando il cliente non aiuta."
-  ];
-
-  if(el){
-    var key="steerwill_home_phrase_v1";
-    var prev=Number(localStorage.getItem(key));
-    var next=Number.isFinite(prev)?(prev+1)%lines.length:0;
-    localStorage.setItem(key,String(next));
-    el.textContent=lines[next];
-  }
 
   function esc(v){
     return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
