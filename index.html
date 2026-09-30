@@ -268,7 +268,7 @@ button{font:inherit}
 }
 .utilitiesGrid{
   display:grid;
-  grid-template-columns:1fr 1fr;
+  grid-template-columns:2fr 1fr;
   gap:12px;
 }
 .quoteTile{
@@ -330,8 +330,14 @@ button{font:inherit}
 .translatorTile{
   background:linear-gradient(135deg,#1b2927 0%,#1b2223 100%);
   border-color:#2e4b46;
+  flex-direction:column;
+  justify-content:center;
+  text-align:center;
+  padding:12px 8px;
 }
-.translatorTile .iconWrap{color:#8ed8c7}
+.translatorTile .iconWrap{color:#8ed8c7;width:40px;height:40px}
+.translatorTile .icon{width:30px;height:30px}
+.translatorTile .tileTitle{font-size:14px}
 .translatorTile .tileMeta{color:#759b92}
 .savedQuotesHome{
   margin-top:12px;
@@ -551,7 +557,7 @@ button{font:inherit}
   .timestampCard{min-height:124px;padding:17px 18px;border-radius:20px}
   .timestampIcon{width:56px;height:56px;flex-basis:56px;border-radius:17px}
   .timestampIcon svg{width:34px;height:34px}
-  .utilitiesGrid{grid-template-columns:1fr 1fr}
+  .utilitiesGrid{grid-template-columns:2fr 1fr}
   .utilityTile{min-height:88px;border-radius:18px;padding:14px}
   .toolTile{min-height:104px;border-radius:18px;border-color:#2a2f35}
   .toolTile .iconWrap{width:48px;height:48px}
@@ -659,6 +665,29 @@ button{font:inherit}
 
     <section class="section">
       <div class="utilitiesGrid">
+        <a class="utilityTile alertTile" href="monitor.html">
+          <span class="iconWrap" aria-hidden="true">
+            <svg class="icon" viewBox="0 0 64 64">
+              <rect x="8" y="11" width="48" height="37" rx="5"/>
+              <path d="M16 38V28M26 38V20M36 38V31M46 38V16"/>
+              <path d="M25 54h14"/>
+            </svg>
+          </span>
+          <span><span class="tileTitle">Monitor viaggi salvati</span></span>
+        </a>
+
+        <a class="utilityTile translatorTile" href="traduttore.html">
+          <span class="iconWrap" aria-hidden="true">
+            <svg class="icon" viewBox="0 0 64 64">
+              <path d="M8 12h28v24H20l-9 8v-8H8z"/>
+              <path d="M28 28h28v22H44l-8 7v-7h-8"/>
+              <path d="M15 19h14M22 16v6M17 28c5-3 8-7 10-12"/>
+              <path d="M39 35h6l6 11M42 42h7"/>
+            </svg>
+          </span>
+          <span><span class="tileTitle">Traduttore</span></span>
+        </a>
+
         <a class="utilityTile quoteTile" href="preventivo.html">
           <span class="quoteCopy">
             <span class="quoteTitle">Preventivo rapido</span>
@@ -672,29 +701,6 @@ button{font:inherit}
               <path d="M46 29v10M43 31c1-2 6-2 6 1 0 4-6 1-6 5 0 3 5 3 7 1"/>
             </svg>
           </span>
-        </a>
-
-        <a class="utilityTile alertTile" href="monitor.html">
-          <span class="iconWrap" aria-hidden="true">
-            <svg class="icon" viewBox="0 0 64 64">
-              <rect x="8" y="11" width="48" height="37" rx="5"/>
-              <path d="M16 38V28M26 38V20M36 38V31M46 38V16"/>
-              <path d="M25 54h14"/>
-            </svg>
-          </span>
-          <span><span class="tileTitle">Alert viaggi salvati</span></span>
-        </a>
-
-        <a class="utilityTile translatorTile" href="traduttore.html">
-          <span class="iconWrap" aria-hidden="true">
-            <svg class="icon" viewBox="0 0 64 64">
-              <path d="M8 12h28v24H20l-9 8v-8H8z"/>
-              <path d="M28 28h28v22H44l-8 7v-7h-8"/>
-              <path d="M15 19h14M22 16v6M17 28c5-3 8-7 10-12"/>
-              <path d="M39 35h6l6 11M42 42h7"/>
-            </svg>
-          </span>
-          <span><span class="tileTitle">Traduttore</span></span>
         </a>
       </div>
 
@@ -775,7 +781,7 @@ button{font:inherit}
       </div>
     </section>
 
-    <div class="footer">MAINPAGE · STEERWILL V4.6</div>
+    <div class="footer">MAINPAGE · STEERWILL V4.7</div>
   </section>
 </main>
 
