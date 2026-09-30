@@ -143,6 +143,121 @@ h1{
   font-weight:750;
   opacity:.96;
 }
+.cameraShell.hasTrip .stamp{max-width:46%}
+.tripSetup{
+  margin:0 0 14px;
+  padding:14px;
+  border:1px solid #343434;
+  border-radius:18px;
+  background:#171717;
+}
+.tripSetup label{
+  display:block;
+  margin:0 0 7px;
+  color:#888;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.10em;
+  text-transform:uppercase;
+}
+.tripSetupRow{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:9px;
+}
+.tripSetup input{
+  min-width:0;
+  height:50px;
+  border:1px solid #3b3b3b;
+  border-radius:14px;
+  background:#0f0f0f;
+  color:#fff;
+  padding:0 14px;
+  font-size:18px;
+  font-weight:850;
+  text-transform:uppercase;
+  outline:none;
+}
+.tripSetup input:focus{border-color:#777}
+.tripSetup button{
+  min-width:92px;
+  height:50px;
+  border:0;
+  border-radius:14px;
+  background:#fff;
+  color:#111;
+  padding:0 14px;
+  font-weight:900;
+}
+.tripSetup button:disabled{opacity:.55}
+.tripLookupStatus{
+  min-height:16px;
+  margin-top:7px;
+  color:#777;
+  font-size:10px;
+  line-height:1.35;
+}
+.tripLookupStatus.bad{color:#d69b8a}
+.tripLookupStatus.ok{color:#a8bca1}
+.tripStamp{
+  display:none;
+  position:absolute;
+  z-index:2;
+  top:18px;
+  left:18px;
+  width:min(48%,340px);
+  padding:12px 13px;
+  border:1px solid rgba(255,255,255,.28);
+  border-radius:15px;
+  background:rgba(0,0,0,.48);
+  color:#fff;
+  text-align:left;
+  font-variant-numeric:tabular-nums;
+  text-shadow:0 1px 4px rgba(0,0,0,.95);
+  backdrop-filter:blur(5px);
+  pointer-events:none;
+}
+.tripStamp.show{display:block}
+.tripStampHead{
+  display:flex;
+  align-items:baseline;
+  gap:7px;
+  min-width:0;
+}
+.tripStampKind{
+  color:#b9b9b9;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.10em;
+}
+.tripStampCode{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:21px;
+  font-weight:950;
+  letter-spacing:-.02em;
+}
+.tripStampRoute{
+  margin-top:5px;
+  font-size:13px;
+  font-weight:850;
+  line-height:1.2;
+}
+.tripStampMeta{
+  margin-top:4px;
+  color:#ddd;
+  font-size:10px;
+  font-weight:700;
+  line-height:1.3;
+}
+.tripStampElapsed{
+  margin-top:7px;
+  font-size:13px;
+  font-weight:950;
+  line-height:1.2;
+}
 .miniMap{
   position:absolute;
   z-index:2;
@@ -320,6 +435,19 @@ h1{
     border-radius:22px;
   }
   .stamp{top:15px;right:15px}
+  .cameraShell.hasTrip .stamp{max-width:44%}
+  .tripStamp{
+    top:15px;
+    left:15px;
+    width:48%;
+    padding:10px 11px;
+    border-radius:13px;
+  }
+  .tripStampKind{font-size:8px}
+  .tripStampCode{font-size:18px}
+  .tripStampRoute{font-size:11px}
+  .tripStampMeta{font-size:9px}
+  .tripStampElapsed{font-size:11px}
   .stampDate{font-size:20px}
   .stampTime{font-size:34px}
   .stampPlace{font-size:15px}
@@ -352,9 +480,28 @@ h1{
     <div id="status" class="status">Avvio fotocamera e GPS…</div>
   </div>
 
+  <section class="tripSetup">
+    <label for="tripCodeInput">Codice volo o treno · facoltativo</label>
+    <div class="tripSetupRow">
+      <input id="tripCodeInput" type="text" placeholder="Es. AZ61 oppure 8920" autocapitalize="characters" autocomplete="off" spellcheck="false">
+      <button id="tripCodeBtn" type="button">Abbina</button>
+    </div>
+    <div id="tripLookupStatus" class="tripLookupStatus">Se non inserisci un codice, sulla foto non comparirà nessun viaggio.</div>
+  </section>
+
   <section id="cameraShell" class="cameraShell">
     <video id="video" autoplay muted playsinline></video>
     <img id="review" alt="Anteprima foto con timestamp">
+
+    <div id="tripStamp" class="tripStamp">
+      <div class="tripStampHead">
+        <span id="tripStampKind" class="tripStampKind">VOLO</span>
+        <span id="tripStampCode" class="tripStampCode">—</span>
+      </div>
+      <div id="tripStampRoute" class="tripStampRoute">—</div>
+      <div id="tripStampMeta" class="tripStampMeta">—</div>
+      <div id="tripStampElapsed" class="tripStampElapsed">—</div>
+    </div>
 
     <div id="stamp" class="stamp">
       <div id="stampDate" class="stampDate">--/--/----</div>
@@ -391,10 +538,11 @@ h1{
   </div>
   <div id="backupState" class="backupState">Backup locale automatico attivo.</div>
 
-  <p class="note">La foto finale include realmente la stampa in alto a destra e la minimappa in basso a sinistra. Su iPhone il salvataggio nel rullino passa dal pannello iOS; SteerWill conserva anche una copia locale automatica per evitare perdite accidentali.</p>
+  <p class="note">La foto finale include realmente la stampa in alto a destra, la minimappa in basso a sinistra e, se hai inserito un codice, i dati del volo o del treno in alto a sinistra. Su iPhone il salvataggio nel rullino passa dal pannello iOS; SteerWill conserva anche una copia locale automatica per evitare perdite accidentali.</p>
   <canvas id="canvas"></canvas>
 </main>
 
+<script src="flight-config.js?v=steerwill3"></script>
 <script>
 (function(){
   "use strict";
@@ -420,6 +568,15 @@ h1{
   var retakeBtn = document.getElementById("retakeBtn");
   var shareBtn = document.getElementById("shareBtn");
   var backupState = document.getElementById("backupState");
+  var tripCodeInput = document.getElementById("tripCodeInput");
+  var tripCodeBtn = document.getElementById("tripCodeBtn");
+  var tripLookupStatus = document.getElementById("tripLookupStatus");
+  var tripStamp = document.getElementById("tripStamp");
+  var tripStampKind = document.getElementById("tripStampKind");
+  var tripStampCode = document.getElementById("tripStampCode");
+  var tripStampRoute = document.getElementById("tripStampRoute");
+  var tripStampMeta = document.getElementById("tripStampMeta");
+  var tripStampElapsed = document.getElementById("tripStampElapsed");
 
   var stream = null;
   var facing = "environment";
@@ -432,6 +589,219 @@ h1{
   var mapZoom = 15;
   var DB_NAME = "SteerWillTimestamp";
   var DB_STORE = "photos";
+  var tripInfo = null;
+  var tripLookupSeq = 0;
+  var FLIGHT_STORAGE_KEY = "codriver_monitored_flights_v1";
+  var TRAIN_STORAGE_KEY = "codriver_monitored_trains_v1";
+  var TRAIN_STATION_KEY = "codriver_train_station_v1";
+
+  function readLocalList(key){
+    try{
+      var value=JSON.parse(localStorage.getItem(key)||"[]");
+      return Array.isArray(value)?value:[];
+    }catch(e){return [];}
+  }
+
+  function normalizeTripCode(value){
+    return String(value||"").toUpperCase().replace(/\s+/g,"").trim();
+  }
+
+  function isTrainCode(code){
+    return /^\d{3,5}$/.test(code);
+  }
+
+  function localIsoToday(){
+    var d=new Date();
+    return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+  }
+
+  function clock(value){
+    if(!value) return "—";
+    var d=value instanceof Date?value:new Date(value);
+    if(isNaN(d.getTime())) return "—";
+    return d.toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"});
+  }
+
+  function humanDuration(ms){
+    var total=Math.max(0,Math.floor(Math.abs(ms)/60000));
+    if(total<1) return "meno di 1 min";
+    if(total<60) return total+" min";
+    var h=Math.floor(total/60);
+    var m=total%60;
+    if(h<24) return h+" h"+(m?" "+m+" min":"");
+    var days=Math.floor(h/24);
+    var hh=h%24;
+    return days+" g"+(hh?" "+hh+" h":"");
+  }
+
+  function tripElapsedText(info){
+    if(!info || !info.eventTs) return info&&info.status?info.status:"";
+    var delta=Date.now()-info.eventTs;
+    if(info.cancelled) return "Cancellato";
+    if(info.arrived || (info.kind==="train" && delta>=0)){
+      return "Arrivato da "+humanDuration(delta);
+    }
+    if(delta<0) return "Previsto tra "+humanDuration(delta);
+    return info.status||"Orario di arrivo superato";
+  }
+
+  function setTripInfo(info){
+    tripInfo=info||null;
+    if(!tripInfo){
+      tripStamp.classList.remove("show");
+      shell.classList.remove("hasTrip");
+      return;
+    }
+    tripStampKind.textContent=tripInfo.kind==="train"?"TRENO":"VOLO";
+    tripStampCode.textContent=tripInfo.code||"—";
+    tripStampRoute.textContent=tripInfo.route||"—";
+    tripStampMeta.textContent=tripInfo.meta||tripInfo.status||"";
+    tripStampElapsed.textContent=tripElapsedText(tripInfo);
+    tripStamp.classList.add("show");
+    shell.classList.add("hasTrip");
+  }
+
+  function updateTripElapsed(){
+    if(tripInfo && tripStamp.classList.contains("show")){
+      tripStampElapsed.textContent=tripElapsedText(tripInfo);
+    }
+  }
+
+  function parseTrainEvent(item){
+    var time=String(item.estimated||item.scheduled||"").trim();
+    if(!/^\d{1,2}:\d{2}$/.test(time)) return 0;
+    var parts=time.split(":");
+    var d;
+    if(item.service_date){
+      d=new Date(String(item.service_date)+"T"+String(parts[0]).padStart(2,"0")+":"+parts[1]+":00");
+    }else{
+      d=new Date();
+      d.setHours(Number(parts[0]),Number(parts[1]),0,0);
+      var diff=d.getTime()-Date.now();
+      if(diff < -12*3600000) d.setDate(d.getDate()+1);
+      else if(diff > 12*3600000) d.setDate(d.getDate()-1);
+    }
+    return isNaN(d.getTime())?0:d.getTime();
+  }
+
+  function monitoredTrainStation(code){
+    var followed=readLocalList(TRAIN_STORAGE_KEY);
+    var exact=followed.find(function(t){
+      return String(t.train||"")===String(code) && String(t.mode||"arrivals")==="arrivals";
+    }) || followed.find(function(t){return String(t.train||"")===String(code);});
+    if(exact && exact.station_slug) return exact.station_slug;
+    return localStorage.getItem(TRAIN_STATION_KEY)||"roma_termini";
+  }
+
+  async function lookupFlight(code,seq){
+    if(!window.STEERWILL_FLIGHT_API) throw new Error("flight_api");
+    var url=window.STEERWILL_FLIGHT_API+"?ident="+encodeURIComponent(code)+"&date="+encodeURIComponent(localIsoToday());
+    var res=await fetch(url,{
+      cache:"no-store",
+      headers:{"apikey":window.STEERWILL_SUPABASE_PUBLIC_KEY||""}
+    });
+    var data=await res.json().catch(function(){return {};});
+    if(seq!==tripLookupSeq) return null;
+    if(!res.ok) throw new Error(data.error||"flight_not_found");
+    var f=data&&data.flight?data.flight:data;
+    if(!f) throw new Error("flight_not_found");
+
+    var actualTs=f.actual_in?new Date(f.actual_in).getTime():0;
+    var estimatedTs=f.estimated_in?new Date(f.estimated_in).getTime():0;
+    var scheduledTs=f.scheduled_in?new Date(f.scheduled_in).getTime():0;
+    var eventTs=actualTs||estimatedTs||scheduledTs||0;
+    var arrived=!!actualTs || /arriv|landed|complete/i.test(String(f.status||""));
+    var origin=(f.origin&&f.origin.code)||"—";
+    var destination=(f.destination&&f.destination.code)||"—";
+    var details=[];
+    if(f.airline) details.push(f.airline);
+    if(f.terminal_destination) details.push("T"+String(f.terminal_destination).replace(/^T/i,""));
+    if(f.gate_destination) details.push("Gate "+f.gate_destination);
+    if(f.status) details.push(f.status);
+
+    return {
+      kind:"flight",
+      code:f.ident||code,
+      route:origin+" → "+destination,
+      meta:details.join(" · "),
+      status:f.status||"",
+      eventTs:eventTs,
+      arrived:arrived,
+      cancelled:!!f.cancelled
+    };
+  }
+
+  async function lookupTrain(code,seq){
+    if(!window.STEERWILL_TRAINS_API) throw new Error("train_api");
+    var station=monitoredTrainStation(code);
+    var url=window.STEERWILL_TRAINS_API+"?station="+encodeURIComponent(station)+"&mode=arrivals&q="+encodeURIComponent(code);
+    var res=await fetch(url,{
+      cache:"no-store",
+      headers:{"apikey":window.STEERWILL_SUPABASE_PUBLIC_KEY||""}
+    });
+    var data=await res.json().catch(function(){return {};});
+    if(seq!==tripLookupSeq) return null;
+    if(!res.ok) throw new Error(data.error||"train_not_found");
+    var items=Array.isArray(data.items)?data.items:[];
+    var t=items.find(function(x){return String(x.train||"")===String(code);});
+    if(!t) throw new Error("train_not_found");
+
+    var details=[];
+    if(t.operator) details.push(t.operator);
+    if(t.platform && t.platform!=="—") details.push("Bin. "+t.platform);
+    if(t.status) details.push(t.status);
+
+    return {
+      kind:"train",
+      code:String(t.train||code),
+      route:String(t.origin||"—")+" → "+String(data.station||t.station||"—"),
+      meta:details.join(" · "),
+      status:t.status||"",
+      eventTs:parseTrainEvent(t),
+      arrived:false,
+      cancelled:/cancell/i.test(String(t.status||""))
+    };
+  }
+
+  async function lookupTrip(){
+    var code=normalizeTripCode(tripCodeInput.value);
+    tripCodeInput.value=code;
+    tripLookupStatus.className="tripLookupStatus";
+
+    if(!code){
+      tripLookupSeq++;
+      setTripInfo(null);
+      tripLookupStatus.textContent="Se non inserisci un codice, sulla foto non comparirà nessun viaggio.";
+      return;
+    }
+
+    var seq=++tripLookupSeq;
+    tripCodeBtn.disabled=true;
+    tripCodeBtn.textContent="Cerco…";
+    tripLookupStatus.textContent=isTrainCode(code)?"Cerco il treno negli arrivi…":"Cerco il volo di oggi…";
+
+    try{
+      var info=isTrainCode(code)?await lookupTrain(code,seq):await lookupFlight(code,seq);
+      if(seq!==tripLookupSeq || !info) return;
+      setTripInfo(info);
+      tripLookupStatus.textContent=(info.kind==="train"?"Treno ":"Volo ")+info.code+" collegato alla foto.";
+      tripLookupStatus.classList.add("ok");
+    }catch(e){
+      if(seq!==tripLookupSeq) return;
+      setTripInfo(null);
+      if(isTrainCode(code)){
+        tripLookupStatus.textContent="Treno "+code+" non trovato negli arrivi della stazione selezionata nel Monitor treni.";
+      }else{
+        tripLookupStatus.textContent="Volo "+code+" non trovato per oggi.";
+      }
+      tripLookupStatus.classList.add("bad");
+    }finally{
+      if(seq===tripLookupSeq){
+        tripCodeBtn.disabled=false;
+        tripCodeBtn.textContent="Abbina";
+      }
+    }
+  }
 
   function openPhotoDb(){
     return new Promise(function(resolve,reject){
@@ -463,7 +833,14 @@ h1{
         lat:latestPosition ? latestPosition.lat : null,
         lon:latestPosition ? latestPosition.lon : null,
         city:place.city || "",
-        country:place.country || ""
+        country:place.country || "",
+        trip:tripInfo ? {
+          kind:tripInfo.kind,
+          code:tripInfo.code,
+          route:tripInfo.route,
+          status:tripInfo.status,
+          eventTs:tripInfo.eventTs
+        } : null
       });
 
       await new Promise(function(resolve,reject){
@@ -519,7 +896,10 @@ h1{
     stampTime.textContent = n.time;
   }
 
-  setInterval(updateClock, 1000);
+  setInterval(function(){
+    updateClock();
+    updateTripElapsed();
+  }, 1000);
   updateClock();
 
   async function startCamera(){
@@ -773,6 +1153,63 @@ h1{
     ctx.restore();
   }
 
+  function drawTripStamp(ctx,w,h){
+    if(!tripInfo) return;
+
+    var x=Math.round(w*.035);
+    var y=Math.round(h*.04);
+    var boxW=Math.round(w*.43);
+    var base=Math.max(24,w*.021);
+    var padX=Math.round(base*.62);
+    var padY=Math.round(base*.52);
+    var line1=base*1.18;
+    var line2=base*1.04;
+    var line3=base*.88;
+    var line4=base*1.02;
+    var boxH=Math.round(padY*2+line1+line2+line3+line4+base*.60);
+
+    ctx.save();
+    roundedRect(ctx,x,y,boxW,boxH,Math.max(14,base*.55));
+    ctx.fillStyle="rgba(0,0,0,.52)";
+    ctx.fill();
+    ctx.strokeStyle="rgba(255,255,255,.35)";
+    ctx.lineWidth=Math.max(2,w*.0013);
+    ctx.stroke();
+
+    ctx.textAlign="left";
+    ctx.textBaseline="top";
+    ctx.fillStyle="#fff";
+    ctx.shadowColor="rgba(0,0,0,.95)";
+    ctx.shadowBlur=Math.max(6,w*.005);
+    var tx=x+padX;
+    var ty=y+padY;
+    var maxText=boxW-padX*2;
+
+    ctx.font="900 "+(base*.68)+"px -apple-system,BlinkMacSystemFont,Arial,sans-serif";
+    ctx.fillStyle="rgba(255,255,255,.72)";
+    ctx.fillText(tripInfo.kind==="train"?"TRENO":"VOLO",tx,ty,maxText);
+
+    ty+=base*.72;
+    ctx.fillStyle="#fff";
+    ctx.font="950 "+(base*1.13)+"px -apple-system,BlinkMacSystemFont,Arial,sans-serif";
+    ctx.fillText(tripInfo.code||"—",tx,ty,maxText);
+
+    ty+=line1;
+    ctx.font="850 "+(base*.78)+"px -apple-system,BlinkMacSystemFont,Arial,sans-serif";
+    ctx.fillText(tripInfo.route||"—",tx,ty,maxText);
+
+    ty+=line2;
+    ctx.fillStyle="rgba(255,255,255,.88)";
+    ctx.font="700 "+(base*.62)+"px -apple-system,BlinkMacSystemFont,Arial,sans-serif";
+    ctx.fillText(tripInfo.meta||tripInfo.status||"",tx,ty,maxText);
+
+    ty+=line3;
+    ctx.fillStyle="#fff";
+    ctx.font="950 "+(base*.78)+"px -apple-system,BlinkMacSystemFont,Arial,sans-serif";
+    ctx.fillText(tripElapsedText(tripInfo),tx,ty,maxText);
+    ctx.restore();
+  }
+
   function drawStamp(ctx,w,h){
     var n = nowParts();
     var cityCountry = [place.city,place.country].filter(Boolean).join(", ");
@@ -844,6 +1281,7 @@ h1{
       );
     }
 
+    drawTripStamp(ctx,outW,outH);
     drawStamp(ctx,outW,outH);
 
     canvas.toBlob(async function(blob){
@@ -861,6 +1299,7 @@ h1{
       review.src = photoUrl;
       review.style.display = "block";
       document.getElementById("stamp").style.display = "none";
+      tripStamp.style.display = "none";
       miniMap.style.display = "none";
       liveControls.style.display = "none";
       reviewControls.classList.add("show");
@@ -872,6 +1311,7 @@ h1{
   function retake(){
     review.style.display = "none";
     document.getElementById("stamp").style.display = "";
+    tripStamp.style.display = "";
     miniMap.style.display = "";
     liveControls.style.display = "grid";
     reviewControls.classList.remove("show");
@@ -922,6 +1362,22 @@ h1{
     startLocation();
   };
 
+  tripCodeBtn.onclick = lookupTrip;
+  tripCodeInput.addEventListener("keydown",function(e){
+    if(e.key==="Enter"){
+      e.preventDefault();
+      lookupTrip();
+    }
+  });
+  tripCodeInput.addEventListener("input",function(){
+    if(!tripCodeInput.value.trim()){
+      tripLookupSeq++;
+      setTripInfo(null);
+      tripLookupStatus.className="tripLookupStatus";
+      tripLookupStatus.textContent="Se non inserisci un codice, sulla foto non comparirà nessun viaggio.";
+    }
+  });
+
   captureBtn.onclick = capture;
   retakeBtn.onclick = retake;
   shareBtn.onclick = sharePhoto;
@@ -931,6 +1387,10 @@ h1{
       startCamera();
     }
   });
+
+  setInterval(function(){
+    if(tripCodeInput.value.trim() && !document.hidden) lookupTrip();
+  },60000);
 
   startCamera();
   startLocation();
