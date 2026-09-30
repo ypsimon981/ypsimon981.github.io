@@ -60,15 +60,15 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
 }
 </style>
 <link rel="stylesheet" href="assets/steerwill-theme.css?v=1">
-</head>
+<link rel="stylesheet" href="assets/revision.css?v=20260930"></head>
 <body>
 <main class="page">
   <div class="topbar">
     <div class="brand">STEERWILL · MONITOR</div>
     <div class="topActions">
-      <a class="pillLink" href="voli.html">+ Volo</a>
+      <a class="pillLink" href="voli.html?v=revision20260930">+ Volo</a>
       <a class="pillLink" href="treni.html">+ Treno</a>
-      <a class="pillLink" href="navi.html">+ Nave</a>
+      <a class="pillLink" href="navi.html?v=revision20260930">+ Nave</a>
       <a class="pillLink" href="index.html">← Home</a>
     </div>
   </div>
@@ -85,6 +85,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
   <div id="list" class="list"></div>
 </main>
 
+<script src="assets/flight-status.js?v=20260930"></script>
 <script src="flight-config.js?v=steerwill2"></script>
 <script>
 (function(){
@@ -112,9 +113,9 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
 
   function flightIsExpired(f,now){
     var status=String(f.status||"").toLowerCase();
-    var arrived=!!f.actual_in || /arriv|landed|complete|complet/.test(status);
+    var arrived=!!f.actual_on || !!f.actual_in || /arriv|landed|complete|complet/.test(status);
     if(!arrived) return false;
-    var ts=new Date(f.actual_in||f.estimated_in||f.scheduled_in||0).getTime();
+    var ts=new Date(f.actual_on||f.actual_in||0).getTime();
     return Number.isFinite(ts) && now-ts>AUTO_REMOVE_AFTER;
   }
 
@@ -195,7 +196,9 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     var delay=delayMinutes(f);
     var delayText=delay===null?"—":(delay>0?"+"+delay+" min":delay<0?delay+" min":"In orario");
     var origin=f.origin||{}, destination=f.destination||{};
-    return '<article class="card">'+
+    var landingInfo=SWFlight.info(f);
+    return '<article class="card '+(landingInfo.state?'sw-'+landingInfo.state:'')+'">'+
+      '<div class="elapsed" data-landing="'+escapeHtml(JSON.stringify(f))+'">'+escapeHtml(landingInfo.text)+'</div>'+
       '<div class="cardHead">'+
         '<div><div class="ident">'+escapeHtml(f.ident||"—")+'</div><div class="secondaryText">'+escapeHtml(f.airline||"")+'</div></div>'+
         '<div class="badge">VOLO · '+escapeHtml(f.status||"—")+'</div>'+
@@ -207,7 +210,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
         '<div class="cell"><div class="cellLabel">Ritardo</div><div class="cellValue '+(delay>0?"delay":"")+'">'+delayText+'</div></div>'+
         '<div class="cell"><div class="cellLabel">Terminal</div><div class="cellValue">'+escapeHtml(f.terminal_destination||"—")+'</div></div>'+
       '</div>'+
-      '<div class="cardActions"><div class="meta">Gate '+escapeHtml(f.gate_destination||"—")+'</div><button class="remove" type="button" data-remove-flight="'+escapeHtml(f.ident)+'" data-flight-date="'+escapeHtml(f.target_date||"")+'">Rimuovi</button></div>'+
+      '<div class="cardActions"><a class="timestampLink" href="'+escapeHtml(SWFlight.link(f))+'">Timestamp</a><div class="meta">Gate '+escapeHtml(f.gate_destination||"—")+'</div><button class="remove" type="button" data-remove-flight="'+escapeHtml(f.ident)+'" data-flight-date="'+escapeHtml(f.target_date||"")+'">Rimuovi</button></div>'+
     '</article>';
   }
 
@@ -261,7 +264,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     var items=flights.concat(trains,ships);
 
     if(!items.length){
-      list.innerHTML='<div class="empty"><strong>Nessun viaggio seguito</strong>Aggiungi un volo, un treno o una nave e comparirà qui.<div class="emptyActions"><a href="voli.html">+ Volo</a><a href="treni.html">+ Treno</a><a href="navi.html">+ Nave</a></div></div>';
+      list.innerHTML='<div class="empty"><strong>Nessun viaggio seguito</strong>Aggiungi un volo, un treno o una nave e comparirà qui.<div class="emptyActions"><a href="voli.html?v=revision20260930">+ Volo</a><a href="treni.html">+ Treno</a><a href="navi.html?v=revision20260930">+ Nave</a></div></div>';
       return;
     }
 
@@ -320,7 +323,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
       },
       scheduled_in:f.scheduled_in||old.scheduled_in||null,
       estimated_in:f.estimated_in||old.estimated_in||null,
-      actual_in:f.actual_in||null,
+      actual_in:f.actual_in||null, actual_on:f.actual_on||null, estimated_on:f.estimated_on||null, scheduled_on:f.scheduled_on||null, cancelled:!!f.cancelled, customerName:old.customerName||"",
       terminal_destination:f.terminal_destination||old.terminal_destination||"—",
       gate_destination:f.gate_destination||old.gate_destination||"—",
       status:f.status||old.status||"—",

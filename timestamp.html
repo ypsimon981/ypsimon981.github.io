@@ -465,7 +465,7 @@ h1{
 }
 </style>
 <link rel="stylesheet" href="assets/steerwill-theme.css?v=1">
-</head>
+<link rel="stylesheet" href="assets/revision.css?v=20260930"></head>
 <body>
 <main class="page">
   <div class="topbar">
@@ -487,7 +487,7 @@ h1{
       <input id="tripCodeInput" type="text" placeholder="Es. AZ61" autocapitalize="characters" autocomplete="off" spellcheck="false">
       <button id="tripCodeBtn" type="button">Abbina</button>
     </div>
-    <div id="tripLookupStatus" class="tripLookupStatus">Se non inserisci un codice, sulla foto non comparirà nessun volo.</div>
+    <label for="timestampClient">Nome cliente · facoltativo</label><input id="timestampClient" type="text" placeholder="Nome cliente" autocomplete="off"><div id="tripLookupStatus" class="tripLookupStatus">Se non inserisci un codice, sulla foto non comparirà nessun volo.</div>
   </section>
 
   <section id="cameraShell" class="cameraShell">
@@ -501,7 +501,7 @@ h1{
       </div>
       <div id="tripStampRoute" class="tripStampRoute">—</div>
       <div id="tripStampMeta" class="tripStampMeta">—</div>
-      <div id="tripStampElapsed" class="tripStampElapsed">—</div>
+      <div id="tripStampClient" class="tripStampMeta"></div><div id="tripStampElapsed" class="tripStampElapsed">—</div>
     </div>
 
     <div id="stamp" class="stamp">
@@ -591,6 +591,10 @@ h1{
   var DB_NAME = "SteerWillTimestamp";
   var DB_STORE = "photos";
   var tripInfo = null;
+  var handoff=new URLSearchParams(location.search);
+  var clientInput=document.getElementById("timestampClient");
+  clientInput.value=handoff.get("client")||"";
+  clientInput.oninput=function(){document.getElementById("tripStampClient").textContent=clientInput.value.trim();};
   var tripLookupSeq = 0;
 
   function normalizeTripCode(value){
@@ -626,7 +630,7 @@ h1{
     var delta=Date.now()-info.eventTs;
     if(info.cancelled) return "Cancellato";
     if(info.arrived){
-      return "Arrivato da "+humanDuration(delta);
+      return "Atterrato da "+humanDuration(delta);
     }
     if(delta<0) return "Previsto tra "+humanDuration(delta);
     return info.status||"Orario di arrivo superato";
@@ -634,6 +638,7 @@ h1{
 
   function setTripInfo(info){
     tripInfo=info||null;
+    document.getElementById("tripStampClient").textContent=clientInput.value.trim();
     if(!tripInfo){
       tripStamp.classList.remove("show");
       shell.classList.remove("hasTrip");
@@ -656,7 +661,7 @@ h1{
 
   async function lookupFlight(code,seq){
     if(!window.STEERWILL_FLIGHT_API) throw new Error("flight_api");
-    var url=window.STEERWILL_FLIGHT_API+"?ident="+encodeURIComponent(code)+"&date="+encodeURIComponent(localIsoToday());
+    var url=window.STEERWILL_FLIGHT_API+"?ident="+encodeURIComponent(code)+"&date="+encodeURIComponent(handoff.get("date")||localIsoToday());
     var res=await fetch(url,{
       cache:"no-store",
       headers:{"apikey":window.STEERWILL_SUPABASE_PUBLIC_KEY||""}
@@ -667,11 +672,12 @@ h1{
     var f=data&&data.flight?data.flight:data;
     if(!f) throw new Error("flight_not_found");
 
-    var actualTs=f.actual_in?new Date(f.actual_in).getTime():0;
+    var actualTs=f.actual_on?new Date(f.actual_on).getTime():0;
     var estimatedTs=f.estimated_in?new Date(f.estimated_in).getTime():0;
     var scheduledTs=f.scheduled_in?new Date(f.scheduled_in).getTime():0;
     var eventTs=actualTs||estimatedTs||scheduledTs||0;
-    var arrived=!!actualTs || /arriv|landed|complete/i.test(String(f.status||""));
+    var arrived=!!actualTs;
+    if(!actualTs && (f.actual_in || /arriv|landed|complete/i.test(String(f.status||"")))) eventTs=0;
     var origin=(f.origin&&f.origin.code)||"—";
     var destination=(f.destination&&f.destination.code)||"—";
     var details=[];
@@ -764,6 +770,7 @@ h1{
           code:tripInfo.code,
           route:tripInfo.route,
           status:tripInfo.status,
+          customerName:clientInput.value.trim(),
           eventTs:tripInfo.eventTs
         } : null
       });
@@ -1091,7 +1098,7 @@ h1{
     var line2=base*.98;
     var line3=base*.82;
     var line4=base*.94;
-    var boxH=Math.round(padY*2+line1+line2+line3+line4+base*.52);
+    var boxH=Math.round(padY*2+line1+line2+line3+line4+base*.52+(clientInput.value.trim()?base*.75:0));
 
     ctx.save();
     roundedRect(ctx,x,y,boxW,boxH,Math.max(14,base*.55));
@@ -1132,6 +1139,7 @@ h1{
     ctx.fillStyle="#fff";
     ctx.font="950 "+(base*.68)+"px -apple-system,BlinkMacSystemFont,Arial,sans-serif";
     ctx.fillText(tripElapsedText(tripInfo),tx,ty,maxText);
+    if(clientInput.value.trim()){ty+=line4;ctx.font="700 "+(base*.52)+"px Arial,sans-serif";ctx.fillText(clientInput.value.trim(),tx,ty,maxText);}
     ctx.restore();
   }
 
@@ -1317,6 +1325,7 @@ h1{
     if(tripCodeInput.value.trim() && !document.hidden) lookupTrip();
   },60000);
 
+  tripCodeInput.value=normalizeTripCode(handoff.get("flight")||"");if(tripCodeInput.value)lookupTrip();
   startCamera();
   startLocation();
 })();

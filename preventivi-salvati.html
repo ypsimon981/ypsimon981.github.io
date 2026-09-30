@@ -44,15 +44,17 @@ h1{margin:0;font-size:clamp(38px,8vw,64px);line-height:.95;letter-spacing:-.045e
  .right{text-align:left;display:flex;align-items:center;justify-content:space-between;gap:12px}
  .delete{margin-top:0}
 }
+
+.name,.price{font-weight:600}.meta,.date{font-size:12px}.route{font-size:14px}.card{padding:12px}.messageQuote{margin-top:8px;font:inherit;font-size:14px;background:#222;color:#fff;border:1px solid #555;border-radius:8px;padding:8px}
 </style>
 <link rel="stylesheet" href="assets/steerwill-theme.css?v=1">
-</head>
+<link rel="stylesheet" href="assets/revision.css?v=20260930"></head>
 <body>
 <main class="page">
   <div class="topbar">
     <div class="brand">STEERWILL · PREVENTIVI</div>
     <div class="actions">
-      <a class="pill" href="preventivo.html">+ Nuovo</a>
+      <a class="pill" href="preventivo.html?v=revision20260930">+ Nuovo</a>
       <a class="pill" href="index.html">← Home</a>
     </div>
   </div>
@@ -88,7 +90,7 @@ h1{margin:0;font-size:clamp(38px,8vw,64px);line-height:.95;letter-spacing:-.045e
     if(!v) return "";
     var d=new Date(v);
     if(isNaN(d)) return "";
-    return d.toLocaleDateString("it-IT",{day:"2-digit",month:"short",year:"numeric"});
+    return d.toLocaleDateString("it-IT",{day:"2-digit",month:"short",year:"numeric"})+" · "+d.toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"});
   }
   function render(){
     var items=read();
@@ -99,14 +101,16 @@ h1{margin:0;font-size:clamp(38px,8vw,64px);line-height:.95;letter-spacing:-.045e
     }
     list.innerHTML=items.map(function(q){
       var route=[q.fromShort||q.from,q.toShort||q.to].filter(Boolean).join(" → ");
+      var service=q.serviceDate?new Date(q.serviceDate+"T12:00:00").toLocaleDateString("it-IT")+(q.departureTime?" · "+q.departureTime:""):"";
       var meta=[q.modeLabel,q.distanceText,q.durationText].filter(Boolean).join(" · ");
       return '<article class="card">'+
         '<div class="info"><div class="name">'+esc(q.name||"Preventivo")+'</div>'+
-        '<div class="route">'+esc(route)+'</div><div class="meta">'+esc(meta)+'</div></div>'+
+        '<div class="compactMeta">'+esc(service)+'</div><button class="messageQuote" data-message="'+esc(q.id)+'">Prepara testo</button><div class="route">'+esc(route)+'</div><div class="meta">'+esc(meta)+'</div></div>'+
         '<div class="right"><div><div class="price">'+esc(q.priceDisplay||"—")+'</div><div class="date">'+esc(dateText(q.createdAt))+'</div></div>'+
         '<button class="delete" type="button" data-delete="'+esc(q.id)+'">Elimina</button></div>'+
       '</article>';
     }).join("");
+    Array.prototype.forEach.call(document.querySelectorAll("[data-message]"),function(btn){btn.onclick=function(){var q=read().find(function(x){return x.id===btn.dataset.message;});sessionStorage.setItem("steerwill_message_quote_v1",JSON.stringify(q));location.href="testo-cliente.html?v=revision20260930";};});
     Array.prototype.forEach.call(document.querySelectorAll("[data-delete]"),function(btn){
       btn.onclick=function(){
         var id=btn.getAttribute("data-delete");

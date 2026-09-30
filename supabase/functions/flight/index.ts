@@ -38,7 +38,7 @@ function scoreFlight(f: any, now: number): number {
   const schedIn = ts(f.scheduled_in);
   const estIn = ts(f.estimated_in);
   const actualOut = ts(f.actual_out);
-  const actualIn = ts(f.actual_in);
+  const actualIn = ts(f.actual_on || f.actual_in);
 
   if (Number.isFinite(actualIn)) {
     return 5_000_000_000 - Math.abs(now - actualIn);
@@ -74,7 +74,7 @@ function normalizeFlight(f: any, targetDate:string|null) {
   let status = f.status || "";
   if (!status) {
     if (f.cancelled) status = "Cancellato";
-    else if (f.actual_in) status = "Arrivato";
+    else if (f.actual_on || f.actual_in) status = "Atterrato";
     else if (f.actual_off) status = "In volo";
     else status = "Programmato";
   }
@@ -95,6 +95,9 @@ function normalizeFlight(f: any, targetDate:string|null) {
     scheduled_in: f.scheduled_in || null,
     estimated_in: f.estimated_in || f.estimated_on || null,
     actual_in: f.actual_in || null,
+    actual_on: f.actual_on || null,
+    estimated_on: f.estimated_on || null,
+    scheduled_on: f.scheduled_on || null,
     terminal_origin: f.terminal_origin || null,
     gate_origin: f.gate_origin || null,
     terminal_destination: f.terminal_destination || null,
@@ -117,6 +120,34 @@ function romeDate(value:any):string|null{
 
 function validDate(v:string){
   return /^20\d{2}-\d{2}-\d{2}$/.test(v);
+}
+
+
+// Durable airport cache and atomic lease shared by every edge instance.
+async function cachedAirport(db:any,id:string,key:string){
+  const cacheKey="airport:"+id,now=Date.now();
+  const read=async()=>{const {data,error}=await db.from("airport_arrivals_cache").select("payload,fetched_at,expires_at").eq("cache_key",cacheKey).maybeSingle();if(error)throw error;return data;};
+  let old=await read();
+  if(old?.payload && Date.parse(old.expires_at)>now)return {...old,stale:false};
+  const {data:claimed,error}=await db.rpc("claim_airport_refresh",{p_key:cacheKey});
+  if(error)throw error;
+  if(!claimed){
+    if(old?.payload && now-Date.parse(old.fetched_at)<10*60000)return {...old,stale:true};
+    for(let n=0;n<10;n++){await new Promise(r=>setTimeout(r,300));old=await read();if(old?.payload)return {...old,stale:Date.parse(old.expires_at)<=Date.now()};}
+    throw new Error("refresh_pending");
+  }
+  try{
+    const res=await fetch("https://aeroapi.flightaware.com/aeroapi/airports/"+id+"/flights?max_pages=1",{headers:{"x-apikey":key,Accept:"application/json"},signal:AbortSignal.timeout(15000)});
+    if(!res.ok)throw new Error("airport_upstream_"+res.status);
+    const payload=await res.json();if(!Array.isArray(payload.arrivals)||!Array.isArray(payload.scheduled_arrivals))throw new Error("airport_invalid_payload");
+    const fetched_at=new Date().toISOString(),expires_at=new Date(Date.now()+60000).toISOString();
+    const {error:writeError}=await db.from("airport_arrivals_cache").update({payload,fetched_at,expires_at,refresh_until:new Date(0).toISOString()}).eq("cache_key",cacheKey);if(writeError)throw writeError;
+    return {payload,fetched_at,expires_at,stale:false};
+  }catch(e){
+    // Keep a short retry lease after failure; never fan out provider requests.
+    await db.from("airport_arrivals_cache").update({refresh_until:new Date(Date.now()+15000).toISOString()}).eq("cache_key",cacheKey);
+    if(old?.payload && now-Date.parse(old.fetched_at)<10*60000)return {...old,stale:true};throw e;
+  }
 }
 
 Deno.serve(async (req: Request) => {
@@ -150,8 +181,10 @@ Deno.serve(async (req: Request) => {
     .replace(/\s+/g, "");
   const requestedDate=(url.searchParams.get("date")||"").trim();
   const targetDate=validDate(requestedDate)?requestedDate:null;
+  const radarAirport=(url.searchParams.get("airport")||"").toUpperCase();
+  if(radarAirport && radarAirport!=="FCO") return json({error:"airport_not_supported"},400,origin);
 
-  if (!/^[A-Z0-9]{2,10}$/.test(ident)) {
+  if (!radarAirport && !/^[A-Z0-9]{2,10}$/.test(ident)) {
     return json({ error: "invalid_ident" }, 400, origin);
   }
 
@@ -179,6 +212,22 @@ Deno.serve(async (req: Request) => {
 
   if (secretError || !secretRow?.value) {
     return json({ error: "flightaware_key_missing" }, 500, origin);
+  }
+
+
+  if(radarAirport){
+    try {
+      const raw=await cachedAirport(supabase,radarAirport,secretRow.value);
+      const seen=new Map();
+      for(const f of [...(raw.payload.arrivals||[]),...(raw.payload.scheduled_arrivals||[])]){
+        if(f.cancelled||f.diverted)continue;
+        const landing=ts(f.actual_on),expected=ts(f.estimated_on||f.estimated_in||f.scheduled_on||f.scheduled_in);
+        if(Number.isFinite(landing)?Date.now()-landing>2*3600000:!Number.isFinite(expected)||expected<Date.now()-3600000||expected>Date.now()+6*3600000)continue;
+        seen.set(f.fa_flight_id||[f.ident,f.scheduled_in].join("|"),normalizeFlight(f,romeDate(f.actual_on||f.estimated_on||f.scheduled_in)));
+      }
+      const items=Array.from(seen.values()).sort((a:any,b:any)=>{if(!!a.actual_on!==!!b.actual_on)return a.actual_on?1:-1;return a.actual_on?ts(b.actual_on)-ts(a.actual_on):ts(a.estimated_on||a.estimated_in||a.scheduled_in)-ts(b.estimated_on||b.estimated_in||b.scheduled_in);});
+      return json({provider:"FlightAware",airport:radarAirport,items,fetched_at:raw.fetched_at,stale:raw.stale,limited:!!raw.payload.links?.next},200,origin);
+    }catch(e){return json({error:"radar_unavailable"},503,origin);}
   }
 
   try {

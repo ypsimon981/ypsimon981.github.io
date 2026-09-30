@@ -1036,7 +1036,7 @@ button{font:inherit}
     <div class="brandTag">Strumenti per autisti ancora più professionali.</div>
 
     <section class="section">
-      <a class="cartelloHero" href="cartello.html">
+      <a class="cartelloHero" href="cartello.html?v=revision20260930">
         <span class="cartelloTop">
           <span class="cartelloEyebrow">Accoglienza cliente</span>
         </span>
@@ -1059,7 +1059,7 @@ button{font:inherit}
       <div class="travelSection">
         <div class="sectionTitle">Tracker</div>
         <div class="travelGrid">
-          <a class="toolTile" href="voli.html">
+          <a class="toolTile" href="voli.html?v=revision20260930">
             <span class="travelBadge" aria-hidden="true">
               <img src="assets/icon-voli.svg?v=1" alt="">
             </span>
@@ -1073,7 +1073,7 @@ button{font:inherit}
             <span class="tileTitle">Treni</span>
           </a>
 
-          <a class="toolTile" href="navi.html">
+          <a class="toolTile" href="navi.html?v=revision20260930">
             <span class="travelBadge" aria-hidden="true">
               <img src="assets/icon-navi.svg?v=1" alt="">
             </span>
@@ -1085,7 +1085,7 @@ button{font:inherit}
 
     <section class="section">
       <div class="topToolsGrid">
-        <a class="timestampCard" href="timestamp.html">
+        <a class="timestampCard" href="timestamp.html?v=revision20260930">
           <span class="timestampTop">
             <span class="timestampEyebrow">Foto geolocalizzata</span>
           </span>
@@ -1102,7 +1102,7 @@ button{font:inherit}
           </span>
         </a>
 
-        <a class="utilityTile translatorTile" href="traduttore.html">
+        <a class="utilityTile translatorTile" href="traduttore.html?v=revision20260930">
           <span class="iconWrap" aria-hidden="true">
             <svg class="icon" viewBox="0 0 64 64">
               <path d="M8 12h28v24H20l-9 8v-8H8z"/>
@@ -1117,7 +1117,7 @@ button{font:inherit}
     </section>
 
     <section class="section">
-      <a class="utilityTile alertTile" href="monitor.html">
+      <a class="utilityTile alertTile" href="monitor.html?v=revision20260930">
         <span class="monitorHead">
           <span class="iconWrap" aria-hidden="true">
             <svg class="icon" viewBox="0 0 64 64">
@@ -1134,7 +1134,7 @@ button{font:inherit}
 
     <section class="section">
       <div class="utilitiesGrid">
-        <a class="utilityTile quoteTile" href="preventivo.html">
+        <a class="utilityTile quoteTile" href="preventivo.html?v=revision20260930">
           <span class="quoteCopy">
             <span class="quoteTitle">Preventivo rapido</span>
             <span class="tileMeta">Tratta, tariffa, costi e marginalità</span>
@@ -1153,7 +1153,7 @@ button{font:inherit}
       <div class="savedQuotesHome">
         <div class="savedQuotesHead">
           <div class="savedQuotesTitle">Preventivi salvati</div>
-          <a class="savedQuotesLink" href="preventivi-salvati.html">Vedi tutti →</a>
+          <a class="savedQuotesLink" href="preventivi-salvati.html?v=revision20260930">Vedi tutti →</a>
         </div>
         <div id="savedQuotesHomeList" class="savedQuotesList"></div>
       </div>
@@ -1164,7 +1164,7 @@ button{font:inherit}
       <div class="vehicleHome">
         <div class="vehicleHomeHead">
           <div class="vehicleHomeTitle">Situazione mezzi</div>
-          <a class="vehicleHomeLink" href="veicolo.html">Gestisci →</a>
+          <a class="vehicleHomeLink" href="veicolo.html?v=revision20260930">Gestisci →</a>
         </div>
         <div id="vehicleHomeList" class="vehicleHomeList"></div>
         <div id="vehiclePartnerAlerts" class="homePartnerAlerts"></div>
@@ -1627,7 +1627,7 @@ button{font:inherit}
       host.innerHTML=items.map(function(q){
         var price=q.priceDisplay||"—";
         var route=[q.fromShort||q.from,q.toShort||q.to].filter(Boolean).join(" → ");
-        return '<a class="savedQuoteMini" href="preventivi-salvati.html">'+
+        return '<a class="savedQuoteMini" href="preventivi-salvati.html?v=revision20260930">'+
           '<span class="savedQuoteText"><span class="savedQuoteName">'+esc(q.name||"Preventivo")+'</span>'+
           '<span class="savedQuoteRoute">'+esc(route)+'</span></span>'+
           '<span class="savedQuotePrice">'+esc(price)+'</span>'+
@@ -1734,7 +1734,7 @@ button{font:inherit}
     if(!vehicleHost) return;
     var vehicles=readVehicles();
     if(!vehicles.length){
-      vehicleHost.innerHTML='<a class="vehicleMini" href="veicolo.html"><div class="vehicleHomeEmpty">Nessun veicolo inserito · aggiungi il primo mezzo →</div></a>';
+      vehicleHost.innerHTML='<a class="vehicleMini" href="veicolo.html?v=revision20260930"><div class="vehicleHomeEmpty">Nessun veicolo inserito · aggiungi il primo mezzo →</div></a>';
       renderPartnerAlerts([]);
       return;
     }
@@ -1743,7 +1743,7 @@ button{font:inherit}
       var maint=[];
       if(v.serviceKm) maint.push("Prossimo tagliando "+Number(v.serviceKm).toLocaleString("it-IT")+" km");
       if(v.tyresKm) maint.push("Prossimo cambio gomme "+Number(v.tyresKm).toLocaleString("it-IT")+" km");
-      return '<a class="vehicleMini" href="veicolo.html">'+
+      return '<a class="vehicleMini" href="veicolo.html?v=revision20260930">'+
         '<div class="vehicleMiniTop"><div><div class="vehicleMiniPlate">'+esc(v.plate||"SENZA TARGA")+'</div>'+
         '<div class="vehicleMiniModel">'+esc(v.model||"Modello non inserito")+'</div></div>'+
         '<div class="vehicleMiniKm">'+(km?km.toLocaleString("it-IT"):"—")+'<span>km</span></div></div>'+

@@ -69,13 +69,13 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
 }
 </style>
 <link rel="stylesheet" href="assets/steerwill-theme.css?v=1">
-</head>
+<link rel="stylesheet" href="assets/revision.css?v=20260930"></head>
 <body>
 <main class="page">
   <div class="topbar">
     <div class="brand">STEERWILL · NAVI</div>
     <div class="topActions">
-      <a class="pillLink" href="monitor.html">Monitor</a>
+      <a class="pillLink" href="monitor.html?v=revision20260930">Monitor</a>
       <a class="pillLink" href="index.html">← Home</a>
     </div>
   </div>
@@ -86,9 +86,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
       <div class="provider">Porto<strong id="portName">Civitavecchia</strong></div>
     </div>
 
-    <select id="portSelect" aria-label="Porto" style="display:none">
-      <option value="civitavecchia">Civitavecchia (Roma)</option>
-    </select>
+    <label class="compactMeta" for="portSelect">Porto</label><select id="portSelect" aria-label="Porto" style="width:100%;font:inherit;padding:10px;background:#111;color:#fff;border:1px solid #444;border-radius:10px;margin-top:8px"><option value="civitavecchia">Civitavecchia</option><option value="ancona">Ancona</option><option value="bari">Bari</option><option value="brindisi">Brindisi</option><option value="cagliari">Cagliari</option><option value="catania">Catania</option><option value="genova">Genova</option><option value="laspezia">La Spezia</option><option value="livorno">Livorno</option><option value="messina">Messina</option><option value="napoli">Napoli</option><option value="olbia">Olbia</option><option value="palermo">Palermo</option><option value="portoferraio">Portoferraio</option><option value="ravenna">Ravenna</option><option value="salerno">Salerno</option><option value="savona">Savona</option><option value="siracusa">Siracusa</option><option value="taranto">Taranto</option><option value="trapani">Trapani</option><option value="trieste">Trieste</option><option value="venezia">Venezia</option></select>
 
     <div class="search">
       <input id="shipInput" type="text" placeholder="Es. MSC Seaview" autocomplete="off" spellcheck="false">
@@ -254,6 +252,8 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
         ? "Fonte ufficiale: " + (data.provider || data.port || currentPortLabel()) + ". Gli orari possono subire variazioni operative."
         : "Calendario pubblico: " + (data.provider || "fonte esterna") + ". Verifica sempre eventuali variazioni operative del porto.";
       var items = Array.isArray(data.items)?data.items:[];
+      if(data.stale)sourceNotice.textContent+=" Ultimo calendario disponibile: "+new Date(data.fetched_at).toLocaleString("it-IT")+".";
+      if(data.fallback_reason)sourceNotice.textContent+=" "+data.fallback_reason+".";
       if(params && params.date && !items.length){
         weekBtn.classList.add("active");
         todayBtn.classList.remove("active");

@@ -5,29 +5,29 @@ const ALLOWED_ORIGINS = new Set([
   "http://127.0.0.1:3000"
 ]);
 
-const PORTS: Record<string, { label: string; kind: string; source?: string; base?: string }> = {
-  civitavecchia:{label:"Civitavecchia",kind:"civitavecchia"},
-  ancona:{label:"Ancona",kind:"ct",base:"anconaitaly"},
-  bari:{label:"Bari",kind:"ct",base:"bariitaly"},
-  brindisi:{label:"Brindisi",kind:"ct",base:"brindisiitaly"},
-  cagliari:{label:"Cagliari",kind:"gph",source:"https://cagliaricruiseport.com/schedule/"},
-  catania:{label:"Catania",kind:"gph",source:"https://cataniacruiseport.com/schedule/"},
-  genova:{label:"Genova",kind:"ct",base:"genoaitaly"},
-  laspezia:{label:"La Spezia",kind:"ct",base:"laspeziaitaly"},
-  livorno:{label:"Livorno",kind:"ct",base:"livornoflorencepisaitaly"},
-  messina:{label:"Messina",kind:"ct",base:"messinasicily"},
-  napoli:{label:"Napoli",kind:"ct",base:"naplesitaly"},
-  olbia:{label:"Olbia",kind:"olbia"},
-  palermo:{label:"Palermo",kind:"ct",base:"palermosicily"},
-  portoferraio:{label:"Portoferraio",kind:"ct",base:"portoferraioitaly"},
-  ravenna:{label:"Ravenna",kind:"ct",base:"ravennaitaly"},
-  salerno:{label:"Salerno",kind:"ct",base:"salernoitaly"},
-  savona:{label:"Savona",kind:"ct",base:"savonaitaly"},
-  siracusa:{label:"Siracusa",kind:"ct",base:"siracusasicily"},
-  taranto:{label:"Taranto",kind:"gph",source:"https://tarantocruiseport.com/schedule/"},
-  trapani:{label:"Trapani",kind:"ct",base:"trapaniitaly"},
-  trieste:{label:"Trieste",kind:"ct",base:"triesteitaly"},
-  venezia:{label:"Venezia",kind:"ct",base:"veniceitaly"}
+const PORTS: Record<string, { label: string; kind: string; source?: string; base?: string; aliases?: string[]; provider_id?: string }> = {
+  civitavecchia:{label:"Civitavecchia",kind:"civitavecchia",aliases:["Civitavecchia Roma", "Rome", "Civitavecchia (Rome)"],provider_id:"civitavecchia"},
+  ancona:{label:"Ancona",kind:"ct",base:"anconaitaly",aliases:[],provider_id:"anconaitaly"},
+  bari:{label:"Bari",kind:"ct",base:"bariitaly",aliases:[],provider_id:"bariitaly"},
+  brindisi:{label:"Brindisi",kind:"ct",base:"brindisiitaly",aliases:[],provider_id:"brindisiitaly"},
+  cagliari:{label:"Cagliari",kind:"gph",source:"https://cagliaricruiseport.com/schedule/",aliases:[],provider_id:"52"},
+  catania:{label:"Catania",kind:"gph",source:"https://cataniacruiseport.com/schedule/",aliases:[],provider_id:"50"},
+  genova:{label:"Genova",kind:"ct",base:"genoaitaly",aliases:["Genoa"],provider_id:"genoaitaly"},
+  laspezia:{label:"La Spezia",kind:"ct",base:"laspeziaitaly",aliases:["La Spezia", "La-Spezia"],provider_id:"laspeziaitaly"},
+  livorno:{label:"Livorno",kind:"ct",base:"livornoflorencepisaitaly",aliases:["Livorno Florence Pisa", "Leghorn"],provider_id:"livornoflorencepisaitaly"},
+  messina:{label:"Messina",kind:"ct",base:"messinasicily",aliases:["Messina Sicily"],provider_id:"messinasicily"},
+  napoli:{label:"Napoli",kind:"ct",base:"naplesitaly",aliases:["Naples"],provider_id:"naplesitaly"},
+  olbia:{label:"Olbia",kind:"olbia",base:"olbiasardinia",aliases:["Olbia Sardinia"],provider_id:"olbiasardinia"},
+  palermo:{label:"Palermo",kind:"ct",base:"palermosicily",aliases:[],provider_id:"palermosicily"},
+  portoferraio:{label:"Portoferraio",kind:"ct",base:"portoferraioitaly",aliases:[],provider_id:"portoferraioitaly"},
+  ravenna:{label:"Ravenna",kind:"ct",base:"ravennaitaly",aliases:[],provider_id:"ravennaitaly"},
+  salerno:{label:"Salerno",kind:"ct",base:"salernoitaly",aliases:[],provider_id:"salernoitaly"},
+  savona:{label:"Savona",kind:"ct",base:"savonaitaly",aliases:[],provider_id:"savonaitaly"},
+  siracusa:{label:"Siracusa",kind:"ct",base:"siracusasicily",aliases:["Syracuse"],provider_id:"siracusasicily"},
+  taranto:{label:"Taranto",kind:"gph",source:"https://tarantocruiseport.com/schedule/",aliases:[],provider_id:"51"},
+  trapani:{label:"Trapani",kind:"ct",base:"trapaniitaly",aliases:[],provider_id:"trapaniitaly"},
+  trieste:{label:"Trieste",kind:"ct",base:"triesteitaly",aliases:[],provider_id:"triesteitaly"},
+  venezia:{label:"Venezia",kind:"ct",base:"veniceitaly",aliases:["Venice", "Marghera"],provider_id:"veniceitaly"}
 };
 
 const MONTH_NAMES = ["january","february","march","april","may","june","july","august","september","october","november","december"];
@@ -141,6 +141,7 @@ async function fetchText(url: string) {
       "Accept-Language":"en-GB,en;q=0.9,it;q=0.8",
       "Cache-Control":"no-cache"
     },
+    signal:AbortSignal.timeout(18000),
     redirect:"follow"
   });
   if(!res.ok) throw new Error("upstream_"+res.status);
@@ -169,31 +170,16 @@ function parseCivTimes(raw:string){
 }
 
 function parseCivWeekly(html:string){
-  const lines=htmlToLines(html);
-  const planning=lines.find(x=>/Mooring Planning/i.test(x))||"";
-  const ym=planning.match(/\b(20\d{2})\b/);
+  const ym=stripTags(html).match(/Mooring Planning[\s\S]{0,100}?(20\d{2})/i);
   const year=ym?Number(ym[1]):new Date().getUTCFullYear();
-  let currentDate:string|null=null,active=false;
-  const items:any[]=[];
-  for(const line of lines){
-    if(/Mooring Planning/i.test(line)){active=true;continue;}
-    if(!active) continue;
-    if(/Dates and departure times may change/i.test(line)) break;
-    const date=parseCivDateHeader(line,year);
-    if(date){currentDate=date;continue;}
-    if(!currentDate||/^SHIP\s*\|\s*DOCK\s*\|/i.test(line)) continue;
-    const parts=line.split("|").map(x=>x.trim()).filter(Boolean);
-    if(parts.length<3) continue;
-    const name=parts[0],dock=parts[1],rawTimes=parts.slice(2).join(" | ");
-    if(!name||!/\d{1,2}[:.]\d{2}|STOP/i.test(rawTimes)) continue;
-    const times=parseCivTimes(rawTimes);
-    items.push({
-      id:["civitavecchia",currentDate,name,dock,rawTimes].join("_").replace(/\s+/g,"-"),
-      type:"ship",port:"Civitavecchia",port_slug:"civitavecchia",date:currentDate,name,dock,
-      arrival:times.arrival,departure:times.departure,source:"Port Mobility Civitavecchia",source_url:CIV_WEEKLY
-    });
-  }
-  return items;
+  let currentDate:string|null=null;const items:any[]=[];
+  for(const cells of extractRows(html)){
+    const header=parseCivDateHeader(cells[0]||"",year);if(header){currentDate=header;continue;}
+    if(!currentDate||cells.length<3||/^SHIP$/i.test(cells[0]))continue;
+    const [name,dock,...rest]=cells,raw=rest.join(" ");if(!/\d{1,2}[:.]\d{2}|STOP/i.test(raw))continue;
+    const times=parseCivTimes(raw);
+    items.push({id:["civitavecchia",currentDate,name,dock,raw].join("_").replace(/\s+/g,"-"),type:"ship",port:"Civitavecchia",port_slug:"civitavecchia",date:currentDate,name,dock,arrival:times.arrival,departure:times.departure,source:"Port Mobility Civitavecchia",source_url:CIV_WEEKLY});
+  }return unique(items);
 }
 
 function parseCivMonthly(html:string,year:number,sourceUrl:string){
@@ -218,13 +204,14 @@ function parseCivMonthly(html:string,year:number,sourceUrl:string){
 
 async function loadCivitavecchia(today:string){
   const p=dateParts(today);
-  let weekly:any[]=[];
-  try{weekly=parseCivWeekly(await fetchText(CIV_WEEKLY));}catch(_){}
+  let weekly:any[]=[],success=0;
+  try{weekly=parseCivWeekly(await fetchText(CIV_WEEKLY));success++;}catch(_){}
   const chunks=await Promise.all([0,1,2].map(async delta=>{
     const md=addMonths(p.y,p.m,delta);
     const url="https://civitavecchia.portmobility.it/en/cruises-port-civitavecchia-"+MONTH_NAMES[md.month];
-    try{return parseCivMonthly(await fetchText(url),md.year,url);}catch(_){return [];}
+    try{const html=await fetchText(url);success++;return parseCivMonthly(html,md.year,url);}catch(_){return [];}
   }));
+  if(!success)throw new Error("civitavecchia_source_unavailable");
   return {provider:"Port Mobility Civitavecchia",official:true,source_url:CIV_WEEKLY,items:unique(weekly.concat(chunks.flat()))};
 }
 
@@ -246,40 +233,29 @@ function nextMeaningful(lines:string[],start:number){
 }
 
 function parseGph(html:string,portSlug:string,portLabel:string,sourceUrl:string){
-  const lines=htmlToLines(html),items:any[]=[];
-  let pending:any={};
-  function flush(){
-    if(!pending.name||!(pending.arrivalDate||pending.departureDate)){pending={};return;}
-    const date=pending.arrivalDate||pending.departureDate;
-    items.push({
-      id:[portSlug,date,pending.name,pending.arrival,pending.departure].join("_").replace(/\s+/g,"-"),
-      type:"ship",port:portLabel,port_slug:portSlug,date,name:pending.name,dock:"—",
-      arrival:pending.arrival||null,departure:pending.departure||null,
-      source:portLabel+" Cruise Port",source_url:sourceUrl
-    });
-    pending={};
-  }
-  for(let i=0;i<lines.length;i++){
-    const line=lines[i];
-    if(/^Arrival$/i.test(line)){
-      if(pending.name) flush();
-      const dt=parseGphDateTime(nextMeaningful(lines,i+1));
-      if(dt){pending.arrivalDate=dt.date;pending.arrival=dt.time;}
-    }else if(/^Departure$/i.test(line)){
-      const dt=parseGphDateTime(nextMeaningful(lines,i+1));
-      if(dt){pending.departureDate=dt.date;pending.departure=dt.time;}
-    }else if(/^Ship$/i.test(line)){
-      const name=nextMeaningful(lines,i+1);
-      if(name&&!/^Cruise Line$/i.test(name)) pending.name=name;
-    }
-  }
-  flush();
-  return unique(items);
+  // The official schedule is delivered as rows with nested mobile headings.
+  const rows=html.split(/<div[^>]*class=["']schedule-item-row(?:[^"']*)["'][^>]*>/i).slice(1),items:any[]=[];
+  for(const row of rows){
+    const field=(name:string)=>{const m=row.match(new RegExp('<div[^>]*class=["\']'+name+'["\'][^>]*>([\\s\\S]*?)(?=<div[^>]*class=["\'](?:eta|etd|shipname|cruiseline|berth)["\']|$)','i'));return m?stripTags(m[1]).replace(/^(Arrival|Departure|Ship|Cruise Line|Berth)\s*/i,""):"";};
+    const arrival=parseGphDateTime(field("eta")),departure=parseGphDateTime(field("etd")),name=field("shipname").replace(/LOAD MORE[\s\S]*/i,"").trim();
+    if(!name||!arrival||/\d{1,2} [A-Za-z]{3} 20\d{2}/.test(name))continue;
+    items.push({id:[portSlug,arrival.date,name,arrival.time,departure?.time].join("_").replace(/\s+/g,"-"),type:"ship",port:portLabel,port_slug:portSlug,date:arrival.date,departure_date:departure?.date||arrival.date,name,dock:field("berth")||"—",arrival:arrival.time,departure:departure?.time||null,source:portLabel+" Cruise Port",source_url:sourceUrl});
+  }return unique(items);
 }
 
 async function loadGph(portSlug:string,portLabel:string,sourceUrl:string){
-  const html=await fetchText(sourceUrl);
-  return {provider:portLabel+" Cruise Port",official:true,source_url:sourceUrl,items:parseGph(html,portSlug,portLabel,sourceUrl)};
+  const config=PORTS[portSlug],today=romeToday(),host=new URL(sourceUrl).origin;
+  let items:any[]=[],success=false;
+  // Follow the same pagination and site IDs as the official portal.
+  for(let start=0;start<200;start+=10){
+    const url=host+"/wp-content/themes/mbcglobalports/includes/api/schedule.php?"+new URLSearchParams({startIndex:String(start),site_id:config.provider_id!,lang:"en",param2:today,param4:addDays(today,90)});
+    const html=await fetchText(url);success=true;const page=parseGph(html,portSlug,portLabel,sourceUrl);items.push(...page);
+    if(!page.length && !/no scheduled calls|no connections/i.test(html))throw new Error("gph_parse_error");
+    const total=Number(html.match(/data-total=["'](\d+)["']/)?.[1]||0);
+    if(page.length<10||!total||start+10>=total)break;
+  }
+  if(!success)throw new Error("gph_source_unavailable");
+  return {provider:portLabel+" Cruise Port",official:true,source_url:sourceUrl,items:unique(items)};
 }
 
 /* Olbia official daily movements */
@@ -312,10 +288,14 @@ function parseOlbiaDay(html:string,date:string){
 }
 
 async function loadOlbia(today:string){
-  const chunks=await Promise.all(Array.from({length:15},(_,i)=>addDays(today,i)).map(async date=>{
-    try{return parseOlbiaDay(await fetchText("https://www.portodiolbia.it/it/transiti/"+date),date);}catch(_){return [];}
+  let success=0;
+  const chunks=await Promise.all(Array.from({length:7},(_,i)=>addDays(today,i)).map(async date=>{
+    try{const html=await fetchText("https://www.portodiolbia.it/it/transiti/"+date);success++;return parseOlbiaDay(html,date);}catch(_){return [];}
   }));
-  return {provider:"Porto di Olbia",official:true,source_url:"https://www.portodiolbia.it/it/node",items:unique(chunks.flat())};
+  const official=unique(chunks.flat());
+  if(official.length)return {provider:"Porto di Olbia",official:true,source_url:"https://www.portodiolbia.it/it/transiti/"+today,items:official};
+  const fallback=await loadCt("olbia","Olbia","olbiasardinia",today);
+  return {...fallback,fallback_reason:success?"Calendario ufficiale senza crociere pubblicate":"Fonte ufficiale temporaneamente non disponibile"};
 }
 
 /* CruiseTimetables fallback */
@@ -359,17 +339,34 @@ function parseCtMonth(html:string,year:number,month:number,portSlug:string,portL
 }
 
 async function loadCt(portSlug:string,portLabel:string,base:string,today:string){
-  const p=dateParts(today);
+  const p=dateParts(today);let success=0,parsedMonths=0;
   const chunks=await Promise.all([0,1,2,3].map(async delta=>{
     const md=addMonths(p.y,p.m,delta);
     const url="https://www.cruisetimetables.com/"+base+"schedule-"+MONTH_ABBR[md.month]+md.year+".html";
     try{
       const html=await fetchText(url);
-      if(/Javascript is required|being redirected/i.test(stripTags(html))) return [];
-      return parseCtMonth(html,md.year,md.month,portSlug,portLabel,url);
+      if(/Javascript is required|being redirected/i.test(stripTags(html))) throw new Error("blocked_source");
+      if(!/Cruise Ship Schedule/i.test(html))throw new Error("invalid_calendar");
+      const title=html.match(/<title>([\s\S]*?)<\/title>/i)?.[1]||"";
+      if(!title.includes(String(md.year))||!title.toLowerCase().includes(MONTH_NAMES[md.month]))return [];
+      const parsed=parseCtMonth(html,md.year,md.month,portSlug,portLabel,url);if(parsed.length)parsedMonths++;
+      else if(/psovde-listing/.test(html))throw new Error("ct_parse_error");
+      success++;return parsed;
     }catch(_){return [];}
   }));
-  return {provider:"CruiseTimetables",official:false,source_url:"https://www.cruisetimetables.com/",items:unique(chunks.flat())};
+  if(!success)throw new Error("calendar_source_unavailable");
+  return {provider:"CruiseTimetables",official:false,source_url:"https://www.cruisetimetables.com/"+base+"schedule-"+MONTH_ABBR[p.m]+p.y+".html",items:unique(chunks.flat()),status:parsedMonths?"ok":"empty"};
+}
+
+// Shared public calendar snapshots keep national ports available when sources reject edge hosting.
+const snapshotCache=new Map<string,{loaded:any,expires:number}>();
+async function loadSnapshot(id:string){
+  const cached=snapshotCache.get(id);if(cached&&cached.expires>Date.now())return cached.loaded;
+  const res=await fetch("https://raw.githubusercontent.com/ypsimon981/ypsimon981.github.io/main/data/ports/"+id+".json",{signal:AbortSignal.timeout(10000)});
+  if(!res.ok)throw new Error("calendar_snapshot_unavailable");
+  const loaded=await res.json(),age=Date.now()-Date.parse(loaded.fetched_at||"");
+  if(loaded.port!==id||!Array.isArray(loaded.items)||!Number.isFinite(age)||age>48*3600000)throw new Error("calendar_snapshot_expired");
+  loaded.stale=age>3*3600000;loaded.centralized=true;snapshotCache.set(id,{loaded,expires:Date.now()+300000});return loaded;
 }
 
 Deno.serve(async (req:Request)=>{
@@ -379,17 +376,25 @@ Deno.serve(async (req:Request)=>{
   if(origin&& !ALLOWED_ORIGINS.has(origin)) return json({error:"origin_not_allowed"},403,origin);
 
   const url=new URL(req.url);
-  const portSlug=(url.searchParams.get("port")||"civitavecchia").toLowerCase().trim();
+  const token=(url.searchParams.get("port")||"civitavecchia").toLowerCase().replace(/[^a-z0-9]/g,"");
+  const portSlug=Object.keys(PORTS).find(id=>id===token || [PORTS[id].label,...(PORTS[id].aliases||[])].some(name=>name.toLowerCase().replace(/[^a-z0-9]/g,"")===token))||token;
   const config=PORTS[portSlug];
   if(!config) return json({error:"invalid_port"},400,origin);
   const today=romeToday();
+  if(url.searchParams.get("catalog")==="1")return json({ports:Object.entries(PORTS).map(([id,p])=>({id,name:p.label,aliases:p.aliases,provider:p.kind,provider_id:p.provider_id}))},200,origin);
 
   try{
     let loaded:any;
-    if(config.kind==="civitavecchia") loaded=await loadCivitavecchia(today);
-    else if(config.kind==="gph") loaded=await loadGph(portSlug,config.label,config.source!);
-    else if(config.kind==="olbia") loaded=await loadOlbia(today);
-    else loaded=await loadCt(portSlug,config.label,config.base!,today);
+    if(config.kind==="ct"||config.kind==="olbia"){
+      try{loaded=await loadSnapshot(portSlug);}catch(e){
+        loaded=config.kind==="olbia"?await loadOlbia(today):await loadCt(portSlug,config.label,config.base!,today);
+      }
+    }else{
+      try{
+        if(config.kind==="civitavecchia")loaded=await loadCivitavecchia(today);
+        else loaded=await loadGph(portSlug,config.label,config.source!);
+      }catch(e){loaded=await loadSnapshot(portSlug);}
+    }
 
     let items=(loaded.items||[]).filter((x:any)=>x.date>=today);
     const date=(url.searchParams.get("date")||"").trim();
@@ -404,6 +409,11 @@ Deno.serve(async (req:Request)=>{
       port:config.label,
       port_slug:portSlug,
       source_url:loaded.source_url||null,
+      fetched_at:loaded.fetched_at||new Date().toISOString(),
+      stale:!!loaded.stale,
+      centralized:!!loaded.centralized,
+      source_status:(loaded.items||[]).length?"ok":"empty",
+      fallback_reason:loaded.fallback_reason||null,
       total:items.length,
       items
     },200,origin);

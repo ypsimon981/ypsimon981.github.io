@@ -114,15 +114,17 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
  .savePanelRow{grid-template-columns:1fr}
  .settingsGrid{grid-template-columns:1fr}
 }
+
+h1{font-size:32px}.hero{padding:16px}.field label{font-size:14px;font-weight:500;letter-spacing:0;text-transform:none}.field input,.field select{height:46px;font-weight:500;border-radius:10px;font-size:16px}.price{font-size:44px;font-weight:650}.metaValue{font-weight:600;font-size:16px}.calculate,.swap,.roundBtn,.resultActions button,.savePanel button{font-weight:600}.metaLabel,.priceLabel,.optionNote,.costVehicle,.costSource,.footerNote{font-size:12px}.optionTitle{font-weight:600}.costTitle{font-weight:600;font-size:16px}.costRow span{font-size:14px}.topActions{flex-wrap:wrap;gap:5px}.metaGrid{grid-template-columns:repeat(3,1fr)}.metaCell{padding:10px;border-bottom:0}.resultActions{grid-template-columns:1fr 1fr;gap:6px}.routeActions{grid-template-columns:auto 1fr;gap:6px}.costBox{padding:14px}.priceBox{padding:14px}.costRow.total strong{font-weight:650}
 </style>
 <link rel="stylesheet" href="assets/steerwill-theme.css?v=1">
-</head>
+<link rel="stylesheet" href="assets/revision.css?v=20260930"></head>
 <body>
 <main class="page">
   <div class="topbar">
     <div class="brand">STEERWILL · PREVENTIVO</div>
     <div class="topActions">
-      <a class="pillLink" href="preventivi-salvati.html">Salvati</a>
+      <a class="pillLink" href="testo-cliente.html?v=revision20260930">Testo cliente</a><a class="pillLink" href="preventivi-salvati.html?v=revision20260930">Salvati</a>
       <button id="settingsBtn" class="settingsBtn" type="button">Impostazioni</button>
       <a class="pillLink" href="index.html">← Home</a>
     </div>
@@ -132,7 +134,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     <h1>Preventivo rapido</h1>
     <p class="sub">Percorso, prezzo e costi operativi della corsa.</p>
 
-    <div class="routeForm">
+    <div class="routeForm"><div class="field"><label for="serviceDate">Data servizio</label><input id="serviceDate" type="date"></div><div class="field"><label for="departureTime">Partenza · opzionale</label><input id="departureTime" type="time"></div>
       <div class="field">
         <label for="fromInput">Da</label>
         <input id="fromInput" type="text" placeholder="Es. Roma Termini" autocomplete="off">
@@ -257,7 +259,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
 
     <div class="resultActions">
       <button id="saveQuoteBtn" class="saveQuoteBtn" type="button">Salva preventivo</button>
-      <button id="copyBtn" class="secondary" type="button">Copia riepilogo</button>
+      <button id="copyBtn" class="secondary" type="button">Prepara testo cliente</button>
       <button id="recalcBtn" class="primary" type="button">Ricalcola</button>
     </div>
 
@@ -575,7 +577,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
   }
 
   function renderQuote(data){
-    lastQuote=data;
+    lastQuote=data; if(!lastQuote.createdAt)lastQuote.createdAt=new Date().toISOString();
     if(!quoteVariants) buildVariants(data);
     var calc=quoteVariants[tripMode.value]||quoteVariants.oneway;
 
@@ -633,7 +635,9 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     var duration=hhmm(Number(lastQuote.duration_min||0)*calc.factors.cost);
     var entry={
       id:"quote_"+Date.now(),
-      createdAt:new Date().toISOString(),
+      createdAt:lastQuote.createdAt||new Date().toISOString(),
+      serviceDate:document.getElementById("serviceDate").value,
+      departureTime:document.getElementById("departureTime").value,
       name:name,
       from:(lastQuote.from&&lastQuote.from.label)||fromInput.value.trim(),
       to:(lastQuote.to&&lastQuote.to.label)||toInput.value.trim(),
@@ -688,7 +692,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
       });
       var data=await res.json().catch(function(){return {};});
       if(!res.ok) throw new Error(data.error||"api");
-      lastQuote=data;
+      lastQuote=data; if(!lastQuote.createdAt)lastQuote.createdAt=new Date().toISOString();
       buildVariants(data);
       renderQuote(data);
     }catch(e){
@@ -809,37 +813,11 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     if(e.key==="Enter"){e.preventDefault();saveCurrentQuote();}
   });
 
-  document.getElementById("copyBtn").onclick=async function(){
-    if(!lastQuote) return;
-    if(!quoteVariants) buildVariants(lastQuote);
+  document.getElementById("copyBtn").onclick=function(){
+    if(!lastQuote)return;if(!quoteVariants)buildVariants(lastQuote);
     var calc=quoteVariants[tripMode.value]||quoteVariants.oneway;
-    var text=
-      "Preventivo SteerWill\n"+
-      "Da: "+((lastQuote.from&&lastQuote.from.label)||fromInput.value)+"\n"+
-      "A: "+((lastQuote.to&&lastQuote.to.label)||toInput.value)+"\n"+
-      "Tipo corsa: "+calc.factors.label+"\n"+
-      (calc.factors.label==="Andata e ritorno cliente"
-        ? "Tratta A/R: "+calc.costKm.toFixed(1)+" km\n"
-        : calc.factors.label==="Ritorno a vuoto"
-          ? "Tratta: "+calc.oneWayKm.toFixed(1)+" + "+calc.oneWayKm.toFixed(1)+" km vuoto\n"
-          : "Tratta solo andata: "+calc.oneWayKm.toFixed(1)+" km\n")+
-      "Tempo guida stimato: "+hhmm(Number(lastQuote.duration_min||0)*calc.factors.cost)+"\n"+
-      "Km di costo: "+calc.costKm.toFixed(1)+" km\n"+
-      "Tariffa: "+money(calc.rate)+"/km\n"+
-      (calc.hours>0 ? "Disponibilità: "+calc.hours+" h × "+money(calc.hourlyRate)+"/h = "+money(calc.availabilityQuote)+"\n" : "")+
-      (calc.vat>0 ? "IVA 10%: "+money(calc.vat)+"\n" : "")+
-      (roundPrice ? "Arrotondamento: "+money(calc.rounding)+"\n" : "")+
-      "Preventivo: "+(vatIncluded.checked ? moneyCompact(calc.quote)+" IVA inclusa" : moneyCompact(calc.quote)+" + IVA")+"\n"+
-      "Carburante: "+money(calc.fuelCost)+"\n"+
-      "Casello: da integrare\n"+
-      "Costi viaggio: "+money(calc.total)+"\n"+
-      "Residuo lordo: "+money(calc.margin);
-    try{
-      await navigator.clipboard.writeText(text);
-      this.textContent="Copiato ✓";
-      var btn=this;
-      setTimeout(function(){btn.textContent="Copia riepilogo";},1400);
-    }catch(e){}
+    var q={from:(lastQuote.from||{}).label||fromInput.value,to:(lastQuote.to||{}).label||toInput.value,modeLabel:calc.factors.label,serviceDate:document.getElementById("serviceDate").value,departureTime:document.getElementById("departureTime").value,priceDisplay:vatIncluded.checked?moneyCompact(calc.quote)+" IVA inclusa":moneyCompact(calc.quote)+" + IVA"};
+    sessionStorage.setItem("steerwill_message_quote_v1",JSON.stringify(q));location.href="testo-cliente.html?v=revision20260930";
   };
 
   [fromInput,toInput].forEach(function(el){
