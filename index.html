@@ -266,9 +266,16 @@ button{font:inherit}
   stroke-linecap:round;
   stroke-linejoin:round;
 }
-.utilitiesGrid{
+.topToolsGrid{
   display:grid;
   grid-template-columns:2fr 1fr;
+  gap:12px;
+}
+.topToolsGrid .timestampCard{min-height:132px}
+.topToolsGrid .translatorTile{min-height:132px}
+.utilitiesGrid{
+  display:grid;
+  grid-template-columns:1fr;
   gap:12px;
 }
 .quoteTile{
@@ -324,9 +331,69 @@ button{font:inherit}
 .alertTile{
   background:linear-gradient(135deg,#2A211E 0%,#211D1C 100%);
   border-color:#5A4036;
+  display:block;
+  padding:0;
+  overflow:hidden;
 }
 .alertTile .iconWrap{color:#D8A58E}
 .alertTile .tileMeta{color:#A98D81}
+.monitorHead{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:15px 18px 12px;
+}
+.monitorHead .tileTitle{font-size:18px}
+.monitorTrips{
+  display:grid;
+  border-top:1px solid #3A302C;
+}
+.monitorTrip{
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;
+  gap:10px;
+  min-height:42px;
+  padding:9px 16px;
+  border-bottom:1px solid #332B28;
+}
+.monitorTrip:last-child{border-bottom:0}
+.monitorTripType{
+  min-width:42px;
+  color:#C99078;
+  font-size:8px;
+  font-weight:950;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.monitorTripMain{min-width:0}
+.monitorTripName{
+  font-size:11px;
+  font-weight:900;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.monitorTripMeta{
+  margin-top:2px;
+  color:#9C8A82;
+  font-size:9px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.monitorTripWhen{
+  color:#D8A58E;
+  font-size:10px;
+  font-weight:900;
+  white-space:nowrap;
+}
+.monitorTripsEmpty{
+  padding:11px 16px 14px;
+  border-top:1px solid #3A302C;
+  color:#8F7E77;
+  font-size:10px;
+}
 .translatorTile{
   background:linear-gradient(135deg,#292321 0%,#211D1C 100%);
   border-color:#4D3A33;
@@ -557,7 +624,8 @@ button{font:inherit}
   .timestampCard{min-height:124px;padding:17px 18px;border-radius:20px}
   .timestampIcon{width:56px;height:56px;flex-basis:56px;border-radius:17px}
   .timestampIcon svg{width:34px;height:34px}
-  .utilitiesGrid{grid-template-columns:2fr 1fr}
+  .topToolsGrid{grid-template-columns:2fr 1fr}
+  .utilitiesGrid{grid-template-columns:1fr}
   .utilityTile{min-height:88px;border-radius:18px;padding:14px}
   .toolTile{min-height:104px;border-radius:18px;border-color:#2a2f35}
   .toolTile .iconWrap{width:48px;height:48px}
@@ -645,35 +713,22 @@ button{font:inherit}
     </section>
 
     <section class="section">
-      <a class="timestampCard" href="timestamp.html">
-        <span class="timestampTop">
-          <span class="timestampEyebrow">Foto geolocalizzata</span>
-        </span>
-        <span class="timestampMain">
-          <span class="timestampTitle">Timestamp</span>
-          <span class="timestampIcon" aria-hidden="true">
-            <svg viewBox="0 0 64 64">
-              <rect x="8" y="16" width="48" height="36" rx="7"/>
-              <path d="M20 16l4-7h16l4 7"/>
-              <circle cx="32" cy="34" r="10"/>
-              <path d="M43 43l8 8"/>
-            </svg>
+      <div class="topToolsGrid">
+        <a class="timestampCard" href="timestamp.html">
+          <span class="timestampTop">
+            <span class="timestampEyebrow">Foto geolocalizzata</span>
           </span>
-        </span>
-      </a>
-    </section>
-
-    <section class="section">
-      <div class="utilitiesGrid">
-        <a class="utilityTile alertTile" href="monitor.html">
-          <span class="iconWrap" aria-hidden="true">
-            <svg class="icon" viewBox="0 0 64 64">
-              <rect x="8" y="11" width="48" height="37" rx="5"/>
-              <path d="M16 38V28M26 38V20M36 38V31M46 38V16"/>
-              <path d="M25 54h14"/>
-            </svg>
+          <span class="timestampMain">
+            <span class="timestampTitle">Timestamp</span>
+            <span class="timestampIcon" aria-hidden="true">
+              <svg viewBox="0 0 64 64">
+                <rect x="8" y="16" width="48" height="36" rx="7"/>
+                <path d="M20 16l4-7h16l4 7"/>
+                <circle cx="32" cy="34" r="10"/>
+                <path d="M43 43l8 8"/>
+              </svg>
+            </span>
           </span>
-          <span><span class="tileTitle">Monitor viaggi salvati</span></span>
         </a>
 
         <a class="utilityTile translatorTile" href="traduttore.html">
@@ -687,7 +742,27 @@ button{font:inherit}
           </span>
           <span><span class="tileTitle">Traduttore</span></span>
         </a>
+      </div>
+    </section>
 
+    <section class="section">
+      <a class="utilityTile alertTile" href="monitor.html">
+        <span class="monitorHead">
+          <span class="iconWrap" aria-hidden="true">
+            <svg class="icon" viewBox="0 0 64 64">
+              <rect x="8" y="11" width="48" height="37" rx="5"/>
+              <path d="M16 38V28M26 38V20M36 38V31M46 38V16"/>
+              <path d="M25 54h14"/>
+            </svg>
+          </span>
+          <span class="tileTitle">Monitor viaggi salvati</span>
+        </span>
+        <span id="homeMonitorTrips" class="monitorTrips"></span>
+      </a>
+    </section>
+
+    <section class="section">
+      <div class="utilitiesGrid">
         <a class="utilityTile quoteTile" href="preventivo.html">
           <span class="quoteCopy">
             <span class="quoteTitle">Preventivo rapido</span>
@@ -781,7 +856,7 @@ button{font:inherit}
       </div>
     </section>
 
-    <div class="footer">MAINPAGE · STEERWILL V4.8</div>
+    <div class="footer">MAINPAGE · STEERWILL V4.9</div>
   </section>
 </main>
 
@@ -818,6 +893,91 @@ button{font:inherit}
   }
   setBackgroundShift();
   window.addEventListener("scroll",setBackgroundShift,{passive:true});
+
+  function readHomeList(key){
+    try{
+      var value=JSON.parse(localStorage.getItem(key)||"[]");
+      return Array.isArray(value)?value:[];
+    }catch(e){return [];}
+  }
+
+  function parseHomeLocalEvent(date,time){
+    if(!date||!time) return NaN;
+    return new Date(String(date)+"T"+String(time)+":00").getTime();
+  }
+
+  function homeTripTimestamp(item){
+    if(item.kind==="flight"){
+      return new Date(item.data.estimated_in||item.data.scheduled_in||0).getTime()||0;
+    }
+    if(item.kind==="train"){
+      var t=item.data;
+      if(t.service_ts) return Number(t.service_ts)||0;
+      return parseHomeLocalEvent(t.service_date,t.estimated||t.scheduled);
+    }
+    var s=item.data;
+    return parseHomeLocalEvent(s.date,s.arrival||s.departure);
+  }
+
+  function homeTripInfo(item){
+    var d=item.data||{};
+    if(item.kind==="flight"){
+      var origin=d.origin&&d.origin.code?d.origin.code:"—";
+      var destination=d.destination&&d.destination.code?d.destination.code:"—";
+      return {type:"Volo",name:d.ident||"Volo",meta:origin+" → "+destination};
+    }
+    if(item.kind==="train"){
+      var place=d.mode==="arrivals"?(d.origin||"—"):(d.destination||"—");
+      return {type:"Treno",name:"Treno "+(d.train||"—"),meta:(d.station||"Stazione")+" · "+(d.mode==="arrivals"?"da ":"per ")+place};
+    }
+    return {type:"Nave",name:d.name||"Nave",meta:d.port||"Civitavecchia"};
+  }
+
+  function homeTripWhen(ts){
+    var d=new Date(ts);
+    if(isNaN(d)) return "—";
+    var today=new Date();
+    var tomorrow=new Date();
+    tomorrow.setDate(today.getDate()+1);
+    var same=function(a,b){return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();};
+    var time=d.toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"});
+    if(same(d,today)) return "Oggi "+time;
+    if(same(d,tomorrow)) return "Domani "+time;
+    return d.toLocaleDateString("it-IT",{day:"2-digit",month:"2-digit"})+" "+time;
+  }
+
+  function renderHomeMonitor(){
+    var target=document.getElementById("homeMonitorTrips");
+    if(!target) return;
+    var trips=[]
+      .concat(readHomeList("codriver_monitored_flights_v1").map(function(x){return {kind:"flight",data:x};}))
+      .concat(readHomeList("codriver_monitored_trains_v1").map(function(x){return {kind:"train",data:x};}))
+      .concat(readHomeList("codriver_monitored_ships_v1").map(function(x){return {kind:"ship",data:x};}));
+
+    var now=Date.now();
+    trips=trips
+      .map(function(x){x.ts=homeTripTimestamp(x);return x;})
+      .filter(function(x){return Number.isFinite(x.ts)&&x.ts>=now;})
+      .sort(function(a,b){return a.ts-b.ts;})
+      .slice(0,3);
+
+    if(!trips.length){
+      target.innerHTML='<span class="monitorTripsEmpty">Nessun prossimo viaggio salvato.</span>';
+      return;
+    }
+
+    target.innerHTML=trips.map(function(item){
+      var info=homeTripInfo(item);
+      return '<span class="monitorTrip">'+
+        '<span class="monitorTripType">'+esc(info.type)+'</span>'+
+        '<span class="monitorTripMain"><span class="monitorTripName">'+esc(info.name)+'</span>'+
+        '<span class="monitorTripMeta">'+esc(info.meta)+'</span></span>'+
+        '<span class="monitorTripWhen">'+esc(homeTripWhen(item.ts))+'</span>'+
+      '</span>';
+    }).join("");
+  }
+
+  renderHomeMonitor();
 
   var host=document.getElementById("savedQuotesHomeList");
   if(host){
