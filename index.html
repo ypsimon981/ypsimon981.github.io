@@ -180,10 +180,11 @@ button{font:inherit}
 }
 .travelGrid{
   display:grid;
-  grid-template-columns:repeat(3,1fr);
+  grid-template-columns:repeat(3,minmax(0,1fr));
   gap:12px;
 }
 .toolTile{
+  min-width:0;
   aspect-ratio:1/1;
   min-height:120px;
   flex-direction:column;
@@ -899,12 +900,14 @@ button{font:inherit}
   .topToolsGrid{grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:9px}
   .topToolsGrid .timestampCard{min-height:112px;padding:14px}
   .topToolsGrid .translatorTile{min-height:112px;padding:9px 5px}
-  .topToolsGrid .timestampTitle{font-size:clamp(27px,7.2vw,34px)}
-  .topToolsGrid .timestampIcon{width:46px;height:46px;flex-basis:46px}
-  .topToolsGrid .timestampIcon svg{width:28px;height:28px}
+  .topToolsGrid .timestampMain{gap:6px;min-width:0}
+  .topToolsGrid .timestampTitle{font-size:clamp(17px,5.4vw,23px);line-height:1.1}
+  .topToolsGrid .timestampIcon{width:32px;height:32px;flex-basis:32px;border-radius:11px}
+  .topToolsGrid .timestampIcon svg{width:23px;height:23px}
   .utilitiesGrid{grid-template-columns:1fr}
   .utilityTile{min-height:88px;border-radius:18px;padding:14px}
-  .toolTile{min-height:104px;border-radius:18px;border-color:#2a2f35}
+  .toolTile{min-height:0;padding:10px 4px;gap:8px;border-radius:18px;border-color:#2a2f35}
+  .travelBadge{width:min(66px,100%);height:auto;aspect-ratio:1;border-radius:16px;flex-shrink:0}
   .toolTile .iconWrap{width:48px;height:48px}
   .toolTile .icon{width:36px;height:36px}
   .tileTitle{font-size:15px}
