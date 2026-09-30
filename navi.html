@@ -221,7 +221,9 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     });
   }
 
+  var loadSeq=0;
   async function load(params){
+    var requestSeq=++loadSeq;
     if(!window.STEERWILL_SHIPS_API){
       list.innerHTML = '<div class="empty error"><strong>Servizio non configurato</strong></div>';
       return;
@@ -229,6 +231,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
 
     list.innerHTML = '<div class="empty"><strong>Aggiorno il porto…</strong></div>';
     count.textContent = "";
+    sourceNotice.textContent = "Aggiorno il calendario di "+currentPortLabel()+"…";
 
     var query = Object.assign({},params||{});
     query.port = selectedPort;
@@ -239,6 +242,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
         headers:{"apikey":window.STEERWILL_SUPABASE_PUBLIC_KEY || ""}
       });
       var data = await res.json().catch(function(){return {};});
+      if(requestSeq!==loadSeq)return;
       if(!res.ok) throw new Error(data.error||"api");
 
       if(data.connected===false){
@@ -257,11 +261,14 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
       if(params && params.date && !items.length){
         weekBtn.classList.add("active");
         todayBtn.classList.remove("active");
-        sectionTitle.textContent = "Programmazione disponibile";
+        mode="week";
+        sectionTitle.textContent = "Programmazione · "+currentPortLabel()+" · nessuno scalo oggi";
         return load({});
       }
       render(items);
     }catch(e){
+      if(requestSeq!==loadSeq)return;
+      sourceNotice.textContent="Fonte temporaneamente non disponibile.";
       list.innerHTML = '<div class="empty error"><strong>Dati porto non disponibili</strong>Riprova tra poco.</div>';
     }
   }
