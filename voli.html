@@ -74,6 +74,7 @@ h1{margin:0;font-size:clamp(40px,8vw,68px);line-height:.94;letter-spacing:-.045e
 </style>
 <link rel="stylesheet" href="assets/steerwill-theme.css?v=1">
 <link rel="stylesheet" href="assets/revision.css?v=20260930"><link rel="stylesheet" href="assets/mobile.css?v=mobile20260930"><script defer src="assets/mobile.js?v=mobile20260930"></script>
+<style>#flightActions{grid-template-columns:repeat(3,minmax(0,1fr))}#flightActions button,#flightActions a{display:flex;align-items:center;justify-content:center;min-width:0;min-height:48px;padding:8px 6px;border-radius:12px;font:inherit;font-size:14px;font-weight:800;text-align:center;text-decoration:none;line-height:1.2}#flightActions .noShowAction{gap:4px;color:#fff}#flightActions svg{width:18px;height:18px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linejoin:round}#flightActions .noShowAction span{white-space:nowrap}#landingElapsed:empty{display:none}@media(max-width:620px){#flightActions button,#flightActions a{font-size:12px!important}#flightActions svg{width:16px;height:16px}}</style>
 </head>
 <body>
 <main class="page">
@@ -144,9 +145,10 @@ h1{margin:0;font-size:clamp(40px,8vw,68px);line-height:.94;letter-spacing:-.045e
       <div class="stat"><div class="statLabel">Gate</div><div id="gate" class="statValue">—</div></div>
     </div>
 
-    <div id="landingElapsed" class="elapsed"></div><label class="elapsed" for="customerName">Cliente facoltativo <input id="customerName" type="text" autocomplete="off" style="width:100%;font:inherit;background:#111;color:#fff;border:1px solid #444;border-radius:9px;padding:8px"></label><a id="timestampLink" class="timestampLink" href="timestamp.html?v=mobile20260930">Prova no-show</a><div class="actions">
+    <div id="landingElapsed" class="elapsed"></div><div id="flightActions" class="actions">
       <button id="refreshBtn" class="secondary" type="button">Aggiorna</button>
-      <button id="followBtn" class="primary" type="button">+ Segui nel Monitor</button>
+      <button id="followBtn" class="primary" type="button">Segui nel Monitor</button>
+      <a id="timestampLink" class="secondary noShowAction" href="timestamp.html?v=mobile20260930"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h4l2-3h6l2 3h4v13H3z"/><circle cx="12" cy="13" r="4"/></svg><span>No show</span></a>
     </div>
   </section>
 </main>
@@ -163,6 +165,7 @@ h1{margin:0;font-size:clamp(40px,8vw,68px);line-height:.94;letter-spacing:-.045e
   var searchBtn = document.getElementById("searchBtn");
   var refreshBtn = document.getElementById("refreshBtn");
   var followBtn = document.getElementById("followBtn");
+  var linkedCustomer=new URLSearchParams(location.search).get("client")||"";
   var todayBtn = document.getElementById("todayBtn");
   var tomorrowBtn = document.getElementById("tomorrowBtn");
   var currentFlight = null;
@@ -217,12 +220,12 @@ h1{margin:0;font-size:clamp(40px,8vw,68px);line-height:.94;letter-spacing:-.045e
   function updateFollowButton(){
     if(!currentFlight) return;
     var followed = isFollowed(currentFlight.ident,currentFlight.target_date);
-    followBtn.textContent = followed ? "✓ Nel Monitor" : "+ Segui nel Monitor";
+    followBtn.textContent = followed ? "✓ Nel Monitor" : "Segui nel Monitor";
     followBtn.classList.toggle("followed",followed);
   }
 
   function render(f){
-    f.provider=f.provider||'FlightAware';currentFlight = f; f.customerName=document.getElementById("customerName").value.trim();
+    f.provider=f.provider||'FlightAware';currentFlight = f; f.customerName=linkedCustomer||f.customerName||"";
     document.getElementById("ident").textContent = f.ident || "—";
     document.getElementById("airline").textContent = f.airline || "—";
     document.getElementById("statusBadge").textContent = f.status || "—";
@@ -290,7 +293,7 @@ h1{margin:0;font-size:clamp(40px,8vw,68px);line-height:.94;letter-spacing:-.045e
       }
     }catch(e){
       currentFlight = null;
-      delete document.getElementById("landingElapsed").dataset.landing;document.getElementById("landingElapsed").textContent="";result.classList.remove("sw-ok","sw-warn","sw-bad");document.getElementById("timestampLink").href="timestamp.html?v=mobile20260930";
+      delete document.getElementById("landingElapsed").dataset.landing;document.getElementById("landingElapsed").textContent="";result.classList.remove("sw-ok","sw-warn","sw-bad");document.getElementById("timestampLink").href=SWFlight.link({ident:id,target_date:selectedDate,customerName:linkedCustomer});
       result.classList.add("show");
       document.getElementById("ident").textContent = id;
       document.getElementById("airline").textContent = "Volo non disponibile";
@@ -305,7 +308,7 @@ h1{margin:0;font-size:clamp(40px,8vw,68px);line-height:.94;letter-spacing:-.045e
       document.getElementById("estimated").textContent = "—";
       document.getElementById("terminal").textContent = "—";
       document.getElementById("gate").textContent = "—";
-      followBtn.textContent = "+ Segui nel Monitor";
+      followBtn.textContent = "Segui nel Monitor";
       followBtn.classList.remove("followed");
     }finally{
       searchBtn.disabled = false;
@@ -320,7 +323,6 @@ h1{margin:0;font-size:clamp(40px,8vw,68px);line-height:.94;letter-spacing:-.045e
     if(input.value.trim()) loadFlight(input.value);
   }
 
-  document.getElementById("customerName").oninput=function(){if(currentFlight){currentFlight.customerName=this.value.trim();document.getElementById("timestampLink").href=SWFlight.link(currentFlight);}};
   todayBtn.onclick=function(){setDay(0);};
   tomorrowBtn.onclick=function(){setDay(1);};
   searchBtn.onclick = function(){ loadFlight(input.value); };
@@ -328,7 +330,7 @@ h1{margin:0;font-size:clamp(40px,8vw,68px);line-height:.94;letter-spacing:-.045e
     if(currentFlight){
       selectedDate=currentFlight.target_date||selectedDate;
       loadFlight(currentFlight.ident);
-    }
+    }else loadFlight(input.value);
   };
   input.addEventListener("keydown",function(e){ if(e.key==="Enter"){e.preventDefault();loadFlight(input.value);} });
 
@@ -349,7 +351,7 @@ h1{margin:0;font-size:clamp(40px,8vw,68px);line-height:.94;letter-spacing:-.045e
       items.splice(idx,1);
     }else{
       var copy = JSON.parse(JSON.stringify(currentFlight));
-      copy.followedAt = Date.now(); copy.customerName=document.getElementById("customerName").value.trim();
+      copy.followedAt = Date.now(); copy.customerName=currentFlight.customerName||linkedCustomer;
       items.push(copy);
     }
     saveMonitored(items);
@@ -359,7 +361,7 @@ h1{margin:0;font-size:clamp(40px,8vw,68px);line-height:.94;letter-spacing:-.045e
   input.addEventListener("input",function(){
     if(!input.value.trim()) result.classList.remove("show");
   });
-var handoff=new URLSearchParams(location.search);if(handoff.get("flight")){input.value=handoff.get("flight");if(/^\d{4}-\d{2}-\d{2}$/.test(handoff.get("date")||""))selectedDate=handoff.get("date");document.getElementById("customerName").value=handoff.get("client")||"";loadFlight(input.value);}
+var handoff=new URLSearchParams(location.search);if(handoff.get("flight")){input.value=handoff.get("flight");if(/^\d{4}-\d{2}-\d{2}$/.test(handoff.get("date")||""))selectedDate=handoff.get("date");loadFlight(input.value);}
 })();
 </script>
 </body>
