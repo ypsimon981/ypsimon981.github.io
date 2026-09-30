@@ -1,1 +1,833 @@
-bwrap: Can't get type of source /workspace/scratch/fb61d7e951fa/.aws: No such file or directory
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0D0908">
+<title>SteerWill · Preventivo rapido</title>
+<link rel="icon" type="image/svg+xml" href="assets/steerwill-icon.svg?v=1">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{--bg:#090909;--panel:#171717;--panel2:#222;--line:#353535;--text:#f7f7f7;--muted:#858585;--yellow:#f3d500;--green:#8be8a1}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",Arial,sans-serif}
+body{min-height:100dvh}
+a,button,input,select{-webkit-tap-highlight-color:transparent}
+button,input,select{font:inherit}
+.page{width:min(860px,100%);margin:0 auto;padding:14px 14px calc(24px + env(safe-area-inset-bottom))}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:18px}
+.brand{font-size:13px;font-weight:850;letter-spacing:.15em;color:#aaa}
+.topActions{display:flex;gap:8px}
+.pillLink,.settingsBtn{min-height:42px;padding:0 14px;border:1px solid #3b3b3b;border-radius:999px;background:#222;color:#fff;text-decoration:none;display:flex;align-items:center;font-size:13px;font-weight:800}
+.settingsBtn{cursor:pointer}
+.hero{padding:22px;border:1px solid var(--line);border-radius:24px;background:var(--panel)}
+h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045em}
+.sub{margin:8px 0 0;color:#888;font-size:14px}
+.routeForm{margin-top:20px;display:grid;gap:10px}
+.field{display:grid;gap:7px}
+.field label{font-size:10px;color:#7e7e7e;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
+.field input,.field select{width:100%;height:56px;border:1px solid #3a3a3a;border-radius:16px;background:#101010;color:#fff;padding:0 15px;font-weight:800;outline:none}
+.field input:focus,.field select:focus{border-color:#777}
+.routeActions{display:grid;grid-template-columns:auto 1fr;gap:10px}
+.swap{height:54px;border:1px solid #3a3a3a;border-radius:16px;background:#242424;color:#fff;padding:0 15px;font-weight:900}
+.calculate{height:54px;border:0;border-radius:16px;background:var(--yellow);color:#111;font-weight:950}
+.settingsBackdrop{display:none;position:fixed;inset:0;z-index:90;background:rgba(0,0,0,.62);backdrop-filter:blur(4px)}
+.settingsBackdrop.show{display:block}
+.settings{display:none;position:fixed;z-index:100;top:max(12px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);width:min(620px,calc(100% - 24px));padding:16px;border:1px solid #3d3d3d;border-radius:20px;background:#151515;box-shadow:0 18px 60px rgba(0,0,0,.5)}
+.settings.show{display:block}
+.settingsHead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.settingsTitle{font-size:15px;font-weight:900}
+.settingsClose{width:38px;height:38px;border:1px solid #3a3a3a;border-radius:999px;background:#232323;color:#fff;font-size:20px;line-height:1}
+.settingsSection{margin-top:16px;padding-top:14px;border-top:1px solid #292929}
+.settingsSection:first-of-type{margin-top:0;padding-top:0;border-top:0}
+.settingsLabel{margin-bottom:9px;color:#747474;font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
+.settingsGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.saveRate{width:100%;height:50px;margin-top:14px;border:0;border-radius:14px;background:#fff;color:#111;padding:0 16px;font-weight:900}
+.note{margin-top:8px;color:#777;font-size:11px;line-height:1.35}
+.conditional{display:none}
+.conditional.show{display:grid}
+.priceDetail{margin-top:9px;color:#8c8c8c;font-size:12px;font-weight:700;line-height:1.35}
+.result{display:none;margin-top:16px;border:1px solid #3b3b3b;border-radius:24px;background:#1b1b1b;overflow:hidden}
+.result.show{display:block}
+.priceBlock{padding:20px}
+.priceTop{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.priceLabel{font-size:10px;color:#7e7e7e;text-transform:uppercase;letter-spacing:.1em;font-weight:900}
+.price{margin-top:4px;font-size:clamp(46px,10vw,78px);font-weight:950;letter-spacing:-.05em;line-height:.95}
+.roundBtn{min-height:38px;padding:0 13px;border:1px solid #444;border-radius:999px;background:#262626;color:#fff;font-size:11px;font-weight:900;white-space:nowrap}
+.roundBtn.active{background:#fff;color:#111;border-color:#fff}
+.optionRow{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:52px;padding:0 14px;border:1px solid #3a3a3a;border-radius:16px;background:#101010}
+.optionCopy{display:grid;gap:2px}
+.optionTitle{font-size:13px;font-weight:850}
+.optionNote{font-size:10px;color:#747474}
+.optionRow input[type="checkbox"]{width:22px;height:22px;accent-color:#f3d500}
+.metaGrid{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid #303030;border-bottom:1px solid #303030}
+.metaCell{padding:14px 10px;text-align:center;border-right:1px solid #303030}
+.metaCell:last-child{border-right:0}
+.metaLabel{font-size:9px;color:#777;text-transform:uppercase;letter-spacing:.08em;font-weight:850}
+.metaValue{margin-top:4px;font-size:18px;font-weight:920}
+.rateInline{margin:5px auto 0;display:flex;align-items:center;justify-content:center;gap:4px}
+.rateInline span{font-size:15px;font-weight:900;color:#bdbdbd}
+.rateInline input{width:74px;height:36px;border:1px solid #4a4a4a;border-radius:10px;background:#111;color:#fff;text-align:center;font-size:18px;font-weight:920;outline:none;padding:0 6px}
+.rateInline input:focus{border-color:#f3d500}
+.addresses{padding:16px 18px;display:grid;gap:10px;border-bottom:1px solid #303030}
+.addressLine{font-size:12px;color:#aaa;line-height:1.35}
+.addressLine strong{color:#ddd}
+.mapWrap{display:none;padding:0 18px 18px;border-bottom:1px solid #303030}
+.mapWrap.show{display:block}
+.routeMap{height:240px;border:1px solid #333;border-radius:17px;overflow:hidden;background:#111}
+.mapNote{margin-top:8px;color:#777;font-size:10px;line-height:1.35}
+.leaflet-container{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Arial,sans-serif}
+.leaflet-control-attribution{font-size:9px}
+.costBox{padding:18px}
+.costHead{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:10px}
+.costTitle{font-size:17px;font-weight:920}
+.costVehicle{font-size:10px;color:#777;text-align:right}
+.costRows{display:grid;gap:1px;border:1px solid #303030;border-radius:16px;overflow:hidden;background:#303030}
+.costRow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 13px;background:#202020}
+.costRow span{color:#939393;font-size:12px}
+.costRow strong{font-size:14px}
+.costRow.total span,.costRow.total strong{color:#fff;font-weight:900}
+.costRow.margin strong{color:var(--green);font-size:18px}
+.costSource{margin-top:9px;color:#666;font-size:10px;line-height:1.35}
+.resultActions{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 18px 18px}
+.resultActions button{height:48px;border-radius:14px;font-weight:900}
+.saveQuoteBtn{border:0;background:#f3d500;color:#111}
+.savePanel{display:none;margin:0 18px 18px;padding:14px;border:1px solid #353535;border-radius:16px;background:#121212}
+.savePanel.show{display:block}
+.savePanelRow{display:grid;grid-template-columns:1fr auto auto;gap:8px}
+.savePanel input{min-width:0;height:46px;border:1px solid #3a3a3a;border-radius:13px;background:#0d0d0d;color:#fff;padding:0 12px;font-weight:750;outline:none}
+.savePanel button{height:46px;border-radius:13px;padding:0 13px;font-weight:900}
+.secondary{border:1px solid #3b3b3b;background:#242424;color:#fff}
+.primary{border:0;background:#fff;color:#111}
+.error{margin-top:14px;padding:14px;border:1px solid #51302f;border-radius:16px;background:#251515;color:#ffaaa7;font-size:12px;display:none}
+.error.show{display:block}
+.footerNote{margin-top:14px;color:#666;font-size:10px;text-align:center;line-height:1.4}
+@media(max-width:620px){
+ .page{padding:12px 12px calc(18px + env(safe-area-inset-bottom))}
+ .hero{padding:19px;border-radius:21px}
+ .routeActions{grid-template-columns:1fr}
+ .metaGrid{grid-template-columns:1fr}
+ .metaCell{border-right:0;border-bottom:1px solid #303030}
+ .metaCell:last-child{border-bottom:0}
+ .resultActions{grid-template-columns:1fr}
+ .savePanelRow{grid-template-columns:1fr}
+ .settingsGrid{grid-template-columns:1fr}
+}
+
+h1{font-size:32px}.hero{padding:16px}.field label{font-size:14px;font-weight:500;letter-spacing:0;text-transform:none}.field input,.field select{height:46px;font-weight:500;border-radius:10px;font-size:16px}.price{font-size:44px;font-weight:650}.metaValue{font-weight:600;font-size:16px}.calculate,.swap,.roundBtn,.resultActions button,.savePanel button{font-weight:600}.metaLabel,.priceLabel,.optionNote,.costVehicle,.costSource,.footerNote{font-size:12px}.optionTitle{font-weight:600}.costTitle{font-weight:600;font-size:16px}.costRow span{font-size:14px}.topActions{flex-wrap:wrap;gap:5px}.metaGrid{grid-template-columns:repeat(3,1fr)}.metaCell{padding:10px;border-bottom:0}.resultActions{grid-template-columns:1fr 1fr;gap:6px}.routeActions{grid-template-columns:auto 1fr;gap:6px}.costBox{padding:14px}.priceBox{padding:14px}.costRow.total strong{font-weight:650}
+</style>
+<link rel="stylesheet" href="assets/steerwill-theme.css?v=1">
+<link rel="stylesheet" href="assets/revision.css?v=20260930"></head>
+<body>
+<main class="page">
+  <div class="topbar">
+    <div class="brand">STEERWILL · PREVENTIVO</div>
+    <div class="topActions">
+      <a class="pillLink" href="testo-cliente.html?v=revision20260930">Testo cliente</a><a class="pillLink" href="preventivi-salvati.html?v=revision20260930">Salvati</a>
+      <button id="settingsBtn" class="settingsBtn" type="button">Impostazioni</button>
+      <a class="pillLink" href="index.html">← Home</a>
+    </div>
+  </div>
+
+  <section class="hero">
+    <h1>Preventivo rapido</h1>
+    <p class="sub">Percorso, prezzo e costi operativi della corsa.</p>
+
+    <div class="routeForm"><div class="field"><label for="serviceDate">Data servizio</label><input id="serviceDate" type="date"></div><div class="field"><label for="departureTime">Partenza · opzionale</label><input id="departureTime" type="time"></div>
+      <div class="field">
+        <label for="fromInput">Da</label>
+        <input id="fromInput" type="text" placeholder="Es. Roma Termini" autocomplete="off">
+      </div>
+
+      <div class="field">
+        <label for="toInput">A</label>
+        <input id="toInput" type="text" placeholder="Es. Fiumicino Aeroporto" autocomplete="off">
+      </div>
+
+      <div class="field">
+        <label for="tripMode">Tipo corsa</label>
+        <select id="tripMode">
+          <option value="oneway">Solo andata</option>
+          <option value="roundtrip">Andata e ritorno con cliente</option>
+          <option value="emptyreturn">Ritorno a vuoto</option>
+        </select>
+      </div>
+
+      <div id="availabilityField" class="conditional">
+        <div class="settingsGrid">
+          <div class="field">
+            <label for="availabilityHours">Ore a disposizione</label>
+            <input id="availabilityHours" type="number" min="0" step="0.5" inputmode="decimal" placeholder="0">
+          </div>
+          <div class="field">
+            <label for="hourlyRateInput">Tariffa disponibilità €/ora</label>
+            <input id="hourlyRateInput" type="number" min="0" step="1" inputmode="decimal" placeholder="Es. 40">
+          </div>
+        </div>
+      </div>
+
+      <label class="optionRow" for="vatIncluded">
+        <span class="optionCopy">
+          <span class="optionTitle">IVA inclusa</span>
+          <span class="optionNote">Aggiunge il 10% al prezzo del preventivo</span>
+        </span>
+        <input id="vatIncluded" type="checkbox">
+      </label>
+
+      <div class="routeActions">
+        <button id="swapBtn" class="swap" type="button">⇅ Inverti</button>
+        <button id="calculateBtn" class="calculate" type="button">Calcola preventivo</button>
+      </div>
+    </div>
+
+  </section>
+
+  <div id="settingsBackdrop" class="settingsBackdrop"></div>
+  <div id="settings" class="settings" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <div class="settingsHead">
+      <div id="settingsTitle" class="settingsTitle">Impostazioni preventivo</div>
+      <button id="settingsClose" class="settingsClose" type="button" aria-label="Chiudi impostazioni">×</button>
+    </div>
+    <div class="settingsGrid">
+      <div class="field">
+        <label for="rateSettingsInput">Tariffa €/km</label>
+        <input id="rateSettingsInput" type="number" min="0.05" step="0.05" inputmode="decimal" placeholder="1,50">
+      </div>
+      <div class="field">
+        <label for="vehicleSelect">Mezzo usato</label>
+        <select id="vehicleSelect"></select>
+      </div>
+    </div>
+    <div class="note">La tariffa qui e quella mostrata nel preventivo sono lo stesso valore. Consumo e alimentazione vengono letti dall'anagrafica del mezzo selezionato.</div>
+    <button id="saveRateBtn" class="saveRate" type="button">Salva impostazioni</button>
+  </div>
+
+  <div id="errorBox" class="error"></div>
+
+  <section id="result" class="result">
+    <div class="priceBlock">
+      <div class="priceTop">
+        <div>
+          <div class="priceLabel">Preventivo stimato</div>
+          <div id="price" class="price">€ —</div>
+        </div>
+        <button id="roundBtn" class="roundBtn" type="button">Arrotonda</button>
+      </div>
+      <div id="priceDetail" class="priceDetail"></div>
+    </div>
+
+    <div class="metaGrid">
+      <div class="metaCell">
+        <div id="distanceLabel" class="metaLabel">Tratta solo andata</div>
+        <div id="distance" class="metaValue">—</div>
+      </div>
+      <div class="metaCell">
+        <div class="metaLabel">Tempo guida stimato</div>
+        <div id="duration" class="metaValue">—</div>
+      </div>
+      <div class="metaCell">
+        <div class="metaLabel">Tariffa €/km</div>
+        <div class="rateInline"><span>€</span><input id="rateQuickInput" type="number" min="0.05" step="0.05" inputmode="decimal" aria-label="Tariffa per chilometro"><span>/km</span></div>
+      </div>
+    </div>
+
+    <div class="addresses">
+      <div class="addressLine"><strong>Da:</strong> <span id="fromResolved"></span></div>
+      <div class="addressLine"><strong>A:</strong> <span id="toResolved"></span></div>
+    </div>
+
+    <div id="mapWrap" class="mapWrap">
+      <div id="routeMap" class="routeMap" aria-label="Mappa del percorso"></div>
+      <div id="mapNote" class="mapNote">Percorso stradale OpenStreetMap · OSRM</div>
+    </div>
+
+    <div class="costBox">
+      <div class="costHead">
+        <div class="costTitle">Costi viaggio</div>
+        <div id="costVehicle" class="costVehicle"></div>
+      </div>
+      <div class="costRows">
+        <div class="costRow"><span>Km di costo</span><strong id="costKm">—</strong></div>
+        <div class="costRow"><span>Carburante</span><strong id="fuelCost">—</strong></div>
+        <div class="costRow"><span>Casello</span><strong id="tollCost">—</strong></div>
+        <div class="costRow total"><span>Costi viaggio</span><strong id="tripCost">—</strong></div>
+        <div class="costRow margin"><span>Residuo lordo</span><strong id="grossMargin">—</strong></div>
+      </div>
+      <div id="costSource" class="costSource"></div>
+    </div>
+
+    <div class="resultActions">
+      <button id="saveQuoteBtn" class="saveQuoteBtn" type="button">Salva preventivo</button>
+      <button id="copyBtn" class="secondary" type="button">Prepara testo cliente</button>
+      <button id="recalcBtn" class="primary" type="button">Ricalcola</button>
+    </div>
+
+    <div id="savePanel" class="savePanel">
+      <div class="savePanelRow">
+        <input id="saveNameInput" type="text" maxlength="60" placeholder="Nome preventivo">
+        <button id="confirmSaveBtn" class="primary" type="button">Salva</button>
+        <button id="cancelSaveBtn" class="secondary" type="button">Annulla</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="footerNote">Il pedaggio verrà calcolato automaticamente quando collegheremo un provider dedicato. Il residuo lordo considera solo carburante e pedaggi: non include autista, manutenzione, ammortamento, parcheggi o altri costi.</div>
+</main>
+
+<script src="flight-config.js?v=steerwill3"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function(){
+  "use strict";
+
+  var RATE_KEY="codriver_quote_rate_v1";
+  var COST_KEY="codriver_quote_costs_v1";
+  var VEHICLE_KEY="codriver_vehicles_v1";
+  var SAVED_QUOTES_KEY="codriver_saved_quotes_v1";
+  var DEFAULT_RATE=1.50;
+
+  var fromInput=document.getElementById("fromInput");
+  var toInput=document.getElementById("toInput");
+  var calculateBtn=document.getElementById("calculateBtn");
+  var settingsBtn=document.getElementById("settingsBtn");
+  var settings=document.getElementById("settings");
+  var rateQuickInput=document.getElementById("rateQuickInput");
+  var rateSettingsInput=document.getElementById("rateSettingsInput");
+  var saveRateBtn=document.getElementById("saveRateBtn");
+  var settingsBackdrop=document.getElementById("settingsBackdrop");
+  var settingsClose=document.getElementById("settingsClose");
+  var hourlyRateInput=document.getElementById("hourlyRateInput");
+  var availabilityHours=document.getElementById("availabilityHours");
+  var availabilityField=document.getElementById("availabilityField");
+  var result=document.getElementById("result");
+  var errorBox=document.getElementById("errorBox");
+  var vehicleSelect=document.getElementById("vehicleSelect");
+  var tripMode=document.getElementById("tripMode");
+  var vatIncluded=document.getElementById("vatIncluded");
+  var roundBtn=document.getElementById("roundBtn");
+  var mapWrap=document.getElementById("mapWrap");
+  var mapNote=document.getElementById("mapNote");
+  var saveQuoteBtn=document.getElementById("saveQuoteBtn");
+  var savePanel=document.getElementById("savePanel");
+  var saveNameInput=document.getElementById("saveNameInput");
+
+  var lastQuote=null;
+  var quoteVariants=null;
+  var roundPrice=false;
+  var routeMap=null;
+  var routeLayer=null;
+  var pointLayers=[];
+
+  function num(v){
+    var n=Number(String(v==null?"":v).replace(",","."));
+    return Number.isFinite(n)?n:0;
+  }
+
+  function getRate(){
+    var v=Number(localStorage.getItem(RATE_KEY));
+    return Number.isFinite(v)&&v>0?v:DEFAULT_RATE;
+  }
+
+  function readVehicles(){
+    try{return JSON.parse(localStorage.getItem(VEHICLE_KEY)||"[]");}
+    catch(e){return [];}
+  }
+
+  function readCostPrefs(){
+    try{return JSON.parse(localStorage.getItem(COST_KEY)||"{}");}
+    catch(e){return {};}
+  }
+
+  function readSavedQuotes(){
+    try{
+      var items=JSON.parse(localStorage.getItem(SAVED_QUOTES_KEY)||"[]");
+      return Array.isArray(items)?items:[];
+    }catch(e){return [];}
+  }
+
+  function writeSavedQuotes(items){
+    localStorage.setItem(SAVED_QUOTES_KEY,JSON.stringify(items.slice(0,60)));
+  }
+
+  function money(v){
+    return new Intl.NumberFormat("it-IT",{style:"currency",currency:"EUR"}).format(Number(v)||0);
+  }
+
+  function moneyCompact(v){
+    return new Intl.NumberFormat("it-IT",{minimumFractionDigits:2,maximumFractionDigits:2}).format(Number(v)||0)+"€";
+  }
+
+  function hhmm(minutes){
+    var total=Math.max(0,Math.round(Number(minutes)||0));
+    var h=Math.floor(total/60);
+    var m=total%60;
+    return String(h).padStart(2,"0")+":"+String(m).padStart(2,"0");
+  }
+
+  function currentDistanceText(calc){
+    var one=calc.oneWayKm.toLocaleString("it-IT",{maximumFractionDigits:1});
+    if(calc.factors.label==="Andata e ritorno cliente"){
+      return calc.costKm.toLocaleString("it-IT",{maximumFractionDigits:1})+" km A/R";
+    }
+    if(calc.factors.label==="Ritorno a vuoto"){
+      return one+" + "+one+" km vuoto";
+    }
+    return one+" km";
+  }
+
+  function populateVehicles(){
+    var vehicles=readVehicles();
+    vehicleSelect.innerHTML='<option value="">Inserimento manuale</option>'+vehicles.map(function(v){
+      var name=[v.plate,v.model].filter(Boolean).join(" · ")||"Veicolo";
+      return '<option value="'+escapeHtml(v.id)+'">'+escapeHtml(name)+'</option>';
+    }).join("");
+    var prefs=readCostPrefs();
+    if(prefs.vehicleId && vehicles.some(function(v){return v.id===prefs.vehicleId;})){
+      vehicleSelect.value=prefs.vehicleId;
+    }
+  }
+
+  function escapeHtml(v){
+    return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+
+  function vehicleById(id){
+    return readVehicles().find(function(v){return v.id===id;})||null;
+  }
+
+  function applyVehicle(){
+    return vehicleById(vehicleSelect.value);
+  }
+
+  function loadSettings(){
+    populateVehicles();
+    var prefs=readCostPrefs();
+    rateQuickInput.value=getRate().toFixed(2);
+    rateSettingsInput.value=getRate().toFixed(2);
+    tripMode.value=prefs.tripMode||"oneway";
+    hourlyRateInput.value=prefs.hourlyRate||"";
+    availabilityHours.value=prefs.availabilityHours||"";
+    vatIncluded.checked=!!prefs.vatIncluded;
+    applyVehicle();
+    updateTripFields();
+  }
+
+  function saveSettings(){
+    var rate=num(rateSettingsInput.value);
+    if(rate<=0){rateSettingsInput.focus();return;}
+    localStorage.setItem(RATE_KEY,String(rate));
+    rateQuickInput.value=rate.toFixed(2);
+    var prefs={
+      vehicleId:vehicleSelect.value||"",
+      tripMode:tripMode.value,
+      hourlyRate:num(hourlyRateInput.value)||0,
+      availabilityHours:num(availabilityHours.value)||0,
+      vatIncluded:vatIncluded.checked
+    };
+    localStorage.setItem(COST_KEY,JSON.stringify(prefs));
+    settings.classList.remove("show");
+    settingsBackdrop.classList.remove("show");
+    if(lastQuote){
+      buildVariants(lastQuote);
+      renderQuote(lastQuote);
+    }
+  }
+
+  function updateTripFields(){
+    var show=tripMode.value==="roundtrip";
+    availabilityField.classList.toggle("show",show);
+  }
+
+  function tripFactors(mode){
+    if(mode==="roundtrip") return {revenue:2,cost:2,label:"Andata e ritorno cliente"};
+    if(mode==="emptyreturn") return {revenue:2,cost:2,label:"Ritorno a vuoto"};
+    return {revenue:1,cost:1,label:"Solo andata"};
+  }
+
+  function selectedFuelPrice(data,vehicle){
+    var key=vehicle&&vehicle.fuelType?vehicle.fuelType:"";
+    if(!key) return {price:0,source:"Alimentazione non impostata nel mezzo selezionato."};
+    if(key==="electric") return {price:0,source:"Costo energia elettrica non ancora configurato nel mezzo."};
+
+    var fuel=data&&data.fuel;
+    var price=fuel&&fuel.prices?Number(fuel.prices[key]):0;
+    if(price>0){
+      var date=fuel.updated?new Date(fuel.updated+"T12:00:00").toLocaleDateString("it-IT"):"";
+      return {
+        price:price,
+        source:"Media MIMIT "+(fuel.region||"")+" · "+(date||"aggiornamento giornaliero")
+      };
+    }
+    return {price:0,source:"Prezzo carburante automatico non disponibile."};
+  }
+
+  function currentVehicleName(){
+    var v=vehicleById(vehicleSelect.value);
+    return v?[v.plate,v.model].filter(Boolean).join(" · "):"Parametri manuali";
+  }
+
+  function calculateCosts(data,mode){
+    var factors=tripFactors(mode);
+    var oneWayKm=Number(data.distance_km||0);
+    var costKm=oneWayKm*factors.cost;
+    var billedKm=oneWayKm*factors.revenue;
+    var rate=getRate();
+    var kmQuote=billedKm*rate;
+    var hourlyRate=num(hourlyRateInput.value);
+    var hours=factors.label==="Andata e ritorno cliente"?num(availabilityHours.value):0;
+    var availabilityQuote=hours*hourlyRate;
+    var netQuote=kmQuote+availabilityQuote;
+    var vat=vatIncluded.checked?netQuote*0.10:0;
+    var rawQuote=netQuote+vat;
+    var quote=roundPrice?Math.round(rawQuote/5)*5:rawQuote;
+    var rounding=quote-rawQuote;
+    var vehicle=applyVehicle();
+    var consumption=vehicle?num(vehicle.consumption):0;
+    var fuelKind=vehicle&&vehicle.fuelType?vehicle.fuelType:"";
+    var energy=selectedFuelPrice(data,vehicle);
+    var fuelCost=costKm*(consumption/100)*energy.price;
+    var toll=0;
+    var total=fuelCost;
+    return {
+      factors:factors,
+      oneWayKm:oneWayKm,
+      costKm:costKm,
+      billedKm:billedKm,
+      rate:rate,
+      kmQuote:kmQuote,
+      hourlyRate:hourlyRate,
+      hours:hours,
+      availabilityQuote:availabilityQuote,
+      netQuote:netQuote,
+      vat:vat,
+      rawQuote:rawQuote,
+      rounding:rounding,
+      quote:quote,
+      vehicle:vehicle,
+      fuelKind:fuelKind,
+      consumption:consumption,
+      energy:energy,
+      fuelCost:fuelCost,
+      toll:toll,
+      total:total,
+      margin:quote-total
+    };
+  }
+
+  function buildVariants(data){
+    quoteVariants={
+      oneway:calculateCosts(data,"oneway"),
+      roundtrip:calculateCosts(data,"roundtrip"),
+      emptyreturn:calculateCosts(data,"emptyreturn")
+    };
+    return quoteVariants;
+  }
+
+  function renderMap(data,mode){
+    if(!window.L || !data || !Array.isArray(data.route_geometry) || data.route_geometry.length<2){
+      mapWrap.classList.remove("show");
+      return;
+    }
+
+    mapWrap.classList.add("show");
+    var latlngs=data.route_geometry.map(function(p){return [Number(p[1]),Number(p[0])];});
+
+    if(!routeMap){
+      routeMap=L.map("routeMap",{zoomControl:true,scrollWheelZoom:false});
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{
+        maxZoom:19,
+        attribution:"&copy; OpenStreetMap contributors"
+      }).addTo(routeMap);
+    }
+
+    if(routeLayer){routeMap.removeLayer(routeLayer);}
+    pointLayers.forEach(function(layer){routeMap.removeLayer(layer);});
+    pointLayers=[];
+
+    routeLayer=L.polyline(latlngs,{
+      color:"#f3d500",
+      weight:5,
+      opacity:.9,
+      lineCap:"round",
+      lineJoin:"round"
+    }).addTo(routeMap);
+
+    if(data.from){
+      pointLayers.push(L.circleMarker([data.from.lat,data.from.lon],{
+        radius:7,color:"#fff",weight:3,fillColor:"#111",fillOpacity:1
+      }).bindTooltip("A",{permanent:false}).addTo(routeMap));
+    }
+    if(data.to){
+      pointLayers.push(L.circleMarker([data.to.lat,data.to.lon],{
+        radius:7,color:"#fff",weight:3,fillColor:"#f3d500",fillOpacity:1
+      }).bindTooltip("B",{permanent:false}).addTo(routeMap));
+    }
+
+    routeMap.fitBounds(routeLayer.getBounds(),{padding:[22,22]});
+    setTimeout(function(){routeMap.invalidateSize();},60);
+
+    if(mode==="roundtrip"){
+      mapNote.textContent="Percorso OpenStreetMap · andata e ritorno con cliente sullo stesso itinerario";
+    }else if(mode==="emptyreturn"){
+      mapNote.textContent="Percorso OpenStreetMap · ritorno a vuoto sullo stesso itinerario";
+    }else{
+      mapNote.textContent="Percorso stradale OpenStreetMap · OSRM";
+    }
+  }
+
+  function renderQuote(data){
+    lastQuote=data; if(!lastQuote.createdAt)lastQuote.createdAt=new Date().toISOString();
+    if(!quoteVariants) buildVariants(data);
+    var calc=quoteVariants[tripMode.value]||quoteVariants.oneway;
+
+    document.getElementById("price").textContent=vatIncluded.checked
+      ? moneyCompact(calc.quote)
+      : moneyCompact(calc.quote)+" + IVA";
+    var detail=calc.billedKm.toLocaleString("it-IT",{maximumFractionDigits:1})+" km × "+money(calc.rate)+"/km";
+    if(calc.availabilityQuote>0){
+      detail+=" + "+calc.hours.toLocaleString("it-IT",{maximumFractionDigits:1})+" h × "+money(calc.hourlyRate)+"/h";
+    }
+    if(calc.vat>0) detail+=" + IVA 10% ("+money(calc.vat)+")";
+    if(roundPrice) detail+=" · arrotondato ai 5 €";
+    document.getElementById("priceDetail").textContent=detail;
+    var oneWayText=calc.oneWayKm.toLocaleString("it-IT",{maximumFractionDigits:1});
+    var distanceLabel=document.getElementById("distanceLabel");
+    if(calc.factors.label==="Andata e ritorno cliente"){
+      distanceLabel.textContent="Tratta A/R";
+      document.getElementById("distance").textContent=calc.costKm.toLocaleString("it-IT",{maximumFractionDigits:1})+" km";
+    }else if(calc.factors.label==="Ritorno a vuoto"){
+      distanceLabel.textContent="Tratta";
+      document.getElementById("distance").textContent=oneWayText+" + "+oneWayText+" km vuoto";
+    }else{
+      distanceLabel.textContent="Tratta solo andata";
+      document.getElementById("distance").textContent=oneWayText+" km";
+    }
+    var totalMinutes=Number(data.duration_min||0)*calc.factors.cost;
+    document.getElementById("duration").textContent=hhmm(totalMinutes);
+    if(document.activeElement!==rateQuickInput) rateQuickInput.value=calc.rate.toFixed(2);
+    document.getElementById("fromResolved").textContent=(data.from&&data.from.label)||fromInput.value;
+    document.getElementById("toResolved").textContent=(data.to&&data.to.label)||toInput.value;
+
+    document.getElementById("costVehicle").textContent=currentVehicleName()+" · "+calc.factors.label;
+    document.getElementById("costKm").textContent=calc.costKm.toLocaleString("it-IT",{maximumFractionDigits:1})+" km";
+    document.getElementById("fuelCost").textContent=money(calc.fuelCost);
+    document.getElementById("tollCost").textContent="Da integrare";
+    document.getElementById("tripCost").textContent=money(calc.total);
+    document.getElementById("grossMargin").textContent=money(calc.margin);
+
+    var unit=calc.fuelKind==="methane"?"kg/100 km":calc.fuelKind==="electric"?"kWh/100 km":"l/100 km";
+    var fuelDetail=calc.consumption>0 && calc.energy.price>0
+      ? calc.consumption.toLocaleString("it-IT",{maximumFractionDigits:1})+" "+unit+" × "+money(calc.energy.price)+(calc.fuelKind==="electric"?"/kWh":calc.fuelKind==="methane"?"/kg":"/l")
+      : (calc.vehicle ? "Completa alimentazione e consumo nell'anagrafica del mezzo" : "Seleziona un mezzo nelle impostazioni");
+    document.getElementById("costSource").textContent=fuelDetail+" · "+calc.energy.source;
+    result.classList.add("show");
+    renderMap(data,tripMode.value);
+  }
+
+  function saveCurrentQuote(){
+    if(!lastQuote) return;
+    if(!quoteVariants) buildVariants(lastQuote);
+    var calc=quoteVariants[tripMode.value]||quoteVariants.oneway;
+    var name=saveNameInput.value.trim();
+    if(!name) name=(fromInput.value.trim()||"Partenza")+" → "+(toInput.value.trim()||"Arrivo");
+
+    var duration=hhmm(Number(lastQuote.duration_min||0)*calc.factors.cost);
+    var entry={
+      id:"quote_"+Date.now(),
+      createdAt:lastQuote.createdAt||new Date().toISOString(),
+      serviceDate:document.getElementById("serviceDate").value,
+      departureTime:document.getElementById("departureTime").value,
+      name:name,
+      from:(lastQuote.from&&lastQuote.from.label)||fromInput.value.trim(),
+      to:(lastQuote.to&&lastQuote.to.label)||toInput.value.trim(),
+      fromShort:fromInput.value.trim(),
+      toShort:toInput.value.trim(),
+      mode:tripMode.value,
+      modeLabel:calc.factors.label,
+      distanceText:currentDistanceText(calc),
+      durationText:duration,
+      price:Number(calc.quote)||0,
+      priceDisplay:vatIncluded.checked ? moneyCompact(calc.quote) : moneyCompact(calc.quote)+" + IVA",
+      vatIncluded:vatIncluded.checked,
+      rounded:roundPrice,
+      rate:calc.rate,
+      hours:calc.hours||0,
+      hourlyRate:calc.hourlyRate||0
+    };
+
+    var items=readSavedQuotes();
+    items.unshift(entry);
+    writeSavedQuotes(items);
+    savePanel.classList.remove("show");
+    saveNameInput.value="";
+    saveQuoteBtn.textContent="Salvato ✓";
+    setTimeout(function(){saveQuoteBtn.textContent="Salva preventivo";},1400);
+  }
+
+  async function calculate(){
+    var from=fromInput.value.trim();
+    var to=toInput.value.trim();
+    if(from.length<3||to.length<3){
+      errorBox.textContent="Inserisci sia il punto di partenza sia la destinazione.";
+      errorBox.classList.add("show");
+      return;
+    }
+
+    saveSettings();
+    roundPrice=false;
+    quoteVariants=null;
+    roundBtn.classList.remove("active");
+    roundBtn.textContent="Arrotonda";
+    errorBox.classList.remove("show");
+    result.classList.remove("show");
+    calculateBtn.disabled=true;
+    calculateBtn.textContent="Calcolo…";
+
+    try{
+      var url=window.STEERWILL_QUOTE_API+"?from="+encodeURIComponent(from)+"&to="+encodeURIComponent(to);
+      var res=await fetch(url,{
+        cache:"no-store",
+        headers:{"apikey":window.STEERWILL_SUPABASE_PUBLIC_KEY||""}
+      });
+      var data=await res.json().catch(function(){return {};});
+      if(!res.ok) throw new Error(data.error||"api");
+      lastQuote=data; if(!lastQuote.createdAt)lastQuote.createdAt=new Date().toISOString();
+      buildVariants(data);
+      renderQuote(data);
+    }catch(e){
+      errorBox.textContent="Non riesco a calcolare questa tratta. Prova a scrivere gli indirizzi in modo più completo.";
+      errorBox.classList.add("show");
+    }finally{
+      calculateBtn.disabled=false;
+      calculateBtn.textContent="Calcola preventivo";
+    }
+  }
+
+  function openSettings(){
+    loadSettings();
+    settings.classList.add("show");
+    settingsBackdrop.classList.add("show");
+    setTimeout(function(){rateSettingsInput.focus();rateSettingsInput.select();},40);
+  }
+
+  function closeSettings(){
+    settings.classList.remove("show");
+    settingsBackdrop.classList.remove("show");
+  }
+
+  settingsBtn.onclick=openSettings;
+  settingsClose.onclick=closeSettings;
+  settingsBackdrop.onclick=closeSettings;
+
+  saveRateBtn.onclick=saveSettings;
+  vehicleSelect.addEventListener("change",applyVehicle);
+
+  rateQuickInput.addEventListener("input",function(){
+    var rate=num(rateQuickInput.value);
+    if(rate<=0) return;
+    localStorage.setItem(RATE_KEY,String(rate));
+    rateSettingsInput.value=rateQuickInput.value;
+    if(lastQuote){
+      buildVariants(lastQuote);
+      renderQuote(lastQuote);
+    }
+  });
+  rateQuickInput.addEventListener("blur",function(){
+    var rate=num(rateQuickInput.value);
+    if(rate<=0){
+      rateQuickInput.value=getRate().toFixed(2);
+    }else{
+      rateQuickInput.value=rate.toFixed(2);
+      rateSettingsInput.value=rate.toFixed(2);
+    }
+  });
+
+  rateSettingsInput.addEventListener("input",function(){
+    var rate=num(rateSettingsInput.value);
+    if(rate<=0) return;
+    localStorage.setItem(RATE_KEY,String(rate));
+    rateQuickInput.value=rateSettingsInput.value;
+    if(lastQuote){
+      buildVariants(lastQuote);
+      renderQuote(lastQuote);
+    }
+  });
+  tripMode.addEventListener("change",function(){
+    updateTripFields();
+    var prefs=readCostPrefs();
+    prefs.tripMode=tripMode.value;
+    localStorage.setItem(COST_KEY,JSON.stringify(prefs));
+    if(lastQuote) renderQuote(lastQuote);
+  });
+  vatIncluded.addEventListener("change",function(){
+    var prefs=readCostPrefs();
+    prefs.vatIncluded=vatIncluded.checked;
+    localStorage.setItem(COST_KEY,JSON.stringify(prefs));
+    if(lastQuote){
+      buildVariants(lastQuote);
+      renderQuote(lastQuote);
+    }
+  });
+  roundBtn.onclick=function(){
+    if(!lastQuote) return;
+    roundPrice=!roundPrice;
+    roundBtn.classList.toggle("active",roundPrice);
+    roundBtn.textContent=roundPrice?"Arrotondato ✓":"Arrotonda";
+    buildVariants(lastQuote);
+    renderQuote(lastQuote);
+  };
+
+  [availabilityHours,hourlyRateInput].forEach(function(el){
+    el.addEventListener("input",function(){
+      var prefs=readCostPrefs();
+      prefs.availabilityHours=num(availabilityHours.value)||0;
+      prefs.hourlyRate=num(hourlyRateInput.value)||0;
+      localStorage.setItem(COST_KEY,JSON.stringify(prefs));
+      if(lastQuote){
+        buildVariants(lastQuote);
+        renderQuote(lastQuote);
+      }
+    });
+  });
+
+  document.getElementById("swapBtn").onclick=function(){
+    var a=fromInput.value;
+    fromInput.value=toInput.value;
+    toInput.value=a;
+  };
+  document.getElementById("recalcBtn").onclick=calculate;
+  calculateBtn.onclick=calculate;
+
+  saveQuoteBtn.onclick=function(){
+    if(!lastQuote) return;
+    if(!saveNameInput.value.trim()){
+      saveNameInput.value=(fromInput.value.trim()||"Partenza")+" → "+(toInput.value.trim()||"Arrivo");
+    }
+    savePanel.classList.toggle("show");
+    if(savePanel.classList.contains("show")) setTimeout(function(){saveNameInput.focus();saveNameInput.select();},40);
+  };
+  document.getElementById("confirmSaveBtn").onclick=saveCurrentQuote;
+  document.getElementById("cancelSaveBtn").onclick=function(){savePanel.classList.remove("show");};
+  saveNameInput.addEventListener("keydown",function(e){
+    if(e.key==="Enter"){e.preventDefault();saveCurrentQuote();}
+  });
+
+  document.getElementById("copyBtn").onclick=function(){
+    if(!lastQuote)return;if(!quoteVariants)buildVariants(lastQuote);
+    var calc=quoteVariants[tripMode.value]||quoteVariants.oneway;
+    var q={from:(lastQuote.from||{}).label||fromInput.value,to:(lastQuote.to||{}).label||toInput.value,modeLabel:calc.factors.label,serviceDate:document.getElementById("serviceDate").value,departureTime:document.getElementById("departureTime").value,priceDisplay:vatIncluded.checked?moneyCompact(calc.quote)+" IVA inclusa":moneyCompact(calc.quote)+" + IVA"};
+    sessionStorage.setItem("steerwill_message_quote_v1",JSON.stringify(q));location.href="testo-cliente.html?v=revision20260930";
+  };
+
+  [fromInput,toInput].forEach(function(el){
+    el.addEventListener("keydown",function(e){
+      if(e.key==="Enter"){e.preventDefault();calculate();}
+    });
+  });
+
+  loadSettings();
+})();
+</script>
+</body>
+</html>
