@@ -43,7 +43,8 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
 .cellLabel{font-size:9px;color:#777;text-transform:uppercase;letter-spacing:.08em;font-weight:850}
 .cellValue{margin-top:4px;font-size:16px;font-weight:900}
 .delay{color:#f0c94f}
-.cardActions{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 18px 16px}
+.cardActions{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;padding:12px 18px 16px}
+.landingClock{flex:1 1 140px;min-width:0;overflow-wrap:anywhere}
 .meta{color:#777;font-size:10px}
 .remove{border:1px solid #3b3b3b;background:#252525;color:#bbb;border-radius:999px;padding:8px 11px;font-size:11px;font-weight:800}
 .empty{padding:30px 20px;border:1px dashed #373737;border-radius:22px;text-align:center;color:#8c8c8c}
@@ -86,7 +87,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
   <div id="list" class="list"></div>
 </main>
 
-<script src="assets/flight-status.js?v=mobile20260930"></script>
+<script src="assets/flight-status.js?v=clock20261001"></script>
 <script src="flight-config.js?v=steerwill2"></script>
 <script>
 (function(){
@@ -198,9 +199,9 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     var delay=delayMinutes(f);
     var delayText=delay===null?"—":(delay>0?"+"+delay+" min":delay<0?delay+" min":"In orario");
     var origin=f.origin||{}, destination=f.destination||{};
-    var landingInfo=SWFlight.info(f);
+    var landingInfo=SWFlight.info(f,true);
     return '<article class="card '+(landingInfo.state?'sw-'+landingInfo.state:'')+'">'+
-      '<div class="secondaryText">'+escapeHtml(f.customerName||'')+'</div><div class="elapsed" data-landing="'+escapeHtml(JSON.stringify(f))+'">'+escapeHtml(landingInfo.text)+'</div>'+
+      '<div class="secondaryText">'+escapeHtml(f.customerName||'')+'</div>'+
       '<div class="cardHead">'+
         '<div><div class="ident">'+escapeHtml(f.ident||"—")+'</div><div class="secondaryText">'+escapeHtml(f.airline||"")+'</div></div>'+
         '<div class="badge">VOLO · '+escapeHtml(f.status||"—")+'</div>'+
@@ -212,7 +213,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
         '<div class="cell"><div class="cellLabel">Ritardo</div><div class="cellValue '+(delay>0?"delay":"")+'">'+delayText+'</div></div>'+
         '<div class="cell"><div class="cellLabel">Terminal</div><div class="cellValue">'+escapeHtml(f.terminal_destination||"—")+'</div></div>'+
       '</div>'+
-      '<div class="cardActions"><a class="timestampLink" href="'+escapeHtml(SWFlight.link(f))+'">Prova no-show</a><div class="meta">Gate '+escapeHtml(f.gate_destination||"—")+'</div><button class="remove" type="button" data-remove-flight="'+escapeHtml(f.ident)+'" data-flight-date="'+escapeHtml(f.target_date||"")+'">Rimuovi</button></div>'+
+      '<div class="cardActions"><a class="timestampLink" href="'+escapeHtml(SWFlight.link(f))+'">Prova no-show</a><div class="meta landingClock" data-landing-format="clock" data-landing="'+escapeHtml(JSON.stringify(f))+'">'+escapeHtml(landingInfo.text)+'</div><button class="remove" type="button" data-remove-flight="'+escapeHtml(f.ident)+'" data-flight-date="'+escapeHtml(f.target_date||"")+'">Rimuovi</button></div>'+
     '</article>';
   }
 
