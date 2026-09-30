@@ -84,7 +84,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
   <section class="hero">
     <div class="heroTop">
       <div><h1>Treni</h1></div>
-      <div class="provider">Fonte<strong>RFI + orari</strong></div>
+      <div class="provider">Fonte<strong>RFI + Italo + orari</strong></div>
     </div>
 
     <div class="station">
@@ -110,10 +110,10 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
 
     <div class="search">
       <input id="searchInput" type="text" placeholder="Numero treno o destinazione" autocomplete="off" spellcheck="false">
-      <button id="searchBtn" type="button">Filtra</button>
+      <button id="searchBtn" type="button">Cerca</button>
     </div>
 
-    <div class="notice">Tabellone live RFI con orizzonte esteso fino a circa 12 ore. I treni più vicini usano i dati in tempo reale; quelli più lontani sono indicati come programmati.</div>
+    <div class="notice">Tabellone RFI con orizzonte esteso fino a circa 12 ore. La ricerca per numero interroga anche Italo In Viaggio quando il treno non compare nel tabellone.</div>
   </section>
 
   <div class="sectionHead">
@@ -233,14 +233,46 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     });
   }
 
-  function applyFilter(){
-    var q=searchInput.value.trim().toUpperCase();
-    if(!q){render(allItems);return;}
-    render(allItems.filter(function(t){
+  function filteredItems(q){
+    if(!q) return allItems.slice();
+    return allItems.filter(function(t){
       return String(t.train||"").toUpperCase().includes(q) ||
         String(t.destination||t.origin||"").toUpperCase().includes(q) ||
         String(t.operator||"").toUpperCase().includes(q);
-    }));
+    });
+  }
+
+  function applyFilter(){
+    var q=searchInput.value.trim().toUpperCase();
+    render(filteredItems(q));
+  }
+
+  async function searchExact(){
+    var q=searchInput.value.trim().toUpperCase();
+    var local=filteredItems(q);
+    if(!q || !/^\d{3,5}$/.test(q) || local.some(function(t){return String(t.train)===q;})){
+      render(local);
+      return;
+    }
+
+    list.innerHTML='<div class="empty"><strong>Cerco il treno '+escapeHtml(q)+'…</strong>Controllo anche Italo In Viaggio.</div>';
+    count.textContent="";
+
+    try{
+      var url=window.STEERWILL_TRAINS_API+"?station="+encodeURIComponent(stationSelect.value)+"&mode="+encodeURIComponent(mode)+"&q="+encodeURIComponent(q);
+      var res=await fetch(url,{cache:"no-store",headers:{"apikey":window.STEERWILL_SUPABASE_PUBLIC_KEY||""}});
+      var data=await res.json().catch(function(){return {};});
+      if(!res.ok) throw new Error(data.error||"api");
+      var remote=Array.isArray(data.items)?data.items:[];
+      remote.forEach(function(item){
+        var ix=allItems.findIndex(function(x){return String(x.id)===String(item.id) || (String(x.train)===String(item.train) && String(x.service_date||"")===String(item.service_date||""));});
+        if(ix>=0) allItems[ix]=item;
+        else allItems.push(item);
+      });
+      render(filteredItems(q));
+    }catch(e){
+      render(local);
+    }
   }
 
   async function load(){
@@ -286,9 +318,9 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     load();
   };
 
-  searchBtn.onclick=applyFilter;
+  searchBtn.onclick=searchExact;
   searchInput.addEventListener("input",applyFilter);
-  searchInput.addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();applyFilter();}});
+  searchInput.addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();searchExact();}});
 
   load();
   setInterval(load,60000);
