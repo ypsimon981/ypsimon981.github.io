@@ -231,11 +231,11 @@ h1{margin:0;font-size:clamp(38px,7vw,64px);line-height:.95;letter-spacing:-.045e
           <input id="serviceDate" name="serviceDate" type="date">
         </div>
         <div class="field">
-          <label for="tyresKm">Controllo / cambio gomme · km</label>
+          <label for="tyresKm">Prossimo cambio gomme · km</label>
           <input id="tyresKm" name="tyresKm" type="number" min="0" step="1" placeholder="95000">
         </div>
         <div class="field">
-          <label for="tyresDate">Controllo / cambio gomme · data</label>
+          <label for="tyresDate">Prossimo cambio gomme · data</label>
           <input id="tyresDate" name="tyresDate" type="date">
         </div>
       </div>
@@ -248,7 +248,7 @@ h1{margin:0;font-size:clamp(38px,7vw,64px);line-height:.95;letter-spacing:-.045e
   </section>
 
   <div id="list" class="list"></div>
-  <div class="note">Questa prima versione salva i veicoli sul dispositivo. Le scadenze vengono evidenziate quando mancano 30 giorni; tagliando e gomme anche quando mancano 1.000 km.</div>
+  <div class="note">Questa prima versione salva i veicoli sul dispositivo. Le scadenze vengono evidenziate quando mancano 30 giorni; prossimo tagliando e prossimo cambio gomme anche quando mancano 1.000 km.</div>
 </main>
 
 <script>
@@ -392,8 +392,8 @@ h1{margin:0;font-size:clamp(38px,7vw,64px);line-height:.95;letter-spacing:-.045e
         '</div>' +
         insuranceBanner(v) +
         '<div class="maintenance">' +
-          maintenanceCard("Tagliando",v.serviceKm,v.serviceDate,km) +
-          maintenanceCard("Gomme",v.tyresKm,v.tyresDate,km) +
+          maintenanceCard("Prossimo tagliando",v.serviceKm,v.serviceDate,km) +
+          maintenanceCard("Prossimo cambio gomme",v.tyresKm,v.tyresDate,km) +
           '<a class="partnerSlot" href="https://www.pneumatici.it/" target="_blank" rel="noopener sponsored">' +
             '<div class="partnerEyebrow">Partner</div>' +
             '<div class="partnerVehicle">'+escapeHtml(partnerVehicleLabel(v))+'</div>' +
