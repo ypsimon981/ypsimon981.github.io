@@ -1131,11 +1131,11 @@ button{font:inherit}
         <input id="feedbackHoney" type="text" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
         <button id="feedbackSend" class="feedbackSend" type="submit">Invia consiglio</button>
         <div id="feedbackStatus" class="feedbackStatus" aria-live="polite"></div>
-        <div class="feedbackPrivacy">Il messaggio viene inviato al team SteerWill. Nome ed email sono facoltativi.</div>
+        <div class="feedbackPrivacy">Si aprirà la tua app Mail con il messaggio già compilato. Nome ed email sono facoltativi.</div>
       </form>
     </section>
 
-    <div class="footer">MAINPAGE · STEERWILL V5.4</div>
+    <div class="footer">MAINPAGE · STEERWILL V5.5</div>
   </section>
 </main>
 
@@ -1218,10 +1218,9 @@ button{font:inherit}
 
   var feedbackForm=document.getElementById("feedbackForm");
   if(feedbackForm){
-    feedbackForm.addEventListener("submit",async function(e){
+    feedbackForm.addEventListener("submit",function(e){
       e.preventDefault();
       var status=document.getElementById("feedbackStatus");
-      var button=document.getElementById("feedbackSend");
       var message=document.getElementById("feedbackMessage").value.trim();
       var honey=document.getElementById("feedbackHoney").value.trim();
 
@@ -1233,35 +1232,22 @@ button{font:inherit}
         return;
       }
 
-      button.disabled=true;
-      button.textContent="Invio…";
-      status.textContent="";
+      var name=document.getElementById("feedbackName").value.trim()||"Anonimo";
+      var email=document.getElementById("feedbackEmail").value.trim()||"Non indicata";
+      var subject="SteerWill · Consiglio da un driver";
+      var body=[
+        "Nome: "+name,
+        "Email: "+email,
+        "",
+        "Consiglio:",
+        message,
+        "",
+        "Pagina: "+location.href
+      ].join("\n");
 
-      try{
-        var res=await fetch("https://formsubmit.co/ajax/letitviral@gmail.com",{
-          method:"POST",
-          headers:{"Content-Type":"application/json","Accept":"application/json"},
-          body:JSON.stringify({
-            nome:document.getElementById("feedbackName").value.trim()||"Anonimo",
-            email:document.getElementById("feedbackEmail").value.trim(),
-            messaggio:message,
-            _subject:"SteerWill · Nuovo consiglio da un driver",
-            _template:"table",
-            pagina:location.href
-          })
-        });
-        var data=await res.json().catch(function(){return {};});
-        if(!res.ok || data.success===false) throw new Error(data.message||"Invio non riuscito");
-        feedbackForm.reset();
-        status.textContent="Grazie. Il consiglio è stato inviato.";
-        status.classList.add("ok");
-      }catch(err){
-        status.textContent="Invio non riuscito. Riprova tra poco.";
-        status.classList.add("bad");
-      }finally{
-        button.disabled=false;
-        button.textContent="Invia consiglio";
-      }
+      status.textContent="Apro la tua app Mail con il messaggio già compilato.";
+      status.classList.add("ok");
+      window.location.href="mailto:letitviral@gmail.com?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body);
     });
   }
 
