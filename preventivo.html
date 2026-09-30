@@ -116,6 +116,13 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
 }
 
 h1{font-size:32px}.hero{padding:16px}.field label{font-size:14px;font-weight:500;letter-spacing:0;text-transform:none}.field input,.field select{height:46px;font-weight:500;border-radius:10px;font-size:16px}.price{font-size:44px;font-weight:650}.metaValue{font-weight:600;font-size:16px}.calculate,.swap,.roundBtn,.resultActions button,.savePanel button{font-weight:600}.metaLabel,.priceLabel,.optionNote,.costVehicle,.costSource,.footerNote{font-size:12px}.optionTitle{font-weight:600}.costTitle{font-weight:600;font-size:16px}.costRow span{font-size:14px}.topActions{flex-wrap:wrap;gap:5px}.metaGrid{grid-template-columns:repeat(3,1fr)}.metaCell{padding:10px;border-bottom:0}.resultActions{grid-template-columns:1fr 1fr;gap:6px}.routeActions{grid-template-columns:auto 1fr;gap:6px}.costBox{padding:14px}.priceBox{padding:14px}.costRow.total strong{font-weight:650}
+.routeForm,.field{min-width:0}
+.field{grid-template-columns:minmax(0,1fr)}
+.serviceSchedule{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;min-width:0}
+.serviceSchedule .field{min-width:0}
+.serviceSchedule input{display:block;box-sizing:border-box;min-width:0;max-width:100%;width:100%;padding:0 8px;-webkit-appearance:none;appearance:none}
+.serviceSchedule input::-webkit-date-and-time-value{min-width:0;text-align:left}
+.serviceSchedule label{font-size:13px}
 </style>
 <link rel="stylesheet" href="assets/steerwill-theme.css?v=1">
 <link rel="stylesheet" href="assets/revision.css?v=20260930"><link rel="stylesheet" href="assets/mobile.css?v=mobile20260930"><script defer src="assets/mobile.js?v=mobile20260930"></script>
@@ -135,7 +142,11 @@ h1{font-size:32px}.hero{padding:16px}.field label{font-size:14px;font-weight:500
     <h1>Preventivo rapido</h1>
     <p class="sub">Percorso, prezzo e costi operativi della corsa.</p>
 
-    <div class="routeForm"><div class="field"><label for="serviceDate">Data servizio</label><input id="serviceDate" type="date"></div><div class="field"><label for="departureTime">Partenza · opzionale</label><input id="departureTime" type="time"></div>
+    <div class="routeForm">
+      <div class="serviceSchedule">
+        <div class="field"><label for="serviceDate">Data servizio</label><input id="serviceDate" type="date"></div>
+        <div class="field"><label for="departureTime">Ora partenza</label><input id="departureTime" type="time" aria-label="Ora partenza (facoltativa)" title="Facoltativa"></div>
+      </div>
       <div class="field">
         <label for="fromInput">Da</label>
         <input id="fromInput" type="text" placeholder="Es. Roma Termini" autocomplete="off">
@@ -151,7 +162,7 @@ h1{font-size:32px}.hero{padding:16px}.field label{font-size:14px;font-weight:500
         <select id="tripMode">
           <option value="oneway">Solo andata</option>
           <option value="roundtrip">Andata e ritorno con cliente</option>
-          <option value="emptyreturn">Ritorno a vuoto</option>
+          <option value="emptyreturn" selected>Ritorno a vuoto</option>
         </select>
       </div>
 
@@ -401,12 +412,12 @@ h1{font-size:32px}.hero{padding:16px}.field label{font-size:14px;font-weight:500
     return vehicleById(vehicleSelect.value);
   }
 
-  function loadSettings(){
+  function loadSettings(initial){
     populateVehicles();
     var prefs=readCostPrefs();
     rateQuickInput.value=getRate().toFixed(2);
     rateSettingsInput.value=getRate().toFixed(2);
-    tripMode.value=prefs.tripMode||"oneway";
+    tripMode.value=initial?"emptyreturn":(prefs.tripMode||"emptyreturn");
     hourlyRateInput.value=prefs.hourlyRate||"";
     availabilityHours.value=prefs.availabilityHours||"";
     vatIncluded.checked=!!prefs.vatIncluded;
@@ -827,7 +838,7 @@ h1{font-size:32px}.hero{padding:16px}.field label{font-size:14px;font-weight:500
     });
   });
 
-  loadSettings();
+  loadSettings(true);
 })();
 </script>
 </body>
