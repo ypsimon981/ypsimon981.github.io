@@ -80,7 +80,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     <button id="refreshAll" class="refresh" type="button">Aggiorna</button>
   </div>
 
-  <div class="notice">Voli: FlightAware live. Treni: tabelloni RFI live. Navi: programmazione del porto selezionato. I viaggi conclusi da oltre 12 ore vengono rimossi automaticamente.</div>
+  <div class="notice">Voli: FlightAware live. Treni: RFI + Italo In Viaggio. Navi: programmazione del porto selezionato. I viaggi conclusi da oltre 12 ore vengono rimossi automaticamente.</div>
   <div id="list" class="list"></div>
 </main>
 
@@ -226,7 +226,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
         '<div class="cell"><div class="cellLabel">Ritardo</div><div class="cellValue '+(delay>0?"delay":"")+'">'+(delay==null?"—":delay>0?"+"+delay+" min":"0 min")+'</div></div>'+
         '<div class="cell"><div class="cellLabel">Binario</div><div class="cellValue">'+escapeHtml(t.platform||"—")+'</div></div>'+
       '</div>'+
-      '<div class="cardActions"><div class="meta">RFI Live</div><button class="remove" type="button" data-remove-train="'+escapeHtml(t.train)+'" data-train-station="'+escapeHtml(t.station_slug||"")+'" data-train-mode="'+escapeHtml(t.mode||"departures")+'">Rimuovi</button></div>'+
+      '<div class="cardActions"><div class="meta">'+escapeHtml(t.source||"RFI / orari")+'</div><button class="remove" type="button" data-remove-train="'+escapeHtml(t.train)+'" data-train-station="'+escapeHtml(t.station_slug||"")+'" data-train-mode="'+escapeHtml(t.mode||"departures")+'">Rimuovi</button></div>'+
     '</article>';
   }
 
@@ -375,20 +375,39 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
         var data=await res.json().catch(function(){return {};});
         if(!res.ok||!Array.isArray(data.items)) continue;
 
-        updated=updated.map(function(old){
-          if((old.station_slug||"roma_termini")!==stationSlug||(old.mode||"departures")!==mode) return old;
+        for(var gi=0;gi<groups[key].length;gi++){
+          var old=groups[key][gi];
           var match=data.items.find(function(x){
             if(String(x.train)!==String(old.train)) return false;
             if(old.service_date && x.service_date) return String(x.service_date)===String(old.service_date);
             return true;
           });
-          if(!match) return old;
+
+          if(!match && /^\d{3,5}$/.test(String(old.train||""))){
+            try{
+              var exactRes=await fetch(window.STEERWILL_TRAINS_API+"?station="+encodeURIComponent(stationSlug)+"&mode="+encodeURIComponent(mode)+"&q="+encodeURIComponent(old.train),{
+                cache:"no-store",
+                headers:{"apikey":window.STEERWILL_SUPABASE_PUBLIC_KEY||""}
+              });
+              var exactData=await exactRes.json().catch(function(){return {};});
+              if(exactRes.ok && Array.isArray(exactData.items)){
+                match=exactData.items.find(function(x){return String(x.train)===String(old.train);})||null;
+              }
+            }catch(e){}
+          }
+
+          if(!match) continue;
           match.station=old.station||data.station||"";
           match.station_slug=stationSlug;
           match.mode=mode;
           match.followedAt=old.followedAt||Date.now();
-          return match;
-        });
+
+          updated=updated.map(function(x){
+            if(String(x.train)!==String(old.train)) return x;
+            if((x.station_slug||"roma_termini")!==stationSlug||(x.mode||"departures")!==mode) return x;
+            return match;
+          });
+        }
       }catch(e){}
     }
 
