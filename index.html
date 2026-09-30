@@ -90,6 +90,25 @@ button{font:inherit}
   max-width:100%;
   border-radius:18%;
 }
+.introTop{
+  display:flex;
+  justify-content:flex-end;
+  margin-bottom:10px;
+}
+.readmeBtn{
+  min-height:34px;
+  padding:0 13px;
+  border:1px solid #5B4035;
+  border-radius:999px;
+  background:#241D1A;
+  color:#D8A58E;
+  font-size:10px;
+  font-weight:950;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  cursor:pointer;
+}
+.readmeBtn:active{opacity:.86}
 .brandTag{
   margin-top:8px;
   color:#A59A93;
@@ -690,6 +709,146 @@ button{font:inherit}
   font-size:10px;
   font-weight:800;
 }
+.feedbackSection{
+  margin-top:26px;
+  padding:18px;
+  border:1px solid #3A3D40;
+  border-radius:22px;
+  background:linear-gradient(180deg,#202326,#191B1E);
+}
+.feedbackTitle{
+  font-size:19px;
+  font-weight:920;
+  letter-spacing:-.02em;
+}
+.feedbackSub{
+  margin-top:5px;
+  color:#9B918C;
+  font-size:11px;
+  line-height:1.4;
+}
+.feedbackGrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:9px;
+  margin-top:14px;
+}
+.feedbackField{display:grid;gap:6px}
+.feedbackField.full{grid-column:1/-1}
+.feedbackField label{
+  color:#9B918C;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.feedbackField input,
+.feedbackField textarea{
+  width:100%;
+  border:1px solid #3E4144;
+  border-radius:13px;
+  background:#111315;
+  color:#F5F1EC;
+  padding:11px 12px;
+  font:inherit;
+  outline:none;
+}
+.feedbackField input{height:44px}
+.feedbackField textarea{
+  min-height:110px;
+  resize:vertical;
+  line-height:1.4;
+}
+.feedbackField input:focus,
+.feedbackField textarea:focus{border-color:#8E5F4B}
+.feedbackSend{
+  width:100%;
+  min-height:46px;
+  margin-top:10px;
+  border:0;
+  border-radius:13px;
+  background:#B9785B;
+  color:#18100D;
+  font-weight:950;
+  cursor:pointer;
+}
+.feedbackSend:disabled{opacity:.55}
+.feedbackStatus{
+  min-height:18px;
+  margin-top:8px;
+  color:#A59A93;
+  font-size:10px;
+  line-height:1.35;
+}
+.feedbackStatus.ok{color:#B8C9B3}
+.feedbackStatus.bad{color:#E5A39D}
+.feedbackPrivacy{
+  margin-top:4px;
+  color:#726A66;
+  font-size:9px;
+  line-height:1.35;
+}
+.readmeBackdrop{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:200;
+  background:rgba(0,0,0,.76);
+  backdrop-filter:blur(6px);
+  padding:14px;
+}
+.readmeBackdrop.show{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.readmeModal{
+  width:min(620px,100%);
+  max-height:min(82dvh,760px);
+  overflow:auto;
+  padding:20px;
+  border:1px solid #4A403B;
+  border-radius:24px;
+  background:linear-gradient(180deg,#211D1B,#17181A);
+  box-shadow:0 28px 90px rgba(0,0,0,.55);
+}
+.readmeHead{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:14px;
+}
+.readmeTitle{
+  font-size:25px;
+  font-weight:950;
+  letter-spacing:-.03em;
+}
+.readmeClose{
+  min-height:36px;
+  padding:0 12px;
+  border:1px solid #51443E;
+  border-radius:999px;
+  background:#28201D;
+  color:#D8A58E;
+  font-weight:900;
+}
+.readmeText{
+  color:#D5CCC7;
+  font-size:13px;
+  line-height:1.55;
+}
+.readmeText p{margin:0 0 12px}
+.readmeFinal{
+  margin-top:17px;
+  padding:14px 15px;
+  border:1px solid #684838;
+  border-radius:16px;
+  background:#2A201C;
+  color:#F0D8CC;
+  font-weight:900;
+  line-height:1.45;
+}
 .footer{
   margin-top:18px;
   font-size:11px;
@@ -722,6 +881,8 @@ button{font:inherit}
   .toolTile .icon{width:36px;height:36px}
   .tileTitle{font-size:15px}
   .vehicleDeadlineGrid{grid-template-columns:1fr 1fr}
+  .feedbackGrid{grid-template-columns:1fr}
+  .feedbackField.full{grid-column:1}
   .productsNote{display:none}
   .productCard{flex-basis:168px}
 }
@@ -746,6 +907,9 @@ button{font:inherit}
 <body>
 <main class="page">
   <section class="shell">
+    <div class="introTop">
+      <button id="readmeBtn" class="readmeBtn" type="button">Leggimi</button>
+    </div>
     <div class="headerRow">
       <div class="brand"><span class="steer">Steer</span><span class="will">Will</span></div>
       <div class="brandIconWrap">
@@ -946,9 +1110,54 @@ button{font:inherit}
       </div>
     </section>
 
-    <div class="footer">MAINPAGE · STEERWILL V5.3</div>
+    <section class="feedbackSection" aria-labelledby="feedbackTitle">
+      <div id="feedbackTitle" class="feedbackTitle">Consigli per migliorare l’app</div>
+      <div class="feedbackSub">Dicci cosa useresti davvero, cosa elimineresti e cosa ti farebbe lavorare meglio.</div>
+      <form id="feedbackForm">
+        <div class="feedbackGrid">
+          <div class="feedbackField">
+            <label for="feedbackName">Nome · facoltativo</label>
+            <input id="feedbackName" name="nome" type="text" maxlength="80" autocomplete="name">
+          </div>
+          <div class="feedbackField">
+            <label for="feedbackEmail">Email · facoltativa</label>
+            <input id="feedbackEmail" name="email" type="email" maxlength="120" autocomplete="email">
+          </div>
+          <div class="feedbackField full">
+            <label for="feedbackMessage">Il tuo consiglio</label>
+            <textarea id="feedbackMessage" name="messaggio" maxlength="3000" required placeholder="Cosa cambieresti? Cosa manca? Cosa non useresti?"></textarea>
+          </div>
+        </div>
+        <input id="feedbackHoney" type="text" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
+        <button id="feedbackSend" class="feedbackSend" type="submit">Invia consiglio</button>
+        <div id="feedbackStatus" class="feedbackStatus" aria-live="polite"></div>
+        <div class="feedbackPrivacy">Il messaggio viene inviato al team SteerWill. Nome ed email sono facoltativi.</div>
+      </form>
+    </section>
+
+    <div class="footer">MAINPAGE · STEERWILL V5.4</div>
   </section>
 </main>
+
+<div id="readmeBackdrop" class="readmeBackdrop" role="dialog" aria-modal="true" aria-labelledby="readmeTitle">
+  <div class="readmeModal">
+    <div class="readmeHead">
+      <div id="readmeTitle" class="readmeTitle">Cos’è SteerWill</div>
+      <button id="readmeClose" class="readmeClose" type="button">Chiudi</button>
+    </div>
+    <div class="readmeText">
+      <p><strong>SteerWill nasce da un’idea molto semplice: chi lavora come autista NCC oggi usa troppe app diverse.</strong> Una per controllare un volo, una per i treni, Google per cercare informazioni, il traduttore, la fotocamera per documentare dove sei stato, note o calcolatrice per fare un preventivo e promemoria per le scadenze della macchina.</p>
+      <p>L’obiettivo è mettere queste cose <strong>tutte nello stesso posto</strong>, in maniera veloce e pensata specificamente per chi fa questo lavoro.</p>
+      <p>Dalla schermata principale puoi aprire il <strong>cartello cliente</strong>, controllare <strong>voli, treni e navi</strong>, salvare quelli che ti interessano e ritrovarli nel <strong>Monitor viaggi</strong>, dove vedi subito l’orario aggiornato e l’eventuale ritardo.</p>
+      <p>Ci sono poi il <strong>traduttore</strong>, il <strong>Timestamp</strong> per fare una fotografia con data, ora e posizione, il <strong>preventivo rapido</strong> e una sezione dedicata al veicolo, dove puoi registrare chilometri, assicurazione, revisione, ZTL, bollo, prossimo tagliando e cambio gomme.</p>
+      <p>All’inizio della giornata SteerWill può chiederti <strong>con quale macchina stai lavorando e quanti chilometri ha</strong>, così aggiorna automaticamente le scadenze legate al chilometraggio.</p>
+      <p>L’idea non è sostituire le app che già funzionano bene quando servono, ma evitare di doverne aprire dieci diverse per fare dieci piccole cose.</p>
+      <p><strong>Questa è ancora una versione di prova.</strong> La stiamo facendo usare prima agli autisti perché vogliamo capire cosa è realmente utile e cosa invece va cambiato o eliminato.</p>
+      <p>Non ci interessa sentirci dire che è bella: ci interessa sapere <strong>cosa useresti davvero durante il turno, cosa non useresti mai e cosa ti fa perdere tempo.</strong> Se manca una funzione che potrebbe semplificarti il lavoro, scrivicelo in fondo alla pagina.</p>
+      <div class="readmeFinal">Provala durante un turno normale. Se a fine giornata ti ha evitato di aprire cinque applicazioni diverse, sta facendo il suo lavoro.</div>
+    </div>
+  </div>
+</div>
 
 <div id="dailyKmBackdrop" class="dailyBackdrop"></div>
 <div id="dailyKmSheet" class="dailyKmSheet" role="dialog" aria-modal="true" aria-labelledby="dailyKmTitle">
@@ -983,6 +1192,78 @@ button{font:inherit}
   }
   setBackgroundShift();
   window.addEventListener("scroll",setBackgroundShift,{passive:true});
+
+  var readmeBtn=document.getElementById("readmeBtn");
+  var readmeBackdrop=document.getElementById("readmeBackdrop");
+  var readmeClose=document.getElementById("readmeClose");
+
+  function openReadme(){
+    readmeBackdrop.classList.add("show");
+    document.body.style.overflow="hidden";
+  }
+  function closeReadme(){
+    readmeBackdrop.classList.remove("show");
+    document.body.style.overflow="";
+  }
+  if(readmeBtn) readmeBtn.onclick=openReadme;
+  if(readmeClose) readmeClose.onclick=closeReadme;
+  if(readmeBackdrop){
+    readmeBackdrop.addEventListener("click",function(e){
+      if(e.target===readmeBackdrop) closeReadme();
+    });
+  }
+  document.addEventListener("keydown",function(e){
+    if(e.key==="Escape" && readmeBackdrop && readmeBackdrop.classList.contains("show")) closeReadme();
+  });
+
+  var feedbackForm=document.getElementById("feedbackForm");
+  if(feedbackForm){
+    feedbackForm.addEventListener("submit",async function(e){
+      e.preventDefault();
+      var status=document.getElementById("feedbackStatus");
+      var button=document.getElementById("feedbackSend");
+      var message=document.getElementById("feedbackMessage").value.trim();
+      var honey=document.getElementById("feedbackHoney").value.trim();
+
+      status.className="feedbackStatus";
+      if(honey) return;
+      if(!message){
+        status.textContent="Scrivi prima il tuo consiglio.";
+        status.classList.add("bad");
+        return;
+      }
+
+      button.disabled=true;
+      button.textContent="Invio…";
+      status.textContent="";
+
+      try{
+        var res=await fetch("https://formsubmit.co/ajax/letitviral@gmail.com",{
+          method:"POST",
+          headers:{"Content-Type":"application/json","Accept":"application/json"},
+          body:JSON.stringify({
+            nome:document.getElementById("feedbackName").value.trim()||"Anonimo",
+            email:document.getElementById("feedbackEmail").value.trim(),
+            messaggio:message,
+            _subject:"SteerWill · Nuovo consiglio da un driver",
+            _template:"table",
+            pagina:location.href
+          })
+        });
+        var data=await res.json().catch(function(){return {};});
+        if(!res.ok || data.success===false) throw new Error(data.message||"Invio non riuscito");
+        feedbackForm.reset();
+        status.textContent="Grazie. Il consiglio è stato inviato.";
+        status.classList.add("ok");
+      }catch(err){
+        status.textContent="Invio non riuscito. Riprova tra poco.";
+        status.classList.add("bad");
+      }finally{
+        button.disabled=false;
+        button.textContent="Invia consiglio";
+      }
+    });
+  }
 
   function readHomeList(key){
     try{
