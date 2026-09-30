@@ -1132,11 +1132,11 @@ button{font:inherit}
         <input id="feedbackHoney" type="text" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
         <button id="feedbackSend" class="feedbackSend" type="submit">Invia consiglio</button>
         <div id="feedbackStatus" class="feedbackStatus" aria-live="polite"></div>
-        <div class="feedbackPrivacy">Si aprirà la tua app Mail con il messaggio già compilato. Nome ed email sono facoltativi.</div>
+        <div class="feedbackPrivacy">Il consiglio viene inviato direttamente al team SteerWill. Nome ed email sono facoltativi.</div>
       </form>
     </section>
 
-    <div class="footer">MAINPAGE · STEERWILL V5.5</div>
+    <div class="footer">MAINPAGE · STEERWILL V5.6</div>
   </section>
 </main>
 
@@ -1219,9 +1219,10 @@ button{font:inherit}
 
   var feedbackForm=document.getElementById("feedbackForm");
   if(feedbackForm){
-    feedbackForm.addEventListener("submit",function(e){
+    feedbackForm.addEventListener("submit",async function(e){
       e.preventDefault();
       var status=document.getElementById("feedbackStatus");
+      var button=document.getElementById("feedbackSend");
       var message=document.getElementById("feedbackMessage").value.trim();
       var honey=document.getElementById("feedbackHoney").value.trim();
 
@@ -1233,22 +1234,37 @@ button{font:inherit}
         return;
       }
 
-      var name=document.getElementById("feedbackName").value.trim()||"Anonimo";
-      var email=document.getElementById("feedbackEmail").value.trim()||"Non indicata";
-      var subject="SteerWill · Consiglio da un driver";
-      var body=[
-        "Nome: "+name,
-        "Email: "+email,
-        "",
-        "Consiglio:",
-        message,
-        "",
-        "Pagina: "+location.href
-      ].join("\n");
+      button.disabled=true;
+      button.textContent="Invio…";
+      status.textContent="";
 
-      status.textContent="Apro la tua app Mail con il messaggio già compilato.";
-      status.classList.add("ok");
-      window.location.href="mailto:letitviral@gmail.com?subject="+encodeURIComponent(subject)+"&body="+encodeURIComponent(body);
+      try{
+        var res=await fetch("https://bboijzuzhgvfxqrsfatw.supabase.co/functions/v1/feedback",{
+          method:"POST",
+          headers:{
+            "Content-Type":"application/json",
+            "apikey":"sb_publishable_IYGuSSUStiK95becoD-OQQ_aj_2sGIN"
+          },
+          body:JSON.stringify({
+            name:document.getElementById("feedbackName").value.trim()||"Anonimo",
+            email:document.getElementById("feedbackEmail").value.trim(),
+            message:message,
+            page:location.href,
+            company:honey
+          })
+        });
+        var data=await res.json().catch(function(){return {};});
+        if(!res.ok || data.ok!==true) throw new Error(data.error||"send_failed");
+        feedbackForm.reset();
+        status.textContent="Grazie. Il consiglio è stato inviato.";
+        status.classList.add("ok");
+      }catch(err){
+        status.textContent="Invio non riuscito. Riprova tra poco.";
+        status.classList.add("bad");
+      }finally{
+        button.disabled=false;
+        button.textContent="Invia consiglio";
+      }
     });
   }
 
