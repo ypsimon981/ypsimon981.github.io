@@ -268,11 +268,66 @@ button{font:inherit}
 }
 .topToolsGrid{
   display:grid;
-  grid-template-columns:2fr 1fr;
-  gap:12px;
+  grid-template-columns:minmax(0,2fr) minmax(0,1fr);
+  gap:10px;
+  align-items:stretch;
 }
-.topToolsGrid .timestampCard{min-height:132px}
-.topToolsGrid .translatorTile{min-height:132px}
+.topToolsGrid>a{
+  min-width:0;
+  width:100%;
+  height:100%;
+}
+.topToolsGrid .timestampCard{
+  min-height:118px;
+  padding:15px 16px;
+}
+.topToolsGrid .timestampEyebrow{
+  font-size:9px;
+  letter-spacing:.11em;
+}
+.topToolsGrid .timestampMain{
+  gap:10px;
+  margin-top:8px;
+}
+.topToolsGrid .timestampTitle{
+  min-width:0;
+  font-size:clamp(28px,7vw,40px);
+  white-space:nowrap;
+}
+.topToolsGrid .timestampIcon{
+  width:50px;
+  height:50px;
+  flex:0 0 50px;
+  border-radius:16px;
+}
+.topToolsGrid .timestampIcon svg{
+  width:31px;
+  height:31px;
+}
+.topToolsGrid .translatorTile{
+  min-height:118px;
+  min-width:0;
+  padding:10px 6px;
+  gap:7px;
+  overflow:hidden;
+}
+.topToolsGrid .translatorTile .iconWrap{
+  width:36px;
+  height:36px;
+}
+.topToolsGrid .translatorTile .icon{
+  width:27px;
+  height:27px;
+}
+.topToolsGrid .translatorTile .tileTitle{
+  display:block;
+  max-width:100%;
+  font-size:clamp(11px,3.2vw,14px);
+  line-height:1.05;
+  letter-spacing:-.02em;
+  white-space:normal;
+  overflow-wrap:anywhere;
+}
 .utilitiesGrid{
   display:grid;
   grid-template-columns:1fr;
@@ -624,7 +679,12 @@ button{font:inherit}
   .timestampCard{min-height:124px;padding:17px 18px;border-radius:20px}
   .timestampIcon{width:56px;height:56px;flex-basis:56px;border-radius:17px}
   .timestampIcon svg{width:34px;height:34px}
-  .topToolsGrid{grid-template-columns:2fr 1fr}
+  .topToolsGrid{grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:9px}
+  .topToolsGrid .timestampCard{min-height:112px;padding:14px}
+  .topToolsGrid .translatorTile{min-height:112px;padding:9px 5px}
+  .topToolsGrid .timestampTitle{font-size:clamp(27px,7.2vw,34px)}
+  .topToolsGrid .timestampIcon{width:46px;height:46px;flex-basis:46px}
+  .topToolsGrid .timestampIcon svg{width:28px;height:28px}
   .utilitiesGrid{grid-template-columns:1fr}
   .utilityTile{min-height:88px;border-radius:18px;padding:14px}
   .toolTile{min-height:104px;border-radius:18px;border-color:#2a2f35}
@@ -856,7 +916,7 @@ button{font:inherit}
       </div>
     </section>
 
-    <div class="footer">MAINPAGE · STEERWILL V4.9</div>
+    <div class="footer">MAINPAGE · STEERWILL V5.0</div>
   </section>
 </main>
 
