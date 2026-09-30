@@ -212,7 +212,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
         '<div class="cell"><div class="cellLabel">Ritardo</div><div class="cellValue '+(delay>0?"delay":"")+'">'+delayText+'</div></div>'+
         '<div class="cell"><div class="cellLabel">Terminal</div><div class="cellValue">'+escapeHtml(f.terminal_destination||"—")+'</div></div>'+
       '</div>'+
-      '<div class="cardActions"><a class="timestampLink" href="'+escapeHtml(monitorLink('voli.html',{flight:f.ident||'',date:f.target_date||'',client:f.customerName||''}))+'">Monitora</a><a class="timestampLink" href="'+escapeHtml(SWFlight.link(f))+'">Prova no-show</a><div class="meta">Gate '+escapeHtml(f.gate_destination||"—")+'</div><button class="remove" type="button" data-remove-flight="'+escapeHtml(f.ident)+'" data-flight-date="'+escapeHtml(f.target_date||"")+'">Rimuovi</button></div>'+
+      '<div class="cardActions"><a class="timestampLink" href="'+escapeHtml(SWFlight.link(f))+'">Prova no-show</a><div class="meta">Gate '+escapeHtml(f.gate_destination||"—")+'</div><button class="remove" type="button" data-remove-flight="'+escapeHtml(f.ident)+'" data-flight-date="'+escapeHtml(f.target_date||"")+'">Rimuovi</button></div>'+
     '</article>';
   }
 
@@ -232,7 +232,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
         '<div class="cell"><div class="cellLabel">Ritardo</div><div class="cellValue '+(delay>0?"delay":"")+'">'+(delay==null?"—":delay>0?"+"+delay+" min":"0 min")+'</div></div>'+
         '<div class="cell"><div class="cellLabel">Binario</div><div class="cellValue">'+escapeHtml(t.platform||"—")+'</div></div>'+
       '</div>'+
-      '<div class="cardActions"><a class="timestampLink" href="'+escapeHtml(monitorLink('treni.html',{train:t.train||'',station:t.station_slug||'',mode:t.mode||'arrivals'}))+'">Monitora</a><div class="meta">'+escapeHtml(t.source||"RFI / orari")+'</div><button class="remove" type="button" data-remove-train="'+escapeHtml(t.train)+'" data-train-station="'+escapeHtml(t.station_slug||"")+'" data-train-mode="'+escapeHtml(t.mode||"departures")+'">Rimuovi</button></div>'+
+      '<div class="cardActions"><div class="meta">'+escapeHtml(t.source||"RFI / orari")+'</div><button class="remove" type="button" data-remove-train="'+escapeHtml(t.train)+'" data-train-station="'+escapeHtml(t.station_slug||"")+'" data-train-mode="'+escapeHtml(t.mode||"departures")+'">Rimuovi</button></div>'+
     '</article>';
   }
 
@@ -255,7 +255,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
         '<div class="cell"><div class="cellLabel">Banchina</div><div class="cellValue">'+escapeHtml(s.dock||"—")+'</div></div>'+
         '<div class="cell"><div class="cellLabel">Porto</div><div class="cellValue">'+escapeHtml(portCode(portName))+'</div></div>'+
       '</div>'+
-      '<div class="cardActions"><a class="timestampLink" href="'+escapeHtml(monitorLink('navi.html',{port:s.port_slug||String(portName).toLowerCase().replace(/ /g,'-'),q:s.name||'',date:s.date||''}))+'">Monitora</a><div class="meta">'+escapeHtml(s.source||portName)+'</div><button class="remove" type="button" data-remove-ship="'+escapeHtml(s.id)+'">Rimuovi</button></div>'+
+      '<div class="cardActions"><div class="meta">'+escapeHtml(s.source||portName)+'</div><button class="remove" type="button" data-remove-ship="'+escapeHtml(s.id)+'">Rimuovi</button></div>'+
     '</article>';
   }
 
