@@ -627,7 +627,7 @@ h1{
   }
 
   function tripElapsedText(info){
-    if(!info || !info.eventTs) return info&&info.status?info.status:"";
+    if(!info || !info.eventTs) return info&&info.landedWithoutTime?"Atterrato da: non calcolabile":info&&info.status?info.status:"";
     var delta=Date.now()-info.eventTs;
     if(info.cancelled) return "Cancellato";
     if(info.arrived){
@@ -673,7 +673,7 @@ h1{
     var f=data&&data.flight?data.flight:data;
     if(!f) throw new Error("flight_not_found");
 
-    var actualTs=f.actual_on?new Date(f.actual_on).getTime():0;
+    var actualTs=f.actual_on?new Date(f.actual_on).getTime():0;if(!Number.isFinite(actualTs)||actualTs>Date.now())actualTs=0;
     var estimatedTs=f.estimated_in?new Date(f.estimated_in).getTime():0;
     var scheduledTs=f.scheduled_in?new Date(f.scheduled_in).getTime():0;
     var eventTs=actualTs||estimatedTs||scheduledTs||0;

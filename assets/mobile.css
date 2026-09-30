@@ -8,7 +8,8 @@ body:has(.viewer.open) .sw-mobile-nav{display:none}
 *,*::before,*::after{box-sizing:border-box}.wrap,.setup,.card,.panel,.result,.hero,.searchBox{min-width:0;max-width:100%}
 .topActions,.cardActions,.head,.heroTop,.titleRow,.options,.topbar,.sectionHead{flex-wrap:wrap}.topActions>*{max-width:100%}
 input,select,textarea{min-width:0;max-width:100%}input[type=file]{width:100%}
-.cardHead>*,.cardMain>*,.times>*,.searchRow>*{min-width:0}.secondaryText,.shipRoute,.dateLine,.meta,.ident,.shipName,.brand{overflow-wrap:anywhere}
+.cardHead{flex-wrap:wrap}.cardHead>*,.cardMain>*,.times>*,.searchRow>*,.metaGrid>*,.langRow>*{min-width:0}.secondaryText,.shipRoute,.dateLine,.meta,.ident,.shipName,.brand{overflow-wrap:anywhere}
+.actions{grid-template-columns:repeat(3,minmax(0,1fr))}.action{min-width:0;padding:0 3px;font-size:13px}.langRow{grid-template-columns:minmax(0,1fr) 48px minmax(0,1fr)}.metaGrid{grid-template-columns:repeat(3,minmax(0,1fr))}.rateInline{flex-wrap:wrap}.metaValue{overflow-wrap:anywhere}
 .times{grid-template-columns:repeat(2,minmax(0,1fr))}.cardActions{gap:8px}.cellValue{overflow-wrap:anywhere}
 .topActions .pillLink{display:inline-flex!important}
 }
