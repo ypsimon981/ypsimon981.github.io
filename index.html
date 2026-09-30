@@ -537,9 +537,32 @@ button{font:inherit}
 .vehicleDeadline{padding:8px 7px;border:1px solid #30363c;border-radius:11px;background:#25292D;text-align:center;min-width:0}
 .vehicleDeadlineName{font-size:7px;color:#707981;font-weight:900;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .vehicleDeadlineDate{margin-top:3px;font-size:10px;font-weight:900}
-.vehicleDeadline.ok{border-color:#294735;background:#1b2a20}
-.vehicleDeadline.warn{border-color:#5d4c21;background:#2d2818}
-.vehicleDeadline.bad{border-color:#633331;background:#301c1c}
+.vehicleDeadline.ok{
+  border-color:#3E8A58;
+  background:#1B2A20;
+  box-shadow:inset 0 0 0 1px rgba(70,164,99,.32);
+}
+.vehicleDeadline.warn{
+  border-color:#D38A2F;
+  background:#2D2818;
+  animation:deadlineWarnPulse 2.4s ease-in-out infinite;
+}
+.vehicleDeadline.bad{
+  border-color:#E25555;
+  background:#301C1C;
+  animation:deadlineBadPulse .72s ease-in-out infinite;
+}
+@keyframes deadlineWarnPulse{
+  0%,100%{border-color:#9B6728;box-shadow:inset 0 0 0 1px rgba(211,138,47,.18)}
+  50%{border-color:#F0A23D;box-shadow:inset 0 0 0 2px rgba(240,162,61,.72)}
+}
+@keyframes deadlineBadPulse{
+  0%,100%{border-color:#9B3B3B;box-shadow:inset 0 0 0 1px rgba(226,85,85,.2)}
+  50%{border-color:#FF6262;box-shadow:inset 0 0 0 2px rgba(255,98,98,.88)}
+}
+@media (prefers-reduced-motion:reduce){
+  .vehicleDeadline.warn,.vehicleDeadline.bad{animation:none}
+}
 .vehicleMiniMaint{margin-top:9px;color:#717981;font-size:9px;line-height:1.35}
 .vehicleHomeEmpty{padding:18px 16px;color:#747b82;font-size:11px}
 .homePartnerAlerts{display:grid;gap:8px;padding:0 12px 12px}
@@ -1136,7 +1159,7 @@ button{font:inherit}
       </form>
     </section>
 
-    <div class="footer">MAINPAGE · STEERWILL V5.6</div>
+    <div class="footer">MAINPAGE · STEERWILL V5.7</div>
   </section>
 </main>
 
