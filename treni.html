@@ -104,12 +104,12 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     </div>
 
     <div class="tabs">
-      <button id="departuresBtn" class="active" type="button">Partenze</button>
-      <button id="arrivalsBtn" type="button">Arrivi</button>
+      <button id="departuresBtn" type="button">Partenze</button>
+      <button id="arrivalsBtn" class="active" type="button">Arrivi</button>
     </div>
 
     <div class="search">
-      <input id="searchInput" type="text" placeholder="Numero treno o destinazione" autocomplete="off" spellcheck="false">
+      <input id="searchInput" type="text" placeholder="Numero treno o provenienza" autocomplete="off" spellcheck="false">
       <button id="searchBtn" type="button">Cerca</button>
     </div>
 
@@ -117,7 +117,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
   </section>
 
   <div class="sectionHead">
-    <div id="sectionTitle" class="sectionTitle">Partenze · Roma Termini</div>
+    <div id="sectionTitle" class="sectionTitle">Arrivi · Roma Termini</div>
     <div id="count" class="count"></div>
   </div>
 
@@ -141,7 +141,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
   var list=document.getElementById("list");
   var count=document.getElementById("count");
   var sectionTitle=document.getElementById("sectionTitle");
-  var mode="departures";
+  var mode="arrivals";
   var allItems=[];
 
   var savedStation=localStorage.getItem(STATION_KEY);
