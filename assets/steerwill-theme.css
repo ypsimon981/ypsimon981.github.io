@@ -1,0 +1,16 @@
+/* SteerWill shared app background
+   Dark bronze base with layered copper gradients. */
+html{
+  background:#0B0807 !important;
+}
+body{
+  background:
+    radial-gradient(circle at 16% calc(9% + var(--scrollShift,0px)),rgba(185,120,91,.20),transparent 30%),
+    radial-gradient(circle at 88% calc(42% - var(--scrollShift,0px)),rgba(118,68,50,.17),transparent 32%),
+    radial-gradient(circle at 40% calc(88% + var(--scrollShift,0px)),rgba(216,165,142,.075),transparent 28%),
+    radial-gradient(circle at 72% 18%,rgba(92,49,37,.11),transparent 24%),
+    linear-gradient(155deg,#0B0807 0%,#17100D 42%,#1B110E 58%,#0D0908 100%) !important;
+  background-attachment:fixed !important;
+  background-repeat:no-repeat !important;
+  background-color:#0D0908 !important;
+}
