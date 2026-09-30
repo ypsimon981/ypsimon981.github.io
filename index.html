@@ -811,6 +811,99 @@ button{font:inherit}
   font-size:9px;
   line-height:1.35;
 }
+.feedbackWall{
+  margin-top:18px;
+  padding-top:17px;
+  border-top:1px solid #34383B;
+}
+.feedbackWallHead{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:11px;
+}
+.feedbackWallTitle{
+  font-size:15px;
+  font-weight:900;
+  letter-spacing:-.01em;
+}
+.feedbackWallSub{
+  margin-top:3px;
+  color:#807773;
+  font-size:9px;
+  line-height:1.35;
+}
+.feedbackRefresh{
+  flex:0 0 auto;
+  border:1px solid #43474A;
+  border-radius:999px;
+  background:#272A2D;
+  color:#CFC4BE;
+  padding:7px 10px;
+  font-size:9px;
+  font-weight:850;
+  cursor:pointer;
+}
+.feedbackRefresh:disabled{opacity:.5}
+.feedbackList{
+  display:grid;
+  gap:9px;
+}
+.feedbackPost{
+  padding:12px;
+  border:1px solid #34383B;
+  border-radius:15px;
+  background:#151719;
+}
+.feedbackPostHead{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:7px;
+}
+.feedbackAuthor{
+  min-width:0;
+  flex:1 1 auto;
+  color:#E7DDD7;
+  font-size:11px;
+  font-weight:900;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.feedbackWhen{
+  flex:0 0 auto;
+  color:#776F6B;
+  font-size:8px;
+}
+.feedbackDelete{
+  flex:0 0 auto;
+  border:1px solid #533C36;
+  border-radius:999px;
+  background:#211816;
+  color:#D69B8A;
+  padding:5px 8px;
+  font-size:8px;
+  font-weight:850;
+  cursor:pointer;
+}
+.feedbackDelete:disabled{opacity:.5}
+.feedbackMessage{
+  color:#B6ABA5;
+  font-size:10px;
+  line-height:1.45;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+}
+.feedbackEmpty{
+  padding:14px 10px;
+  border:1px dashed #383B3E;
+  border-radius:14px;
+  color:#766E69;
+  font-size:10px;
+  text-align:center;
+}
 .readmeBackdrop{
   display:none;
   position:fixed;
@@ -1155,11 +1248,24 @@ button{font:inherit}
         <input id="feedbackHoney" type="text" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
         <button id="feedbackSend" class="feedbackSend" type="submit">Invia consiglio</button>
         <div id="feedbackStatus" class="feedbackStatus" aria-live="polite"></div>
-        <div class="feedbackPrivacy">Il consiglio viene inviato direttamente al team SteerWill. Nome ed email sono facoltativi.</div>
+        <div class="feedbackPrivacy">Il consiglio viene salvato nella bacheca condivisa. Nome ed email sono facoltativi; l’email non viene mostrata pubblicamente.</div>
       </form>
+
+      <div class="feedbackWall">
+        <div class="feedbackWallHead">
+          <div>
+            <div class="feedbackWallTitle">Consigli della community</div>
+            <div class="feedbackWallSub">Gli ultimi 30 messaggi sono visibili a chiunque apra SteerWill.</div>
+          </div>
+          <button id="feedbackRefresh" class="feedbackRefresh" type="button">Aggiorna</button>
+        </div>
+        <div id="feedbackList" class="feedbackList">
+          <div class="feedbackEmpty">Caricamento consigli…</div>
+        </div>
+      </div>
     </section>
 
-    <div class="footer">MAINPAGE · STEERWILL V5.7</div>
+    <div class="footer">MAINPAGE · STEERWILL V5.8</div>
   </section>
 </main>
 
@@ -1240,6 +1346,130 @@ button{font:inherit}
     if(e.key==="Escape" && readmeBackdrop && readmeBackdrop.classList.contains("show")) closeReadme();
   });
 
+  var FEEDBACK_ENDPOINT="https://bboijzuzhgvfxqrsfatw.supabase.co/functions/v1/feedback";
+  var FEEDBACK_APIKEY="sb_publishable_IYGuSSUStiK95becoD-OQQ_aj_2sGIN";
+
+  function feedbackHeaders(){
+    return {
+      "Content-Type":"application/json",
+      "apikey":FEEDBACK_APIKEY
+    };
+  }
+
+  function feedbackDate(value){
+    try{
+      return new Intl.DateTimeFormat("it-IT",{
+        dateStyle:"short",
+        timeStyle:"short"
+      }).format(new Date(value));
+    }catch(e){
+      return "";
+    }
+  }
+
+  function renderFeedbackMessages(messages){
+    var list=document.getElementById("feedbackList");
+    if(!list) return;
+    list.innerHTML="";
+
+    if(!Array.isArray(messages) || !messages.length){
+      var empty=document.createElement("div");
+      empty.className="feedbackEmpty";
+      empty.textContent="Ancora nessun consiglio. Puoi essere il primo.";
+      list.appendChild(empty);
+      return;
+    }
+
+    messages.forEach(function(item){
+      var card=document.createElement("article");
+      card.className="feedbackPost";
+
+      var head=document.createElement("div");
+      head.className="feedbackPostHead";
+
+      var author=document.createElement("div");
+      author.className="feedbackAuthor";
+      author.textContent=item.name||"Anonimo";
+
+      var when=document.createElement("div");
+      when.className="feedbackWhen";
+      when.textContent=feedbackDate(item.created_at);
+
+      var del=document.createElement("button");
+      del.type="button";
+      del.className="feedbackDelete";
+      del.textContent="Cancella";
+      del.addEventListener("click",async function(){
+        var code=window.prompt("Inserisci il codice per cancellare questo messaggio:");
+        if(code===null) return;
+        code=code.trim();
+        if(!code) return;
+
+        del.disabled=true;
+        del.textContent="…";
+        try{
+          var res=await fetch(FEEDBACK_ENDPOINT,{
+            method:"DELETE",
+            headers:feedbackHeaders(),
+            body:JSON.stringify({id:item.id,code:code})
+          });
+          var data=await res.json().catch(function(){return {};});
+          if(res.status===403){
+            window.alert("Codice non corretto.");
+            return;
+          }
+          if(!res.ok || data.ok!==true) throw new Error(data.error||"delete_failed");
+          await loadFeedbackWall();
+        }catch(err){
+          window.alert("Cancellazione non riuscita. Riprova.");
+        }finally{
+          del.disabled=false;
+          del.textContent="Cancella";
+        }
+      });
+
+      head.appendChild(author);
+      head.appendChild(when);
+      head.appendChild(del);
+
+      var msg=document.createElement("div");
+      msg.className="feedbackMessage";
+      msg.textContent=item.message||"";
+
+      card.appendChild(head);
+      card.appendChild(msg);
+      list.appendChild(card);
+    });
+  }
+
+  async function loadFeedbackWall(){
+    var list=document.getElementById("feedbackList");
+    var refresh=document.getElementById("feedbackRefresh");
+    if(refresh) refresh.disabled=true;
+    try{
+      var res=await fetch(FEEDBACK_ENDPOINT,{
+        method:"GET",
+        headers:{"apikey":FEEDBACK_APIKEY}
+      });
+      var data=await res.json().catch(function(){return {};});
+      if(!res.ok || data.ok!==true) throw new Error(data.error||"list_failed");
+      renderFeedbackMessages(data.messages||[]);
+    }catch(err){
+      if(list){
+        list.innerHTML="";
+        var empty=document.createElement("div");
+        empty.className="feedbackEmpty";
+        empty.textContent="Non riesco a caricare i consigli in questo momento.";
+        list.appendChild(empty);
+      }
+    }finally{
+      if(refresh) refresh.disabled=false;
+    }
+  }
+
+  var feedbackRefresh=document.getElementById("feedbackRefresh");
+  if(feedbackRefresh) feedbackRefresh.addEventListener("click",loadFeedbackWall);
+
   var feedbackForm=document.getElementById("feedbackForm");
   if(feedbackForm){
     feedbackForm.addEventListener("submit",async function(e){
@@ -1262,12 +1492,9 @@ button{font:inherit}
       status.textContent="";
 
       try{
-        var res=await fetch("https://bboijzuzhgvfxqrsfatw.supabase.co/functions/v1/feedback",{
+        var res=await fetch(FEEDBACK_ENDPOINT,{
           method:"POST",
-          headers:{
-            "Content-Type":"application/json",
-            "apikey":"sb_publishable_IYGuSSUStiK95becoD-OQQ_aj_2sGIN"
-          },
+          headers:feedbackHeaders(),
           body:JSON.stringify({
             name:document.getElementById("feedbackName").value.trim()||"Anonimo",
             email:document.getElementById("feedbackEmail").value.trim(),
@@ -1277,12 +1504,13 @@ button{font:inherit}
           })
         });
         var data=await res.json().catch(function(){return {};});
-        if(!res.ok || data.ok!==true) throw new Error(data.error||"send_failed");
+        if(!res.ok || data.ok!==true) throw new Error(data.error||"save_failed");
         feedbackForm.reset();
-        status.textContent="Grazie. Il consiglio è stato inviato.";
+        status.textContent="Grazie. Il consiglio è ora visibile nella bacheca.";
         status.classList.add("ok");
+        await loadFeedbackWall();
       }catch(err){
-        status.textContent="Invio non riuscito. Riprova tra poco.";
+        status.textContent="Salvataggio non riuscito. Riprova tra poco.";
         status.classList.add("bad");
       }finally{
         button.disabled=false;
@@ -1290,6 +1518,8 @@ button{font:inherit}
       }
     });
   }
+
+  loadFeedbackWall();
 
   function readHomeList(key){
     try{
