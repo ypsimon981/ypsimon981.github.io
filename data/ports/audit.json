@@ -6,7 +6,7 @@
       "name": "Civitavecchia",
       "provider_id": "civitavecchia",
       "status": "ok",
-      "count": 193,
+      "count": 187,
       "fetched_at": "2026-09-30T10:11:39.924Z"
     },
     {
@@ -86,7 +86,7 @@
       "name": "Napoli",
       "provider_id": "naplesitaly",
       "status": "ok",
-      "count": 99,
+      "count": 100,
       "fetched_at": "2026-09-30T10:12:16.918Z"
     },
     {
@@ -142,7 +142,7 @@
       "name": "Siracusa",
       "provider_id": "siracusasicily",
       "status": "ok",
-      "count": 6,
+      "count": 10,
       "fetched_at": "2026-09-30T10:12:26.012Z"
     },
     {
