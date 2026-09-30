@@ -29,9 +29,7 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
 .viewLabel{font-size:13px;font-weight:750;color:#8f8f8f;margin-bottom:9px}
 .actions{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:0}
 .action{height:86px;border-radius:18px;border:1px solid #3b3b3b;font-size:20px;font-weight:850;cursor:pointer}
-.fit{background:#fff;color:#090909;border-color:#fff}
-.max{background:#2b2b2b;color:#fff}
-.verticalBtn{background:#222;color:#fff}
+.fit,.max,.verticalBtn{background:#252525;color:#fff;border-color:#3b3b3b}
 .options{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
 .speedbox,.presetBox,.fontBox{margin-top:16px;padding-top:14px;border-top:1px solid #2d2d2d}
 .speedlabel,.presetLabel,.fontLabel{font-size:13px;font-weight:750;color:#8f8f8f;margin-bottom:9px}
@@ -130,8 +128,11 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
       </div>
     </div>
 
-    <div class="fontBox"><label for="logoUpload">Logo facoltativo</label><input id="logoUpload" type="file" accept="image/png,image/jpeg,image/webp,image/gif"><div class="options"><label for="logoSize">Dimensione</label><input id="logoSize" type="range" min="10" max="100" step="1" value="10" aria-label="Dimensione logo"><output id="logoSizeValue">10%</output><select id="logoPosition" aria-label="Posizione logo"><option value="top-center">Alto · centro</option><option value="top-left">Alto · sinistra</option><option value="top-right">Alto · destra</option><option value="bottom-center">Basso · centro</option></select><button id="removeLogo" class="pill" type="button">Rimuovi</button></div><div id="logoPreview" style="position:relative;height:120px;overflow:hidden;border:1px solid #555;border-radius:8px;margin-top:10px"><img id="logoPreviewImage" alt="Anteprima logo" hidden style="position:absolute;object-fit:contain"><span id="logoPreviewText" style="position:absolute;left:0;right:0;text-align:center;top:50%;transform:translateY(-50%)">Text</span></div><div id="logoStatus" class="note"></div></div><div class="viewBox">
-      <div class="viewLabel">Visualizzazione</div>
+    <div class="fontBox"><label for="logoUpload">Logo facoltativo</label><input id="logoUpload" type="file" accept="image/png,image/jpeg,image/webp,image/gif"><div class="options"><label for="logoSize">Dimensione</label><input id="logoSize" type="range" min="10" max="100" step="1" value="10" aria-label="Dimensione logo"><output id="logoSizeValue">10%</output><select id="logoPosition" aria-label="Posizione logo"><option value="top-center">Alto · centro</option><option value="top-left">Alto · sinistra</option><option value="top-right">Alto · destra</option><option value="bottom-center">Basso · centro</option></select><button id="removeLogo" class="pill" type="button">Rimuovi</button></div><div id="logoPreview" style="position:relative;height:120px;overflow:hidden;border:1px solid #555;border-radius:8px;margin-top:10px"><img id="logoPreviewImage" alt="Anteprima logo" hidden style="position:absolute;object-fit:contain"><span id="logoPreviewText" style="position:absolute;left:0;right:0;text-align:center;top:50%;transform:translateY(-50%)">Text</span></div><div id="logoStatus" class="note"></div></div>
+    <div class="note">In visualizzazione: ruota il dispositivo in orizzontale. Tocca il cartello per tornare indietro.</div>
+    <div id="engine">Motore attivo · pronto</div>
+    <div class="viewBox">
+      <div class="viewLabel">Seleziona visualizzazione</div>
       <div class="actions">
         <button id="fit" class="action fit" type="button">Fit</button>
         <button id="max" class="action max" type="button">Alternanza</button>
@@ -139,8 +140,7 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
       </div>
     </div>
 
-    <div class="note">In visualizzazione: ruota il dispositivo in orizzontale. Tocca il cartello per tornare indietro.</div>
-    <div id="engine">Motore attivo · pronto</div>
+
   </section>
 </main>
 
