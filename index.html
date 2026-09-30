@@ -945,7 +945,7 @@ button{font:inherit}
       </div>
     </section>
 
-    <div class="footer">MAINPAGE · STEERWILL V5.1</div>
+    <div class="footer">MAINPAGE · STEERWILL V5.2</div>
   </section>
 </main>
 
@@ -1190,8 +1190,8 @@ button{font:inherit}
     vehicleHost.innerHTML=vehicles.map(function(v){
       var km=Number(v.km||0);
       var maint=[];
-      if(v.serviceKm) maint.push("Tagliando "+Number(v.serviceKm).toLocaleString("it-IT")+" km");
-      if(v.tyresKm) maint.push("Gomme "+Number(v.tyresKm).toLocaleString("it-IT")+" km");
+      if(v.serviceKm) maint.push("Prossimo tagliando "+Number(v.serviceKm).toLocaleString("it-IT")+" km");
+      if(v.tyresKm) maint.push("Prossimo cambio gomme "+Number(v.tyresKm).toLocaleString("it-IT")+" km");
       return '<a class="vehicleMini" href="veicolo.html">'+
         '<div class="vehicleMiniTop"><div><div class="vehicleMiniPlate">'+esc(v.plate||"SENZA TARGA")+'</div>'+
         '<div class="vehicleMiniModel">'+esc(v.model||"Modello non inserito")+'</div></div>'+
