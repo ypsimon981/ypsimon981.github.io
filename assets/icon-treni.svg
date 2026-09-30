@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Treni">
-  <rect width="256" height="256" rx="34" fill="#F2B426"/>
+  <rect width="256" height="256" rx="34" fill="#BDA16A"/>
   <g fill="#252931">
     <path d="M78 44h100c20 0 36 16 36 36v92c0 18-14 33-32 36l19 23h-24l-18-22H97l-18 22H55l19-23c-18-3-32-18-32-36V80c0-20 16-36 36-36zm8 21c-11 0-20 9-20 20v54c0 11 9 20 20 20h84c11 0 20-9 20-20V85c0-11-9-20-20-20H86z"/>
     <rect x="78" y="78" width="44" height="54" rx="7"/>

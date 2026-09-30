@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0D0908">
@@ -88,7 +88,8 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
 
 .setup{padding:12px}.card{padding:18px;border-radius:18px}h1{font-size:32px}.desc{font-size:14px;margin-bottom:16px}#passenger{height:50px;font-size:20px}.actions{grid-template-columns:repeat(3,1fr);gap:6px}.action{height:48px;font-size:14px}.fontrow{grid-template-columns:repeat(5,1fr);gap:5px}.fontChoice{height:44px;font-size:19px;padding:0 3px;border-radius:10px}.fontChoice[data-font="serif"]{font-style:italic}.fontChoice[data-font="bold"]{font-family:Arial,sans-serif;font-weight:900}.fontChoice[data-font="condensed"]{font-family:"Roboto Condensed",sans-serif}.presetGrid{grid-template-columns:repeat(8,1fr);gap:6px;margin-bottom:10px}.presetCard{width:100%;aspect-ratio:1;max-height:48px;padding:0;border-radius:9px;text-align:center;font-size:23px;font-weight:700}.presetCard.on{outline:2px solid #fff;outline-offset:1px}.options{gap:6px;margin-top:10px}.pill{font-size:14px;padding:8px 10px}.note{margin-top:10px}#signLogo{position:absolute;top:2%;left:50%;transform:translateX(-50%);object-fit:contain;z-index:2}#signLogo[hidden]{display:none}.logoOnly #signLogo{top:50%;transform:translate(-50%,-50%)}.logoOnly #fixedStage,.logoOnly #verticalStage{visibility:hidden}#fixedStage,#verticalStage{top:var(--logo-space,0%)}.verticalGroup{min-height:100%;padding:8vh 3vw}#fixedText,.verticalWord{font-weight:var(--sign-weight,600);font-style:var(--sign-style,normal);line-height:1.05}#fixedText.fitMultiline{line-height:1.05}select{font:inherit;background:#222;color:#fff;border:1px solid #444;border-radius:9px;padding:8px}</style>
 <link rel="stylesheet" href="assets/steerwill-theme.css?v=1">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto+Condensed:wght@600&display=swap"></head>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto+Condensed:wght@600&display=swap"><link rel="stylesheet" href="assets/mobile.css?v=mobile20260930"><script defer src="assets/mobile.js?v=mobile20260930"></script>
+</head>
 <body>
 <main class="setup">
   <section class="card">
@@ -129,7 +130,7 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
       </div>
     </div>
 
-    <div class="fontBox"><label for="logoUpload">Logo facoltativo</label><input id="logoUpload" type="file" accept="image/png,image/jpeg,image/webp,image/gif"><div class="options"><label for="logoSize">Dimensione</label><select id="logoSize"><option value="10">10%</option><option value="30">30%</option><option value="50">50%</option><option value="100">100% · solo logo</option></select><button id="removeLogo" class="pill" type="button">Rimuovi</button></div><div id="logoStatus" class="note"></div></div><div class="viewBox">
+    <div class="fontBox"><label for="logoUpload">Logo facoltativo</label><input id="logoUpload" type="file" accept="image/png,image/jpeg,image/webp,image/gif"><div class="options"><label for="logoSize">Dimensione</label><input id="logoSize" type="range" min="10" max="100" step="1" value="10" aria-label="Dimensione logo"><output id="logoSizeValue">10%</output><select id="logoPosition" aria-label="Posizione logo"><option value="top-center">Alto · centro</option><option value="top-left">Alto · sinistra</option><option value="top-right">Alto · destra</option><option value="bottom-center">Basso · centro</option></select><button id="removeLogo" class="pill" type="button">Rimuovi</button></div><div id="logoPreview" style="position:relative;height:120px;overflow:hidden;border:1px solid #555;border-radius:8px;margin-top:10px"><img id="logoPreviewImage" alt="Anteprima logo" hidden style="position:absolute;object-fit:contain"><span id="logoPreviewText" style="position:absolute;left:0;right:0;text-align:center;top:50%;transform:translateY(-50%)">Text</span></div><div id="logoStatus" class="note"></div></div><div class="viewBox">
       <div class="viewLabel">Visualizzazione</div>
       <div class="actions">
         <button id="fit" class="action fit" type="button">Fit</button>
@@ -184,7 +185,7 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
     "bold": 'Arial,sans-serif', "condensed": '"Roboto Condensed",sans-serif'
   };
   var activeFont = "system";
-  var inverted=false, alternateTimer=null, logoUrl="", logoSize=10, wakePending=false;
+  var inverted=false, alternateTimer=null, logoUrl="", logoSize=10, logoPosition="top-center", wakePending=false;
   var logo=document.getElementById("signLogo");
 
   function textValue(){
@@ -215,7 +216,7 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
     presetButtons.forEach(function(btn){
       btn.classList.toggle('on', btn.getAttribute('data-preset') === name);
     });
-    if(currentMode) applyTheme();
+    updatePreviews();applyTheme();
   }
 
   function clean(){
@@ -243,13 +244,23 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
       wakeLock=lock;lock.addEventListener("release",function(){if(wakeLock===lock) wakeLock=null;});
     }catch(e){}finally{wakePending=false;}
   }
+  function updatePreviews(){
+    function light(c){var h=c.replace("#","");if(h.length===3)h=h.split("").map(function(x){return x+x;}).join("");var rgb=[0,2,4].map(function(i){var v=parseInt(h.slice(i,i+2),16)/255;return v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4);});return rgb[0]*.2126+rgb[1]*.7152+rgb[2]*.0722;}
+    presetButtons.sort(function(a,b){var pa=colorPresets[a.dataset.preset],pb=colorPresets[b.dataset.preset];return light(inverted?pb.fg:pb.bg)-light(inverted?pa.fg:pa.bg);}).forEach(function(btn){var p=colorPresets[btn.dataset.preset];btn.style.background=inverted?p.fg:p.bg;btn.style.color=inverted?p.bg:p.fg;btn.setAttribute("aria-pressed",String(btn.dataset.preset===activePreset));btn.parentNode.appendChild(btn);});
+    var button=document.getElementById("invertColors");button.classList.toggle("on",inverted);button.setAttribute("aria-pressed",String(inverted));button.textContent=inverted?"Inverti · attivo":"Inverti colori";
+    var p=colorPresets[activePreset],preview=document.getElementById("logoPreview");preview.style.background=inverted?p.fg:p.bg;preview.style.color=inverted?p.bg:p.fg;
+  }
   function applyLogo(){
-    logo.hidden=!logoUrl; logo.src=logoUrl;
-    viewer.classList.toggle("logoOnly",!!logoUrl && logoSize===100);
-    var reserve=logoUrl && logoSize<100 ? ({10:12,30:23,50:35}[logoSize]||12) : 0;
-    viewer.style.setProperty("--logo-space",reserve+"%");
-    logo.style.maxWidth=logoSize===100?"92%":logoSize+"%";
-    logo.style.maxHeight=logoSize===100?"90%":Math.max(8,reserve-3)+"%";
+    var solo=!!logoUrl&&logoSize===100, bottom=logoPosition==="bottom-center";
+    var reserve=logoUrl&&!solo?8+logoSize*.48:0;
+    viewer.classList.toggle("logoOnly",solo);
+    viewer.style.setProperty("--logo-space",bottom?"0%":reserve+"%");
+    document.getElementById("fixedStage").style.bottom=bottom?reserve+"%":"0";
+    document.getElementById("verticalStage").style.bottom=bottom?reserve+"%":"0";
+    [logo,document.getElementById("logoPreviewImage")].forEach(function(img){img.hidden=!logoUrl;if(logoUrl)img.src=logoUrl;else img.removeAttribute("src");img.style.maxWidth=solo?"92%":logoSize+"%";img.style.maxHeight=solo?"90%":Math.max(8,reserve-3)+"%";img.style.top=solo?"50%":bottom?"auto":"2%";img.style.bottom=bottom&&!solo?"2%":"auto";img.style.left=solo||!/left|right/.test(logoPosition)?"50%":logoPosition==="top-left"?"2%":"auto";img.style.right=!solo&&logoPosition==="top-right"?"2%":"auto";img.style.transform=solo?"translate(-50%,-50%)":/left|right/.test(logoPosition)?"none":"translateX(-50%)";});
+    document.getElementById("logoPreviewText").hidden=solo;
+    document.getElementById("logoSizeValue").textContent=logoSize===100?"100% · solo logo":logoSize+"%";
+    if(currentMode&&viewer.classList.contains("open")){clean();if(currentMode==="fit")renderFit();else if(currentMode==="max")renderMax();else renderVertical();}
   }
   function openViewer(mode){
     currentMode = mode;
@@ -376,14 +387,15 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
   fontButtons.forEach(function(btn){
     btn.onclick = function(){ setFont(btn.getAttribute('data-font')); };
   });
-  document.getElementById("invertColors").onclick=function(){inverted=!inverted;this.classList.toggle("on",inverted);};
+  document.getElementById("invertColors").onclick=function(){inverted=!inverted;updatePreviews();applyTheme();};
   document.getElementById("logoUpload").onchange=function(){
     var file=this.files[0];if(!file) return;
     if(!/^image\/(png|jpeg|webp|gif)$/.test(file.type)||file.size>5*1024*1024){document.getElementById("logoStatus").textContent="Scegli PNG, JPG, WebP o GIF fino a 5 MB.";return;}
-    if(logoUrl) URL.revokeObjectURL(logoUrl);logoUrl=URL.createObjectURL(file);document.getElementById("logoStatus").textContent=file.name;
+    if(logoUrl) URL.revokeObjectURL(logoUrl);logoUrl=URL.createObjectURL(file);document.getElementById("logoStatus").textContent=file.name;applyLogo();
   };
-  document.getElementById("logoSize").onchange=function(){logoSize=Number(this.value);};
-  document.getElementById("removeLogo").onclick=function(){if(logoUrl) URL.revokeObjectURL(logoUrl);logoUrl="";document.getElementById("logoUpload").value="";document.getElementById("logoStatus").textContent="";};
+  document.getElementById("logoSize").oninput=function(){logoSize=Number(this.value);applyLogo();};document.getElementById("logoPosition").onchange=function(){logoPosition=this.value;applyLogo();};
+  document.getElementById("removeLogo").onclick=function(){if(logoUrl) URL.revokeObjectURL(logoUrl);logoUrl="";document.getElementById("logoUpload").value="";document.getElementById("logoStatus").textContent="";applyLogo();};
+  updatePreviews();applyLogo();
   window.addEventListener("focus",requestWake);
   document.addEventListener("keydown",function(e){if(e.key==="Escape"&&currentMode) closeViewer();});
   viewer.onclick = closeViewer;

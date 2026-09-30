@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0D0908">
 <title>SteerWill · Preventivi salvati</title>
@@ -48,13 +48,14 @@ h1{margin:0;font-size:clamp(38px,8vw,64px);line-height:.95;letter-spacing:-.045e
 .name,.price{font-weight:600}.meta,.date{font-size:12px}.route{font-size:14px}.card{padding:12px}.messageQuote{margin-top:8px;font:inherit;font-size:14px;background:#222;color:#fff;border:1px solid #555;border-radius:8px;padding:8px}
 </style>
 <link rel="stylesheet" href="assets/steerwill-theme.css?v=1">
-<link rel="stylesheet" href="assets/revision.css?v=20260930"></head>
+<link rel="stylesheet" href="assets/revision.css?v=20260930"><link rel="stylesheet" href="assets/mobile.css?v=mobile20260930"><script defer src="assets/mobile.js?v=mobile20260930"></script>
+</head>
 <body>
 <main class="page">
   <div class="topbar">
     <div class="brand">STEERWILL · PREVENTIVI</div>
     <div class="actions">
-      <a class="pill" href="preventivo.html?v=revision20260930">+ Nuovo</a>
+      <a class="pill" href="preventivo.html?v=mobile20260930">+ Nuovo</a>
       <a class="pill" href="index.html">← Home</a>
     </div>
   </div>
@@ -110,7 +111,7 @@ h1{margin:0;font-size:clamp(38px,8vw,64px);line-height:.95;letter-spacing:-.045e
         '<button class="delete" type="button" data-delete="'+esc(q.id)+'">Elimina</button></div>'+
       '</article>';
     }).join("");
-    Array.prototype.forEach.call(document.querySelectorAll("[data-message]"),function(btn){btn.onclick=function(){var q=read().find(function(x){return x.id===btn.dataset.message;});sessionStorage.setItem("steerwill_message_quote_v1",JSON.stringify(q));location.href="testo-cliente.html?v=revision20260930";};});
+    Array.prototype.forEach.call(document.querySelectorAll("[data-message]"),function(btn){btn.onclick=function(){var q=read().find(function(x){return x.id===btn.dataset.message;});sessionStorage.setItem("steerwill_message_quote_v1",JSON.stringify(q));location.href="testo-cliente.html?v=mobile20260930";};});
     Array.prototype.forEach.call(document.querySelectorAll("[data-delete]"),function(btn){
       btn.onclick=function(){
         var id=btn.getAttribute("data-delete");

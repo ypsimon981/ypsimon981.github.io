@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Navi">
-  <rect width="256" height="256" rx="34" fill="#F2B426"/>
+  <rect width="256" height="256" rx="34" fill="#BDA16A"/>
   <g fill="#252931">
     <path d="M66 108l15-30h82l16 30h-15l-8-14h-68l-7 14H66zm18-40l8-18h29l6 18H84zm76 0h-23l-5-18h20l8 18z"/>
     <path d="M49 126l17-7h126l17 7-22 49c-4 9-13 14-23 14h-72c-10 0-19-5-23-14l-20-49z"/>

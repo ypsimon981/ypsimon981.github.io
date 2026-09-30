@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Voli">
-  <rect width="256" height="256" rx="34" fill="#F2B426"/>
+  <rect width="256" height="256" rx="34" fill="#BDA16A"/>
   <g fill="#252931">
     <path d="M52 66l12 5 22 51 39 17-38-82 13 5 47 80 50 22c12 5 18 14 16 25-3 13-16 20-29 15L72 160c-14-5-22-17-21-31l1-63z"/>
     <circle cx="112" cy="166" r="7"/>

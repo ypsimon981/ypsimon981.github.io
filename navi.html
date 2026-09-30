@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0D0908">
 <title>SteerWill · Navi</title>
@@ -69,13 +69,14 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
 }
 </style>
 <link rel="stylesheet" href="assets/steerwill-theme.css?v=1">
-<link rel="stylesheet" href="assets/revision.css?v=20260930"></head>
+<link rel="stylesheet" href="assets/revision.css?v=20260930"><link rel="stylesheet" href="assets/mobile.css?v=mobile20260930"><script defer src="assets/mobile.js?v=mobile20260930"></script>
+</head>
 <body>
 <main class="page">
   <div class="topbar">
     <div class="brand">STEERWILL · NAVI</div>
     <div class="topActions">
-      <a class="pillLink" href="monitor.html?v=revision20260930">Monitor</a>
+      <a class="pillLink" href="monitor.html?v=mobile20260930">Monitor</a>
       <a class="pillLink" href="index.html">← Home</a>
     </div>
   </div>
@@ -129,7 +130,9 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
   var portName = document.getElementById("portName");
   var sourceNotice = document.getElementById("sourceNotice");
   var mode = "today";
-  var lastItems = [];
+  var lastItems = [], rawItems=[], shipFilter="cruise";
+  var filters=document.createElement("div");filters.className="shipFilters";filters.innerHTML='<button data-type="cruise" aria-pressed="true">Crociere</button><button data-type="ferry" aria-pressed="false">Traghetti</button><button data-type="all" aria-pressed="false">Tutte</button>';list.parentNode.insertBefore(filters,list);filters.onclick=function(e){var type=e.target.getAttribute("data-type");if(!type)return;shipFilter=type;filters.querySelectorAll("button").forEach(function(b){b.setAttribute("aria-pressed",String(b.dataset.type===type));});render(rawItems);};
+  function category(s){var n=String(s.name||"").toUpperCase();if(/GNV|MOBY|TIRRENIA|GRIMALDI|CRUISE (ROMA|BARCELONA|BONARIA|OLBIA|SMERALDA|SARDEGNA)|SHARDEN|FLORIO|RUBATTINO|CARTOUR|^CATANIA$|^CORFU$|^FLORENCIA$/.test(n))return "ferry";if(/MSC|COSTA|VIKING|AIDA|NORWEGIAN|CELEBRITY|PRINCESS|SEABOURN|SILVERSEA|OCEANIA|ROYAL|EXPLORA|MARELLA|HOLLAND|AZAMARA|DISNEY|CARNIVAL|CRYSTAL|SIRENA|NAUTICA|REGATTA|INSIGNIA|MARINA|RIVIERA|SEVEN SEAS|OTS$|CRUISE|CROCIER/i.test(n+" "+(s.source||"")+" "+(s.source_url||"")))return "cruise";return "unknown";}
   var selectedPort = localStorage.getItem(PORT_KEY) || "civitavecchia";
 
   if(!Array.prototype.some.call(portSelect.options,function(o){return o.value===selectedPort;})){
@@ -183,11 +186,11 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
   }
 
   function render(items){
-    lastItems = items || [];
+    rawItems=items||[];lastItems = rawItems.filter(function(s){return shipFilter==="all"||category(s)===shipFilter;});
     count.textContent = lastItems.length ? lastItems.length+" navi" : "";
 
     if(!lastItems.length){
-      list.innerHTML = '<div class="empty"><strong>Nessuna nave trovata</strong>Prova la programmazione settimanale oppure cerca il nome della nave.</div>';
+      list.innerHTML = '<div class="empty"><strong>Nessuna nave per questo filtro</strong>Prova Tutte o la programmazione settimanale. I traghetti compaiono solo quando pubblicati dalla fonte.</div>';
       return;
     }
 
@@ -216,7 +219,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
         if(ix>=0) followed.splice(ix,1);
         else followed.push(item);
         saveFollowed(followed);
-        render(lastItems);
+        render(rawItems);
       };
     });
   }
@@ -317,7 +320,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     if(e.key==="Enter"){e.preventDefault();search();}
   });
 
-  showToday();
+  var handoff=new URLSearchParams(location.search);if(handoff.get("port")&&Array.from(portSelect.options).some(function(o){return o.value===handoff.get("port");})){selectedPort=handoff.get("port");portSelect.value=selectedPort;updatePortHeader();}if(handoff.get("q")){shipFilter="all";filters.querySelectorAll("button").forEach(function(b){b.setAttribute("aria-pressed",String(b.dataset.type==="all"));});shipInput.value=handoff.get("q");sectionTitle.textContent=shipInput.value+" · "+currentPortLabel();load({q:shipInput.value,date:handoff.get("date")||""});}else showToday();
 })();
 </script>
 </body>

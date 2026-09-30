@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0D0908">
 <title>SteerWill · Monitor</title>
@@ -60,22 +60,23 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
 }
 </style>
 <link rel="stylesheet" href="assets/steerwill-theme.css?v=1">
-<link rel="stylesheet" href="assets/revision.css?v=20260930"></head>
+<link rel="stylesheet" href="assets/revision.css?v=20260930"><link rel="stylesheet" href="assets/mobile.css?v=mobile20260930"><script defer src="assets/mobile.js?v=mobile20260930"></script>
+</head>
 <body>
 <main class="page">
   <div class="topbar">
-    <div class="brand">STEERWILL · MONITOR</div>
+    <div class="brand">STEERWILL · AGENDA</div>
     <div class="topActions">
-      <a class="pillLink" href="voli.html?v=revision20260930">+ Volo</a>
+      <a class="pillLink" href="voli.html?v=mobile20260930">+ Volo</a>
       <a class="pillLink" href="treni.html">+ Treno</a>
-      <a class="pillLink" href="navi.html?v=revision20260930">+ Nave</a>
+      <a class="pillLink" href="navi.html?v=mobile20260930">+ Nave</a>
       <a class="pillLink" href="index.html">← Home</a>
     </div>
   </div>
 
   <div class="head">
     <div>
-      <h1>Alert viaggi</h1>
+      <h1>Viaggi salvati</h1>
       <p class="subtitle">Voli, treni e navi salvati e aggiornati in un solo posto.</p>
     </div>
     <button id="refreshAll" class="refresh" type="button">Aggiorna</button>
@@ -85,7 +86,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
   <div id="list" class="list"></div>
 </main>
 
-<script src="assets/flight-status.js?v=20260930"></script>
+<script src="assets/flight-status.js?v=mobile20260930"></script>
 <script src="flight-config.js?v=steerwill2"></script>
 <script>
 (function(){
@@ -116,7 +117,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     var arrived=!!f.actual_on || !!f.actual_in || /arriv|landed|complete|complet/.test(status);
     if(!arrived) return false;
     var ts=new Date(f.actual_on||f.actual_in||0).getTime();
-    return Number.isFinite(ts) && now-ts>AUTO_REMOVE_AFTER;
+    return Number.isFinite(ts) && ts>0 && now-ts>AUTO_REMOVE_AFTER;
   }
 
   function trainIsExpired(t,now){
@@ -176,6 +177,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
       .replace(/"/g,"&quot;");
   }
 
+  function monitorLink(page,params){return page+"?"+new URLSearchParams(params);}
   function sortTime(item){
     if(item.kind==="flight"){
       return new Date(item.data.estimated_in||item.data.scheduled_in||0).getTime()||0;
@@ -183,7 +185,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     if(item.kind==="train"){
       var t=item.data;
       if(t.service_ts) return Number(t.service_ts)||0;
-      var now=new Date();
+      var now=t.service_date?new Date(t.service_date+"T12:00:00"):new Date();
       var parts=String(t.estimated||t.scheduled||"23:59").split(":");
       now.setHours(Number(parts[0]||23),Number(parts[1]||59),0,0);
       return now.getTime();
@@ -198,7 +200,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     var origin=f.origin||{}, destination=f.destination||{};
     var landingInfo=SWFlight.info(f);
     return '<article class="card '+(landingInfo.state?'sw-'+landingInfo.state:'')+'">'+
-      '<div class="elapsed" data-landing="'+escapeHtml(JSON.stringify(f))+'">'+escapeHtml(landingInfo.text)+'</div>'+
+      '<div class="secondaryText">'+escapeHtml(f.customerName||'')+'</div><div class="elapsed" data-landing="'+escapeHtml(JSON.stringify(f))+'">'+escapeHtml(landingInfo.text)+'</div>'+
       '<div class="cardHead">'+
         '<div><div class="ident">'+escapeHtml(f.ident||"—")+'</div><div class="secondaryText">'+escapeHtml(f.airline||"")+'</div></div>'+
         '<div class="badge">VOLO · '+escapeHtml(f.status||"—")+'</div>'+
@@ -210,7 +212,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
         '<div class="cell"><div class="cellLabel">Ritardo</div><div class="cellValue '+(delay>0?"delay":"")+'">'+delayText+'</div></div>'+
         '<div class="cell"><div class="cellLabel">Terminal</div><div class="cellValue">'+escapeHtml(f.terminal_destination||"—")+'</div></div>'+
       '</div>'+
-      '<div class="cardActions"><a class="timestampLink" href="'+escapeHtml(SWFlight.link(f))+'">Timestamp</a><div class="meta">Gate '+escapeHtml(f.gate_destination||"—")+'</div><button class="remove" type="button" data-remove-flight="'+escapeHtml(f.ident)+'" data-flight-date="'+escapeHtml(f.target_date||"")+'">Rimuovi</button></div>'+
+      '<div class="cardActions"><a class="timestampLink" href="'+escapeHtml(monitorLink('voli.html',{flight:f.ident||'',date:f.target_date||'',client:f.customerName||''}))+'">Monitora</a><a class="timestampLink" href="'+escapeHtml(SWFlight.link(f))+'">Prova no-show</a><div class="meta">Gate '+escapeHtml(f.gate_destination||"—")+'</div><button class="remove" type="button" data-remove-flight="'+escapeHtml(f.ident)+'" data-flight-date="'+escapeHtml(f.target_date||"")+'">Rimuovi</button></div>'+
     '</article>';
   }
 
@@ -230,7 +232,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
         '<div class="cell"><div class="cellLabel">Ritardo</div><div class="cellValue '+(delay>0?"delay":"")+'">'+(delay==null?"—":delay>0?"+"+delay+" min":"0 min")+'</div></div>'+
         '<div class="cell"><div class="cellLabel">Binario</div><div class="cellValue">'+escapeHtml(t.platform||"—")+'</div></div>'+
       '</div>'+
-      '<div class="cardActions"><div class="meta">'+escapeHtml(t.source||"RFI / orari")+'</div><button class="remove" type="button" data-remove-train="'+escapeHtml(t.train)+'" data-train-station="'+escapeHtml(t.station_slug||"")+'" data-train-mode="'+escapeHtml(t.mode||"departures")+'">Rimuovi</button></div>'+
+      '<div class="cardActions"><a class="timestampLink" href="'+escapeHtml(monitorLink('treni.html',{train:t.train||'',station:t.station_slug||'',mode:t.mode||'arrivals'}))+'">Monitora</a><div class="meta">'+escapeHtml(t.source||"RFI / orari")+'</div><button class="remove" type="button" data-remove-train="'+escapeHtml(t.train)+'" data-train-station="'+escapeHtml(t.station_slug||"")+'" data-train-mode="'+escapeHtml(t.mode||"departures")+'">Rimuovi</button></div>'+
     '</article>';
   }
 
@@ -253,7 +255,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
         '<div class="cell"><div class="cellLabel">Banchina</div><div class="cellValue">'+escapeHtml(s.dock||"—")+'</div></div>'+
         '<div class="cell"><div class="cellLabel">Porto</div><div class="cellValue">'+escapeHtml(portCode(portName))+'</div></div>'+
       '</div>'+
-      '<div class="cardActions"><div class="meta">'+escapeHtml(s.source||portName)+'</div><button class="remove" type="button" data-remove-ship="'+escapeHtml(s.id)+'">Rimuovi</button></div>'+
+      '<div class="cardActions"><a class="timestampLink" href="'+escapeHtml(monitorLink('navi.html',{port:s.port_slug||String(portName).toLowerCase().replace(/ /g,'-'),q:s.name||'',date:s.date||''}))+'">Monitora</a><div class="meta">'+escapeHtml(s.source||portName)+'</div><button class="remove" type="button" data-remove-ship="'+escapeHtml(s.id)+'">Rimuovi</button></div>'+
     '</article>';
   }
 
@@ -264,15 +266,15 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     var items=flights.concat(trains,ships);
 
     if(!items.length){
-      list.innerHTML='<div class="empty"><strong>Nessun viaggio seguito</strong>Aggiungi un volo, un treno o una nave e comparirà qui.<div class="emptyActions"><a href="voli.html?v=revision20260930">+ Volo</a><a href="treni.html">+ Treno</a><a href="navi.html?v=revision20260930">+ Nave</a></div></div>';
+      list.innerHTML='<div class="empty"><strong>Nessun viaggio seguito</strong>Aggiungi un volo, un treno o una nave e comparirà qui.<div class="emptyActions"><a href="voli.html?v=mobile20260930">+ Volo</a><a href="treni.html">+ Treno</a><a href="navi.html?v=mobile20260930">+ Nave</a></div></div>';
       return;
     }
 
     items.sort(function(a,b){return sortTime(a)-sortTime(b);});
-    list.innerHTML=items.map(function(item){
-      if(item.kind==="flight") return flightCard(item.data);
-      if(item.kind==="train") return trainCard(item.data);
-      return shipCard(item.data);
+    var lastDay="";list.innerHTML=items.map(function(item){var ts=sortTime(item),day=ts?new Date(ts).toLocaleDateString("it-IT",{weekday:"long",day:"numeric",month:"long"}):"Data non disponibile";var heading=day!==lastDay?'<h2 class="agenda-day">'+escapeHtml(day)+'</h2>':"";lastDay=day;
+      if(item.kind==="flight") return heading+flightCard(item.data);
+      if(item.kind==="train") return heading+trainCard(item.data);
+      return heading+shipCard(item.data);
     }).join("");
 
     Array.prototype.forEach.call(document.querySelectorAll("[data-remove-flight]"),function(btn){
@@ -323,7 +325,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
       },
       scheduled_in:f.scheduled_in||old.scheduled_in||null,
       estimated_in:f.estimated_in||old.estimated_in||null,
-      actual_in:f.actual_in||null, actual_on:f.actual_on||null, estimated_on:f.estimated_on||null, scheduled_on:f.scheduled_on||null, cancelled:!!f.cancelled, customerName:old.customerName||"",
+      actual_in:f.actual_in||null, actual_on:f.actual_on||null, estimated_on:f.estimated_on||null, scheduled_on:f.scheduled_on||null, cancelled:!!f.cancelled, customerName:old.customerName||"", provider:f.provider||data.provider||old.provider||"FlightAware",
       terminal_destination:f.terminal_destination||old.terminal_destination||"—",
       gate_destination:f.gate_destination||old.gate_destination||"—",
       status:f.status||old.status||"—",

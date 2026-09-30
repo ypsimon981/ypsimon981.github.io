@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0D0908">
@@ -465,7 +465,8 @@ h1{
 }
 </style>
 <link rel="stylesheet" href="assets/steerwill-theme.css?v=1">
-<link rel="stylesheet" href="assets/revision.css?v=20260930"></head>
+<link rel="stylesheet" href="assets/revision.css?v=20260930"><link rel="stylesheet" href="assets/mobile.css?v=mobile20260930"><script defer src="assets/mobile.js?v=mobile20260930"></script>
+</head>
 <body>
 <main class="page">
   <div class="topbar">
@@ -540,7 +541,7 @@ h1{
   <div id="backupState" class="backupState">Backup locale automatico attivo.</div>
 
   <p class="note">La foto finale include realmente la stampa in alto a destra, la minimappa in basso a sinistra e, se hai inserito un codice, i dati del volo in alto a sinistra. Su iPhone il salvataggio nel rullino passa dal pannello iOS; SteerWill conserva anche una copia locale automatica per evitare perdite accidentali.</p>
-  <canvas id="canvas"></canvas>
+  <canvas id="canvas"></canvas><style>#liveStampCanvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3}#tripStamp,#stamp{opacity:0;pointer-events:none}</style>
 </main>
 
 <script src="flight-config.js?v=steerwill3"></script>
@@ -550,7 +551,7 @@ h1{
 
   var video = document.getElementById("video");
   var review = document.getElementById("review");
-  var canvas = document.getElementById("canvas");
+  var canvas = document.getElementById("canvas");var liveStampCanvas=document.createElement("canvas");liveStampCanvas.id="liveStampCanvas";liveStampCanvas.setAttribute("aria-hidden","true");document.getElementById("cameraShell").appendChild(liveStampCanvas);
   var shell = document.getElementById("cameraShell");
   var statusEl = document.getElementById("status");
   var stampDate = document.getElementById("stampDate");
@@ -594,7 +595,7 @@ h1{
   var handoff=new URLSearchParams(location.search);
   var clientInput=document.getElementById("timestampClient");
   clientInput.value=handoff.get("client")||"";
-  clientInput.oninput=function(){document.getElementById("tripStampClient").textContent=clientInput.value.trim();};
+  clientInput.oninput=function(){document.getElementById("tripStampClient").textContent=clientInput.value.trim();renderStampPreview();};
   var tripLookupSeq = 0;
 
   function normalizeTripCode(value){
@@ -641,21 +642,21 @@ h1{
     document.getElementById("tripStampClient").textContent=clientInput.value.trim();
     if(!tripInfo){
       tripStamp.classList.remove("show");
-      shell.classList.remove("hasTrip");
+      shell.classList.remove("hasTrip");renderStampPreview();
       return;
     }
     tripStampKind.textContent="VOLO";
     tripStampCode.textContent=tripInfo.code||"—";
     tripStampRoute.textContent=tripInfo.route||"—";
     tripStampMeta.textContent=tripInfo.meta||tripInfo.status||"";
-    tripStampElapsed.textContent=tripElapsedText(tripInfo);
+    tripStampElapsed.textContent=(tripInfo.actualOn?"Atterrato alle "+clock(tripInfo.actualOn)+" · ":"")+tripElapsedText(tripInfo)+(tripInfo.source?" · Fonte: "+tripInfo.source:"");
     tripStamp.classList.add("show");
-    shell.classList.add("hasTrip");
+    shell.classList.add("hasTrip");renderStampPreview();
   }
 
   function updateTripElapsed(){
     if(tripInfo && tripStamp.classList.contains("show")){
-      tripStampElapsed.textContent=tripElapsedText(tripInfo);
+      tripStampElapsed.textContent=(tripInfo.actualOn?"Atterrato alle "+clock(tripInfo.actualOn)+" · ":"")+tripElapsedText(tripInfo)+(tripInfo.source?" · Fonte: "+tripInfo.source:"");
     }
   }
 
@@ -694,6 +695,7 @@ h1{
       status:f.status||"",
       eventTs:eventTs,
       arrived:arrived,
+      actualOn:actualTs?f.actual_on:null,landedWithoutTime:!actualTs&&!!(f.actual_in||/arriv|landed|complete/i.test(String(f.status||""))),source:data.provider||f.provider||f.source||"",
       cancelled:!!f.cancelled
     };
   }
@@ -723,8 +725,8 @@ h1{
       tripLookupStatus.classList.add("ok");
     }catch(e){
       if(seq!==tripLookupSeq) return;
-      setTripInfo(null);
-      tripLookupStatus.textContent="Volo "+code+" non trovato per oggi.";
+      if(!tripInfo||normalizeTripCode(tripInfo.code)!==code)setTripInfo(null);else{tripInfo.saved=true;renderStampPreview();}
+      tripLookupStatus.textContent="Dati live non disponibili. Volo "+code+" non trovato per la data selezionata.";
       tripLookupStatus.classList.add("bad");
     }finally{
       if(seq===tripLookupSeq){
@@ -770,7 +772,7 @@ h1{
           code:tripInfo.code,
           route:tripInfo.route,
           status:tripInfo.status,
-          customerName:clientInput.value.trim(),
+          customerName:clientInput.value.trim(),actualOn:tripInfo&&tripInfo.actualOn,source:tripInfo&&tripInfo.source,
           eventTs:tripInfo.eventTs
         } : null
       });
@@ -825,7 +827,7 @@ h1{
   function updateClock(){
     var n = nowParts();
     stampDate.textContent = n.date;
-    stampTime.textContent = n.time;
+    stampTime.textContent = n.time;renderStampPreview();
   }
 
   setInterval(function(){
@@ -1086,63 +1088,28 @@ h1{
   }
 
   function drawTripStamp(ctx,w,h){
-    if(!tripInfo) return;
-
-    var x=Math.round(w*.035);
-    var y=Math.round(h*.04);
-    var boxW=Math.round(w*.58);
-    var base=Math.max(40,w*.042);
-    var padX=Math.round(base*.50);
-    var padY=Math.round(base*.42);
-    var line1=base*1.16;
-    var line2=base*.98;
-    var line3=base*.82;
-    var line4=base*.94;
-    var boxH=Math.round(padY*2+line1+line2+line3+line4+base*.52+(clientInput.value.trim()?base*.75:0));
-
-    ctx.save();
-    roundedRect(ctx,x,y,boxW,boxH,Math.max(14,base*.55));
-    ctx.fillStyle="rgba(0,0,0,.52)";
-    ctx.fill();
-    ctx.strokeStyle="rgba(255,255,255,.35)";
-    ctx.lineWidth=Math.max(2,w*.0013);
-    ctx.stroke();
-
-    ctx.textAlign="left";
-    ctx.textBaseline="top";
-    ctx.fillStyle="#fff";
-    ctx.shadowColor="rgba(0,0,0,.95)";
-    ctx.shadowBlur=Math.max(6,w*.005);
-    var tx=x+padX;
-    var ty=y+padY;
-    var maxText=boxW-padX*2;
-
-    ctx.font="900 "+(base*.54)+"px -apple-system,BlinkMacSystemFont,Arial,sans-serif";
-    ctx.fillStyle="rgba(255,255,255,.72)";
-    ctx.fillText("VOLO",tx,ty,maxText);
-
-    ty+=base*.60;
-    ctx.fillStyle="#fff";
-    ctx.font="950 "+(base*.94)+"px -apple-system,BlinkMacSystemFont,Arial,sans-serif";
-    ctx.fillText(tripInfo.code||"—",tx,ty,maxText);
-
-    ty+=line1;
-    ctx.font="850 "+(base*.68)+"px -apple-system,BlinkMacSystemFont,Arial,sans-serif";
-    ctx.fillText(tripInfo.route||"—",tx,ty,maxText);
-
-    ty+=line2;
-    ctx.fillStyle="rgba(255,255,255,.88)";
-    ctx.font="700 "+(base*.52)+"px -apple-system,BlinkMacSystemFont,Arial,sans-serif";
-    ctx.fillText(tripInfo.meta||tripInfo.status||"",tx,ty,maxText);
-
-    ty+=line3;
-    ctx.fillStyle="#fff";
-    ctx.font="950 "+(base*.68)+"px -apple-system,BlinkMacSystemFont,Arial,sans-serif";
-    ctx.fillText(tripElapsedText(tripInfo),tx,ty,maxText);
-    if(clientInput.value.trim()){ty+=line4;ctx.font="700 "+(base*.52)+"px Arial,sans-serif";ctx.fillText(clientInput.value.trim(),tx,ty,maxText);}
-    ctx.restore();
+    if(!tripInfo)return;
+    var base=w*.042,x=w*.035,y=h*.04,pad=base*.5,boxW=w*.58;
+    var lines=[["VOLO",.45,.62],[tripInfo.code||"—",.94,1.14],[tripInfo.route||"—",.62,.82],[tripInfo.meta||tripInfo.status||"",.46,.66]];
+    if(tripInfo.actualOn)lines.push(["Atterrato alle "+clock(tripInfo.actualOn),.62,.82]);
+    else if(tripInfo.landedWithoutTime)lines.push(["Atterrato alle: non disponibile",.52,.72]);
+    lines.push([tripElapsedText(tripInfo),.62,.82]);
+    if(tripInfo.source)lines.push(["Fonte: "+tripInfo.source+(tripInfo.saved?" · dato salvato":""),.42,.62]);
+    if(clientInput.value.trim())lines.push([clientInput.value.trim(),.52,.74]);
+    var boxH=pad*2+lines.reduce(function(n,l){return n+l[2]*base;},0);
+    ctx.save();roundedRect(ctx,x,y,boxW,boxH,base*.35);ctx.fillStyle="rgba(0,0,0,.52)";ctx.fill();ctx.strokeStyle="rgba(255,255,255,.35)";ctx.lineWidth=w*.0013;ctx.stroke();
+    ctx.textAlign="left";ctx.textBaseline="top";ctx.fillStyle="#fff";ctx.shadowColor="#000";ctx.shadowBlur=w*.005;
+    var ty=y+pad;lines.forEach(function(line){ctx.font="700 "+(base*line[1])+"px Arial,sans-serif";ctx.fillText(line[0],x+pad,ty,boxW-pad*2);ty+=base*line[2];});ctx.restore();
   }
-
+  function renderStampPreview(){
+    if(!liveStampCanvas||!shell||!shell.clientWidth)return;
+    var w=1600,h=Math.round(w*shell.clientHeight/shell.clientWidth);if(h>2200){h=2200;w=Math.round(h*shell.clientWidth/shell.clientHeight);}
+    if(liveStampCanvas.width!==w||liveStampCanvas.height!==h){liveStampCanvas.width=w;liveStampCanvas.height=h;}
+    var ctx=liveStampCanvas.getContext("2d");ctx.clearRect(0,0,w,h);drawTripStamp(ctx,w,h);drawStamp(ctx,w,h);
+    var scale=shell.clientWidth/w,mapW=Math.min(w*.30,460)*scale;
+    miniMap.style.width=mapW+"px";miniMap.style.height=mapW*.66+"px";miniMap.style.left="3.5%";miniMap.style.bottom="3.5%";
+  }
+  window.addEventListener("resize",renderStampPreview);
   function drawStamp(ctx,w,h){
     var n = nowParts();
     var cityCountry = [place.city,place.country].filter(Boolean).join(", ");
@@ -1165,19 +1132,19 @@ h1{
     ctx.shadowOffsetY = Math.max(2,w*.0015);
 
     ctx.font = "800 " + base + "px -apple-system,BlinkMacSystemFont,Arial,sans-serif";
-    ctx.fillText(n.date,x,y);
+    ctx.fillText(n.date,x,y,w*(tripInfo?.32:.9));
 
     y += base*1.12;
     ctx.font = "900 " + (base*1.55) + "px -apple-system,BlinkMacSystemFont,Arial,sans-serif";
-    ctx.fillText(n.time,x,y);
+    ctx.fillText(n.time,x,y,w*(tripInfo?.32:.9));
 
     y += base*1.72;
     ctx.font = "750 " + (base*.9) + "px -apple-system,BlinkMacSystemFont,Arial,sans-serif";
-    ctx.fillText(cityCountry,x,y);
+    ctx.fillText(cityCountry,x,y,w*(tripInfo?.32:.9));
 
     y += base*1.12;
     ctx.font = "700 " + (base*.78) + "px -apple-system,BlinkMacSystemFont,Arial,sans-serif";
-    ctx.fillText(coords,x,y);
+    ctx.fillText(coords,x,y,w*(tripInfo?.32:.9));
 
     ctx.restore();
   }
@@ -1230,7 +1197,7 @@ h1{
       if(photoUrl) URL.revokeObjectURL(photoUrl);
       photoUrl = URL.createObjectURL(blob);
       review.src = photoUrl;
-      review.style.display = "block";
+      review.style.display = "block";liveStampCanvas.style.display="none";
       document.getElementById("stamp").style.display = "none";
       tripStamp.style.display = "none";
       miniMap.style.display = "none";
@@ -1242,7 +1209,7 @@ h1{
   }
 
   function retake(){
-    review.style.display = "none";
+    review.style.display = "none";liveStampCanvas.style.display="";renderStampPreview();
     document.getElementById("stamp").style.display = "";
     tripStamp.style.display = "";
     miniMap.style.display = "";
@@ -1325,7 +1292,7 @@ h1{
     if(tripCodeInput.value.trim() && !document.hidden) lookupTrip();
   },60000);
 
-  tripCodeInput.value=normalizeTripCode(handoff.get("flight")||"");if(tripCodeInput.value)lookupTrip();
+  tripCodeInput.value=normalizeTripCode(handoff.get("flight")||"");if(tripCodeInput.value){var actual=Date.parse(handoff.get("actual_on")||"");setTripInfo({code:tripCodeInput.value,route:handoff.get("route")||"—",source:handoff.get("source")||"",actualOn:Number.isFinite(actual)&&actual<=Date.now()?handoff.get("actual_on"):null,eventTs:Number.isFinite(actual)&&actual<=Date.now()?actual:0,arrived:Number.isFinite(actual)&&actual<=Date.now(),saved:true,status:"Dato salvato · verifico aggiornamenti",meta:""});lookupTrip();}
   startCamera();
   startLocation();
 })();

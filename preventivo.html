@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0D0908">
 <title>SteerWill · Preventivo rapido</title>
@@ -118,13 +118,14 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
 h1{font-size:32px}.hero{padding:16px}.field label{font-size:14px;font-weight:500;letter-spacing:0;text-transform:none}.field input,.field select{height:46px;font-weight:500;border-radius:10px;font-size:16px}.price{font-size:44px;font-weight:650}.metaValue{font-weight:600;font-size:16px}.calculate,.swap,.roundBtn,.resultActions button,.savePanel button{font-weight:600}.metaLabel,.priceLabel,.optionNote,.costVehicle,.costSource,.footerNote{font-size:12px}.optionTitle{font-weight:600}.costTitle{font-weight:600;font-size:16px}.costRow span{font-size:14px}.topActions{flex-wrap:wrap;gap:5px}.metaGrid{grid-template-columns:repeat(3,1fr)}.metaCell{padding:10px;border-bottom:0}.resultActions{grid-template-columns:1fr 1fr;gap:6px}.routeActions{grid-template-columns:auto 1fr;gap:6px}.costBox{padding:14px}.priceBox{padding:14px}.costRow.total strong{font-weight:650}
 </style>
 <link rel="stylesheet" href="assets/steerwill-theme.css?v=1">
-<link rel="stylesheet" href="assets/revision.css?v=20260930"></head>
+<link rel="stylesheet" href="assets/revision.css?v=20260930"><link rel="stylesheet" href="assets/mobile.css?v=mobile20260930"><script defer src="assets/mobile.js?v=mobile20260930"></script>
+</head>
 <body>
 <main class="page">
   <div class="topbar">
     <div class="brand">STEERWILL · PREVENTIVO</div>
     <div class="topActions">
-      <a class="pillLink" href="testo-cliente.html?v=revision20260930">Testo cliente</a><a class="pillLink" href="preventivi-salvati.html?v=revision20260930">Salvati</a>
+      <a class="pillLink" href="testo-cliente.html?v=mobile20260930">Testo cliente</a><a class="pillLink" href="preventivi-salvati.html?v=mobile20260930">Salvati</a>
       <button id="settingsBtn" class="settingsBtn" type="button">Impostazioni</button>
       <a class="pillLink" href="index.html">← Home</a>
     </div>
@@ -817,7 +818,7 @@ h1{font-size:32px}.hero{padding:16px}.field label{font-size:14px;font-weight:500
     if(!lastQuote)return;if(!quoteVariants)buildVariants(lastQuote);
     var calc=quoteVariants[tripMode.value]||quoteVariants.oneway;
     var q={from:(lastQuote.from||{}).label||fromInput.value,to:(lastQuote.to||{}).label||toInput.value,modeLabel:calc.factors.label,serviceDate:document.getElementById("serviceDate").value,departureTime:document.getElementById("departureTime").value,priceDisplay:vatIncluded.checked?moneyCompact(calc.quote)+" IVA inclusa":moneyCompact(calc.quote)+" + IVA"};
-    sessionStorage.setItem("steerwill_message_quote_v1",JSON.stringify(q));location.href="testo-cliente.html?v=revision20260930";
+    sessionStorage.setItem("steerwill_message_quote_v1",JSON.stringify(q));location.href="testo-cliente.html?v=mobile20260930";
   };
 
   [fromInput,toInput].forEach(function(el){
