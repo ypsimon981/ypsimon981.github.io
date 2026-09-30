@@ -148,7 +148,7 @@ h1{margin:0;font-size:clamp(40px,8vw,68px);line-height:.94;letter-spacing:-.045e
       <button id="followBtn" class="primary" type="button">+ Segui nel Monitor</button>
     </div>
   </section>
-<section class="radarList"><div class="radarSettings"><label for="preferredAirport">Aeroporto preferito</label><select id="preferredAirport"><option value="FCO">Roma Fiumicino · FCO</option></select></div><div id="radar"></div></section></main>
+</main>
 
 <script src="assets/flight-status.js?v=20260930"></script>
 <script src="flight-config.js?v=steerwill2"></script>
@@ -355,32 +355,9 @@ h1{margin:0;font-size:clamp(40px,8vw,68px);line-height:.94;letter-spacing:-.045e
     updateFollowButton();
   };
 
-  var radar=document.getElementById("radar"), radarItems=[],radarBusy=false;
-  var preferred=document.getElementById("preferredAirport");
-  preferred.value=localStorage.getItem("steerwill_preferred_airport_v1")||"FCO";
-  if(!preferred.value)preferred.value="FCO";
-  preferred.onchange=function(){localStorage.setItem("steerwill_preferred_airport_v1",this.value);loadRadar();};
-  function radarRender(){
-    radar.hidden=!!input.value.trim();if(radar.hidden)return;
-    radar.replaceChildren();
-    if(!radarItems.length){radar.textContent="Nessun arrivo disponibile nella finestra monitorata.";return;}
-    radarItems.slice(0,30).forEach(function(f){
-      var row=document.createElement("article");row.className="radarRow";
-      var text=document.createElement("div"),id=document.createElement("strong"),origin=document.createElement("small"),elapsed=document.createElement("div");
-      id.textContent=f.ident;origin.textContent=(f.origin||{}).code||"";elapsed.className="elapsed";elapsed.dataset.landing=JSON.stringify(f);text.append(id,origin,elapsed);
-      var button=document.createElement("button");button.className="secondary";button.textContent="Apri";button.onclick=function(){input.value=f.ident;selectedDate=f.target_date||localDateOffset(0);radar.hidden=true;render(f);};
-      var stamp=document.createElement("a");stamp.className="timestampLink";stamp.textContent="Timestamp";stamp.href=SWFlight.link(f);row.append(text,button,stamp);radar.append(row);
-    });SWFlight.update();
-  }
-  async function loadRadar(){
-    if(input.value.trim()||document.hidden||radarBusy)return;radarBusy=true;radar.hidden=false;
-    if(!radarItems.length)radar.textContent="Carico arrivi FCO…";
-    try{var res=await fetch(window.STEERWILL_FLIGHT_API+"?airport="+encodeURIComponent(preferred.value),{headers:{apikey:window.STEERWILL_SUPABASE_PUBLIC_KEY||""}});var data=await res.json();if(!res.ok)throw new Error("radar");radarItems=data.items||[];radarRender();if(data.stale){var warning=document.createElement("p");warning.textContent="Ultimo aggiornamento disponibile: "+new Date(data.fetched_at).toLocaleTimeString("it-IT")+" · riprovo automaticamente";radar.prepend(warning);}}
-    catch(e){radar.textContent="Radar arrivi temporaneamente non disponibile. Puoi cercare un volo specifico.";}finally{radarBusy=false;}
-  }
-  input.addEventListener("input",function(){radar.hidden=!!input.value.trim();if(!input.value.trim()){result.classList.remove("show");loadRadar();}});
-  loadRadar();setInterval(loadRadar,60000);
-  document.addEventListener("visibilitychange",function(){if(!document.hidden)loadRadar();});
+  input.addEventListener("input",function(){
+    if(!input.value.trim()) result.classList.remove("show");
+  });
 })();
 </script>
 </body>
