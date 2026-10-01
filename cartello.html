@@ -91,6 +91,7 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
 <style>
 .topActions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.topActions button{cursor:pointer;font:inherit;font-size:14px;font-weight:800}#optionsDialog{width:min(520px,calc(100% - 28px));max-height:85dvh;overflow:auto;background:#181818;color:#f7f7f7;border:1px solid #444;border-radius:20px;padding:22px}#optionsDialog::backdrop{background:rgba(0,0,0,.7)}.dialogHeading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px}.dialogHeading h2{margin:0;font-size:24px}#optionsDialog label{margin-top:18px}#optionsDialog select{width:100%;min-height:48px;font-size:16px}#optionsDialog p{font-size:14px;line-height:1.5;color:#bbb}#optionsSaved{color:#aaa}#passenger{unicode-bidi:plaintext}.previewName,.previewWord,#fixedText,.verticalWord{unicode-bidi:plaintext}#viewer[data-alphabet=arabic] #fixedText,#viewer[data-alphabet=arabic] .verticalWord,#viewer[data-alphabet=hebrew] #fixedText,#viewer[data-alphabet=hebrew] .verticalWord{line-height:1.4;letter-spacing:normal}@media(max-width:400px){.brand{font-size:11px;letter-spacing:.08em}.topActions{gap:5px}.topActions .homeLink{padding:9px 10px}}
 .previewName,.previewWord{line-height:var(--preview-line-height,1.05)}
+.withIcon{display:flex;align-items:center;gap:8px}.labelIcon{width:18px;height:18px;flex:0 0 18px}.action.withIcon,.printSign.withIcon,button.pill.withIcon{justify-content:center}#optionsTitle .labelIcon{width:22px;height:22px;flex-basis:22px}#closeOptions{min-width:44px;min-height:44px;padding:10px;flex-shrink:0}.visuallyHidden{position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 </style>
 </head>
 <body>
@@ -242,16 +243,46 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
     viewer.dataset.alphabet=script;
   }
   function saveOptions(){try{localStorage.setItem("steergreet.options.v1",JSON.stringify({language:locale,alphabet:alphabet}));$("optionsSaved").textContent=tr("saved");}catch(e){$("optionsSaved").textContent="";}}
+  var interfaceIcons={
+    close:'<path d="m6 6 12 12M18 6 6 18"/>',
+    gear:'<path d="M9.5 3h5l.6 2.3 1.5.9 2.3-.6 2.5 4.3-1.7 1.7v1.8l1.7 1.7-2.5 4.3-2.3-.6-1.5.9-.6 2.3h-5l-.6-2.3-1.5-.9-2.3.6-2.5-4.3 1.7-1.7v-1.8L2.1 9.9l2.5-4.3 2.3.6 1.5-.9L9.5 3Z"/><circle cx="12" cy="12" r="3"/>',
+    globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c5 5 5 13 0 18-5-5-5-13 0-18Z"/>',
+    alphabet:'<path d="m3 17 4-10 4 10M4.5 14h5M14 8h7M17.5 5v3M15 8c0 4 2 7 6 9M20 8c0 4-2 7-6 9"/>',
+    person:'<circle cx="12" cy="7" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/>',
+    type:'<path d="M4 5h16M12 5v15M8 20h8"/>',
+    palette:'<path d="M12 3a9 9 0 1 0 0 18h1a2 2 0 0 0 1-3.7 1.5 1.5 0 0 1 1-2.8h3a3 3 0 0 0 3-3A9 9 0 0 0 12 3Z"/><circle cx="7.5" cy="10" r=".8"/><circle cx="10" cy="6.8" r=".8"/><circle cx="14" cy="6.8" r=".8"/><circle cx="17" cy="10" r=".8"/>',
+    invert:'<circle cx="12" cy="12" r="9"/><path d="M12 3v18M12 3a9 9 0 0 1 0 18Z" fill="currentColor"/>',
+    image:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8" cy="8" r="1.5"/><path d="m21 15-5-5L5 21"/>',
+    size:'<path d="M3 9V3h6M15 3h6v6M21 15v6h-6M9 21H3v-6M3 3l6 6M21 3l-6 6M3 21l6-6M21 21-6-6"/>',
+    trash:'<path d="M3 6h18M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7M14 10v7"/>',
+    eye:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>',
+    fit:'<path d="M8 3H3v5M16 3h5v5M21 16v5h-5M8 21H3v-5"/><rect x="7" y="8" width="10" height="8" rx="1"/>',
+    alternate:'<path d="M4 7h16m-4-4 4 4-4 4M20 17H4m4-4-4 4 4 4"/>',
+    vertical:'<path d="M12 3v18m-4-4 4 4 4-4M8 7l4-4 4 4"/>',
+    speed:'<path d="M4 19a10 10 0 1 1 16 0M12 12l5-5M5 12h1M18 12h1M12 3v2"/><circle cx="12" cy="12" r="1"/>',
+    display:'<rect x="2" y="4" width="20" height="14" rx="2"/><path d="M8 22h8M12 18v4"/>',
+    home:'<path d="m3 10 9-7 9 7v11h-6v-7H9v7H3Z"/>'
+  };
+  function iconLabel(el,text,icon){
+    el.classList.toggle("withIcon",!!icon);
+    if(!icon){el.textContent=text;return;}
+    el.innerHTML='<svg class="labelIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">'+interfaceIcons[icon]+'</svg>';
+    var label=document.createElement("span");label.textContent=text;
+    if(icon==="close"){label.className="visuallyHidden";el.setAttribute("aria-label",text);el.title=text;}
+    el.appendChild(label);
+  }
+  var labelIcons={"label[for=passenger]":"person",".fontLabel":"type",".presetLabel":"palette","label[for=logoUpload]":"image","label[for=logoSize]":"size","#removeLogo":"trash","#viewLabel":"eye","#fit":"fit","#max":"alternate","#vertical":"vertical",".speedlabel":"speed","#printSign":"display","#optionsTitle":"gear","#closeOptions":"close","#languageLabel":"globe","#alphabetLabel":"alphabet"};
   function applyLanguage(){
     document.documentElement.lang=locale;document.documentElement.dir=locale==="ar"?"rtl":"ltr";
     document.title="SteerWill · "+tr("title");
     var labels={"h1":"title",".desc":"description","label[for=passenger]":"passenger","#originalCase":"original","#caps":"caps",".fontLabel":"font",".presetLabel":"colors","label[for=logoUpload]":"logo","label[for=logoSize]":"size","#removeLogo":"remove",".card > .note":"hint","#engine":"ready","#viewLabel":"view","#fit":"fit","#max":"alternate","#vertical":"vertical",".speedlabel":"speed","#printSign":"print",".exitHint":"exit","#signOptionsLabel":"options","#optionsTitle":"options","#closeOptions":"close","#languageLabel":"language","#alphabetLabel":"alphabet","#alphabetHelp":"help","#optionsSaved":"saved"};
-    Object.keys(labels).forEach(function(selector){document.querySelector(selector).textContent=tr(labels[selector]);});
+    Object.keys(labels).forEach(function(selector){iconLabel(document.querySelector(selector),tr(labels[selector]),labelIcons[selector]);});
     ["slow","medium","fast"].forEach(function(key,i){$("speed"+(i+1)).textContent=(i+1)+" · "+tr(key);});
     ["system","impact","serif","bold","condensed"].forEach(function(font,i){fontButtons[i].setAttribute("aria-label",tr(["fontSystem","fontImpact","fontSerif","fontBold","fontCondensed"][i]));});
     presetButtons.forEach(function(btn){var index=Object.keys(colorPresets).indexOf(btn.dataset.preset)+1;btn.setAttribute("aria-label",tr("combination")+" "+index);});
     ["topCenter","topLeft","topRight","bottomCenter"].forEach(function(key,i){$("logoPosition").options[i].textContent=tr(key);});
     $("logoPosition").setAttribute("aria-label",tr("position"));$("logoSize").setAttribute("aria-label",tr("size"));$("logoPreviewImage").alt=tr("previewLogo");$("logoPreviewText").setAttribute("aria-label",tr("previewSign"));
+    iconLabel(document.querySelector(".topActions a.homeLink"),"Home","home");
     passenger.placeholder=tr("placeholderName");
     Array.prototype.forEach.call($("signAlphabet").options,function(option,i){option.textContent=alphabetNames[locale][i];});
     $("interfaceLanguage").value=locale;$("signAlphabet").value=alphabet;
@@ -322,7 +353,7 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
   function updatePreviews(){
     function light(c){var h=c.replace("#","");if(h.length===3)h=h.split("").map(function(x){return x+x;}).join("");var rgb=[0,2,4].map(function(i){var v=parseInt(h.slice(i,i+2),16)/255;return v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4);});return rgb[0]*.2126+rgb[1]*.7152+rgb[2]*.0722;}
     presetButtons.sort(function(a,b){var pa=colorPresets[a.dataset.preset],pb=colorPresets[b.dataset.preset];return light(pb.bg)-light(pa.bg);}).forEach(function(btn){var p=colorPresets[btn.dataset.preset];btn.style.background=inverted?p.fg:p.bg;btn.style.color=inverted?p.bg:p.fg;btn.setAttribute("aria-pressed",String(btn.dataset.preset===activePreset));btn.parentNode.appendChild(btn);});
-    var button=document.getElementById("invertColors");button.classList.toggle("on",inverted);button.setAttribute("aria-pressed",String(inverted));button.textContent=tr(inverted?"invertOn":"invert");
+    var button=document.getElementById("invertColors");button.classList.toggle("on",inverted);button.setAttribute("aria-pressed",String(inverted));iconLabel(button,tr(inverted?"invertOn":"invert"),"invert");
     var p=colorPresets[activePreset],preview=document.getElementById("logoPreview");preview.style.background=inverted?p.fg:p.bg;preview.style.color=inverted?p.bg:p.fg;
   }
   function applyLogo(){
