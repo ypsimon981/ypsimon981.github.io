@@ -1,0 +1,86 @@
+{
+  "conad": {
+    "logo": "./logos/conad.png",
+    "source": "https://www.conad.it/etc.clientlibs/conad-corporate/clientlibs/clientlib-site/resources/corporate/favicons/favicon.ico"
+  },
+  "esselunga": {
+    "logo": "./logos/esselunga.png",
+    "source": "https://www.esselunga.it/media/favicon/favicon.ico"
+  },
+  "carrefour": {
+    "logo": "./logos/carrefour.png",
+    "source": "https://www.carrefour.it/on/demandware.static/Sites-carrefour-IT-Site/-/default/dwa8281882/images/favicons/favicon-196x196.png"
+  },
+  "decathlon": {
+    "logo": "./logos/decathlon.png",
+    "source": "https://www.decathlon.it/favicon.ico"
+  },
+  "ikea": {
+    "logo": "./logos/ikea.png",
+    "source": "https://www.ikea.com/global/en/images/favicon.ico"
+  },
+  "tigota": {
+    "logo": "./logos/tigota.png",
+    "source": "https://www.tigota.it/favicon.ico"
+  },
+  "mediaworld": {
+    "logo": "./logos/mediaworld.png",
+    "source": "https://www.mediaworld.it/assets/manifest/favicon-Media-48x48.png"
+  },
+  "unieuro": {
+    "logo": "./logos/unieuro.png",
+    "source": "https://www.unieuro.it/favicon.ico"
+  },
+  "hm": {
+    "logo": "./logos/hm.png",
+    "source": "https://www2.hm.com/favicon.ico"
+  },
+  "leroymerlin": {
+    "logo": "./logos/leroymerlin.png",
+    "source": "https://www.leroymerlin.it/favicon.ico"
+  },
+  "sephora": {
+    "logo": "./logos/sephora.png",
+    "source": "https://www.sephora.it/favicon.ico"
+  },
+  "douglas": {
+    "logo": "./logos/douglas.png",
+    "source": "https://www.douglas.it/public/apple-touch-icon-57x57.webp"
+  },
+  "ovs": {
+    "logo": "./logos/ovs.png",
+    "source": "https://www.ovs.it/on/demandware.static/Sites-ovs-Site/-/default/dw1a958d16/images/favicon.ico"
+  },
+  "eurospin": {
+    "logo": "./logos/eurospin.png",
+    "source": "https://www.eurospin.it/wp-content/themes/eurospin/assets/images/obj/favicon.ico"
+  },
+  "q8": {
+    "logo": "./logos/q8.png",
+    "source": "https://www.q8.it/etc.clientlibs/q8italy/clientlibs/clientlib-common/resources/icon-192x192.png"
+  },
+  "eni": {
+    "logo": "./logos/eni.png",
+    "source": "https://www.eni.com/content/dam/enicom/images/favicons/favicon.ico"
+  },
+  "nike": {
+    "logo": "./logos/nike.png",
+    "source": "https://www.nike.com/favicon.ico?v=1"
+  },
+  "adidas": {
+    "logo": "./logos/adidas.png",
+    "source": "https://www.adidas.it/static/glass/landing-app/adidas-landing-app/favicon.ico"
+  },
+  "bata": {
+    "logo": "./logos/bata.png",
+    "source": "https://www.bata.com/on/demandware.static/Sites-bata-cl-Site/-/default/dw0dd8627c/images/favicons/favicon-96x96.png"
+  },
+  "arcaplanet": {
+    "logo": "./logos/arcaplanet.png",
+    "source": "https://www.arcaplanet.it/favicon-32x32.png?v=0c9de34329630d4d23a8bb3524dc702f"
+  },
+  "starbucks": {
+    "logo": "./logos/starbucks.png",
+    "source": "https://www.starbucks.it/on/demandware.static/Sites-sb_it-Site/-/default/dw7cada603/images/favicon.ico"
+  }
+}
