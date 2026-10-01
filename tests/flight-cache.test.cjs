@@ -3,7 +3,7 @@ const {readFileSync}=require('node:fs');
 const {stripTypeScriptTypes}=require('node:module');
 const assert=require('node:assert/strict');
 const source=readFileSync('supabase/functions/flight/index.ts','utf8')
-  .replace(/^import .*\n/,'').split('Deno.serve(')[0];
+  .replace(/^import .*$/gm,'').split('Deno.serve(')[0];
 const js=stripTypeScriptTypes(source);
 let calls=0,fail=false;
 const today=new Date().toISOString().slice(0,10);
@@ -19,7 +19,8 @@ function database(){
       (!row.expires_at||Date.parse(row.expires_at)<=Date.now());
     if(claimed){row.refresh_token=p_token;row.refresh_until=Date.now()+45000;}
     return {data:claimed,error:null};
-  },from(){
+  },from(table){
+    if(table==='flightaware_api_events'){const event={insert:async()=>({error:null}),update(){return event},eq:async()=>({error:null})};return event;}
     let patch=null,filters=[];
     const find=()=>[...rows.entries()].filter(([key,row])=>filters.every(([k,v])=>(k==='cache_key'?key:row[k])===v));
     const query={select(){return query;},eq(k,v){filters.push([k,v]);return query;},
@@ -59,3 +60,4 @@ function database(){
   assert.equal(cacheLifetime({actual_in:new Date().toISOString()},Date.now()).finalized,false);
   console.log('PASS: 20 concurrent callers = 1 provider call; expiry refresh, outage backoff, landed stop, negative cache, date validation, database fail-closed.');
 })().catch(e=>{console.error(e);process.exitCode=1;});
+

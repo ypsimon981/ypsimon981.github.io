@@ -1,0 +1,9 @@
+.sw-comparison{padding:12px 16px;border-top:1px solid #353535;min-width:0;font-weight:400}
+.sw-comparison-title{font-size:12px;color:#bca16c;letter-spacing:.04em;margin-bottom:8px}
+.sw-comparison-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.sw-comparison-source{min-width:0;overflow-wrap:anywhere}
+.sw-comparison-provider{font-size:12px;color:#c5c5c5}
+.sw-comparison-time{font-size:18px;font-weight:600;line-height:1.4;color:#f5f5f5}
+.sw-comparison-meta{font-size:11px;line-height:1.5;color:#a0a0a0}
+.sw-comparison-diff{font-size:12px;margin-top:8px;color:#d2b77d}
+.sw-comparison-note{font-size:10px;line-height:1.4;color:#999;margin-top:5px}

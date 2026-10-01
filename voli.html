@@ -145,6 +145,7 @@ h1{margin:0;font-size:clamp(40px,8vw,68px);line-height:.94;letter-spacing:-.045e
       <div class="stat"><div class="statLabel">Gate</div><div id="gate" class="statValue">—</div></div>
     </div>
 
+    <div id="flightComparison"></div>
     <div id="landingElapsed" class="elapsed"></div><div id="flightActions" class="actions">
       <button id="refreshBtn" class="secondary" type="button">Aggiorna</button>
       <button id="followBtn" class="primary" type="button">Segui nel Monitor</button>
@@ -153,7 +154,8 @@ h1{margin:0;font-size:clamp(40px,8vw,68px);line-height:.94;letter-spacing:-.045e
   </section>
 </main>
 
-<script src="assets/flight-status.js?v=mobile20260930"></script>
+<link rel="stylesheet" href="assets/flight-comparison.css?v=dual20261001">
+<script src="assets/flight-status.js?v=dual20261001"></script>
 <script src="flight-config.js?v=steerwill2"></script>
 <script>
 (function(){
@@ -244,6 +246,7 @@ h1{margin:0;font-size:clamp(40px,8vw,68px);line-height:.94;letter-spacing:-.045e
     document.getElementById("estimated").textContent = formatDateTime(landing);
     document.getElementById("terminal").textContent = f.terminal_destination || "—";
     document.getElementById("gate").textContent = f.gate_destination || "—";
+    document.getElementById("flightComparison").innerHTML=SWFlight.comparisonHtml(f.comparison);
     result.classList.add("show");
     updateFollowButton();
   }
@@ -253,6 +256,7 @@ h1{margin:0;font-size:clamp(40px,8vw,68px);line-height:.94;letter-spacing:-.045e
     if(!f) throw new Error("flight_not_found");
     return {
       ident:f.ident || ident,
+      comparison:data.comparison||null,
       airline:f.airline || "",
       origin:{
         code:(f.origin&&f.origin.code) || "—",
@@ -293,6 +297,7 @@ h1{margin:0;font-size:clamp(40px,8vw,68px);line-height:.94;letter-spacing:-.045e
       }
     }catch(e){
       currentFlight = null;
+      document.getElementById("flightComparison").innerHTML="";
       delete document.getElementById("landingElapsed").dataset.landing;document.getElementById("landingElapsed").textContent="";result.classList.remove("sw-ok","sw-warn","sw-bad");document.getElementById("timestampLink").href=SWFlight.link({ident:id,target_date:selectedDate,customerName:linkedCustomer});
       result.classList.add("show");
       document.getElementById("ident").textContent = id;

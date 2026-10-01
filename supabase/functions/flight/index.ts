@@ -1,4 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { cachedADB, comparisonFor } from "./aerodatabox.ts";
 
 const ALLOWED_ORIGINS = new Set([
   "https://ypsimon981.github.io",
@@ -336,8 +337,15 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const result=await cachedFlight(supabase,ident,targetDate,secretRow.value);
-    return json(result.body,result.status,origin);
+    const {data:rapidSecret}=await supabase.from('app_secrets').select('value').eq('key','rapidapi_key').maybeSingle();
+    const [result,adb]=await Promise.all([
+      cachedFlight(supabase,ident,targetDate,secretRow.value),
+      rapidSecret?.value ? cachedADB(supabase,ident,targetDate,rapidSecret.value).catch(()=>({error:'temporarily_unavailable',updated_at:null}))
+        : Promise.resolve({error:'not_configured',updated_at:null})
+    ]);
+    const body:any=result.body;
+    if(body.flight) body.comparison=comparisonFor(body,adb);
+    return json(body,result.status,origin);
   } catch (error) {
     return json({
       error: "proxy_error",

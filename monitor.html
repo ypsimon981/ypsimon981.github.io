@@ -87,7 +87,8 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
   <div id="list" class="list"></div>
 </main>
 
-<script src="assets/flight-status.js?v=clock20261001"></script>
+<link rel="stylesheet" href="assets/flight-comparison.css?v=dual20261001">
+<script src="assets/flight-status.js?v=dual20261001"></script>
 <script src="flight-config.js?v=steerwill2"></script>
 <script>
 (function(){
@@ -213,6 +214,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
         '<div class="cell"><div class="cellLabel">Ritardo</div><div class="cellValue '+(delay>0?"delay":"")+'">'+delayText+'</div></div>'+
         '<div class="cell"><div class="cellLabel">Terminal</div><div class="cellValue">'+escapeHtml(f.terminal_destination||"—")+'</div></div>'+
       '</div>'+
+      SWFlight.comparisonHtml(f.comparison)+
       '<div class="cardActions"><a class="timestampLink" href="'+escapeHtml(SWFlight.link(f))+'">Prova no-show</a><div class="meta landingClock" data-landing-format="clock" data-landing="'+escapeHtml(JSON.stringify(f))+'">'+escapeHtml(landingInfo.text)+'</div><button class="remove" type="button" data-remove-flight="'+escapeHtml(f.ident)+'" data-flight-date="'+escapeHtml(f.target_date||"")+'">Rimuovi</button></div>'+
     '</article>';
   }
@@ -315,6 +317,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     if(!f) return old;
     return {
       ident:f.ident||old.ident,
+      comparison:data.comparison||null,
       airline:f.airline||old.airline||"",
       origin:{
         code:(f.origin&&f.origin.code)||(old.origin&&old.origin.code)||"—",
