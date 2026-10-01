@@ -98,7 +98,7 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
   <section class="card">
     <div class="topbar">
       <div class="brand">STEERWILL · V1.9</div>
-      <div class="topActions"><button id="signOptions" class="homeLink" type="button" aria-haspopup="dialog">Opzioni</button><a class="homeLink" href="index.html">← Home</a></div>
+      <div class="topActions"><button id="signOptions" class="homeLink" type="button" aria-haspopup="dialog" style="gap:7px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="flex-shrink:0"><path d="M9.5 3h5l.6 2.3 1.5.9 2.3-.6 2.5 4.3-1.7 1.7v1.8l1.7 1.7-2.5 4.3-2.3-.6-1.5.9-.6 2.3h-5l-.6-2.3-1.5-.9-2.3.6-2.5-4.3 1.7-1.7v-1.8L2.1 9.9l2.5-4.3 2.3.6 1.5-.9L9.5 3Z"/><circle cx="12" cy="12" r="3"/></svg><span id="signOptionsLabel">Opzioni</span></button><a class="homeLink" href="index.html">← Home</a></div>
     </div>
     <h1>Cartello aeroporto</h1>
     <p class="desc">Inserisci il nominativo e scegli come deve occupare lo schermo.</p>
@@ -245,7 +245,7 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
   function applyLanguage(){
     document.documentElement.lang=locale;document.documentElement.dir=locale==="ar"?"rtl":"ltr";
     document.title="SteerWill · "+tr("title");
-    var labels={"h1":"title",".desc":"description","label[for=passenger]":"passenger","#originalCase":"original","#caps":"caps",".fontLabel":"font",".presetLabel":"colors","label[for=logoUpload]":"logo","label[for=logoSize]":"size","#removeLogo":"remove",".card > .note":"hint","#engine":"ready","#viewLabel":"view","#fit":"fit","#max":"alternate","#vertical":"vertical",".speedlabel":"speed","#printSign":"print",".exitHint":"exit","#signOptions":"options","#optionsTitle":"options","#closeOptions":"close","#languageLabel":"language","#alphabetLabel":"alphabet","#alphabetHelp":"help","#optionsSaved":"saved"};
+    var labels={"h1":"title",".desc":"description","label[for=passenger]":"passenger","#originalCase":"original","#caps":"caps",".fontLabel":"font",".presetLabel":"colors","label[for=logoUpload]":"logo","label[for=logoSize]":"size","#removeLogo":"remove",".card > .note":"hint","#engine":"ready","#viewLabel":"view","#fit":"fit","#max":"alternate","#vertical":"vertical",".speedlabel":"speed","#printSign":"print",".exitHint":"exit","#signOptionsLabel":"options","#optionsTitle":"options","#closeOptions":"close","#languageLabel":"language","#alphabetLabel":"alphabet","#alphabetHelp":"help","#optionsSaved":"saved"};
     Object.keys(labels).forEach(function(selector){document.querySelector(selector).textContent=tr(labels[selector]);});
     ["slow","medium","fast"].forEach(function(key,i){$("speed"+(i+1)).textContent=(i+1)+" · "+tr(key);});
     ["system","impact","serif","bold","condensed"].forEach(function(font,i){fontButtons[i].setAttribute("aria-label",tr(["fontSystem","fontImpact","fontSerif","fontBold","fontCondensed"][i]));});
