@@ -93,7 +93,9 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
 .previewName,.previewWord{line-height:var(--preview-line-height,1.05)}
 .withIcon{display:flex;align-items:center;gap:8px}.labelIcon{width:18px;height:18px;flex:0 0 18px}.action.withIcon,.printSign.withIcon,button.pill.withIcon{justify-content:center}#optionsTitle .labelIcon{width:22px;height:22px;flex-basis:22px}#closeOptions{min-width:44px;min-height:44px;padding:10px;flex-shrink:0}.visuallyHidden{position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 </style>
-</head>
+<style>
+.presetHeading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.presetHeading label{margin:0}.savedSignList{display:grid;gap:8px;margin-top:12px}.savedSignRow{display:flex;gap:8px;min-width:0}.savedSignLoad{flex:1;min-width:0;display:flex;align-items:center;gap:10px;text-align:start;border-radius:12px}.savedSignLoad span:last-child{overflow-wrap:anywhere}.savedSignSwatch{display:grid;place-items:center;width:36px;height:36px;border-radius:8px;flex-shrink:0;font-size:22px}.savedSignDelete{min-width:44px;min-height:44px;flex-shrink:0}
+</style></head>
 <body>
 <main class="setup">
   <section class="card">
@@ -143,6 +145,12 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
         <button id="speed2" class="pill on" type="button">2 · Media</button>
         <button id="speed3" class="pill" type="button">3 · Veloce</button>
       </div>
+    </div>
+
+    <div class="fontBox" id="savedSignBox">
+      <div class="presetHeading"><label id="savedSignTitle">I miei preset</label><button id="saveSignPreset" class="pill" type="button">＋ Salva preset</button></div>
+      <div id="savedSignList" class="savedSignList"></div>
+      <p id="savedSignStatus" class="note" role="status" aria-live="polite"></p>
     </div>
     <button id="printSign" class="printSign" type="button" disabled>Stampa cartello</button>
   </section>
@@ -259,6 +267,7 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
     fit:'<path d="M8 3H3v5M16 3h5v5M21 16v5h-5M8 21H3v-5"/><rect x="7" y="8" width="10" height="8" rx="1"/>',
     alternate:'<path d="M4 7h16m-4-4 4 4-4 4M20 17H4m4-4-4 4 4 4"/>',
     vertical:'<path d="M12 3v18m-4-4 4 4 4-4M8 7l4-4 4 4"/>',
+    bookmark:'<path d="M6 3h12v18l-6-4-6 4Z"/>',
     speed:'<path d="M4 19a10 10 0 1 1 16 0M12 12l5-5M5 12h1M18 12h1M12 3v2"/><circle cx="12" cy="12" r="1"/>',
     display:'<rect x="2" y="4" width="20" height="14" rx="2"/><path d="M8 22h8M12 18v4"/>',
     home:'<path d="m3 10 9-7 9 7v11h-6v-7H9v7H3Z"/>'
@@ -286,7 +295,7 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
     passenger.placeholder=tr("placeholderName");
     Array.prototype.forEach.call($("signAlphabet").options,function(option,i){option.textContent=alphabetNames[locale][i];});
     $("interfaceLanguage").value=locale;$("signAlphabet").value=alphabet;
-    applyWriting();updatePreviews();applyLogo();
+    applyWriting();updatePreviews();applyLogo();if(typeof savedSigns!=="undefined")renderSavedSigns();
   }
   try{var preferences=JSON.parse(localStorage.getItem("steergreet.options.v1")||"{}");if(localeRows[preferences.language])locale=preferences.language;if(Array.prototype.some.call($("signAlphabet").options,function(o){return o.value===preferences.alphabet;}))alphabet=preferences.alphabet;}catch(e){}
   $("signOptions").onclick=function(){$("optionsDialog").showModal();};
@@ -537,6 +546,76 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
   };
   document.getElementById("logoSize").oninput=function(){logoSize=Number(this.value);applyLogo();};document.getElementById("logoPosition").onchange=function(){logoPosition=this.value;applyLogo();};
   document.getElementById("removeLogo").onclick=function(){if(logoUrl) URL.revokeObjectURL(logoUrl);logoUrl="";document.getElementById("logoUpload").value="";document.getElementById("logoStatus").textContent="";applyLogo();};
+
+  var savedSignKey="steerwill.sign-presets.v1", savedSigns=[];
+  var presetWords={
+    it:["I miei preset","Salva preset","Nome del preset","Preset salvato.","Preset caricato.","Eliminare questo preset?","Nessun preset salvato. I preset restano su questo dispositivo.","Impossibile salvare. Lo spazio sul dispositivo potrebbe essere esaurito.","Esiste già un preset con questo nome. Sostituirlo?"],
+    en:["My presets","Save preset","Preset name","Preset saved.","Preset loaded.","Delete this preset?","No saved presets. Presets stay on this device.","Unable to save. Device storage may be full.","A preset with this name already exists. Replace it?"]
+  };
+  function presetText(i){return (presetWords[locale]||presetWords.en)[i];}
+  function readSavedSigns(){
+    try{var data=JSON.parse(localStorage.getItem(savedSignKey)||"[]");savedSigns=Array.isArray(data)?data.filter(function(p){return p&&typeof p.name==="string"&&p.settings&&colorPresets[p.settings.color]&&signFonts[p.settings.font];}):[];}catch(e){savedSigns=[];}
+  }
+  function writeSavedSigns(next){
+    try{localStorage.setItem(savedSignKey,JSON.stringify(next));savedSigns=next;return true;}
+    catch(e){$("savedSignStatus").textContent=presetText(7);return false;}
+  }
+  function renderSavedSigns(){
+    $("savedSignTitle").textContent=presetText(0);
+    iconLabel($("saveSignPreset"),presetText(1),"bookmark");
+    var list=$("savedSignList");list.replaceChildren();
+    if(!savedSigns.length){var empty=document.createElement("p");empty.className="note";empty.textContent=presetText(6);list.appendChild(empty);}
+    savedSigns.forEach(function(p,index){
+      var row=document.createElement("div");row.className="savedSignRow";
+      var load=document.createElement("button");load.type="button";load.className="pill savedSignLoad";
+      var swatch=document.createElement("span");swatch.className="savedSignSwatch";swatch.textContent="A";swatch.setAttribute("aria-hidden","true");
+      var c=colorPresets[p.settings.color];swatch.style.background=p.settings.inverted?c.fg:c.bg;swatch.style.color=p.settings.inverted?c.bg:c.fg;
+      var name=document.createElement("span");name.textContent=p.name;load.append(swatch,name);
+      load.onclick=function(){restoreSavedSign(p);};
+      var remove=document.createElement("button");remove.type="button";remove.className="pill savedSignDelete";
+      iconLabel(remove,tr("remove"),"trash");remove.setAttribute("aria-label",tr("remove")+" · "+p.name);
+      remove.onclick=function(){if(!confirm(presetText(5)))return;var next=savedSigns.filter(function(_,i){return i!==index;});if(writeSavedSigns(next)){renderSavedSigns();$("savedSignStatus").textContent="";}};
+      row.append(load,remove);list.appendChild(row);
+    });
+  }
+  function restoreSavedSign(p){
+    var t=p.settings;
+    passenger.value=typeof t.passenger==="string"?t.passenger:"";
+    inverted=!!t.inverted;setCaseMode(!!t.caps);setFont(t.font);setPreset(t.color);
+    setSpeed([1,2,3].includes(t.speed)?t.speed:2);
+    alphabet=Array.from($("signAlphabet").options).some(function(o){return o.value===t.alphabet;})?t.alphabet:"auto";
+    $("signAlphabet").value=alphabet;saveOptions();
+    if(logoUrl.startsWith("blob:"))URL.revokeObjectURL(logoUrl);
+    logoUrl=typeof t.logo==="string"&&/^data:image\/(png|jpeg|webp|gif);base64,/.test(t.logo)?t.logo:"";
+    logoSize=Math.max(10,Math.min(100,Number(t.logoSize)||10));
+    logoPosition=["top-center","top-left","top-right","bottom-center"].includes(t.logoPosition)?t.logoPosition:"top-center";
+    $("logoSize").value=logoSize;$("logoPosition").value=logoPosition;$("logoUpload").value="";
+    $("logoStatus").textContent=logoUrl?p.name:"";
+    if(["fit","max","vertical"].includes(t.mode))chooseMode(t.mode);
+    else{selectedMode="";[fitBtn,maxBtn,verticalBtn].forEach(function(b){b.classList.remove("on");b.setAttribute("aria-pressed","false");});$("printSign").disabled=true;}
+    applyTheme();applyLogo();$("savedSignStatus").textContent=presetText(4);
+  }
+  function persistentLogo(url){
+    if(!url||url.startsWith("data:"))return Promise.resolve(url);
+    return fetch(url).then(function(r){if(!r.ok)throw new Error("logo");return r.blob();}).then(function(blob){
+      return new Promise(function(resolve,reject){var reader=new FileReader();reader.onload=function(){resolve(reader.result);};reader.onerror=reject;reader.readAsDataURL(blob);});
+    });
+  }
+  $("saveSignPreset").onclick=async function(){
+    var name=prompt(presetText(2),passenger.value.trim()||"Preset "+(savedSigns.length+1));
+    if(name===null||!name.trim())return;name=name.trim().slice(0,100);
+    var index=savedSigns.findIndex(function(p){return p.name.toLocaleLowerCase()===name.toLocaleLowerCase();});
+    if(index>=0&&!confirm(presetText(8)))return;
+    var snapshot={passenger:passenger.value,color:activePreset,font:activeFont,inverted:inverted,caps:isCaps,
+      speed:scrollSpeed===170?1:scrollSpeed===340?3:2,mode:selectedMode,alphabet:alphabet,logoSize:logoSize,logoPosition:logoPosition};
+    var url=logoUrl;this.disabled=true;
+    try{snapshot.logo=await persistentLogo(url);var next=savedSigns.slice(),entry={name:name,settings:snapshot};
+      if(index>=0)next[index]=entry;else next.push(entry);
+      if(writeSavedSigns(next)){renderSavedSigns();$("savedSignStatus").textContent=presetText(3);}
+    }catch(e){$("savedSignStatus").textContent=presetText(7);}finally{this.disabled=false;}
+  };
+  readSavedSigns();renderSavedSigns();
+
   applyLanguage();
   window.addEventListener("focus",requestWake);
   document.addEventListener("keydown",function(e){if(e.key==="Escape"&&currentMode) closeViewer();});
