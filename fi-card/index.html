@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#5B3DF5">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Fi-Card">
+  <title>Fi-Card</title>
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <style>
+    :root{--violet:#5B3DF5;--violet2:#7C5CFF;--teal:#2DD4BF;--bg:#F8F9FC;--surface:#fff;--text:#1F2937;--muted:#6B7280;--line:#E7EAF0;--danger:#EF4444;--warning:#F59E0B;--success:#16A34A;--shadow:0 10px 30px rgba(31,41,55,.08)}
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+    button,input,select{font:inherit}.app{max-width:580px;margin:0 auto;min-height:100dvh;padding:env(safe-area-inset-top) 16px calc(92px + env(safe-area-inset-bottom))}
+    .top{display:flex;align-items:center;justify-content:space-between;padding:20px 2px 12px}.brand{display:flex;align-items:center;gap:10px}.logo{width:38px;height:38px;border-radius:12px;background:linear-gradient(145deg,var(--violet),#3420C9);display:grid;place-items:center;color:white;font-weight:900;box-shadow:0 8px 24px rgba(91,61,245,.25)} h1{font-size:27px;margin:0;letter-spacing:-.8px}.subtitle{color:var(--muted);font-size:13px;margin-top:2px}
+    .iconbtn{border:0;background:var(--surface);width:40px;height:40px;border-radius:14px;box-shadow:var(--shadow);font-size:19px}
+    .search{display:flex;gap:10px;margin:4px 0 12px}.search input{width:100%;border:1px solid var(--line);background:#fff;border-radius:16px;padding:13px 14px;outline:none}.search input:focus{border-color:#B8AEFF;box-shadow:0 0 0 3px rgba(91,61,245,.08)}
+    .chips{display:flex;gap:8px;overflow:auto;padding:2px 0 12px;scrollbar-width:none}.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:9px 13px;white-space:nowrap;color:var(--muted);font-size:13px}.chip.active{background:var(--violet);border-color:var(--violet);color:#fff}
+    .nearby{background:linear-gradient(115deg,#E9FFF8,#F2FFFC);border:1px solid #BCEFE4;border-radius:18px;padding:13px 14px;display:none;align-items:center;gap:11px;margin-bottom:14px}.nearby.show{display:flex}.nearby .pin{width:38px;height:38px;border-radius:12px;background:#D7FFF4;display:grid;place-items:center}.nearby b{font-size:14px}.nearby small{display:block;color:#41756C;margin-top:2px}
+    .sectionTitle{display:flex;align-items:center;justify-content:space-between;margin:8px 2px 10px}.sectionTitle h2{font-size:17px;margin:0}.sectionTitle button{border:0;background:none;color:var(--violet);font-weight:700;font-size:13px}
+    .cards{display:grid;grid-template-columns:1fr 1fr;gap:12px}.card{position:relative;min-height:132px;border:0;border-radius:22px;padding:16px;color:#fff;text-align:left;box-shadow:var(--shadow);overflow:hidden}.card:after{content:"";position:absolute;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,.11);right:-34px;bottom:-45px}.card .star{position:absolute;right:12px;top:10px;font-size:19px}.card .name{font-size:17px;font-weight:800;margin-top:33px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.card .type{opacity:.9;font-size:12px;margin-top:4px}.card .mini{position:absolute;left:15px;top:14px;width:33px;height:25px;border:2px solid rgba(255,255,255,.85);border-radius:6px}.card .mini:after{content:"";position:absolute;left:4px;right:4px;top:6px;height:3px;background:rgba(255,255,255,.85);border-radius:3px}
+    .empty{grid-column:1/-1;background:#fff;border:1px dashed #CFC9FF;border-radius:22px;padding:28px;text-align:center;color:var(--muted)}.empty strong{display:block;color:var(--text);font-size:16px;margin-bottom:6px}
+    .promo{background:#fff;border:1px solid var(--line);border-radius:20px;padding:14px;margin:10px 0;display:flex;gap:12px;align-items:center}.promoIcon{width:46px;height:46px;border-radius:15px;background:#F0ECFF;color:var(--violet);font-size:22px;font-weight:900;display:grid;place-items:center}.promo .grow{flex:1}.promo b{font-size:14px}.promo small{display:block;color:var(--muted);margin-top:4px;line-height:1.25}.badge{background:#E7FFF7;color:#107764;border-radius:999px;padding:5px 8px;font-size:11px;font-weight:800}
+    .bottom{position:fixed;z-index:15;left:50%;transform:translateX(-50%);bottom:0;width:min(580px,100%);padding:8px 18px calc(9px + env(safe-area-inset-bottom));background:rgba(255,255,255,.94);backdrop-filter:blur(18px);border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr 70px 1fr 1fr;align-items:end}.nav{border:0;background:none;color:var(--muted);font-size:11px;display:grid;gap:4px;place-items:center}.nav span{font-size:20px}.nav.active{color:var(--violet);font-weight:800}.fab{width:58px;height:58px;border:0;border-radius:19px;background:linear-gradient(145deg,var(--violet),#794CFF);color:white;font-size:30px;box-shadow:0 10px 25px rgba(91,61,245,.35);margin-top:-25px}
+    .view{display:none}.view.active{display:block}.panel{background:#fff;border:1px solid var(--line);border-radius:22px;padding:16px;box-shadow:0 7px 20px rgba(31,41,55,.04)}
+    .modal{position:fixed;inset:0;z-index:40;background:rgba(17,24,39,.48);display:none;align-items:flex-end;justify-content:center}.modal.show{display:flex}.sheet{width:min(580px,100%);max-height:92dvh;overflow:auto;background:var(--bg);border-radius:28px 28px 0 0;padding:18px 16px calc(26px + env(safe-area-inset-bottom));box-shadow:0 -20px 60px rgba(17,24,39,.25)}.grab{width:42px;height:5px;border-radius:9px;background:#D7DAE0;margin:0 auto 15px}.sheetHead{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}.sheetHead h2{margin:0;font-size:20px}.close{border:0;background:#ECEEF3;width:36px;height:36px;border-radius:12px;font-size:20px}
+    label{display:block;font-size:12px;color:var(--muted);margin:14px 2px 6px}.field{width:100%;border:1px solid var(--line);background:#fff;border-radius:15px;padding:13px 14px;outline:none}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.primary,.secondary,.danger{width:100%;border:0;border-radius:16px;padding:14px 16px;font-weight:800;margin-top:12px}.primary{background:var(--violet);color:#fff}.secondary{background:#EEEAFE;color:var(--violet)}.danger{background:#FEECEC;color:#B91C1C}.hint{font-size:12px;color:var(--muted);line-height:1.4;margin:8px 2px}
+    .scanner{display:none;margin-top:10px;border-radius:18px;overflow:hidden;background:#111}.scanner.show{display:block}#reader{width:100%}
+    .detailHero{border-radius:24px;padding:19px;color:#fff;position:relative;overflow:hidden}.detailHero h2{margin:35px 0 2px;font-size:24px}.detailHero p{margin:0;opacity:.88}.barcodeBox{background:#fff;border-radius:20px;margin-top:15px;padding:18px 10px 14px;text-align:center;color:#111;overflow:hidden}.barcodeBox svg{max-width:100%;height:92px}.num{font-size:15px;letter-spacing:1px;margin-top:5px;word-break:break-all}.detailActions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.detailActions button{border:1px solid var(--line);background:#fff;border-radius:15px;padding:12px;font-weight:700;color:var(--text)}
+    .widgetPreview{background:linear-gradient(145deg,#18264B,#0F1A38);border-radius:24px;color:#fff;padding:14px;margin-top:12px}.widgetTop{display:flex;justify-content:space-between;font-size:12px;opacity:.86}.widgetCard{background:#fff;color:#111;border-radius:17px;margin-top:12px;padding:10px}.widgetCard .wName{font-weight:800;color:var(--text)}.widgetCard svg{width:100%;height:65px;margin-top:4px}
+    .toast{position:fixed;z-index:60;left:50%;transform:translateX(-50%);bottom:110px;background:#111827;color:#fff;padding:11px 15px;border-radius:14px;font-size:13px;box-shadow:var(--shadow);display:none;max-width:90%;text-align:center}.toast.show{display:block}
+    .fullBarcode{position:fixed;z-index:70;inset:0;background:white;display:none;align-items:center;justify-content:center;flex-direction:column;padding:20px}.fullBarcode.show{display:flex}.fullBarcode svg{width:95vw;max-width:780px;height:35vh}.fullBarcode .num{font-size:22px}.fullBarcode button{margin-top:30px;border:0;background:#F1F3F7;padding:12px 18px;border-radius:14px;font-weight:800}
+    .mapDot{height:220px;border-radius:18px;background:radial-gradient(circle at 52% 48%,rgba(91,61,245,.22) 0 8%,rgba(91,61,245,.11) 8% 25%,transparent 25%),linear-gradient(45deg,#EEF1F6 25%,transparent 25%) 0 0/32px 32px,linear-gradient(-45deg,#EEF1F6 25%,transparent 25%) 0 16px/32px 32px,#F8FAFC;display:grid;place-items:center;font-size:38px;margin:10px 0}.coords{font-size:12px;color:var(--muted);word-break:break-all}
+    @media(min-width:520px){.cards{grid-template-columns:repeat(3,1fr)}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand"><div class="logo">F</div><div><h1>Fi-Card</h1><div class="subtitle">Le tue carte fedeltà, sempre con te.</div></div></div>
+    <button class="iconbtn" id="installBtn" title="Installa">⇩</button>
+  </header>
+
+  <main>
+    <section id="homeView" class="view active">
+      <div class="search"><input id="search" placeholder="Cerca una carta…"></div>
+      <div class="chips">
+        <button class="chip active" data-filter="all">Tutte</button><button class="chip" data-filter="fav">Preferite</button><button class="chip" data-filter="near">Vicino a te</button>
+      </div>
+      <div id="nearbyBanner" class="nearby"><div class="pin">📍</div><div><b id="nearbyTitle">Carta vicina</b><small id="nearbyText"></small></div></div>
+      <div class="sectionTitle"><h2>Le mie carte</h2><button id="geoRefresh">Aggiorna posizione</button></div>
+      <div id="cardGrid" class="cards"></div>
+      <div class="sectionTitle" style="margin-top:24px"><h2>Vantaggi di oggi</h2><button data-go="offers">Vedi tutti</button></div>
+      <div id="homePromos"></div>
+    </section>
+
+    <section id="offersView" class="view">
+      <div class="sectionTitle"><h2>Offerte per te</h2><button id="notifyBtn">Attiva reminder</button></div>
+      <p class="hint">Nel prototipo le offerte sono dimostrative. In futuro potranno arrivare dalle catene aderenti o da feed promozionali.</p>
+      <div id="offersList"></div>
+    </section>
+
+    <section id="mapView" class="view">
+      <div class="sectionTitle"><h2>Negozi associati</h2><button id="mapRefresh">La mia posizione</button></div>
+      <div class="panel">
+        <div class="mapDot">📍</div>
+        <div id="mapInfo" class="hint">Associa un punto vendita a una carta: Fi-Card userà le coordinate per suggerirtela quando riapri l'app nelle vicinanze.</div>
+      </div>
+      <div id="locationsList" style="margin-top:12px"></div>
+    </section>
+
+    <section id="profileView" class="view">
+      <div class="sectionTitle"><h2>Fi-Card</h2></div>
+      <div class="panel">
+        <b>Prototipo web · offline first</b>
+        <p class="hint">Le carte e i punti vendita sono salvati solo sul dispositivo tramite localStorage. Nessun account e nessun server.</p>
+        <button class="secondary" id="widgetDemo">Anteprima Widget Smart</button>
+        <button class="secondary" id="seedDemo">Ripristina carte demo</button>
+        <button class="danger" id="clearData">Cancella tutti i dati locali</button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<nav class="bottom">
+  <button class="nav active" data-view="home"><span>⌂</span>Home</button>
+  <button class="nav" data-view="offers"><span>◇</span>Offerte</button>
+  <button class="fab" id="addFab">＋</button>
+  <button class="nav" data-view="map"><span>⌖</span>Mappa</button>
+  <button class="nav" data-view="profile"><span>○</span>Profilo</button>
+</nav>
+
+<div id="addModal" class="modal"><div class="sheet">
+  <div class="grab"></div><div class="sheetHead"><h2>Aggiungi una carta</h2><button class="close" data-close="addModal">×</button></div>
+  <button class="primary" id="scanBtn">▣ Scansiona codice</button>
+  <div id="scanner" class="scanner"><div id="reader"></div></div>
+  <label>Nome negozio / carta</label><input id="addName" class="field" placeholder="Es. Esselunga">
+  <label>Numero / contenuto barcode</label><input id="addCode" class="field" inputmode="text" placeholder="Es. 1234567890123">
+  <div class="row"><div><label>Formato</label><select id="addFormat" class="field"><option value="CODE128">Code 128</option><option value="EAN13">EAN-13</option><option value="EAN8">EAN-8</option><option value="CODE39">Code 39</option><option value="UPC">UPC</option></select></div><div><label>Colore</label><input id="addColor" class="field" type="color" value="#5B3DF5" style="height:48px;padding:6px"></div></div>
+  <button class="primary" id="saveCard">Salva carta</button>
+  <p class="hint">La carta resta sul telefono. Per il prototipo non viene inviata a nessun server.</p>
+</div></div>
+
+<div id="detailModal" class="modal"><div class="sheet">
+  <div class="grab"></div><div class="sheetHead"><h2>La mia carta</h2><button class="close" data-close="detailModal">×</button></div>
+  <div id="detailContent"></div>
+</div></div>
+
+<div id="widgetModal" class="modal"><div class="sheet">
+  <div class="grab"></div><div class="sheetHead"><h2>Widget Smart · anteprima</h2><button class="close" data-close="widgetModal">×</button></div>
+  <p class="hint">Nel prototipo web possiamo provare la logica e il visual. Il vero widget della schermata Home richiederà la versione nativa iOS/Android.</p>
+  <div id="widgetContent"></div>
+</div></div>
+
+<div id="fullBarcode" class="fullBarcode"><svg id="fullSvg"></svg><div id="fullNum" class="num"></div><button id="closeFull">Chiudi</button></div>
+<div id="toast" class="toast"></div>
+
+<script>
+const KEY="ficard.cards.v2";
+let cards=[];
+let currentCardId=null, currentPos=null, deferredPrompt=null, qrScanner=null;
+const offers=[
+ {brand:"IdroMarket",title:"Oggi hai il 10% di sconto",text:"Ricordati di mostrare la carta alla cassa.",tag:"Oggi"},
+ {brand:"Supermercato",title:"Doppi punti sulla spesa",text:"Promozione dimostrativa per titolari carta.",tag:"Promo"},
+ {brand:"Fi-Card",title:"La carta giusta quando arrivi",text:"Associa i tuoi punti vendita preferiti.",tag:"Smart"}
+];
+
+function demoCards(){return [
+ {id:crypto.randomUUID(),name:"Esselunga",code:"1234567890123",format:"EAN13",color:"#F4B929",fav:true,locations:[]},
+ {id:crypto.randomUUID(),name:"Conad",code:"123456789012",format:"CODE128",color:"#EF3340",fav:false,locations:[]},
+ {id:crypto.randomUUID(),name:"Decathlon",code:"9876543210987",format:"EAN13",color:"#1675E0",fav:false,locations:[]},
+ {id:crypto.randomUUID(),name:"Tigotà",code:"456789012345",format:"CODE128",color:"#19B8B8",fav:false,locations:[]}
+]}
+function load(){try{cards=JSON.parse(localStorage.getItem(KEY)||"null")||demoCards()}catch(e){cards=demoCards()} save(); renderAll()}
+function save(){localStorage.setItem(KEY,JSON.stringify(cards))}
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]))}
+function toast(t){const el=document.getElementById("toast");el.textContent=t;el.classList.add("show");clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove("show"),2600)}
+function distanceM(a,b){const R=6371000,p=Math.PI/180,dLat=(b.lat-a.lat)*p,dLon=(b.lng-a.lng)*p,x=Math.sin(dLat/2)**2+Math.cos(a.lat*p)*Math.cos(b.lat*p)*Math.sin(dLon/2)**2;return 2*R*Math.atan2(Math.sqrt(x),Math.sqrt(1-x))}
+function nearestFor(card,pos){if(!pos||!card.locations?.length)return null;let best=null;for(const l of card.locations){const d=distanceM(pos,l);if(!best||d<best.d)best={...l,d}}return best}
+function smartCard(){if(!currentPos)return cards.find(c=>c.fav)||cards[0];const candidates=cards.map(c=>({c,n:nearestFor(c,currentPos)})).filter(x=>x.n&&x.n.d<=(x.n.radius||180)).sort((a,b)=>a.n.d-b.n.d);return candidates[0]?.c||cards.find(c=>c.fav)||cards[0]}
+
+function renderAll(){renderCards();renderOffers();renderLocations();renderNearby()}
+function renderCards(){
+ const q=document.getElementById("search").value.toLowerCase().trim(),active=document.querySelector(".chip.active")?.dataset.filter||"all";
+ let list=cards.filter(c=>c.name.toLowerCase().includes(q)||c.code.toLowerCase().includes(q));
+ if(active==="fav")list=list.filter(c=>c.fav);
+ if(active==="near"&&currentPos)list=list.filter(c=>{const n=nearestFor(c,currentPos);return n&&n.d<=(n.radius||180)});
+ const smart=smartCard();if(smart)list.sort((a,b)=>a.id===smart.id?-1:b.id===smart.id?1:0);
+ const grid=document.getElementById("cardGrid");
+ if(!list.length){grid.innerHTML='<div class="empty"><strong>Nessuna carta qui</strong>Tocca ＋ per aggiungerne una.</div>';return}
+ grid.innerHTML=list.map(c=>'<button class="card" style="background:'+esc(c.color)+'" data-card="'+c.id+'"><span class="mini"></span><span class="star">'+(c.fav?"★":"☆")+'</span><div class="name">'+esc(c.name)+'</div><div class="type">Carta fedeltà</div></button>').join("");
+ grid.querySelectorAll("[data-card]").forEach(x=>x.onclick=()=>openCard(x.dataset.card));
+}
+function renderOffers(){
+ const html=offers.map(o=>'<div class="promo"><div class="promoIcon">%</div><div class="grow"><b>'+esc(o.brand)+' · '+esc(o.title)+'</b><small>'+esc(o.text)+'</small></div><span class="badge">'+esc(o.tag)+'</span></div>').join("");
+ document.getElementById("offersList").innerHTML=html;document.getElementById("homePromos").innerHTML=html.split('</div><div class="promo">')[0]+'</div>';
+}
+function renderLocations(){
+ const items=[];cards.forEach(c=>(c.locations||[]).forEach((l,i)=>items.push({c,l,i})));
+ document.getElementById("locationsList").innerHTML=items.length?items.map(x=>'<div class="promo"><div class="promoIcon">⌖</div><div class="grow"><b>'+esc(x.c.name)+'</b><small>'+x.l.lat.toFixed(5)+', '+x.l.lng.toFixed(5)+' · raggio '+(x.l.radius||180)+' m</small></div><button class="chip" onclick="removeLocation(\''+x.c.id+'\','+x.i+')">Rimuovi</button></div>').join(""):'<div class="panel hint">Non hai ancora associato punti vendita.</div>';
+}
+function renderNearby(){
+ const b=document.getElementById("nearbyBanner");if(!currentPos){b.classList.remove("show");return}
+ let best=null;for(const c of cards){const n=nearestFor(c,currentPos);if(n&&(!best||n.d<best.n.d))best={c,n}}
+ if(best&&best.n.d<=(best.n.radius||180)){document.getElementById("nearbyTitle").textContent="Sei vicino a "+best.c.name;document.getElementById("nearbyText").textContent="Carta pronta · circa "+Math.round(best.n.d)+" m";b.classList.add("show");b.onclick=()=>openCard(best.c.id)}else b.classList.remove("show");
+}
+function renderWidget(){
+ const c=smartCard();const box=document.getElementById("widgetContent");if(!c){box.innerHTML='<div class="panel">Aggiungi una carta per vedere il widget.</div>';return}
+ box.innerHTML='<div class="widgetPreview"><div class="widgetTop"><b>Fi-Card</b><span>Smart</span></div><div class="widgetCard"><div class="wName">'+esc(c.name)+'</div><svg id="widgetSvg"></svg><div class="num">'+esc(c.code)+'</div></div></div>';
+ setTimeout(()=>drawBarcode("widgetSvg",c),20)
+}
+function drawBarcode(id,c){try{JsBarcode("#"+id,c.code,{format:c.format||"CODE128",displayValue:false,margin:2,height:70,width:1.8,background:"#ffffff",lineColor:"#111111"})}catch(e){try{JsBarcode("#"+id,c.code,{format:"CODE128",displayValue:false,margin:2,height:70,width:1.8})}catch(_){}}
+
+function openCard(id){
+ const c=cards.find(x=>x.id===id);if(!c)return;currentCardId=id;
+ const n=nearestFor(c,currentPos);
+ document.getElementById("detailContent").innerHTML='<div class="detailHero" style="background:'+esc(c.color)+'"><h2>'+esc(c.name)+'</h2><p>Carta fedeltà</p><div class="barcodeBox"><svg id="detailSvg"></svg><div class="num">'+esc(c.code)+'</div></div></div>'+
+ '<div class="detailActions"><button id="fullBtn">▣ Tutto schermo</button><button id="favBtn">'+(c.fav?"★ Preferita":"☆ Preferita")+'</button></div>'+
+ '<button class="secondary" id="assocBtn">⌖ Associa questo punto vendita</button>'+
+ (n?'<p class="hint">Punto associato più vicino: '+Math.round(n.d)+' m · raggio '+(n.radius||180)+' m</p>':'<p class="hint">Nessun punto vendita associato a questa carta.</p>')+
+ '<button class="danger" id="deleteBtn">Elimina carta</button>';
+ drawBarcode("detailSvg",c);showModal("detailModal");
+ document.getElementById("fullBtn").onclick=()=>showFull(c);
+ document.getElementById("favBtn").onclick=()=>{c.fav=!c.fav;save();renderAll();openCard(c.id)};
+ document.getElementById("assocBtn").onclick=()=>associateLocation(c.id);
+ document.getElementById("deleteBtn").onclick=()=>{if(confirm("Eliminare questa carta?")){cards=cards.filter(x=>x.id!==c.id);save();hideModal("detailModal");renderAll()}};
+}
+function showFull(c){document.getElementById("fullNum").textContent=c.code;drawBarcode("fullSvg",c);document.getElementById("fullBarcode").classList.add("show")}
+async function associateLocation(id){
+ const c=cards.find(x=>x.id===id);if(!c)return;
+ toast("Cerco la posizione…");
+ try{const p=await getPosition();currentPos=p;const radius=Number(prompt("Raggio di riconoscimento in metri","180"))||180;c.locations=c.locations||[];c.locations.push({lat:p.lat,lng:p.lng,radius,createdAt:Date.now()});save();renderAll();openCard(id);toast("Punto vendita associato")}catch(e){toast("Posizione non disponibile: "+e.message)}
+}
+function removeLocation(id,i){const c=cards.find(x=>x.id===id);if(!c)return;c.locations.splice(i,1);save();renderAll()}
+function getPosition(){return new Promise((res,rej)=>{if(!navigator.geolocation)return rej(new Error("GPS non supportato"));navigator.geolocation.getCurrentPosition(p=>res({lat:p.coords.latitude,lng:p.coords.longitude,accuracy:p.coords.accuracy}),e=>rej(new Error(e.message)),{enableHighAccuracy:true,timeout:12000,maximumAge:30000})})}
+async function refreshPosition(){try{toast("Aggiorno la posizione…");currentPos=await getPosition();document.getElementById("mapInfo").innerHTML='<b>Posizione corrente</b><br><span class="coords">'+currentPos.lat.toFixed(6)+', '+currentPos.lng.toFixed(6)+' · precisione ±'+Math.round(currentPos.accuracy)+' m</span>';renderAll();toast("Posizione aggiornata")}catch(e){toast("GPS: "+e.message)}}
+
+function showModal(id){document.getElementById(id).classList.add("show")}function hideModal(id){document.getElementById(id).classList.remove("show");if(id==="addModal")stopScan()}
+document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>hideModal(b.dataset.close));
+document.querySelectorAll(".modal").forEach(m=>m.addEventListener("click",e=>{if(e.target===m)hideModal(m.id)}));
+document.getElementById("addFab").onclick=()=>showModal("addModal");
+document.getElementById("search").oninput=renderCards;
+document.querySelectorAll(".chip[data-filter]").forEach(b=>b.onclick=()=>{document.querySelectorAll(".chip[data-filter]").forEach(x=>x.classList.remove("active"));b.classList.add("active");renderCards()});
+document.querySelectorAll(".nav[data-view]").forEach(b=>b.onclick=()=>go(b.dataset.view));
+document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.go));
+function go(v){document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));document.getElementById(v+"View").classList.add("active");document.querySelectorAll(".nav").forEach(x=>x.classList.toggle("active",x.dataset.view===v))}
+document.getElementById("geoRefresh").onclick=refreshPosition;document.getElementById("mapRefresh").onclick=refreshPosition;
+document.getElementById("widgetDemo").onclick=()=>{renderWidget();showModal("widgetModal")};
+document.getElementById("closeFull").onclick=()=>document.getElementById("fullBarcode").classList.remove("show");
+
+document.getElementById("saveCard").onclick=()=>{
+ const name=document.getElementById("addName").value.trim(),code=document.getElementById("addCode").value.trim(),format=document.getElementById("addFormat").value,color=document.getElementById("addColor").value;
+ if(!name||!code)return toast("Inserisci nome e codice");
+ const c={id:crypto.randomUUID(),name,code,format,color,fav:false,locations:[]};cards.unshift(c);save();renderAll();hideModal("addModal");["addName","addCode"].forEach(id=>document.getElementById(id).value="");openCard(c.id)
+};
+
+document.getElementById("scanBtn").onclick=async()=>{
+ const wrap=document.getElementById("scanner");wrap.classList.add("show");
+ if(!window.Html5Qrcode)return toast("Scanner non disponibile: usa l'inserimento manuale");
+ try{
+   qrScanner=new Html5Qrcode("reader");
+   await qrScanner.start({facingMode:"environment"},{fps:10,qrbox:{width:260,height:150}},txt=>{document.getElementById("addCode").value=txt;toast("Codice letto");stopScan()});
+ }catch(e){wrap.classList.remove("show");toast("Fotocamera non disponibile. Inserisci il codice manualmente.")}
+};
+async function stopScan(){if(qrScanner){try{await qrScanner.stop()}catch(e){}try{await qrScanner.clear()}catch(e){}qrScanner=null}document.getElementById("scanner").classList.remove("show")}
+
+document.getElementById("seedDemo").onclick=()=>{cards=demoCards();save();renderAll();toast("Carte demo ripristinate")};
+document.getElementById("clearData").onclick=()=>{if(confirm("Cancellare tutte le carte e i punti vendita salvati?")){cards=[];save();renderAll();toast("Dati locali cancellati")}};
+document.getElementById("notifyBtn").onclick=async()=>{
+ if(!("Notification" in window))return toast("Notifiche web non supportate");
+ const p=await Notification.requestPermission();if(p==="granted"){new Notification("Fi-Card",{body:"Oggi da IdroMarket hai il 10% di sconto. Ricordati la carta!"});toast("Reminder di prova inviato")}else toast("Permesso notifiche non concesso")
+};
+
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;document.getElementById("installBtn").style.display=""});
+document.getElementById("installBtn").onclick=async()=>{if(deferredPrompt){deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null}else toast("Su iPhone: Condividi → Aggiungi alla schermata Home")};
+if("serviceWorker" in navigator)navigator.serviceWorker.register("./sw.js").catch(()=>{});
+load();
+setTimeout(()=>refreshPosition(),700);
+</script>
+</body>
+</html>
