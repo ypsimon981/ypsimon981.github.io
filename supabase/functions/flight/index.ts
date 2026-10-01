@@ -123,6 +123,40 @@ function validDate(v:string){
   return /^20\d{2}-\d{2}-\d{2}$/.test(v) && Number.isFinite(d.getTime()) && d.toISOString().slice(0,10)===v;
 }
 
+
+/**
+ * Count outbound attempts only. Cache hits never reach this function.
+ * Reserve the event before sending: a metering outage must not create
+ * invisible provider traffic. Network failures remain separately visible.
+ */
+async function meteredFlightAware(db:any,kind:"flight"|"airport",target:string,url:string,init:RequestInit){
+  const id=crypto.randomUUID(),started=Date.now();
+  const {error}=await db.from("flightaware_api_events").insert({
+    id,kind,target,outcome:"started",requested_at:new Date(started).toISOString()
+  });
+  if(error)throw new Error("flightaware_meter_unavailable");
+  let response:Response;
+  try{
+    response=await fetch(url,init);
+  }catch(e){
+    try{
+      const {error:writeError}=await db.from("flightaware_api_events").update({
+        outcome:"network_error",completed_at:new Date().toISOString(),duration_ms:Date.now()-started
+      }).eq("id",id);
+      if(writeError)console.error("flightaware_meter_completion_failed",id);
+    }catch{console.error("flightaware_meter_completion_failed",id);}
+    throw e;
+  }
+  try{
+    const {error:writeError}=await db.from("flightaware_api_events").update({
+      outcome:"response",response_status:response.status,
+      completed_at:new Date().toISOString(),duration_ms:Date.now()-started
+    }).eq("id",id);
+    if(writeError)console.error("flightaware_meter_completion_failed",id);
+  }catch{console.error("flightaware_meter_completion_failed",id);}
+  return response;
+}
+
 // Demand-driven shared cache. A database lease protects all edge instances.
 function cacheLifetime(f:any,now:number){
   const actual=ts(f.actual_on);
@@ -163,7 +197,7 @@ async function cachedFlight(db:any,ident:string,date:string,key:string){
   old=await read();
   if(fresh(old))return respond(old,true);
   try{
-    const upstream=await fetch('https://aeroapi.flightaware.com/aeroapi/flights/'+encodeURIComponent(ident)+'?max_pages=1',{
+    const upstream=await meteredFlightAware(db,'flight',ident,'https://aeroapi.flightaware.com/aeroapi/flights/'+encodeURIComponent(ident)+'?max_pages=1',{
       headers:{'x-apikey':key,Accept:'application/json'},signal:AbortSignal.timeout(15000)
     });
     const raw=await upstream.json().catch(()=>null);
@@ -207,7 +241,7 @@ async function cachedAirport(db:any,id:string,key:string){
     throw new Error("refresh_pending");
   }
   try{
-    const res=await fetch("https://aeroapi.flightaware.com/aeroapi/airports/"+id+"/flights?max_pages=1",{headers:{"x-apikey":key,Accept:"application/json"},signal:AbortSignal.timeout(15000)});
+    const res=await meteredFlightAware(db,"airport",id,"https://aeroapi.flightaware.com/aeroapi/airports/"+id+"/flights?max_pages=1",{headers:{"x-apikey":key,Accept:"application/json"},signal:AbortSignal.timeout(15000)});
     if(!res.ok)throw new Error("airport_upstream_"+res.status);
     const payload=await res.json();if(!Array.isArray(payload.arrivals)||!Array.isArray(payload.scheduled_arrivals))throw new Error("airport_invalid_payload");
     const fetched_at=new Date().toISOString(),expires_at=new Date(Date.now()+60000).toISOString();
