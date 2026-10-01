@@ -466,7 +466,7 @@ h1{
 </style>
 <link rel="stylesheet" href="assets/steerwill-theme.css?v=1">
 <link rel="stylesheet" href="assets/revision.css?v=20260930"><link rel="stylesheet" href="assets/mobile.css?v=mobile20260930"><script defer src="assets/mobile.js?v=mobile20260930"></script>
-</head>
+<style>.tripStampElapsed{white-space:pre-line}</style></head>
 <body>
 <main class="page">
   <div class="topbar">
@@ -627,11 +627,11 @@ h1{
   }
 
   function tripElapsedText(info){
-    if(!info || !info.eventTs) return info&&info.landedWithoutTime?"Atterrato da: non calcolabile":info&&info.status?info.status:"";
+    if(!info || !info.eventTs) return info&&info.landedWithoutTime?"Tempo di attesa attuale: non calcolabile":info&&info.status?info.status:"";
     var delta=Date.now()-info.eventTs;
     if(info.cancelled) return "Cancellato";
     if(info.arrived){
-      return "Atterrato da "+humanDuration(delta);
+      return "Tempo di attesa attuale: "+humanDuration(delta);
     }
     if(delta<0) return "Previsto tra "+humanDuration(delta);
     return info.status||"Orario di arrivo superato";
@@ -649,14 +649,14 @@ h1{
     tripStampCode.textContent=tripInfo.code||"—";
     tripStampRoute.textContent=tripInfo.route||"—";
     tripStampMeta.textContent=tripInfo.meta||tripInfo.status||"";
-    tripStampElapsed.textContent=(tripInfo.actualOn?"Atterrato alle "+clock(tripInfo.actualOn)+" · ":"")+tripElapsedText(tripInfo)+(tripInfo.source?" · Fonte: "+tripInfo.source:"");
+    tripStampElapsed.textContent=(tripInfo.actualOn?"Atterrato alle "+clock(tripInfo.actualOn)+"\n":tripInfo.landedWithoutTime?"Atterrato alle: non disponibile\n":"")+tripElapsedText(tripInfo)+(tripInfo.source?"\nFonte: "+tripInfo.source:"");
     tripStamp.classList.add("show");
     shell.classList.add("hasTrip");renderStampPreview();
   }
 
   function updateTripElapsed(){
     if(tripInfo && tripStamp.classList.contains("show")){
-      tripStampElapsed.textContent=(tripInfo.actualOn?"Atterrato alle "+clock(tripInfo.actualOn)+" · ":"")+tripElapsedText(tripInfo)+(tripInfo.source?" · Fonte: "+tripInfo.source:"");
+      tripStampElapsed.textContent=(tripInfo.actualOn?"Atterrato alle "+clock(tripInfo.actualOn)+"\n":tripInfo.landedWithoutTime?"Atterrato alle: non disponibile\n":"")+tripElapsedText(tripInfo)+(tripInfo.source?"\nFonte: "+tripInfo.source:"");
     }
   }
 
