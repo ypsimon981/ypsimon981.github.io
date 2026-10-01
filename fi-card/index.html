@@ -173,7 +173,7 @@ function renderWidget(){
  box.innerHTML='<div class="widgetPreview"><div class="widgetTop"><b>Fi-Card</b><span>Smart</span></div><div class="widgetCard"><div class="wName">'+esc(c.name)+'</div><svg id="widgetSvg"></svg><div class="num">'+esc(c.code)+'</div></div></div>';
  setTimeout(()=>drawBarcode("widgetSvg",c),20)
 }
-function drawBarcode(id,c){try{JsBarcode("#"+id,c.code,{format:c.format||"CODE128",displayValue:false,margin:2,height:70,width:1.8,background:"#ffffff",lineColor:"#111111"})}catch(e){try{JsBarcode("#"+id,c.code,{format:"CODE128",displayValue:false,margin:2,height:70,width:1.8})}catch(_){}}
+function drawBarcode(id,c){try{JsBarcode("#"+id,c.code,{format:c.format||"CODE128",displayValue:false,margin:2,height:70,width:1.8,background:"#ffffff",lineColor:"#111111"})}catch(e){try{JsBarcode("#"+id,c.code,{format:"CODE128",displayValue:false,margin:2,height:70,width:1.8})}catch(_){}}}
 
 function openCard(id){
  const c=cards.find(x=>x.id===id);if(!c)return;currentCardId=id;
