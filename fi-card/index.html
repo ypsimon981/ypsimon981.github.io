@@ -177,16 +177,18 @@ function drawBarcode(id,c){try{JsBarcode("#"+id,c.code,{format:c.format||"CODE12
 
 function openCard(id){
  const c=cards.find(x=>x.id===id);if(!c)return;currentCardId=id;
- const n=nearestFor(c,currentPos);
+ const n=nearestFor(c,currentPos),locs=(c.locations||[]);
+ const locHtml=locs.length?'<div class="panel" style="margin-top:12px"><b>Punti vendita associati</b>'+locs.map((l,i)=>'<div class="promo" style="margin-bottom:0"><div class="grow"><small>'+l.lat.toFixed(5)+', '+l.lng.toFixed(5)+' · raggio '+(l.radius||180)+' m</small></div><button class="chip" data-remove-loc="'+i+'">Dissocia</button></div>').join("")+'</div>':'<p class="hint">Nessun punto vendita associato a questa carta.</p>';
  document.getElementById("detailContent").innerHTML='<div class="detailHero" style="background:'+esc(c.color)+'"><h2>'+esc(c.name)+'</h2><p>Carta fedeltà</p><div class="barcodeBox"><svg id="detailSvg"></svg><div class="num">'+esc(c.code)+'</div></div></div>'+
  '<div class="detailActions"><button id="fullBtn">▣ Tutto schermo</button><button id="favBtn">'+(c.fav?"★ Preferita":"☆ Preferita")+'</button></div>'+
- '<button class="secondary" id="assocBtn">⌖ Associa questo punto vendita</button>'+
- (n?'<p class="hint">Punto associato più vicino: '+Math.round(n.d)+' m · raggio '+(n.radius||180)+' m</p>':'<p class="hint">Nessun punto vendita associato a questa carta.</p>')+
+ '<button class="secondary" id="assocBtn">⌖ Associa questo punto vendita</button>'+locHtml+
+ (n?'<p class="hint">Punto associato più vicino: '+Math.round(n.d)+' m.</p>':'')+
  '<button class="danger" id="deleteBtn">Elimina carta</button>';
  drawBarcode("detailSvg",c);showModal("detailModal");
  document.getElementById("fullBtn").onclick=()=>showFull(c);
  document.getElementById("favBtn").onclick=()=>{c.fav=!c.fav;save();renderAll();openCard(c.id)};
  document.getElementById("assocBtn").onclick=()=>associateLocation(c.id);
+ document.querySelectorAll("[data-remove-loc]").forEach(btn=>btn.onclick=()=>{removeLocation(c.id,Number(btn.dataset.removeLoc));openCard(c.id);toast("Posizione dissociata")});
  document.getElementById("deleteBtn").onclick=()=>{if(confirm("Eliminare questa carta?")){cards=cards.filter(x=>x.id!==c.id);save();hideModal("detailModal");renderAll()}};
 }
 function showFull(c){document.getElementById("fullNum").textContent=c.code;drawBarcode("fullSvg",c);document.getElementById("fullBarcode").classList.add("show")}
