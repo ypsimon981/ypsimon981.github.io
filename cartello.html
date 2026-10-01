@@ -88,13 +88,17 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
 <link rel="stylesheet" href="assets/steerwill-theme.css?v=1">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto+Condensed:wght@600&display=swap"><link rel="stylesheet" href="assets/mobile.css?v=mobile20260930"><script defer src="assets/mobile.js?v=mobile20260930"></script>
 <style>.previewStage{position:absolute;left:0;right:0;top:0;bottom:0;display:flex;align-items:center;justify-content:center;overflow:hidden}.previewName{white-space:pre;text-align:center;line-height:1.05;flex-shrink:0}.previewTrack{position:absolute;left:0;top:0;width:100%;animation:verticalTape var(--vdur) linear infinite}.previewGroup{display:flex;flex-direction:column;align-items:center;justify-content:space-around;box-sizing:border-box}.previewWord{white-space:nowrap;line-height:1.05}.action.on{background:#fff;color:#111;border-color:#fff}.printSign{display:block;width:100%;min-height:48px;margin-top:16px;border:1px solid #bda16a;border-radius:12px;background:#d0b687;color:#111;font:inherit;font-weight:700}.printSign:disabled{background:#252525;color:#777;border-color:#444}</style>
+<style>
+.topActions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.topActions button{cursor:pointer;font:inherit;font-size:14px;font-weight:800}#optionsDialog{width:min(520px,calc(100% - 28px));max-height:85dvh;overflow:auto;background:#181818;color:#f7f7f7;border:1px solid #444;border-radius:20px;padding:22px}#optionsDialog::backdrop{background:rgba(0,0,0,.7)}.dialogHeading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px}.dialogHeading h2{margin:0;font-size:24px}#optionsDialog label{margin-top:18px}#optionsDialog select{width:100%;min-height:48px;font-size:16px}#optionsDialog p{font-size:14px;line-height:1.5;color:#bbb}#optionsSaved{color:#aaa}#passenger{unicode-bidi:plaintext}.previewName,.previewWord,#fixedText,.verticalWord{unicode-bidi:plaintext}#viewer[data-alphabet=arabic] #fixedText,#viewer[data-alphabet=arabic] .verticalWord,#viewer[data-alphabet=hebrew] #fixedText,#viewer[data-alphabet=hebrew] .verticalWord{line-height:1.4;letter-spacing:normal}@media(max-width:400px){.brand{font-size:11px;letter-spacing:.08em}.topActions{gap:5px}.topActions .homeLink{padding:9px 10px}}
+.previewName,.previewWord{line-height:var(--preview-line-height,1.05)}
+</style>
 </head>
 <body>
 <main class="setup">
   <section class="card">
     <div class="topbar">
       <div class="brand">STEERWILL · V1.9</div>
-      <a class="homeLink" href="index.html">← Home</a>
+      <div class="topActions"><button id="signOptions" class="homeLink" type="button" aria-haspopup="dialog">Opzioni</button><a class="homeLink" href="index.html">← Home</a></div>
     </div>
     <h1>Cartello aeroporto</h1>
     <p class="desc">Inserisci il nominativo e scegli come deve occupare lo schermo.</p>
@@ -143,6 +147,15 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
   </section>
 </main>
 
+<dialog id="optionsDialog" aria-labelledby="optionsTitle">
+  <div class="dialogHeading"><h2 id="optionsTitle">Opzioni</h2><button id="closeOptions" class="pill" type="button">Chiudi</button></div>
+  <label id="languageLabel" for="interfaceLanguage">Lingua dell’interfaccia</label>
+  <select id="interfaceLanguage"><option value="it">Italiano</option><option value="en">English</option><option value="fr">Français</option><option value="de">Deutsch</option><option value="es">Español</option><option value="pt">Português</option><option value="ar">العربية</option><option value="ru">Русский</option><option value="zh">中文</option><option value="ja">日本語</option><option value="ko">한국어</option></select>
+  <label id="alphabetLabel" for="signAlphabet">Alfabeto del cartello</label>
+  <select id="signAlphabet"><option value="auto">Automatico</option><option value="latin">Latino</option><option value="greek">Greco</option><option value="cyrillic">Cirillico</option><option value="arabic">Arabo</option><option value="hebrew">Ebraico</option><option value="chinese">Cinese</option><option value="japanese">Giapponese</option><option value="korean">Coreano</option><option value="devanagari">Devanagari</option></select>
+  <p id="alphabetHelp">L’alfabeto adatta il carattere e la direzione del testo. Per scrivere usa la tastiera del dispositivo: il nome non viene tradotto.</p>
+  <p id="optionsSaved" role="status" aria-live="polite">Le preferenze vengono salvate su questo dispositivo.</p>
+</dialog>
 <section id="viewer" class="viewer" aria-hidden="true">
   <img id="signLogo" alt="Logo" hidden><div id="fixedStage"><div id="fixedText"></div></div>
 
@@ -188,10 +201,72 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
   var inverted=false, alternateTimer=null, logoUrl="", logoSize=10, logoPosition="top-center", wakePending=false;
   var logo=document.getElementById("signLogo");
 
+  var locale="it", alphabet="auto";
+  var localeKeys=["title","description","passenger","original","caps","font","colors","invert","invertOn","logo","size","remove","hint","ready","view","fit","alternate","vertical","speed","slow","medium","fast","print","exit","options","close","language","alphabet","help","saved","solo","fileError","placeholderName","fontSystem","fontImpact","fontSerif","fontBold","fontCondensed","combination","previewLogo","previewSign","position","topCenter","topLeft","topRight","bottomCenter"];
+  var localeRows={
+    it:["Cartello aeroporto","Inserisci il nominativo e scegli come deve occupare lo schermo.","Nome passeggero","Originale","Tutto maiuscolo","Carattere","Preset colore","Inverti colori","Inverti · attivo","Logo facoltativo","Dimensione","Rimuovi","In visualizzazione: ruota il dispositivo in orizzontale. Tocca il cartello per tornare indietro.","Motore attivo · pronto","Seleziona visualizzazione","Fit","Alternanza","Verticale","Velocità scorrimento","Lenta","Media","Veloce","Stampa cartello","tocca per uscire","Opzioni","Chiudi","Lingua dell’interfaccia","Alfabeto del cartello","L’alfabeto adatta il carattere e la direzione del testo. Per scrivere usa la tastiera del dispositivo: il nome non viene tradotto.","Le preferenze vengono salvate su questo dispositivo.","solo logo","Scegli PNG, JPG, WebP o GIF fino a 5 MB.","NOME PASSEGGERO","Sans-serif","Stampatello","Corsivo","Grassetto","Condensato","Combinazione","Anteprima logo","Anteprima cartello","Posizione logo","Alto · centro","Alto · sinistra","Alto · destra","Basso · centro"],
+    en:["Airport sign","Enter the passenger name and choose the display mode.","Passenger name","Original case","Uppercase","Font","Colour presets","Invert colours","Invert · on","Optional logo","Size","Remove","Rotate your device to landscape. Tap the sign to go back.","Ready","Display mode","Fit","Alternate","Vertical","Scroll speed","Slow","Medium","Fast","Show sign","tap to exit","Options","Close","Interface language","Sign alphabet","The alphabet adjusts the font and text direction. Type using your device keyboard; the name is not translated.","Preferences are saved on this device.","logo only","Choose PNG, JPG, WebP or GIF up to 5 MB.","PASSENGER NAME","Sans-serif","Block letters","Italic","Bold","Condensed","Combination","Logo preview","Sign preview","Logo position","Top · centre","Top · left","Top · right","Bottom · centre"],
+    fr:["Pancarte aéroport","Saisissez le nom du passager et choisissez l’affichage.","Nom du passager","Casse originale","Majuscules","Police","Couleurs","Inverser les couleurs","Inversion · active","Logo facultatif","Taille","Supprimer","Tournez l’appareil en paysage. Touchez la pancarte pour revenir.","Prêt","Mode d’affichage","Adapter","Alternance","Vertical","Vitesse","Lente","Moyenne","Rapide","Afficher la pancarte","toucher pour quitter","Options","Fermer","Langue de l’interface","Alphabet de la pancarte","L’alphabet adapte la police et le sens du texte. Utilisez le clavier de votre appareil ; le nom n’est pas traduit.","Préférences enregistrées sur cet appareil.","logo seul","Choisissez PNG, JPG, WebP ou GIF, jusqu’à 5 Mo.","NOM DU PASSAGER","Sans-serif","Lettres bâton","Italique","Gras","Condensé","Combinaison","Aperçu du logo","Aperçu de la pancarte","Position du logo","Haut · centre","Haut · gauche","Haut · droite","Bas · centre"],
+    de:["Flughafenschild","Name eingeben und Anzeige auswählen.","Name des Fahrgasts","Original","Großbuchstaben","Schrift","Farben","Farben umkehren","Umkehrung · aktiv","Optionales Logo","Größe","Entfernen","Gerät ins Querformat drehen. Zum Zurückgehen das Schild antippen.","Bereit","Anzeigemodus","Einpassen","Wechsel","Vertikal","Geschwindigkeit","Langsam","Mittel","Schnell","Schild anzeigen","zum Beenden antippen","Optionen","Schließen","Sprache der Oberfläche","Alphabet des Schilds","Das Alphabet passt Schrift und Textrichtung an. Die Gerätetastatur verwenden; der Name wird nicht übersetzt.","Einstellungen werden auf diesem Gerät gespeichert.","nur Logo","PNG, JPG, WebP oder GIF bis 5 MB auswählen.","NAME DES FAHRGASTS","Sans-serif","Druckschrift","Kursiv","Fett","Schmal","Kombination","Logo-Vorschau","Schild-Vorschau","Logo-Position","Oben · Mitte","Oben · links","Oben · rechts","Unten · Mitte"],
+    es:["Cartel de aeropuerto","Introduce el nombre y elige cómo mostrarlo.","Nombre del pasajero","Original","Mayúsculas","Fuente","Colores","Invertir colores","Inversión · activa","Logo opcional","Tamaño","Eliminar","Gira el dispositivo en horizontal. Toca el cartel para volver.","Listo","Modo de visualización","Ajustar","Alternancia","Vertical","Velocidad","Lenta","Media","Rápida","Mostrar cartel","toca para salir","Opciones","Cerrar","Idioma de la interfaz","Alfabeto del cartel","El alfabeto adapta la fuente y la dirección del texto. Usa el teclado del dispositivo; el nombre no se traduce.","Las preferencias se guardan en este dispositivo.","solo logo","Elige PNG, JPG, WebP o GIF de hasta 5 MB.","NOMBRE DEL PASAJERO","Sans-serif","Letra de imprenta","Cursiva","Negrita","Condensada","Combinación","Vista previa del logo","Vista previa del cartel","Posición del logo","Arriba · centro","Arriba · izquierda","Arriba · derecha","Abajo · centro"],
+    pt:["Placa de aeroporto","Introduza o nome e escolha a apresentação.","Nome do passageiro","Original","Maiúsculas","Tipo de letra","Cores","Inverter cores","Inversão · ativa","Logótipo opcional","Tamanho","Remover","Rode o dispositivo na horizontal. Toque na placa para voltar.","Pronto","Modo de apresentação","Ajustar","Alternar","Vertical","Velocidade","Lenta","Média","Rápida","Mostrar placa","toque para sair","Opções","Fechar","Idioma da interface","Alfabeto da placa","O alfabeto adapta a letra e a direção do texto. Use o teclado do dispositivo; o nome não é traduzido.","Preferências guardadas neste dispositivo.","só logótipo","Escolha PNG, JPG, WebP ou GIF até 5 MB.","NOME DO PASSAGEIRO","Sans-serif","Letra de imprensa","Itálico","Negrito","Condensado","Combinação","Pré-visualização do logótipo","Pré-visualização da placa","Posição do logótipo","Topo · centro","Topo · esquerda","Topo · direita","Fundo · centro"],
+    ar:["لوحة المطار","أدخل اسم الراكب واختر طريقة العرض.","اسم الراكب","النص الأصلي","أحرف كبيرة","الخط","الألوان","عكس الألوان","العكس · مفعّل","شعار اختياري","الحجم","إزالة","أدر الجهاز أفقيًا. المس اللوحة للعودة.","جاهز","طريقة العرض","ملاءمة","تناوب","عمودي","سرعة الحركة","بطيئة","متوسطة","سريعة","عرض اللوحة","المس للخروج","الخيارات","إغلاق","لغة الواجهة","نظام كتابة اللوحة","يضبط نظام الكتابة الخط واتجاه النص. استخدم لوحة مفاتيح الجهاز؛ لا تتم ترجمة الاسم.","تُحفظ التفضيلات على هذا الجهاز.","الشعار فقط","اختر PNG أو JPG أو WebP أو GIF حتى 5 ميغابايت.","اسم الراكب","خط بسيط","خط طباعي","مائل","عريض","مكثف","توليفة","معاينة الشعار","معاينة اللوحة","موضع الشعار","أعلى · الوسط","أعلى · اليسار","أعلى · اليمين","أسفل · الوسط"],
+    ru:["Табличка в аэропорту","Введите имя и выберите режим отображения.","Имя пассажира","Оригинал","Прописные","Шрифт","Цвета","Инвертировать цвета","Инверсия · включена","Логотип по желанию","Размер","Удалить","Поверните устройство горизонтально. Нажмите на табличку, чтобы вернуться.","Готово","Режим отображения","Вписать","Чередование","Вертикально","Скорость","Медленно","Средне","Быстро","Показать табличку","нажмите для выхода","Настройки","Закрыть","Язык интерфейса","Алфавит таблички","Алфавит адаптирует шрифт и направление текста. Используйте клавиатуру устройства; имя не переводится.","Настройки сохраняются на этом устройстве.","только логотип","Выберите PNG, JPG, WebP или GIF до 5 МБ.","ИМЯ ПАССАЖИРА","Без засечек","Печатный","Курсив","Жирный","Узкий","Сочетание","Просмотр логотипа","Просмотр таблички","Положение логотипа","Сверху · центр","Сверху · слева","Сверху · справа","Снизу · центр"],
+    zh:["机场接机牌","输入乘客姓名并选择显示方式。","乘客姓名","原始大小写","大写","字体","颜色","反转颜色","反转 · 已开启","可选标志","大小","移除","将设备横向放置。点击接机牌返回。","就绪","显示方式","适应","交替","纵向","滚动速度","慢","中","快","显示接机牌","点击退出","选项","关闭","界面语言","接机牌文字系统","文字系统调整字体和文字方向。请使用设备键盘输入；姓名不会被翻译。","偏好设置保存在此设备上。","仅标志","请选择不超过 5 MB 的 PNG、JPG、WebP 或 GIF。","乘客姓名","无衬线","印刷体","斜体","粗体","窄体","组合","标志预览","接机牌预览","标志位置","上方 · 居中","上方 · 左侧","上方 · 右侧","下方 · 居中"],
+    ja:["空港の出迎えボード","お名前を入力し、表示方法を選んでください。","お客様のお名前","元の表記","大文字","フォント","色","色を反転","反転 · オン","ロゴ（任意）","サイズ","削除","端末を横向きにしてください。ボードをタップすると戻ります。","準備完了","表示方法","フィット","交互","縦方向","スクロール速度","遅い","標準","速い","ボードを表示","タップして終了","オプション","閉じる","画面の言語","ボードの文字体系","文字体系に合わせてフォントと文字方向を調整します。端末のキーボードで入力してください。名前は翻訳されません。","設定はこの端末に保存されます。","ロゴのみ","5 MB 以下の PNG、JPG、WebP、GIF を選んでください。","お客様のお名前","ゴシック体","ブロック体","斜体","太字","コンデンス","配色","ロゴのプレビュー","ボードのプレビュー","ロゴの位置","上 · 中央","上 · 左","上 · 右","下 · 中央"],
+    ko:["공항 환영 보드","승객 이름을 입력하고 표시 방식을 선택하세요.","승객 이름","원래 표기","대문자","글꼴","색상","색상 반전","반전 · 켜짐","로고 (선택)","크기","제거","기기를 가로로 돌리세요. 보드를 누르면 돌아갑니다.","준비 완료","표시 방식","맞춤","교대","세로","스크롤 속도","느리게","보통","빠르게","보드 표시","눌러서 종료","옵션","닫기","인터페이스 언어","보드 문자 체계","문자 체계에 맞춰 글꼴과 텍스트 방향을 조정합니다. 기기 키보드로 입력하세요. 이름은 번역되지 않습니다.","설정은 이 기기에 저장됩니다.","로고만","5 MB 이하의 PNG, JPG, WebP 또는 GIF를 선택하세요.","승객 이름","산세리프","인쇄체","기울임","굵게","좁게","조합","로고 미리보기","보드 미리보기","로고 위치","위 · 가운데","위 · 왼쪽","위 · 오른쪽","아래 · 가운데"]
+  };
+  var alphabetNames={it:["Automatico","Latino","Greco","Cirillico","Arabo","Ebraico","Cinese","Giapponese","Coreano","Devanagari"],en:["Automatic","Latin","Greek","Cyrillic","Arabic","Hebrew","Chinese","Japanese","Korean","Devanagari"],fr:["Automatique","Latin","Grec","Cyrillique","Arabe","Hébreu","Chinois","Japonais","Coréen","Devanagari"],de:["Automatisch","Lateinisch","Griechisch","Kyrillisch","Arabisch","Hebräisch","Chinesisch","Japanisch","Koreanisch","Devanagari"],es:["Automático","Latino","Griego","Cirílico","Árabe","Hebreo","Chino","Japonés","Coreano","Devanagari"],pt:["Automático","Latino","Grego","Cirílico","Árabe","Hebraico","Chinês","Japonês","Coreano","Devanagari"],ar:["تلقائي","لاتيني","يوناني","سيريلي","عربي","عبري","صيني","ياباني","كوري","ديفاناغاري"],ru:["Автоматически","Латиница","Греческий","Кириллица","Арабский","Иврит","Китайский","Японский","Корейский","Деванагари"],zh:["自动","拉丁文","希腊文","西里尔文","阿拉伯文","希伯来文","中文","日文","韩文","天城文"],ja:["自動","ラテン文字","ギリシャ文字","キリル文字","アラビア文字","ヘブライ文字","中国語","日本語","韓国語","デーヴァナーガリー"],ko:["자동","라틴 문자","그리스 문자","키릴 문자","아랍 문자","히브리 문자","중국어","일본어","한국어","데바나가리"]};
+  var scriptFonts={arabic:'"Noto Sans Arabic","Geeza Pro",Tahoma',hebrew:'"Noto Sans Hebrew","Arial Hebrew",Arial',chinese:'"PingFang SC","Microsoft YaHei","Noto Sans CJK SC"',japanese:'"Hiragino Sans","Yu Gothic","Noto Sans CJK JP"',korean:'"Apple SD Gothic Neo","Malgun Gothic","Noto Sans CJK KR"',devanagari:'"Noto Sans Devanagari","Kohinoor Devanagari",Mangal'};
+  function tr(key){return (localeRows[locale]||localeRows.it)[localeKeys.indexOf(key)];}
+  function effectiveAlphabet(){
+    if(alphabet!=="auto")return alphabet;
+    var value=passenger.value||tr("placeholderName");
+    if(/[\u0600-\u06ff\u0750-\u077f]/.test(value))return "arabic";
+    if(/[\u0590-\u05ff]/.test(value))return "hebrew";
+    if(/[\u0900-\u097f]/.test(value))return "devanagari";
+    if(/[\u3040-\u30ff]/.test(value))return "japanese";
+    if(/[\uac00-\ud7af\u1100-\u11ff]/.test(value))return "korean";
+    if(/[\u3400-\u9fff]/.test(value))return locale==="ja"?"japanese":"chinese";
+    if(/[\u0400-\u052f]/.test(value))return "cyrillic";
+    if(/[\u0370-\u03ff]/.test(value))return "greek";
+    return "latin";
+  }
+  function signFamily(){var script=effectiveAlphabet();return scriptFonts[script]?scriptFonts[script]+',-apple-system,BlinkMacSystemFont,Arial,sans-serif':signFonts[activeFont]||signFonts.system;}
+  function applyWriting(){
+    var script=effectiveAlphabet(),rtl=script==="arabic"||script==="hebrew";
+    passenger.dir=alphabet==="auto"?"auto":rtl?"rtl":"ltr";
+    [fixedText,verticalTrack,$("logoPreviewText")].forEach(function(el){el.dir=alphabet==="auto"?"auto":rtl?"rtl":"ltr";});
+    viewer.style.setProperty("--sign-font",signFamily());
+    viewer.style.setProperty("--sign-style",activeFont==="serif"&&!rtl?"italic":"normal");
+    viewer.dataset.alphabet=script;
+  }
+  function saveOptions(){try{localStorage.setItem("steergreet.options.v1",JSON.stringify({language:locale,alphabet:alphabet}));$("optionsSaved").textContent=tr("saved");}catch(e){$("optionsSaved").textContent="";}}
+  function applyLanguage(){
+    document.documentElement.lang=locale;document.documentElement.dir=locale==="ar"?"rtl":"ltr";
+    document.title="SteerWill · "+tr("title");
+    var labels={"h1":"title",".desc":"description","label[for=passenger]":"passenger","#originalCase":"original","#caps":"caps",".fontLabel":"font",".presetLabel":"colors","label[for=logoUpload]":"logo","label[for=logoSize]":"size","#removeLogo":"remove",".card > .note":"hint","#engine":"ready","#viewLabel":"view","#fit":"fit","#max":"alternate","#vertical":"vertical",".speedlabel":"speed","#printSign":"print",".exitHint":"exit","#signOptions":"options","#optionsTitle":"options","#closeOptions":"close","#languageLabel":"language","#alphabetLabel":"alphabet","#alphabetHelp":"help","#optionsSaved":"saved"};
+    Object.keys(labels).forEach(function(selector){document.querySelector(selector).textContent=tr(labels[selector]);});
+    ["slow","medium","fast"].forEach(function(key,i){$("speed"+(i+1)).textContent=(i+1)+" · "+tr(key);});
+    ["system","impact","serif","bold","condensed"].forEach(function(font,i){fontButtons[i].setAttribute("aria-label",tr(["fontSystem","fontImpact","fontSerif","fontBold","fontCondensed"][i]));});
+    presetButtons.forEach(function(btn){var index=Object.keys(colorPresets).indexOf(btn.dataset.preset)+1;btn.setAttribute("aria-label",tr("combination")+" "+index);});
+    ["topCenter","topLeft","topRight","bottomCenter"].forEach(function(key,i){$("logoPosition").options[i].textContent=tr(key);});
+    $("logoPosition").setAttribute("aria-label",tr("position"));$("logoSize").setAttribute("aria-label",tr("size"));$("logoPreviewImage").alt=tr("previewLogo");$("logoPreviewText").setAttribute("aria-label",tr("previewSign"));
+    passenger.placeholder=tr("placeholderName");
+    Array.prototype.forEach.call($("signAlphabet").options,function(option,i){option.textContent=alphabetNames[locale][i];});
+    $("interfaceLanguage").value=locale;$("signAlphabet").value=alphabet;
+    applyWriting();updatePreviews();applyLogo();
+  }
+  try{var preferences=JSON.parse(localStorage.getItem("steergreet.options.v1")||"{}");if(localeRows[preferences.language])locale=preferences.language;if(Array.prototype.some.call($("signAlphabet").options,function(o){return o.value===preferences.alphabet;}))alphabet=preferences.alphabet;}catch(e){}
+  $("signOptions").onclick=function(){$("optionsDialog").showModal();};
+  $("closeOptions").onclick=function(){$("optionsDialog").close();};
+  $("interfaceLanguage").onchange=function(){locale=this.value;applyLanguage();saveOptions();};
+  $("signAlphabet").onchange=function(){alphabet=this.value;applyWriting();applyLogo();saveOptions();};
+
   function textValue(){
     var t = passenger.value.trim();
-    if(!t) t = "NOME PASSEGGERO";
-    return isCaps ? t.toUpperCase() : t;
+    if(!t) t = tr("placeholderName");
+    return isCaps ? t.toLocaleUpperCase(locale) : t;
   }
 
   function applyTheme(){
@@ -200,7 +275,7 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
     viewer.style.color = inverted ? preset.bg : preset.fg;
     viewer.style.setProperty("--sign-weight",activeFont==="bold"||activeFont==="impact"?900:600);
     viewer.style.setProperty("--sign-style",activeFont==="serif"?"italic":"normal");
-    viewer.style.setProperty("--sign-font", signFonts[activeFont] || signFonts.system);renderPreview();
+    applyWriting();renderPreview();
   }
 
   function setFont(name){
@@ -247,7 +322,7 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
   function updatePreviews(){
     function light(c){var h=c.replace("#","");if(h.length===3)h=h.split("").map(function(x){return x+x;}).join("");var rgb=[0,2,4].map(function(i){var v=parseInt(h.slice(i,i+2),16)/255;return v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4);});return rgb[0]*.2126+rgb[1]*.7152+rgb[2]*.0722;}
     presetButtons.sort(function(a,b){var pa=colorPresets[a.dataset.preset],pb=colorPresets[b.dataset.preset];return light(pb.bg)-light(pa.bg);}).forEach(function(btn){var p=colorPresets[btn.dataset.preset];btn.style.background=inverted?p.fg:p.bg;btn.style.color=inverted?p.bg:p.fg;btn.setAttribute("aria-pressed",String(btn.dataset.preset===activePreset));btn.parentNode.appendChild(btn);});
-    var button=document.getElementById("invertColors");button.classList.toggle("on",inverted);button.setAttribute("aria-pressed",String(inverted));button.textContent=inverted?"Inverti · attivo":"Inverti colori";
+    var button=document.getElementById("invertColors");button.classList.toggle("on",inverted);button.setAttribute("aria-pressed",String(inverted));button.textContent=tr(inverted?"invertOn":"invert");
     var p=colorPresets[activePreset],preview=document.getElementById("logoPreview");preview.style.background=inverted?p.fg:p.bg;preview.style.color=inverted?p.bg:p.fg;
   }
   function applyLogo(){
@@ -259,7 +334,7 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
     document.getElementById("verticalStage").style.bottom=bottom?reserve+"%":"0";
     [logo,document.getElementById("logoPreviewImage")].forEach(function(img){img.hidden=!logoUrl;if(logoUrl)img.src=logoUrl;else img.removeAttribute("src");img.style.maxWidth=solo?"92%":logoSize+"%";img.style.maxHeight=solo?"90%":Math.max(8,reserve-3)+"%";img.style.top=solo?"50%":bottom?"auto":"2%";img.style.bottom=bottom&&!solo?"2%":"auto";img.style.left=solo||!/left|right/.test(logoPosition)?"50%":logoPosition==="top-left"?"2%":"auto";img.style.right=!solo&&logoPosition==="top-right"?"2%":"auto";img.style.transform=solo?"translate(-50%,-50%)":/left|right/.test(logoPosition)?"none":"translateX(-50%)";});
     document.getElementById("logoPreviewText").hidden=solo;
-    document.getElementById("logoSizeValue").textContent=logoSize===100?"100% · solo logo":logoSize+"%";
+    document.getElementById("logoSizeValue").textContent=logoSize===100?"100% · "+tr("solo"):logoSize+"%";
     renderPreview();
     if(currentMode&&viewer.classList.contains("open")){clean();if(currentMode==="fit")renderFit();else if(currentMode==="max")renderMax();else renderVertical();}
   }
@@ -383,11 +458,14 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
     if(solo)return;
     var words=textValue().split(/\s+/).filter(Boolean),mode=selectedMode||"fit",height=stage.clientHeight,width=stage.clientWidth;
     if(!height||!width)return;
-    var family=signFonts[activeFont]||signFonts.system,weight=activeFont==="bold"||activeFont==="impact"?900:600,style=activeFont==="serif"?"italic":"normal";
+    applyWriting();
+    var family=signFamily(),weight=activeFont==="bold"||activeFont==="impact"?900:600,style=activeFont==="serif"&&!/arabic|hebrew/.test(effectiveAlphabet())?"italic":"normal";
     stage.style.fontFamily=family;stage.style.fontWeight=weight;stage.style.fontStyle=style;
     var ctx=document.createElement("canvas").getContext("2d");ctx.font=style+" "+weight+" 100px "+family;
+    var lineHeight=/arabic|hebrew|devanagari/.test(effectiveAlphabet())?1.4:1.05;
+    stage.style.setProperty("--preview-line-height",lineHeight);
     var longest=Math.max.apply(null,words.map(function(w){return ctx.measureText(w).width;}));
-    var size=Math.max(1,Math.min(width*.94*100/Math.max(1,longest),mode==="fit"?height*.86/(words.length*1.05):height*(mode==="max"?.75:.54)));
+    var size=Math.max(1,Math.min(width*.94*100/Math.max(1,longest),mode==="fit"?height*.86/(words.length*lineHeight):height*(mode==="max"?.75:.54)/Math.max(1,lineHeight/1.05)));
     stage.style.fontSize=size+"px";
     if(mode==="vertical"){
       var track=document.createElement("div");track.className="previewTrack";
@@ -423,12 +501,12 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
   document.getElementById("invertColors").onclick=function(){inverted=!inverted;updatePreviews();applyTheme();};
   document.getElementById("logoUpload").onchange=function(){
     var file=this.files[0];if(!file) return;
-    if(!/^image\/(png|jpeg|webp|gif)$/.test(file.type)||file.size>5*1024*1024){document.getElementById("logoStatus").textContent="Scegli PNG, JPG, WebP o GIF fino a 5 MB.";return;}
+    if(!/^image\/(png|jpeg|webp|gif)$/.test(file.type)||file.size>5*1024*1024){document.getElementById("logoStatus").textContent=tr("fileError");return;}
     if(logoUrl) URL.revokeObjectURL(logoUrl);logoUrl=URL.createObjectURL(file);document.getElementById("logoStatus").textContent=file.name;applyLogo();
   };
   document.getElementById("logoSize").oninput=function(){logoSize=Number(this.value);applyLogo();};document.getElementById("logoPosition").onchange=function(){logoPosition=this.value;applyLogo();};
   document.getElementById("removeLogo").onclick=function(){if(logoUrl) URL.revokeObjectURL(logoUrl);logoUrl="";document.getElementById("logoUpload").value="";document.getElementById("logoStatus").textContent="";applyLogo();};
-  updatePreviews();applyLogo();
+  applyLanguage();
   window.addEventListener("focus",requestWake);
   document.addEventListener("keydown",function(e){if(e.key==="Escape"&&currentMode) closeViewer();});
   viewer.onclick = closeViewer;
