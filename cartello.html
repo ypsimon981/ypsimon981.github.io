@@ -95,7 +95,7 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
 </style>
 <style>
 .presetHeading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.presetHeading label{margin:0}.savedSignList{display:grid;gap:8px;margin-top:12px}.savedSignRow{display:flex;gap:8px;min-width:0}.savedSignLoad{flex:1;min-width:0;display:flex;align-items:center;gap:10px;text-align:start;border-radius:12px}.savedSignLoad span:last-child{overflow-wrap:anywhere}.savedSignSwatch{display:grid;place-items:center;width:36px;height:36px;border-radius:8px;flex-shrink:0;font-size:22px}.savedSignDelete{min-width:44px;min-height:44px;flex-shrink:0}
-</style><style>.noShowShortcut{margin-top:16px;padding:14px;border:1px solid #bda16a;border-radius:14px;background:#252019}.noShowShortcut[hidden]{display:none}#noShowLink{display:flex;align-items:center;justify-content:center;gap:9px;min-height:48px;text-decoration:none;background:#d0b687;color:#111;border-color:#bda16a;font-weight:800}.noShowShortcut .note{color:#ccc;line-height:1.4}</style></head>
+</style><style>.noShowShortcut{margin-top:16px;padding:14px;border:1px solid #bda16a;border-radius:14px;background:#252019}.noShowShortcut[hidden]{display:none}#noShowLink{display:flex;align-items:center;justify-content:center;gap:9px;min-height:48px;text-decoration:none;background:#d0b687;color:#111;border-color:#bda16a;font-weight:800}.noShowShortcut .note{color:#ccc;line-height:1.4}</style><style>.pickupAnswers{display:flex;gap:10px}.pickupAnswers button{flex:1;min-height:48px}#noShowLink[hidden],#noShowHelp[hidden],#pickupResult[hidden]{display:none}#noShowLink{margin-top:12px}#pickupQuestion:focus-visible{outline:2px solid #d0b687;outline-offset:4px;border-radius:4px}</style></head>
 <body>
 <main class="setup">
   <section class="card">
@@ -154,8 +154,14 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
     </div>
     <button id="printSign" class="printSign" type="button" disabled>Stampa cartello</button>
     <div id="noShowShortcut" class="noShowShortcut" hidden>
-      <a id="noShowLink" class="pill" href="timestamp.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h4l2-3h4l2 3h4v14H4Z"/><circle cx="12" cy="13" r="4"/></svg><span id="noShowLabel">Timestamp · Prova no-show</span></a>
-      <p id="noShowHelp" class="note">Apri il timestamp con il nome già compilato e aggiungi il codice del volo.</p>
+      <h2 id="pickupQuestion" tabindex="-1" style="font-size:20px;margin:0 0 12px">Hai preso il cliente?</h2>
+      <div class="pickupAnswers" role="group" aria-labelledby="pickupQuestion">
+        <button id="pickupYes" class="pill" type="button" aria-pressed="false">✓ Sì</button>
+        <button id="pickupNo" class="pill" type="button" aria-pressed="false">✕ No</button>
+      </div>
+      <p id="pickupResult" class="note" role="status" aria-live="polite" hidden></p>
+      <a id="noShowLink" hidden class="pill" href="timestamp.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h4l2-3h4l2 3h4v14H4Z"/><circle cx="12" cy="13" r="4"/></svg><span id="noShowLabel">Timestamp · Prova no-show</span></a>
+      <p id="noShowHelp" class="note" hidden>Apri il timestamp con il nome già compilato e aggiungi il codice del volo.</p>
     </div>
   </section>
 </main>
@@ -216,7 +222,7 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
 
   var locale="it", alphabet="auto";
 
-  var noShowClosed=false;
+  var noShowClosed=false,pickupAnswer="",pickupName="";
   var noShowTranslations={
     it:["Timestamp · Prova no-show","Apri il timestamp con il nome già compilato e aggiungi il codice del volo."],
     en:["Passenger absent? No-show photo","Open Timestamp with the name filled in, then add the flight code."],
@@ -230,9 +236,35 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
     ja:["お客様が来ない？不在の記録写真","名前が入力された Timestamp を開き、便名を追加します。"],
     ko:["고객이 없나요? 노쇼 사진","이름이 입력된 Timestamp를 열고 항공편 번호를 추가하세요."]
   };
+
+  var pickupTranslations={
+    it:["Hai preso il cliente?","✓ Sì","✕ No","Bene, ottimo lavoro!","Se serve, ricordati di fare le foto per il no-show."],
+    en:["Did you pick up the passenger?","✓ Yes","✕ No","Great, good job!","If needed, remember to take no-show photos."],
+    fr:["Avez-vous pris en charge le client ?","✓ Oui","✕ Non","Bravo, beau travail !","Si nécessaire, pensez à prendre des photos pour le no-show."],
+    de:["Haben Sie den Kunden abgeholt?","✓ Ja","✕ Nein","Prima, gute Arbeit!","Denken Sie bei Bedarf an Fotos für den No-show."],
+    es:["¿Has recogido al cliente?","✓ Sí","✕ No","¡Bien, buen trabajo!","Si hace falta, recuerda hacer fotos para el no-show."],
+    pt:["Você pegou o cliente?","✓ Sim","✕ Não","Ótimo, bom trabalho!","Se necessário, lembre-se de tirar fotos do no-show."],
+    ar:["هل اصطحبت الراكب؟","✓ نعم","✕ لا","أحسنت، عمل رائع!","عند الحاجة، تذكّر التقاط صور لتوثيق عدم الحضور."],
+    ru:["Вы забрали клиента?","✓ Да","✕ Нет","Отлично, хорошая работа!","При необходимости сделайте фотографии для подтверждения неявки."],
+    zh:["接到乘客了吗？","✓ 是","✕ 否","很好，辛苦了！","如有需要，请记得拍摄未到场的记录照片。"],
+    ja:["お客様をお迎えできましたか？","✓ はい","✕ いいえ","お疲れさまでした！","必要に応じて、不在を記録する写真を撮ってください。"],
+    ko:["고객을 픽업했나요?","✓ 예","✕ 아니요","좋아요, 수고하셨습니다!","필요하면 노쇼 기록 사진을 촬영하세요."]
+  };
+  $("pickupYes").onclick=function(){pickupAnswer="yes";updateNoShowShortcut();};
+  $("pickupNo").onclick=function(){pickupAnswer="no";updateNoShowShortcut();};
+
   function updateNoShowShortcut(){
     var name=passenger.value.trim(),words=noShowTranslations[locale]||noShowTranslations.it;
+    if(name!==pickupName){pickupAnswer="";pickupName=name;}
+    var answers=pickupTranslations[locale]||pickupTranslations.it;
     $("noShowShortcut").hidden=!noShowClosed||!name;
+    $("pickupQuestion").textContent=answers[0];
+    $("pickupYes").textContent=answers[1];$("pickupNo").textContent=answers[2];
+    ["Yes","No"].forEach(function(key){var selected=pickupAnswer===key.toLowerCase();$("pickup"+key).classList.toggle("on",selected);$("pickup"+key).setAttribute("aria-pressed",String(selected));});
+    $("pickupResult").hidden=!pickupAnswer;
+    $("pickupResult").textContent=pickupAnswer==="yes"?answers[3]:pickupAnswer==="no"?answers[4]:"";
+    $("noShowLink").hidden=pickupAnswer!=="no";
+    $("noShowHelp").hidden=pickupAnswer!=="no";
     $("noShowLabel").textContent=words[0];$("noShowHelp").textContent=words[1];
     var params=new URLSearchParams();if(name)params.set("client",name);
     $("noShowLink").href="timestamp.html"+(name?"?"+params.toString():"");
@@ -430,14 +462,14 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
     viewer.setAttribute("aria-hidden","true");
     document.body.style.overflow = "";
     currentMode = "";
-    noShowClosed=true;updateNoShowShortcut();
+    noShowClosed=true;pickupAnswer="";updateNoShowShortcut();
     clean();
     if(wakeLock){ try{ wakeLock.release(); }catch(e){} wakeLock = null; }renderPreview();
     requestAnimationFrame(function(){
       var shortcut=$("noShowShortcut");
       if(shortcut.hidden)return;
       shortcut.scrollIntoView({block:"center",behavior:"auto"});
-      $("noShowLink").focus({preventScroll:true});
+      $("pickupQuestion").focus({preventScroll:true});
     });
   }
 
