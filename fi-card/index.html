@@ -51,6 +51,7 @@
       <div class="chips">
         <button class="chip active" data-filter="all">Tutte</button><button class="chip" data-filter="fav">Preferite</button><button class="chip" data-filter="near">Vicino a te</button>
       </div>
+      <div id="categoryChips" class="chips"></div>
       <div id="nearbyBanner" class="nearby"><div class="pin">📍</div><div><b id="nearbyTitle">Carta vicina</b><small id="nearbyText"></small></div></div>
       <div class="sectionTitle"><h2>Le mie carte</h2><button id="geoRefresh">Aggiorna posizione</button></div>
       <div id="cardGrid" class="cards"></div>
@@ -103,6 +104,19 @@
   <button class="primary" id="scanBtn">▣ Scansiona codice</button>
   <div id="scanner" class="scanner"><div id="reader"></div></div>
   <label>Marchio / layout</label><select id="addBrand" class="field"><option value="">Generica Fi-Card</option><option value="esselunga">Esselunga</option><option value="conad">Conad</option><option value="coop">Coop</option><option value="carrefour">Carrefour</option><option value="lidl">Lidl</option><option value="decathlon">Decathlon</option><option value="ikea">IKEA</option><option value="leroymerlin">Leroy Merlin</option><option value="tigota">Tigotà</option></select>
+  <label>Categoria</label><select id="addCategory" class="field">
+    <option value="supermercati">Supermercati</option>
+    <option value="sport">Articoli sportivi</option>
+    <option value="calzature">Calzature</option>
+    <option value="abbigliamento">Abbigliamento</option>
+    <option value="casa">Casa e bricolage</option>
+    <option value="beauty">Beauty e cura persona</option>
+    <option value="farmacia">Farmacie e parafarmacie</option>
+    <option value="elettronica">Elettronica</option>
+    <option value="ristorazione">Ristorazione</option>
+    <option value="carburanti">Carburanti</option>
+    <option value="altro">Altro</option>
+  </select>
   <label>Nome negozio / carta</label><input id="addName" class="field" placeholder="Es. Esselunga">
   <label>Numero / contenuto barcode</label><input id="addCode" class="field" inputmode="text" placeholder="Es. 1234567890123">
   <div class="row"><div><label>Formato</label><select id="addFormat" class="field"><option value="CODE128">Code 128</option><option value="EAN13">EAN-13</option><option value="EAN8">EAN-8</option><option value="CODE39">Code 39</option><option value="UPC">UPC</option></select></div><div><label>Colore</label><input id="addColor" class="field" type="color" value="#5B3DF5" style="height:48px;padding:6px"></div></div>
@@ -131,17 +145,30 @@ const DB_NAME="ficard-local";
 const DB_VERSION=1;
 const STORE_NAME="state";
 let cards=[];
-let currentCardId=null, currentPos=null, deferredPrompt=null, qrScanner=null;
+let currentCardId=null, currentPos=null, deferredPrompt=null, qrScanner=null, currentCategory="all";
+const CATEGORIES={
+ supermercati:"Supermercati",
+ sport:"Articoli sportivi",
+ calzature:"Calzature",
+ abbigliamento:"Abbigliamento",
+ casa:"Casa e bricolage",
+ beauty:"Beauty e cura persona",
+ farmacia:"Farmacie e parafarmacie",
+ elettronica:"Elettronica",
+ ristorazione:"Ristorazione",
+ carburanti:"Carburanti",
+ altro:"Altro"
+};
 const BRANDS={
- esselunga:{name:"Esselunga",color:"#F5C400",mark:"ESSELUNGA"},
- conad:{name:"Conad",color:"#E3202A",mark:"CONAD"},
- coop:{name:"Coop",color:"#E30613",mark:"COOP"},
- carrefour:{name:"Carrefour",color:"#1D4E9E",mark:"CARREFOUR"},
- lidl:{name:"Lidl",color:"#0050AA",mark:"LIDL"},
- decathlon:{name:"Decathlon",color:"#1675E0",mark:"DECATHLON"},
- ikea:{name:"IKEA",color:"#0058A3",mark:"IKEA"},
- leroymerlin:{name:"Leroy Merlin",color:"#62A744",mark:"LEROY"},
- tigota:{name:"Tigotà",color:"#19B8B8",mark:"TIGOTÀ"}
+ esselunga:{name:"Esselunga",color:"#F5C400",mark:"ESSELUNGA",category:"supermercati"},
+ conad:{name:"Conad",color:"#E3202A",mark:"CONAD",category:"supermercati"},
+ coop:{name:"Coop",color:"#E30613",mark:"COOP",category:"supermercati"},
+ carrefour:{name:"Carrefour",color:"#1D4E9E",mark:"CARREFOUR",category:"supermercati"},
+ lidl:{name:"Lidl",color:"#0050AA",mark:"LIDL",category:"supermercati"},
+ decathlon:{name:"Decathlon",color:"#1675E0",mark:"DECATHLON",category:"sport"},
+ ikea:{name:"IKEA",color:"#0058A3",mark:"IKEA",category:"casa"},
+ leroymerlin:{name:"Leroy Merlin",color:"#62A744",mark:"LEROY",category:"casa"},
+ tigota:{name:"Tigotà",color:"#19B8B8",mark:"TIGOTÀ",category:"beauty"}
 };
 const offers=[
  {brand:"IdroMarket",title:"Oggi hai il 10% di sconto",text:"Ricordati di mostrare la carta alla cassa.",tag:"Oggi"},
@@ -150,10 +177,10 @@ const offers=[
 ];
 
 function demoCards(){return [
- {id:crypto.randomUUID(),name:"Esselunga",brandKey:"esselunga",code:"1234567890123",format:"EAN13",color:"#F5C400",fav:true,locations:[]},
- {id:crypto.randomUUID(),name:"Conad",brandKey:"conad",code:"123456789012",format:"CODE128",color:"#E3202A",fav:false,locations:[]},
- {id:crypto.randomUUID(),name:"Decathlon",brandKey:"decathlon",code:"9876543210987",format:"EAN13",color:"#1675E0",fav:false,locations:[]},
- {id:crypto.randomUUID(),name:"Tigotà",brandKey:"tigota",code:"456789012345",format:"CODE128",color:"#19B8B8",fav:false,locations:[]}
+ {id:crypto.randomUUID(),name:"Esselunga",brandKey:"esselunga",category:"supermercati",code:"1234567890123",format:"EAN13",color:"#F5C400",fav:true,locations:[]},
+ {id:crypto.randomUUID(),name:"Conad",brandKey:"conad",category:"supermercati",code:"123456789012",format:"CODE128",color:"#E3202A",fav:false,locations:[]},
+ {id:crypto.randomUUID(),name:"Decathlon",brandKey:"decathlon",category:"sport",code:"9876543210987",format:"EAN13",color:"#1675E0",fav:false,locations:[]},
+ {id:crypto.randomUUID(),name:"Tigotà",brandKey:"tigota",category:"beauty",code:"456789012345",format:"CODE128",color:"#19B8B8",fav:false,locations:[]}
 ]}
 function openLocalDB(){return new Promise((resolve,reject)=>{if(!("indexedDB" in window))return reject(new Error("IndexedDB non disponibile"));const req=indexedDB.open(DB_NAME,DB_VERSION);req.onupgradeneeded=()=>{const db=req.result;if(!db.objectStoreNames.contains(STORE_NAME))db.createObjectStore(STORE_NAME)};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error||new Error("Errore IndexedDB"))})}
 async function idbGet(key){const db=await openLocalDB();return new Promise((resolve,reject)=>{const tx=db.transaction(STORE_NAME,"readonly");const req=tx.objectStore(STORE_NAME).get(key);req.onsuccess=()=>resolve(req.result??null);req.onerror=()=>reject(req.error);tx.oncomplete=()=>db.close()})}
@@ -161,25 +188,30 @@ async function idbSet(key,value){const db=await openLocalDB();return new Promise
 function localRead(){const keys=[KEY,...LEGACY_KEYS];for(const k of keys){try{const raw=localStorage.getItem(k);if(raw!==null){const parsed=JSON.parse(raw);if(Array.isArray(parsed))return parsed}}catch(e){}}return null}
 async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist){const already=await navigator.storage.persisted();const ok=already||await navigator.storage.persist();updateStorageStatus(ok?"Archivio persistente richiesto":"Archivio locale attivo",ok)}}catch(e){updateStorageStatus("Archivio locale attivo",false)}}
 function updateStorageStatus(text,persistent){const box=document.getElementById("storageStatus");if(!box)return;const small=box.querySelector("small");if(small)small.textContent=text+(persistent?" · protetto dal browser quando possibile":" · installa Fi-Card sulla Home per maggiore stabilità")}
-async function load(){let idbCards=null;try{idbCards=await idbGet("cards")}catch(e){}const localCards=localRead();if(Array.isArray(idbCards))cards=idbCards;else if(Array.isArray(localCards))cards=localCards;else cards=demoCards();save();renderAll();requestPersistentStorage()}
+async function load(){let idbCards=null;try{idbCards=await idbGet("cards")}catch(e){}const localCards=localRead();if(Array.isArray(idbCards))cards=idbCards;else if(Array.isArray(localCards))cards=localCards;else cards=demoCards();normalizeCategories();save();renderAll();requestPersistentStorage()}
 function save(){const snapshot=JSON.parse(JSON.stringify(cards));try{localStorage.setItem(KEY,JSON.stringify(snapshot))}catch(e){}idbSet("cards",snapshot).catch(()=>{})}
 function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]))}
 function toast(t){const el=document.getElementById("toast");el.textContent=t;el.classList.add("show");clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove("show"),2600)}
 function distanceM(a,b){const R=6371000,p=Math.PI/180,dLat=(b.lat-a.lat)*p,dLon=(b.lng-a.lng)*p,x=Math.sin(dLat/2)**2+Math.cos(a.lat*p)*Math.cos(b.lat*p)*Math.sin(dLon/2)**2;return 2*R*Math.atan2(Math.sqrt(x),Math.sqrt(1-x))}
 function nearestFor(card,pos){if(!pos||!card.locations?.length)return null;let best=null;for(const l of card.locations){const d=distanceM(pos,l);if(!best||d<best.d)best={...l,d}}return best}
 function smartCard(){if(!currentPos)return cards.find(c=>c.fav)||cards[0];const candidates=cards.map(c=>({c,n:nearestFor(c,currentPos)})).filter(x=>x.n&&x.n.d<=(x.n.radius||180)).sort((a,b)=>a.n.d-b.n.d);return candidates[0]?.c||cards.find(c=>c.fav)||cards[0]}
-function brandFor(c){return c.brandKey&&BRANDS[c.brandKey]?BRANDS[c.brandKey]:{name:c.name,color:c.color||"#5B3DF5",mark:String(c.name||"CARD").toUpperCase().slice(0,10)}}
+function brandFor(c){return c.brandKey&&BRANDS[c.brandKey]?BRANDS[c.brandKey]:{name:c.name,color:c.color||"#5B3DF5",mark:String(c.name||"CARD").toUpperCase().slice(0,10),category:c.category||"altro"}}
+function categoryFor(c){return c.category||(c.brandKey&&BRANDS[c.brandKey]?.category)||"altro"}
+function categoryLabel(c){return CATEGORIES[categoryFor(c)]||CATEGORIES.altro}
+function normalizeCategories(){let changed=false;cards.forEach(c=>{if(!c.category){c.category=categoryFor(c);changed=true}});if(changed)save()}
+function renderCategoryChips(){const box=document.getElementById("categoryChips");if(!box)return;const present=[...new Set(cards.map(categoryFor))];const ordered=Object.keys(CATEGORIES).filter(k=>present.includes(k));box.innerHTML='<button class="chip '+(currentCategory==="all"?"active":"")+'" data-category="all">Tutte le categorie</button>'+ordered.map(k=>'<button class="chip '+(currentCategory===k?"active":"")+'" data-category="'+k+'">'+CATEGORIES[k]+'</button>').join("");box.querySelectorAll("[data-category]").forEach(btn=>btn.onclick=()=>{currentCategory=btn.dataset.category;renderCategoryChips();renderCards()})}
 
-function renderAll(){renderCards();renderOffers();renderLocations();renderNearby()}
+function renderAll(){renderCategoryChips();renderCards();renderOffers();renderLocations();renderNearby()}
 function renderCards(){
  const q=document.getElementById("search").value.toLowerCase().trim(),active=document.querySelector(".chip.active")?.dataset.filter||"all";
  let list=cards.filter(c=>c.name.toLowerCase().includes(q)||c.code.toLowerCase().includes(q));
+ if(currentCategory!=="all")list=list.filter(c=>categoryFor(c)===currentCategory);
  if(active==="fav")list=list.filter(c=>c.fav);
  if(active==="near"&&currentPos)list=list.filter(c=>{const n=nearestFor(c,currentPos);return n&&n.d<=(n.radius||180)});
  const smart=smartCard();if(smart)list.sort((a,b)=>a.id===smart.id?-1:b.id===smart.id?1:0);
  const grid=document.getElementById("cardGrid");
  if(!list.length){grid.innerHTML='<div class="empty"><strong>Nessuna carta qui</strong>Tocca ＋ per aggiungerne una.</div>';return}
- grid.innerHTML=list.map(c=>{const b=brandFor(c);return '<button class="card" style="background:'+esc(c.color)+'" data-card="'+c.id+'"><span class="brandMark">'+esc(b.mark)+'</span><span class="star">'+(c.fav?"★":"☆")+'</span><div class="name">'+esc(c.name)+'</div><div class="type">Carta fedeltà</div></button>'}).join("");
+ grid.innerHTML=list.map(c=>{const b=brandFor(c);return '<button class="card" style="background:'+esc(c.color)+'" data-card="'+c.id+'"><span class="brandMark">'+esc(b.mark)+'</span><span class="star">'+(c.fav?"★":"☆")+'</span><div class="name">'+esc(c.name)+'</div><div class="type">'+esc(categoryLabel(c))+'</div></button>'}).join("");
  grid.querySelectorAll("[data-card]").forEach(x=>x.onclick=()=>openCard(x.dataset.card));
 }
 function renderOffers(){
@@ -206,7 +238,7 @@ function openCard(id){
  const c=cards.find(x=>x.id===id);if(!c)return;currentCardId=id;
  const b=brandFor(c),n=nearestFor(c,currentPos),locs=(c.locations||[]);
  const locHtml=locs.length?'<div class="panel" style="margin-top:12px"><b>Punti vendita associati</b>'+locs.map((l,i)=>'<div class="promo" style="margin-bottom:0"><div class="grow"><small>'+l.lat.toFixed(5)+', '+l.lng.toFixed(5)+' · raggio '+(l.radius||180)+' m</small></div><button class="chip" data-remove-loc="'+i+'">Dissocia</button></div>').join("")+'</div>':'<p class="hint">Nessun punto vendita associato a questa carta.</p>';
- document.getElementById("detailContent").innerHTML='<div class="detailHero" style="background:'+esc(c.color)+'"><span class="detailLogo">'+esc(b.mark)+'</span><h2>'+esc(c.name)+'</h2><p>Carta fedeltà</p><div class="barcodeBox"><svg id="detailSvg"></svg><div class="num">'+esc(c.code)+'</div></div></div>'+
+ document.getElementById("detailContent").innerHTML='<div class="detailHero" style="background:'+esc(c.color)+'"><span class="detailLogo">'+esc(b.mark)+'</span><h2>'+esc(c.name)+'</h2><p>'+esc(categoryLabel(c))+'</p><div class="barcodeBox"><svg id="detailSvg"></svg><div class="num">'+esc(c.code)+'</div></div></div>'+
  '<div class="detailActions"><button id="fullBtn">▣ Tutto schermo</button><button id="favBtn">'+(c.fav?"★ Preferita":"☆ Preferita")+'</button></div>'+
  '<button class="secondary" id="assocBtn">⌖ Associa questo punto vendita</button>'+locHtml+
  (n?'<p class="hint">Punto associato più vicino: '+Math.round(n.d)+' m.</p>':'')+
@@ -233,7 +265,7 @@ document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>hideModal(b.d
 document.querySelectorAll(".modal").forEach(m=>m.addEventListener("click",e=>{if(e.target===m)hideModal(m.id)}));
 document.getElementById("addFab").onclick=()=>showModal("addModal");
 document.getElementById("search").oninput=renderCards;
-document.getElementById("addBrand").onchange=e=>{const b=BRANDS[e.target.value];if(!b)return;document.getElementById("addName").value=b.name;document.getElementById("addColor").value=b.color};
+document.getElementById("addBrand").onchange=e=>{const b=BRANDS[e.target.value];if(!b)return;document.getElementById("addName").value=b.name;document.getElementById("addColor").value=b.color;document.getElementById("addCategory").value=b.category||"altro"};
 document.querySelectorAll(".chip[data-filter]").forEach(b=>b.onclick=()=>{document.querySelectorAll(".chip[data-filter]").forEach(x=>x.classList.remove("active"));b.classList.add("active");renderCards()});
 document.querySelectorAll(".nav[data-view]").forEach(b=>b.onclick=()=>go(b.dataset.view));
 document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.go));
@@ -243,9 +275,9 @@ document.getElementById("widgetDemo").onclick=()=>{renderWidget();showModal("wid
 document.getElementById("closeFull").onclick=()=>document.getElementById("fullBarcode").classList.remove("show");
 
 document.getElementById("saveCard").onclick=()=>{
- const brandKey=document.getElementById("addBrand").value,name=document.getElementById("addName").value.trim(),code=document.getElementById("addCode").value.trim(),format=document.getElementById("addFormat").value,color=document.getElementById("addColor").value;
+ const brandKey=document.getElementById("addBrand").value,category=document.getElementById("addCategory").value,name=document.getElementById("addName").value.trim(),code=document.getElementById("addCode").value.trim(),format=document.getElementById("addFormat").value,color=document.getElementById("addColor").value;
  if(!name||!code)return toast("Inserisci nome e codice");
- const c={id:crypto.randomUUID(),name,brandKey,code,format,color,fav:false,locations:[]};cards.unshift(c);save();renderAll();hideModal("addModal");["addName","addCode"].forEach(id=>document.getElementById(id).value="");document.getElementById("addBrand").value="";document.getElementById("addColor").value="#5B3DF5";openCard(c.id)
+ const c={id:crypto.randomUUID(),name,brandKey,category,code,format,color,fav:false,locations:[]};cards.unshift(c);save();renderAll();hideModal("addModal");["addName","addCode"].forEach(id=>document.getElementById(id).value="");document.getElementById("addBrand").value="";document.getElementById("addCategory").value="altro";document.getElementById("addColor").value="#5B3DF5";openCard(c.id)
 };
 
 document.getElementById("scanBtn").onclick=async()=>{
