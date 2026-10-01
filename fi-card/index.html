@@ -22,7 +22,7 @@
     .chips{display:flex;gap:8px;overflow:auto;padding:2px 0 12px;scrollbar-width:none}.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:9px 13px;white-space:nowrap;color:var(--muted);font-size:13px}.chip.active{background:var(--violet);border-color:var(--violet);color:#fff}
     .nearby{background:linear-gradient(115deg,#E9FFF8,#F2FFFC);border:1px solid #BCEFE4;border-radius:18px;padding:13px 14px;display:none;align-items:center;gap:11px;margin-bottom:14px}.nearby.show{display:flex}.nearby .pin{width:38px;height:38px;border-radius:12px;background:#D7FFF4;display:grid;place-items:center}.nearby b{font-size:14px}.nearby small{display:block;color:#41756C;margin-top:2px}
     .sectionTitle{display:flex;align-items:center;justify-content:space-between;margin:8px 2px 10px}.sectionTitle h2{font-size:17px;margin:0}.sectionTitle button{border:0;background:none;color:var(--violet);font-weight:700;font-size:13px}
-    .cards{display:grid;grid-template-columns:1fr 1fr;gap:12px}.card{position:relative;min-height:132px;border:0;border-radius:22px;padding:16px;color:#fff;text-align:left;box-shadow:var(--shadow);overflow:hidden}.card:after{content:"";position:absolute;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,.11);right:-34px;bottom:-45px}.card .star{position:absolute;right:12px;top:10px;font-size:19px}.card .name{font-size:17px;font-weight:800;margin-top:33px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.card .type{opacity:.9;font-size:12px;margin-top:4px}.card .mini{position:absolute;left:15px;top:14px;width:33px;height:25px;border:2px solid rgba(255,255,255,.85);border-radius:6px}.card .mini:after{content:"";position:absolute;left:4px;right:4px;top:6px;height:3px;background:rgba(255,255,255,.85);border-radius:3px}
+    .cards{display:grid;grid-template-columns:1fr 1fr;gap:12px}.card{position:relative;min-height:132px;border:0;border-radius:22px;padding:16px;color:#fff;text-align:left;box-shadow:var(--shadow);overflow:hidden}.brandMark{position:absolute;left:14px;top:13px;min-width:40px;height:30px;padding:0 8px;border-radius:9px;background:rgba(255,255,255,.94);color:#172033;display:grid;place-items:center;font-size:10px;font-weight:900;letter-spacing:-.2px;box-shadow:0 3px 10px rgba(0,0,0,.08)}.card:after{content:"";position:absolute;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,.11);right:-34px;bottom:-45px}.card .star{position:absolute;right:12px;top:10px;font-size:19px}.card .name{font-size:17px;font-weight:800;margin-top:33px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.card .type{opacity:.9;font-size:12px;margin-top:4px}.card .mini{position:absolute;left:15px;top:14px;width:33px;height:25px;border:2px solid rgba(255,255,255,.85);border-radius:6px}.card .mini:after{content:"";position:absolute;left:4px;right:4px;top:6px;height:3px;background:rgba(255,255,255,.85);border-radius:3px}
     .empty{grid-column:1/-1;background:#fff;border:1px dashed #CFC9FF;border-radius:22px;padding:28px;text-align:center;color:var(--muted)}.empty strong{display:block;color:var(--text);font-size:16px;margin-bottom:6px}
     .promo{background:#fff;border:1px solid var(--line);border-radius:20px;padding:14px;margin:10px 0;display:flex;gap:12px;align-items:center}.promoIcon{width:46px;height:46px;border-radius:15px;background:#F0ECFF;color:var(--violet);font-size:22px;font-weight:900;display:grid;place-items:center}.promo .grow{flex:1}.promo b{font-size:14px}.promo small{display:block;color:var(--muted);margin-top:4px;line-height:1.25}.badge{background:#E7FFF7;color:#107764;border-radius:999px;padding:5px 8px;font-size:11px;font-weight:800}
     .bottom{position:fixed;z-index:15;left:50%;transform:translateX(-50%);bottom:0;width:min(580px,100%);padding:8px 18px calc(9px + env(safe-area-inset-bottom));background:rgba(255,255,255,.94);backdrop-filter:blur(18px);border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr 70px 1fr 1fr;align-items:end}.nav{border:0;background:none;color:var(--muted);font-size:11px;display:grid;gap:4px;place-items:center}.nav span{font-size:20px}.nav.active{color:var(--violet);font-weight:800}.fab{width:58px;height:58px;border:0;border-radius:19px;background:linear-gradient(145deg,var(--violet),#794CFF);color:white;font-size:30px;box-shadow:0 10px 25px rgba(91,61,245,.35);margin-top:-25px}
@@ -30,7 +30,7 @@
     .modal{position:fixed;inset:0;z-index:40;background:rgba(17,24,39,.48);display:none;align-items:flex-end;justify-content:center}.modal.show{display:flex}.sheet{width:min(580px,100%);max-height:92dvh;overflow:auto;background:var(--bg);border-radius:28px 28px 0 0;padding:18px 16px calc(26px + env(safe-area-inset-bottom));box-shadow:0 -20px 60px rgba(17,24,39,.25)}.grab{width:42px;height:5px;border-radius:9px;background:#D7DAE0;margin:0 auto 15px}.sheetHead{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}.sheetHead h2{margin:0;font-size:20px}.close{border:0;background:#ECEEF3;width:36px;height:36px;border-radius:12px;font-size:20px}
     label{display:block;font-size:12px;color:var(--muted);margin:14px 2px 6px}.field{width:100%;border:1px solid var(--line);background:#fff;border-radius:15px;padding:13px 14px;outline:none}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.primary,.secondary,.danger{width:100%;border:0;border-radius:16px;padding:14px 16px;font-weight:800;margin-top:12px}.primary{background:var(--violet);color:#fff}.secondary{background:#EEEAFE;color:var(--violet)}.danger{background:#FEECEC;color:#B91C1C}.hint{font-size:12px;color:var(--muted);line-height:1.4;margin:8px 2px}
     .scanner{display:none;margin-top:10px;border-radius:18px;overflow:hidden;background:#111}.scanner.show{display:block}#reader{width:100%}
-    .detailHero{border-radius:24px;padding:19px;color:#fff;position:relative;overflow:hidden}.detailHero h2{margin:35px 0 2px;font-size:24px}.detailHero p{margin:0;opacity:.88}.barcodeBox{background:#fff;border-radius:20px;margin-top:15px;padding:18px 10px 14px;text-align:center;color:#111;overflow:hidden}.barcodeBox svg{max-width:100%;height:92px}.num{font-size:15px;letter-spacing:1px;margin-top:5px;word-break:break-all}.detailActions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.detailActions button{border:1px solid var(--line);background:#fff;border-radius:15px;padding:12px;font-weight:700;color:var(--text)}
+    .detailHero{border-radius:24px;padding:19px;color:#fff;position:relative;overflow:hidden}.detailLogo{display:inline-grid;place-items:center;min-width:58px;height:42px;padding:0 10px;border-radius:12px;background:rgba(255,255,255,.94);color:#172033;font-size:12px;font-weight:900;box-shadow:0 5px 14px rgba(0,0,0,.08)}.detailHero h2{margin:14px 0 2px;font-size:24px}.detailHero p{margin:0;opacity:.88}.barcodeBox{background:#fff;border-radius:20px;margin-top:15px;padding:18px 10px 14px;text-align:center;color:#111;overflow:hidden}.barcodeBox svg{max-width:100%;height:92px}.num{font-size:15px;letter-spacing:1px;margin-top:5px;word-break:break-all}.detailActions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.detailActions button{border:1px solid var(--line);background:#fff;border-radius:15px;padding:12px;font-weight:700;color:var(--text)}
     .widgetPreview{background:linear-gradient(145deg,#18264B,#0F1A38);border-radius:24px;color:#fff;padding:14px;margin-top:12px}.widgetTop{display:flex;justify-content:space-between;font-size:12px;opacity:.86}.widgetCard{background:#fff;color:#111;border-radius:17px;margin-top:12px;padding:10px}.widgetCard .wName{font-weight:800;color:var(--text)}.widgetCard svg{width:100%;height:65px;margin-top:4px}
     .toast{position:fixed;z-index:60;left:50%;transform:translateX(-50%);bottom:110px;background:#111827;color:#fff;padding:11px 15px;border-radius:14px;font-size:13px;box-shadow:var(--shadow);display:none;max-width:90%;text-align:center}.toast.show{display:block}
     .fullBarcode{position:fixed;z-index:70;inset:0;background:white;display:none;align-items:center;justify-content:center;flex-direction:column;padding:20px}.fullBarcode.show{display:flex}.fullBarcode svg{width:95vw;max-width:780px;height:35vh}.fullBarcode .num{font-size:22px}.fullBarcode button{margin-top:30px;border:0;background:#F1F3F7;padding:12px 18px;border-radius:14px;font-weight:800}
@@ -98,6 +98,7 @@
   <div class="grab"></div><div class="sheetHead"><h2>Aggiungi una carta</h2><button class="close" data-close="addModal">×</button></div>
   <button class="primary" id="scanBtn">▣ Scansiona codice</button>
   <div id="scanner" class="scanner"><div id="reader"></div></div>
+  <label>Marchio / layout</label><select id="addBrand" class="field"><option value="">Generica Fi-Card</option><option value="esselunga">Esselunga</option><option value="conad">Conad</option><option value="coop">Coop</option><option value="carrefour">Carrefour</option><option value="lidl">Lidl</option><option value="decathlon">Decathlon</option><option value="ikea">IKEA</option><option value="leroymerlin">Leroy Merlin</option><option value="tigota">Tigotà</option></select>
   <label>Nome negozio / carta</label><input id="addName" class="field" placeholder="Es. Esselunga">
   <label>Numero / contenuto barcode</label><input id="addCode" class="field" inputmode="text" placeholder="Es. 1234567890123">
   <div class="row"><div><label>Formato</label><select id="addFormat" class="field"><option value="CODE128">Code 128</option><option value="EAN13">EAN-13</option><option value="EAN8">EAN-8</option><option value="CODE39">Code 39</option><option value="UPC">UPC</option></select></div><div><label>Colore</label><input id="addColor" class="field" type="color" value="#5B3DF5" style="height:48px;padding:6px"></div></div>
@@ -123,6 +124,17 @@
 const KEY="ficard.cards.v2";
 let cards=[];
 let currentCardId=null, currentPos=null, deferredPrompt=null, qrScanner=null;
+const BRANDS={
+ esselunga:{name:"Esselunga",color:"#F5C400",mark:"ESSELUNGA"},
+ conad:{name:"Conad",color:"#E3202A",mark:"CONAD"},
+ coop:{name:"Coop",color:"#E30613",mark:"COOP"},
+ carrefour:{name:"Carrefour",color:"#1D4E9E",mark:"CARREFOUR"},
+ lidl:{name:"Lidl",color:"#0050AA",mark:"LIDL"},
+ decathlon:{name:"Decathlon",color:"#1675E0",mark:"DECATHLON"},
+ ikea:{name:"IKEA",color:"#0058A3",mark:"IKEA"},
+ leroymerlin:{name:"Leroy Merlin",color:"#62A744",mark:"LEROY"},
+ tigota:{name:"Tigotà",color:"#19B8B8",mark:"TIGOTÀ"}
+};
 const offers=[
  {brand:"IdroMarket",title:"Oggi hai il 10% di sconto",text:"Ricordati di mostrare la carta alla cassa.",tag:"Oggi"},
  {brand:"Supermercato",title:"Doppi punti sulla spesa",text:"Promozione dimostrativa per titolari carta.",tag:"Promo"},
@@ -130,10 +142,10 @@ const offers=[
 ];
 
 function demoCards(){return [
- {id:crypto.randomUUID(),name:"Esselunga",code:"1234567890123",format:"EAN13",color:"#F4B929",fav:true,locations:[]},
- {id:crypto.randomUUID(),name:"Conad",code:"123456789012",format:"CODE128",color:"#EF3340",fav:false,locations:[]},
- {id:crypto.randomUUID(),name:"Decathlon",code:"9876543210987",format:"EAN13",color:"#1675E0",fav:false,locations:[]},
- {id:crypto.randomUUID(),name:"Tigotà",code:"456789012345",format:"CODE128",color:"#19B8B8",fav:false,locations:[]}
+ {id:crypto.randomUUID(),name:"Esselunga",brandKey:"esselunga",code:"1234567890123",format:"EAN13",color:"#F5C400",fav:true,locations:[]},
+ {id:crypto.randomUUID(),name:"Conad",brandKey:"conad",code:"123456789012",format:"CODE128",color:"#E3202A",fav:false,locations:[]},
+ {id:crypto.randomUUID(),name:"Decathlon",brandKey:"decathlon",code:"9876543210987",format:"EAN13",color:"#1675E0",fav:false,locations:[]},
+ {id:crypto.randomUUID(),name:"Tigotà",brandKey:"tigota",code:"456789012345",format:"CODE128",color:"#19B8B8",fav:false,locations:[]}
 ]}
 function load(){try{cards=JSON.parse(localStorage.getItem(KEY)||"null")||demoCards()}catch(e){cards=demoCards()} save(); renderAll()}
 function save(){localStorage.setItem(KEY,JSON.stringify(cards))}
@@ -142,6 +154,7 @@ function toast(t){const el=document.getElementById("toast");el.textContent=t;el.
 function distanceM(a,b){const R=6371000,p=Math.PI/180,dLat=(b.lat-a.lat)*p,dLon=(b.lng-a.lng)*p,x=Math.sin(dLat/2)**2+Math.cos(a.lat*p)*Math.cos(b.lat*p)*Math.sin(dLon/2)**2;return 2*R*Math.atan2(Math.sqrt(x),Math.sqrt(1-x))}
 function nearestFor(card,pos){if(!pos||!card.locations?.length)return null;let best=null;for(const l of card.locations){const d=distanceM(pos,l);if(!best||d<best.d)best={...l,d}}return best}
 function smartCard(){if(!currentPos)return cards.find(c=>c.fav)||cards[0];const candidates=cards.map(c=>({c,n:nearestFor(c,currentPos)})).filter(x=>x.n&&x.n.d<=(x.n.radius||180)).sort((a,b)=>a.n.d-b.n.d);return candidates[0]?.c||cards.find(c=>c.fav)||cards[0]}
+function brandFor(c){return c.brandKey&&BRANDS[c.brandKey]?BRANDS[c.brandKey]:{name:c.name,color:c.color||"#5B3DF5",mark:String(c.name||"CARD").toUpperCase().slice(0,10)}}
 
 function renderAll(){renderCards();renderOffers();renderLocations();renderNearby()}
 function renderCards(){
@@ -152,7 +165,7 @@ function renderCards(){
  const smart=smartCard();if(smart)list.sort((a,b)=>a.id===smart.id?-1:b.id===smart.id?1:0);
  const grid=document.getElementById("cardGrid");
  if(!list.length){grid.innerHTML='<div class="empty"><strong>Nessuna carta qui</strong>Tocca ＋ per aggiungerne una.</div>';return}
- grid.innerHTML=list.map(c=>'<button class="card" style="background:'+esc(c.color)+'" data-card="'+c.id+'"><span class="mini"></span><span class="star">'+(c.fav?"★":"☆")+'</span><div class="name">'+esc(c.name)+'</div><div class="type">Carta fedeltà</div></button>').join("");
+ grid.innerHTML=list.map(c=>{const b=brandFor(c);return '<button class="card" style="background:'+esc(c.color)+'" data-card="'+c.id+'"><span class="brandMark">'+esc(b.mark)+'</span><span class="star">'+(c.fav?"★":"☆")+'</span><div class="name">'+esc(c.name)+'</div><div class="type">Carta fedeltà</div></button>'}).join("");
  grid.querySelectorAll("[data-card]").forEach(x=>x.onclick=()=>openCard(x.dataset.card));
 }
 function renderOffers(){
@@ -177,9 +190,9 @@ function drawBarcode(id,c){try{JsBarcode("#"+id,c.code,{format:c.format||"CODE12
 
 function openCard(id){
  const c=cards.find(x=>x.id===id);if(!c)return;currentCardId=id;
- const n=nearestFor(c,currentPos),locs=(c.locations||[]);
+ const b=brandFor(c),n=nearestFor(c,currentPos),locs=(c.locations||[]);
  const locHtml=locs.length?'<div class="panel" style="margin-top:12px"><b>Punti vendita associati</b>'+locs.map((l,i)=>'<div class="promo" style="margin-bottom:0"><div class="grow"><small>'+l.lat.toFixed(5)+', '+l.lng.toFixed(5)+' · raggio '+(l.radius||180)+' m</small></div><button class="chip" data-remove-loc="'+i+'">Dissocia</button></div>').join("")+'</div>':'<p class="hint">Nessun punto vendita associato a questa carta.</p>';
- document.getElementById("detailContent").innerHTML='<div class="detailHero" style="background:'+esc(c.color)+'"><h2>'+esc(c.name)+'</h2><p>Carta fedeltà</p><div class="barcodeBox"><svg id="detailSvg"></svg><div class="num">'+esc(c.code)+'</div></div></div>'+
+ document.getElementById("detailContent").innerHTML='<div class="detailHero" style="background:'+esc(c.color)+'"><span class="detailLogo">'+esc(b.mark)+'</span><h2>'+esc(c.name)+'</h2><p>Carta fedeltà</p><div class="barcodeBox"><svg id="detailSvg"></svg><div class="num">'+esc(c.code)+'</div></div></div>'+
  '<div class="detailActions"><button id="fullBtn">▣ Tutto schermo</button><button id="favBtn">'+(c.fav?"★ Preferita":"☆ Preferita")+'</button></div>'+
  '<button class="secondary" id="assocBtn">⌖ Associa questo punto vendita</button>'+locHtml+
  (n?'<p class="hint">Punto associato più vicino: '+Math.round(n.d)+' m.</p>':'')+
@@ -206,6 +219,7 @@ document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>hideModal(b.d
 document.querySelectorAll(".modal").forEach(m=>m.addEventListener("click",e=>{if(e.target===m)hideModal(m.id)}));
 document.getElementById("addFab").onclick=()=>showModal("addModal");
 document.getElementById("search").oninput=renderCards;
+document.getElementById("addBrand").onchange=e=>{const b=BRANDS[e.target.value];if(!b)return;document.getElementById("addName").value=b.name;document.getElementById("addColor").value=b.color};
 document.querySelectorAll(".chip[data-filter]").forEach(b=>b.onclick=()=>{document.querySelectorAll(".chip[data-filter]").forEach(x=>x.classList.remove("active"));b.classList.add("active");renderCards()});
 document.querySelectorAll(".nav[data-view]").forEach(b=>b.onclick=()=>go(b.dataset.view));
 document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.go));
@@ -215,9 +229,9 @@ document.getElementById("widgetDemo").onclick=()=>{renderWidget();showModal("wid
 document.getElementById("closeFull").onclick=()=>document.getElementById("fullBarcode").classList.remove("show");
 
 document.getElementById("saveCard").onclick=()=>{
- const name=document.getElementById("addName").value.trim(),code=document.getElementById("addCode").value.trim(),format=document.getElementById("addFormat").value,color=document.getElementById("addColor").value;
+ const brandKey=document.getElementById("addBrand").value,name=document.getElementById("addName").value.trim(),code=document.getElementById("addCode").value.trim(),format=document.getElementById("addFormat").value,color=document.getElementById("addColor").value;
  if(!name||!code)return toast("Inserisci nome e codice");
- const c={id:crypto.randomUUID(),name,code,format,color,fav:false,locations:[]};cards.unshift(c);save();renderAll();hideModal("addModal");["addName","addCode"].forEach(id=>document.getElementById(id).value="");openCard(c.id)
+ const c={id:crypto.randomUUID(),name,brandKey,code,format,color,fav:false,locations:[]};cards.unshift(c);save();renderAll();hideModal("addModal");["addName","addCode"].forEach(id=>document.getElementById(id).value="");document.getElementById("addBrand").value="";document.getElementById("addColor").value="#5B3DF5";openCard(c.id)
 };
 
 document.getElementById("scanBtn").onclick=async()=>{
