@@ -1,3 +1,16 @@
+// Consistent Home control on every module, without changing its destination.
+(function(){
+ var homeIcon='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="flex:0 0 18px"><path d="m3 10 9-7 9 7v11h-6v-7H9v7H3Z"/></svg>';
+ document.querySelectorAll('a[href]').forEach(function(link){
+  var href=link.getAttribute("href")||"";
+  if(!/^(?:\.\/)?index\.html(?:[?#]|$)/.test(href)||!/^\s*(?:←\s*)?Home\s*$/i.test(link.textContent))return;
+  link.innerHTML=homeIcon+'<span>Home</span>';
+  link.style.display="inline-flex";
+  link.style.alignItems="center";
+  link.style.justifyContent="center";
+  link.style.gap="7px";
+ });
+})();
 (function(){var file=location.pathname.split('/').pop()||'index.html';var items=[['index.html','Home','M3 10 12 3l9 7v11h-6v-7H9v7H3z'],['monitor.html','Viaggi salvati','M4 5h16v16H4z M8 2v6m8-6v6M4 11h16'],['cartello.html','Cartello','M2 5h20v14H2z M7 14l3-6 3 6m-5-2h4m4-4v6'],['timestamp.html','Timestamp','M3 7h4l2-3h6l2 3h4v13H3z M16 13a4 4 0 1 1-8 0 4 4 0 0 1 8 0']];var nav=document.createElement('nav');nav.className='sw-mobile-nav';nav.setAttribute('aria-label','Navigazione principale');items.forEach(function(item){var a=document.createElement('a');a.href=item[0]+'?v=mobile20260930';if(file===item[0])a.setAttribute('aria-current','page');a.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+item[2]+'"/></svg><span>'+item[1]+'</span>';nav.appendChild(a);});document.body.appendChild(nav);})();
 
 // Daily first-party module counts; random ID is replaced each Rome calendar day.
