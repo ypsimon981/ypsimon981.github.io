@@ -127,8 +127,7 @@ function validDate(v:string){
 function cacheLifetime(f:any,now:number){
   const actual=ts(f.actual_on);
   if(Number.isFinite(actual) && actual<=now)return {finalized:true,ttl:0};
-  const expected=ts(f.estimated_on||f.estimated_in||f.scheduled_on||f.scheduled_in);
-  return {finalized:false,ttl:Number.isFinite(expected)&&expected-now<=2*3600000?60000:5*60000};
+  return {finalized:false,ttl:10*60000};
 }
 
 async function cachedFlight(db:any,ident:string,date:string,key:string){
@@ -172,7 +171,7 @@ async function cachedFlight(db:any,ident:string,date:string,key:string){
     if(!Array.isArray(raw?.flights))throw new Error('flight_invalid_payload');
     const flights=raw.flights.filter((f:any)=>romeDate(f.scheduled_in||f.estimated_in||f.scheduled_out||f.estimated_out)===date);
     const best=flights.slice().sort((a:any,b:any)=>scoreFlight(b,Date.now())-scoreFlight(a,Date.now()))[0];
-    const life=best?cacheLifetime(best,Date.now()):{finalized:false,ttl:5*60000};
+    const life=best?cacheLifetime(best,Date.now()):{finalized:false,ttl:10*60000};
     const row={payload:best?{provider:'FlightAware',target_date:date,flight:normalizeFlight(best,date)}:
         {error:'flight_not_found_for_date',ident,target_date:date},
       response_status:best?200:404,fetched_at:new Date().toISOString(),

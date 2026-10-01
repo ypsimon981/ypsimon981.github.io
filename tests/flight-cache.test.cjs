@@ -33,6 +33,8 @@ function database(){
   assert.equal(validDate('2026-13-01'),false);
   assert.equal(validDate('2026-02-30'),false);
   assert.equal(validDate('2026-10-01'),true);
+  assert.equal(cacheLifetime({estimated_on:new Date(Date.now()+60000).toISOString()},Date.now()).ttl,600000);
+  assert.equal(cacheLifetime({estimated_on:new Date(Date.now()+6*3600000).toISOString()},Date.now()).ttl,600000);
   const db=database();
   const results=await Promise.all(Array.from({length:20},()=>cachedFlight(db,'AZ61',today,'dummy')));
   assert.equal(calls,1);assert(results.every(r=>r.status===200));
