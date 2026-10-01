@@ -1,0 +1,113 @@
+{
+  "conad": {
+    "logo": "./logos-hq/conad.svg",
+    "source": "https://www.conad.it/assets/icons/conad-logo.svg?_u=e442f961aafe40e5fe7c95186a2850aa925c8284",
+    "dimensions": "vector"
+  },
+  "esselunga": {
+    "logo": "./logos-hq/esselunga.svg",
+    "source": "https://www.esselunga.it/media/icons/LOGO%20ESSE.svg",
+    "dimensions": "vector"
+  },
+  "carrefour": {
+    "logo": "./logos-hq/carrefour.svg",
+    "source": "https://www.carrefour.it/on/demandware.static/-/Library-Sites-carrefour-library-IT/default/dwcce42430/images/logo_large.svg",
+    "dimensions": "vector"
+  },
+  "lidl": {
+    "logo": "./logos-hq/lidl.svg",
+    "source": "https://www.lidl.it/cdn/assets/logos/1.0.0/logo.svg",
+    "dimensions": "vector"
+  },
+  "ikea": {
+    "logo": "./logos-hq/ikea.svg",
+    "source": "https://www.ikea.com/global/assets/logos/brand/ikea.svg",
+    "dimensions": "vector"
+  },
+  "tigota": {
+    "logo": "./logos-hq/tigota.svg",
+    "source": "https://www.tigota.it/_next/static/media/tigota.66987120.svg",
+    "dimensions": "vector"
+  },
+  "mediaworld": {
+    "logo": "./logos-hq/mediaworld.svg",
+    "source": "https://cms-images.mmst.eu/hzxov1nxpus5/FeeaTPsFbPj8u1cfFmnrk/45e5d9ec059d12513e93c348d9b9e0cb/MW_logo_red.svg?q=80",
+    "dimensions": "vector"
+  },
+  "unieuro": {
+    "logo": "./logos-hq/unieuro.svg",
+    "source": "https://www.unieuro.it/assets/images/brand.svg",
+    "dimensions": "vector"
+  },
+  "ovs": {
+    "logo": "./logos-hq/ovs.svg",
+    "source": "https://www.ovs.it/on/demandware.static/Sites-ovs-Site/-/default/dwdc737d41/images/logo.svg",
+    "dimensions": "vector"
+  },
+  "eni": {
+    "logo": "./logos-hq/eni.svg",
+    "source": "https://www.eni.com/content/dam/enicom/images/loghi/logoEni.svg",
+    "dimensions": "vector"
+  },
+  "adidas": {
+    "logo": "./logos-hq/adidas.svg",
+    "source": "https://www.adidas-group.com/en/public/adidas-logo.svg",
+    "dimensions": "vector"
+  },
+  "nike": {
+    "logo": "./logos-hq/nike.png",
+    "source": "https://static.nike.com/a/images/f_jpg,q_auto:eco/61b4738b-e1e1-4786-8f6c-26aa0008e80b/swoosh-logo-black.png",
+    "dimensions": [
+      1600,
+      1600
+    ]
+  },
+  "eurospin": {
+    "logo": "./logos-hq/eurospin.png",
+    "source": "https://www.eurospin.it/wp-content/themes/eurospin/assets/images/obj/logo.png",
+    "dimensions": [
+      800,
+      800
+    ]
+  },
+  "q8": {
+    "logo": "./logos-hq/q8.svg",
+    "source": "https://www.q8.it/etc.clientlibs/q8italy/clientlibs/clientlib-q8it/resources/images/q8-pos-1-1.svg",
+    "dimensions": "vector"
+  },
+  "hm": {
+    "logo": "./logos-hq/hm.svg",
+    "source": "https://www2.hm.com/it_it/index.html",
+    "dimensions": "vector"
+  },
+  "sephora": {
+    "logo": "./logos-hq/sephora.svg",
+    "source": "https://www.sephora.it",
+    "dimensions": "vector"
+  },
+  "douglas": {
+    "logo": "./logos-hq/douglas.svg",
+    "source": "https://www.douglas.it",
+    "dimensions": "vector"
+  },
+  "coop": {
+    "logo": "./logos-hq/coop.png",
+    "source": "https://www.coopalleanza3-0.it/dam/relation/images/contenuti-di-prova/coop_logo_white.png",
+    "dimensions": [
+      468,
+      276
+    ],
+    "background": "#E30613"
+  },
+  "decathlon": {
+    "logo": "./logos-hq/decathlon.svg",
+    "source": "https://www.decathlon-united.media/decathlon-new-identity",
+    "dimensions": "vector"
+  },
+  "bata": {
+    "logo": "./logos-hq/bata.svg",
+    "source": "https://www.bata.com/on/demandware.static/Sites-bata-cl-Site/-/es_CL/v1790884813772/images/sprite/sprite.svg#bata-logo-white",
+    "dimensions": "vector",
+    "background": "#D71920"
+  }
+}
