@@ -77,8 +77,12 @@
       <div class="sectionTitle"><h2>Fi-Card</h2></div>
       <div class="panel">
         <b>Prototipo web · offline first</b>
-        <p class="hint">Le carte e i punti vendita sono salvati solo sul dispositivo tramite localStorage. Nessun account e nessun server.</p>
+        <p class="hint">Le carte e i punti vendita vengono salvati sul dispositivo in due archivi locali: IndexedDB + localStorage. Nessun account e nessun server.</p>
+        <div id="storageStatus" class="promo"><div class="promoIcon">✓</div><div class="grow"><b>Archivio locale</b><small>Controllo stato…</small></div></div>
         <button class="secondary" id="widgetDemo">Anteprima Widget Smart</button>
+        <button class="secondary" id="exportData">Esporta backup carte</button>
+        <button class="secondary" id="importData">Importa backup carte</button>
+        <input id="importFile" type="file" accept="application/json,.json" hidden>
         <button class="secondary" id="seedDemo">Ripristina carte demo</button>
         <button class="danger" id="clearData">Cancella tutti i dati locali</button>
       </div>
@@ -121,7 +125,11 @@
 <div id="toast" class="toast"></div>
 
 <script>
-const KEY="ficard.cards.v2";
+const KEY="ficard.cards.v3";
+const LEGACY_KEYS=["ficard.cards.v2","ficard.cards.v1"];
+const DB_NAME="ficard-local";
+const DB_VERSION=1;
+const STORE_NAME="state";
 let cards=[];
 let currentCardId=null, currentPos=null, deferredPrompt=null, qrScanner=null;
 const BRANDS={
@@ -147,8 +155,14 @@ function demoCards(){return [
  {id:crypto.randomUUID(),name:"Decathlon",brandKey:"decathlon",code:"9876543210987",format:"EAN13",color:"#1675E0",fav:false,locations:[]},
  {id:crypto.randomUUID(),name:"Tigotà",brandKey:"tigota",code:"456789012345",format:"CODE128",color:"#19B8B8",fav:false,locations:[]}
 ]}
-function load(){try{cards=JSON.parse(localStorage.getItem(KEY)||"null")||demoCards()}catch(e){cards=demoCards()} save(); renderAll()}
-function save(){localStorage.setItem(KEY,JSON.stringify(cards))}
+function openLocalDB(){return new Promise((resolve,reject)=>{if(!("indexedDB" in window))return reject(new Error("IndexedDB non disponibile"));const req=indexedDB.open(DB_NAME,DB_VERSION);req.onupgradeneeded=()=>{const db=req.result;if(!db.objectStoreNames.contains(STORE_NAME))db.createObjectStore(STORE_NAME)};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error||new Error("Errore IndexedDB"))})}
+async function idbGet(key){const db=await openLocalDB();return new Promise((resolve,reject)=>{const tx=db.transaction(STORE_NAME,"readonly");const req=tx.objectStore(STORE_NAME).get(key);req.onsuccess=()=>resolve(req.result??null);req.onerror=()=>reject(req.error);tx.oncomplete=()=>db.close()})}
+async function idbSet(key,value){const db=await openLocalDB();return new Promise((resolve,reject)=>{const tx=db.transaction(STORE_NAME,"readwrite");tx.objectStore(STORE_NAME).put(value,key);tx.oncomplete=()=>{db.close();resolve(true)};tx.onerror=()=>{db.close();reject(tx.error)}})}
+function localRead(){const keys=[KEY,...LEGACY_KEYS];for(const k of keys){try{const raw=localStorage.getItem(k);if(raw!==null){const parsed=JSON.parse(raw);if(Array.isArray(parsed))return parsed}}catch(e){}}return null}
+async function requestPersistentStorage(){try{if(navigator.storage&&navigator.storage.persist){const already=await navigator.storage.persisted();const ok=already||await navigator.storage.persist();updateStorageStatus(ok?"Archivio persistente richiesto":"Archivio locale attivo",ok)}}catch(e){updateStorageStatus("Archivio locale attivo",false)}}
+function updateStorageStatus(text,persistent){const box=document.getElementById("storageStatus");if(!box)return;const small=box.querySelector("small");if(small)small.textContent=text+(persistent?" · protetto dal browser quando possibile":" · installa Fi-Card sulla Home per maggiore stabilità")}
+async function load(){let idbCards=null;try{idbCards=await idbGet("cards")}catch(e){}const localCards=localRead();if(Array.isArray(idbCards))cards=idbCards;else if(Array.isArray(localCards))cards=localCards;else cards=demoCards();save();renderAll();requestPersistentStorage()}
+function save(){const snapshot=JSON.parse(JSON.stringify(cards));try{localStorage.setItem(KEY,JSON.stringify(snapshot))}catch(e){}idbSet("cards",snapshot).catch(()=>{})}
 function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]))}
 function toast(t){const el=document.getElementById("toast");el.textContent=t;el.classList.add("show");clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove("show"),2600)}
 function distanceM(a,b){const R=6371000,p=Math.PI/180,dLat=(b.lat-a.lat)*p,dLon=(b.lng-a.lng)*p,x=Math.sin(dLat/2)**2+Math.cos(a.lat*p)*Math.cos(b.lat*p)*Math.sin(dLon/2)**2;return 2*R*Math.atan2(Math.sqrt(x),Math.sqrt(1-x))}
@@ -244,8 +258,11 @@ document.getElementById("scanBtn").onclick=async()=>{
 };
 async function stopScan(){if(qrScanner){try{await qrScanner.stop()}catch(e){}try{await qrScanner.clear()}catch(e){}qrScanner=null}document.getElementById("scanner").classList.remove("show")}
 
+document.getElementById("exportData").onclick=()=>{const payload={app:"Fi-Card",version:1,exportedAt:new Date().toISOString(),cards};const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="fi-card-backup.json";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);toast("Backup creato")};
+document.getElementById("importData").onclick=()=>document.getElementById("importFile").click();
+document.getElementById("importFile").onchange=async e=>{const file=e.target.files&&e.target.files[0];if(!file)return;try{const data=JSON.parse(await file.text());const imported=Array.isArray(data)?data:data.cards;if(!Array.isArray(imported))throw new Error("Formato non valido");cards=imported;save();renderAll();toast("Backup ripristinato: "+cards.length+" carte")}catch(err){toast("Backup non valido")}e.target.value=""};
 document.getElementById("seedDemo").onclick=()=>{cards=demoCards();save();renderAll();toast("Carte demo ripristinate")};
-document.getElementById("clearData").onclick=()=>{if(confirm("Cancellare tutte le carte e i punti vendita salvati?")){cards=[];save();renderAll();toast("Dati locali cancellati")}};
+document.getElementById("clearData").onclick=async()=>{if(confirm("Cancellare tutte le carte e i punti vendita salvati?")){cards=[];try{[KEY,...LEGACY_KEYS].forEach(k=>localStorage.removeItem(k))}catch(e){}try{await idbSet("cards",[])}catch(e){}renderAll();toast("Dati locali cancellati")}};
 document.getElementById("notifyBtn").onclick=async()=>{
  if(!("Notification" in window))return toast("Notifiche web non supportate");
  const p=await Notification.requestPermission();if(p==="granted"){new Notification("Fi-Card",{body:"Oggi da IdroMarket hai il 10% di sconto. Ricordati la carta!"});toast("Reminder di prova inviato")}else toast("Permesso notifiche non concesso")
