@@ -95,7 +95,7 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
 </style>
 <style>
 .presetHeading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.presetHeading label{margin:0}.savedSignList{display:grid;gap:8px;margin-top:12px}.savedSignRow{display:flex;gap:8px;min-width:0}.savedSignLoad{flex:1;min-width:0;display:flex;align-items:center;gap:10px;text-align:start;border-radius:12px}.savedSignLoad span:last-child{overflow-wrap:anywhere}.savedSignSwatch{display:grid;place-items:center;width:36px;height:36px;border-radius:8px;flex-shrink:0;font-size:22px}.savedSignDelete{min-width:44px;min-height:44px;flex-shrink:0}
-</style></head>
+</style><style>.noShowShortcut{margin-top:16px;padding:14px;border:1px solid #bda16a;border-radius:14px;background:#252019}.noShowShortcut[hidden]{display:none}#noShowLink{display:flex;align-items:center;justify-content:center;gap:9px;min-height:48px;text-decoration:none;background:#d0b687;color:#111;border-color:#bda16a;font-weight:800}.noShowShortcut .note{color:#ccc;line-height:1.4}</style></head>
 <body>
 <main class="setup">
   <section class="card">
@@ -114,6 +114,10 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
       <button id="caps" class="pill on" type="button">Tutto maiuscolo</button>
     </div>
 
+    <div id="noShowShortcut" class="noShowShortcut" hidden>
+      <a id="noShowLink" class="pill" href="timestamp.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h4l2-3h4l2 3h4v14H4Z"/><circle cx="12" cy="13" r="4"/></svg><span id="noShowLabel">Cliente assente? Prova no-show</span></a>
+      <p id="noShowHelp" class="note">Apri il timestamp con il nome già compilato e aggiungi il codice del volo.</p>
+    </div>
     <div class="fontBox">
       <div class="fontLabel">Carattere</div>
       <div class="fontrow">
@@ -211,6 +215,29 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
   var logo=document.getElementById("signLogo");
 
   var locale="it", alphabet="auto";
+
+  var noShowClosed=false;
+  var noShowTranslations={
+    it:["Cliente assente? Prova no-show","Apri il timestamp con il nome già compilato e aggiungi il codice del volo."],
+    en:["Passenger absent? No-show photo","Open Timestamp with the name filled in, then add the flight code."],
+    fr:["Client absent ? Photo no-show","Ouvrez Timestamp avec le nom prérempli, puis ajoutez le numéro du vol."],
+    de:["Kunde fehlt? No-show-Foto","Timestamp mit vorausgefülltem Namen öffnen und Flugnummer ergänzen."],
+    es:["¿Cliente ausente? Foto no-show","Abre Timestamp con el nombre rellenado y añade el código del vuelo."],
+    pt:["Cliente ausente? Foto no-show","Abra Timestamp com o nome preenchido e adicione o código do voo."],
+    ar:["الراكب غائب؟ صورة عدم الحضور","افتح Timestamp بالاسم المعبأ مسبقًا ثم أضف رمز الرحلة."],
+    ru:["Клиент не пришёл? Фото no-show","Откройте Timestamp с заполненным именем и добавьте номер рейса."],
+    zh:["乘客未出现？拍摄未到场照片","打开 Timestamp，姓名已填写，然后添加航班号。"],
+    ja:["お客様が来ない？不在の記録写真","名前が入力された Timestamp を開き、便名を追加します。"],
+    ko:["고객이 없나요? 노쇼 사진","이름이 입력된 Timestamp를 열고 항공편 번호를 추가하세요."]
+  };
+  function updateNoShowShortcut(){
+    var name=passenger.value.trim(),words=noShowTranslations[locale]||noShowTranslations.it;
+    $("noShowShortcut").hidden=!noShowClosed||!name;
+    $("noShowLabel").textContent=words[0];$("noShowHelp").textContent=words[1];
+    var params=new URLSearchParams();if(name)params.set("client",name);
+    $("noShowLink").href="timestamp.html"+(name?"?"+params.toString():"");
+  }
+
   var localeKeys=["title","description","passenger","original","caps","font","colors","invert","invertOn","logo","size","remove","hint","ready","view","fit","alternate","vertical","speed","slow","medium","fast","print","exit","options","close","language","alphabet","help","saved","solo","fileError","placeholderName","fontSystem","fontImpact","fontSerif","fontBold","fontCondensed","combination","previewLogo","previewSign","position","topCenter","topLeft","topRight","bottomCenter"];
   var localeRows={
     it:["Cartello aeroporto","Inserisci il nominativo e scegli come deve occupare lo schermo.","Nome passeggero","Originale","Tutto maiuscolo","Carattere","Preset colore","Inverti colori","Inverti · attivo","Logo facoltativo","Dimensione","Rimuovi","In visualizzazione: ruota il dispositivo in orizzontale. Tocca il cartello per tornare indietro.","Motore attivo · pronto","Seleziona visualizzazione","Fit","Alternanza","Verticale","Velocità scorrimento","Lenta","Media","Veloce","Stampa cartello","tocca per uscire","Opzioni","Chiudi","Lingua dell’interfaccia","Alfabeto del cartello","L’alfabeto adatta il carattere e la direzione del testo. Per scrivere usa la tastiera del dispositivo: il nome non viene tradotto.","Le preferenze vengono salvate su questo dispositivo.","solo logo","Scegli PNG, JPG, WebP o GIF fino a 5 MB.","NOME PASSEGGERO","Sans-serif","Stampatello","Corsivo","Grassetto","Condensato","Combinazione","Anteprima logo","Anteprima cartello","Posizione logo","Alto · centro","Alto · sinistra","Alto · destra","Basso · centro"],
@@ -295,7 +322,7 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
     passenger.placeholder=tr("placeholderName");
     Array.prototype.forEach.call($("signAlphabet").options,function(option,i){option.textContent=alphabetNames[locale][i];});
     $("interfaceLanguage").value=locale;$("signAlphabet").value=alphabet;
-    applyWriting();updatePreviews();applyLogo();if(typeof savedSigns!=="undefined")renderSavedSigns();
+    applyWriting();updatePreviews();applyLogo();if(typeof savedSigns!=="undefined")renderSavedSigns();updateNoShowShortcut();
   }
   try{var preferences=JSON.parse(localStorage.getItem("steergreet.options.v1")||"{}");if(localeRows[preferences.language])locale=preferences.language;if(Array.prototype.some.call($("signAlphabet").options,function(o){return o.value===preferences.alphabet;}))alphabet=preferences.alphabet;}catch(e){}
   $("signOptions").onclick=function(){$("optionsDialog").showModal();};
@@ -380,6 +407,7 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
   }
   function openViewer(mode){
     clearInterval(previewTimer);previewTimer=null;
+    noShowClosed=false;updateNoShowShortcut();
     currentMode = mode;
     clean();
     applyTheme();
@@ -402,6 +430,7 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
     viewer.setAttribute("aria-hidden","true");
     document.body.style.overflow = "";
     currentMode = "";
+    noShowClosed=true;updateNoShowShortcut();
     clean();
     if(wakeLock){ try{ wakeLock.release(); }catch(e){} wakeLock = null; }renderPreview();
   }
@@ -491,6 +520,7 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
     document.getElementById("printSign").disabled=false;renderPreview();
   }
   function renderPreview(){
+    updateNoShowShortcut();
     clearInterval(previewTimer);previewTimer=null;if(currentMode)return;
     var stage=document.getElementById("logoPreviewText");stage.innerHTML="";
     var solo=!!logoUrl&&logoSize===100,bottom=logoPosition==="bottom-center",reserve=logoUrl&&!solo?8+logoSize*.48:0;
