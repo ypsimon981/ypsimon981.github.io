@@ -114,10 +114,6 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
       <button id="caps" class="pill on" type="button">Tutto maiuscolo</button>
     </div>
 
-    <div id="noShowShortcut" class="noShowShortcut" hidden>
-      <a id="noShowLink" class="pill" href="timestamp.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h4l2-3h4l2 3h4v14H4Z"/><circle cx="12" cy="13" r="4"/></svg><span id="noShowLabel">Cliente assente? Prova no-show</span></a>
-      <p id="noShowHelp" class="note">Apri il timestamp con il nome già compilato e aggiungi il codice del volo.</p>
-    </div>
     <div class="fontBox">
       <div class="fontLabel">Carattere</div>
       <div class="fontrow">
@@ -157,6 +153,10 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
       <p id="savedSignStatus" class="note" role="status" aria-live="polite"></p>
     </div>
     <button id="printSign" class="printSign" type="button" disabled>Stampa cartello</button>
+    <div id="noShowShortcut" class="noShowShortcut" hidden>
+      <a id="noShowLink" class="pill" href="timestamp.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h4l2-3h4l2 3h4v14H4Z"/><circle cx="12" cy="13" r="4"/></svg><span id="noShowLabel">Timestamp · Prova no-show</span></a>
+      <p id="noShowHelp" class="note">Apri il timestamp con il nome già compilato e aggiungi il codice del volo.</p>
+    </div>
   </section>
 </main>
 
@@ -218,7 +218,7 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
 
   var noShowClosed=false;
   var noShowTranslations={
-    it:["Cliente assente? Prova no-show","Apri il timestamp con il nome già compilato e aggiungi il codice del volo."],
+    it:["Timestamp · Prova no-show","Apri il timestamp con il nome già compilato e aggiungi il codice del volo."],
     en:["Passenger absent? No-show photo","Open Timestamp with the name filled in, then add the flight code."],
     fr:["Client absent ? Photo no-show","Ouvrez Timestamp avec le nom prérempli, puis ajoutez le numéro du vol."],
     de:["Kunde fehlt? No-show-Foto","Timestamp mit vorausgefülltem Namen öffnen und Flugnummer ergänzen."],
@@ -433,6 +433,12 @@ label{display:block;font-size:16px;font-weight:700;margin-bottom:10px}
     noShowClosed=true;updateNoShowShortcut();
     clean();
     if(wakeLock){ try{ wakeLock.release(); }catch(e){} wakeLock = null; }renderPreview();
+    requestAnimationFrame(function(){
+      var shortcut=$("noShowShortcut");
+      if(shortcut.hidden)return;
+      shortcut.scrollIntoView({block:"center",behavior:"auto"});
+      $("noShowLink").focus({preventScroll:true});
+    });
   }
 
   function renderFit(){
