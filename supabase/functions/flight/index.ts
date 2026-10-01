@@ -95,6 +95,7 @@ function normalizeFlight(f: any, targetDate:string|null) {
     actual_out: f.actual_out || null,
     scheduled_in: f.scheduled_in || null,
     estimated_in: f.estimated_in || f.estimated_on || null,
+    estimated_gate_in: f.estimated_in || null,
     actual_in: f.actual_in || null,
     actual_on: f.actual_on || null,
     estimated_on: f.estimated_on || null,

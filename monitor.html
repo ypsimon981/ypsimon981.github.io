@@ -87,8 +87,8 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
   <div id="list" class="list"></div>
 </main>
 
-<link rel="stylesheet" href="assets/flight-comparison.css?v=dual20261001">
-<script src="assets/flight-status.js?v=dual20261001"></script>
+<link rel="stylesheet" href="assets/flight-comparison.css?v=events20261001">
+<script src="assets/flight-status.js?v=events20261001"></script>
 <script src="flight-config.js?v=steerwill2"></script>
 <script>
 (function(){
@@ -201,6 +201,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     var delayText=delay===null?"—":(delay>0?"+"+delay+" min":delay<0?delay+" min":"In orario");
     var origin=f.origin||{}, destination=f.destination||{};
     var landingInfo=SWFlight.info(f,true);
+    var gate=SWFlight.timing(f).gate;
     return '<article class="card '+(landingInfo.state?'sw-'+landingInfo.state:'')+'">'+
       '<div class="secondaryText">'+escapeHtml(f.customerName||'')+'</div>'+
       '<div class="cardHead">'+
@@ -209,8 +210,8 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
       '</div>'+
       '<div class="route"><div class="code">'+escapeHtml(origin.code||"—")+'</div><div class="line"></div><div class="code">'+escapeHtml(destination.code||"—")+'</div></div>'+
       '<div class="times">'+
-        '<div class="cell"><div class="cellLabel">Programmato</div><div class="cellValue">'+formatDateTime(f.scheduled_in)+'</div></div>'+
-        '<div class="cell"><div class="cellLabel">Previsto</div><div class="cellValue">'+formatDateTime(f.estimated_in||f.scheduled_in)+'</div></div>'+
+        '<div class="cell"><div class="cellLabel">Programmato · gate</div><div class="cellValue">'+formatDateTime(f.scheduled_in)+'</div></div>'+
+        '<div class="cell"><div class="cellLabel">'+(gate.kind==="actual"?"Reale":gate.kind==="estimated"?"Previsto":"Programmato")+' · gate</div><div class="cellValue">'+formatDateTime(gate.time)+'</div></div>'+
         '<div class="cell"><div class="cellLabel">Ritardo</div><div class="cellValue '+(delay>0?"delay":"")+'">'+delayText+'</div></div>'+
         '<div class="cell"><div class="cellLabel">Terminal</div><div class="cellValue">'+escapeHtml(f.terminal_destination||"—")+'</div></div>'+
       '</div>'+
@@ -329,6 +330,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
       },
       scheduled_in:f.scheduled_in||old.scheduled_in||null,
       estimated_in:f.estimated_in||old.estimated_in||null,
+      ...(Object.prototype.hasOwnProperty.call(f,"estimated_gate_in")?{estimated_gate_in:f.estimated_gate_in}:{}),
       actual_in:f.actual_in||null, actual_on:f.actual_on||null, estimated_on:f.estimated_on||null, scheduled_on:f.scheduled_on||null, cancelled:!!f.cancelled, customerName:old.customerName||"", provider:f.provider||data.provider||old.provider||"FlightAware",
       terminal_destination:f.terminal_destination||old.terminal_destination||"—",
       gate_destination:f.gate_destination||old.gate_destination||"—",

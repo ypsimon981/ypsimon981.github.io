@@ -32,7 +32,7 @@ function database(){
   }};
 }
 const movement=(code,time)=>({airport:{iata:code},scheduledTime:{utc:time},revisedTime:{utc:time}});
-records=[{number:'AZ 61',status:'EnRoute',departure:movement('MAD','2026-10-01 09:35Z'),arrival:movement('FCO','2026-10-01 12:00Z')}];
+records=[{number:'AZ 61',status:'EnRoute',departure:movement('MAD','2026-10-01 09:35Z'),arrival:{...movement('FCO','2026-10-01 12:00Z'),runwayTime:{utc:'2026-10-01 11:45Z'}}}];
 const fa={flight:{ident:'AZ61',origin:{code:'MAD'},destination:{code:'FCO'},scheduled_in:'2026-10-01T12:00:00Z',estimated_in:'2026-10-01T11:50:00Z'},fetched_at:'2026-10-01T10:00:00Z'};
 (async()=>{
   assert.equal(utc({utc:'2026-10-01 12:00Z'}),'2026-10-01T12:00:00.000Z');
@@ -44,6 +44,20 @@ const fa={flight:{ident:'AZ61',origin:{code:'MAD'},destination:{code:'FCO'},sche
   assert.equal(matchADB({...fa.flight,scheduled_in:'2026-10-02T12:00:00Z'},[a]),null);
   const c=comparisonFor(fa,{records:[a],updated_at:'2026-10-01T10:01:00Z'});
   assert.equal(c.difference_minutes,10);
+  assert.equal(c.flightaware.basis,'gate');assert.equal(c.aerodatabox.basis,'gate');
+  const ambiguous=comparisonFor(fa,{records:[{...a,runway_in:null}]});
+  assert.equal(ambiguous.difference_minutes,null);
+  assert.equal(ambiguous.aerodatabox.basis,'unspecified');
+  assert.equal(ambiguous.difference_reason,'different_events');
+  const tkFlight={origin:{code:'IST'},destination:{code:'FCO'},scheduled_in:'2026-10-01T21:35:00Z',estimated_in:'2026-10-01T21:35:00Z',estimated_on:'2026-10-01T21:25:00Z',scheduled_on:'2026-10-01T21:25:00Z'};
+  const tkADB={origin:{code:'IST'},destination:{code:'FCO'},scheduled_in:'2026-10-01T21:35:00Z',revised_in:'2026-10-01T21:35:00Z',runway_in:null,status:'Expected'};
+  const tkComparison=comparisonFor({flight:tkFlight},{records:[tkADB]});
+  assert.equal(tkComparison.flightaware.arrival_at,'2026-10-01T21:35:00Z');
+  assert.equal(tkComparison.flightaware.basis,'gate');
+  assert.equal(tkComparison.aerodatabox.basis,'unspecified');
+  assert.equal(tkComparison.difference_minutes,null);
+  const gateAfterLanding=comparisonFor({flight:{...fa.flight,actual_on:'2026-10-01T11:45:00Z'}},{records:[{...a,runway_in:null}]});
+  assert.equal(gateAfterLanding.flightaware.kind,'estimated'); // Landing is not a gate arrival.
   assert.equal(comparisonFor({...fa,flight:{...fa.flight,estimated_in:'2026-10-01T12:10:00Z'}},{records:[a]}).difference_minutes,-10);
   assert.equal(comparisonFor({...fa,flight:{...fa.flight,estimated_in:null}},{records:[a]}).difference_minutes,null);
   assert.equal(comparisonFor(fa,{error:'temporarily_unavailable'}).flightaware.arrival_at,fa.flight.estimated_in);
@@ -73,8 +87,20 @@ const fa={flight:{ident:'AZ61',origin:{code:'MAD'},destination:{code:'FCO'},sche
   await assert.rejects(()=>cachedADB(broken,'AZ61','2026-10-01','test-key'),/cache_unavailable/);assert.equal(calls,landedCalls);
   const context={window:{},setInterval(){}};
   vm.runInNewContext(readFileSync('assets/flight-status.js','utf8'),context);
+  const tkTiming=context.window.SWFlight.timing(tkFlight);
+  assert.equal(tkTiming.landing.time,'2026-10-01T21:25:00Z');
+  assert.equal(tkTiming.landingBasis,'runway');
+  assert.equal(tkTiming.gate.time,'2026-10-01T21:35:00Z');
+  const legacy=context.window.SWFlight.timing({...tkFlight,estimated_in:tkFlight.estimated_on});
+  assert.equal(legacy.gate.time,tkFlight.scheduled_in);assert.equal(legacy.gate.kind,'scheduled');
+  const unknownLanding=context.window.SWFlight.info({scheduled_in:new Date(Date.now()+60000).toISOString()},true);
+  assert(unknownLanding.text.startsWith('Arrivo previsto tra'));
   const html=context.window.SWFlight.comparisonHtml(c);
   assert(html.includes('FlightAware'));assert(html.includes('AeroDataBox'));assert(html.includes('+10 min'));
+  const ambiguousHtml=context.window.SWFlight.comparisonHtml(tkComparison);
+  assert(ambiguousHtml.includes('Arrivo al gate'));assert(ambiguousHtml.includes('punto non indicato'));
+  assert(!ambiguousHtml.includes(': 0 min'));
+  assert(!context.window.SWFlight.comparisonHtml({...c,version:1}).includes('+10 min'));
   assert(!context.window.SWFlight.comparisonHtml({...c,aerodatabox:{...c.aerodatabox,error:'<script>'}}).includes('<script>'));
   for(const path of ['voli.html','monitor.html']){
     const html=readFileSync(path,'utf8');for(const s of html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g))new vm.Script(s[1]);

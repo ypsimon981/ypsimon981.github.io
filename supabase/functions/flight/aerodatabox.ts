@@ -108,18 +108,45 @@ export function matchADB(f: any, records: any[]) {
 export function comparisonFor(fa: any, adb: any) {
   const f = fa.flight;
   const a = matchADB(f, adb.records || []);
-  const runway = !!((f?.actual_on || f?.estimated_on) && a?.runway_in);
-  const actual = !!(f?.actual_on || f?.actual_in);
-  const faTime = actual ? (runway ? f.actual_on : f.actual_in || f.actual_on) : runway ? f.estimated_on : (f?.estimated_in || f?.scheduled_in);
-  const adbTime = a ? (runway ? a.runway_in : a.revised_in || a.scheduled_in) : null;
-  const faKind = actual ? 'actual' : (f?.estimated_on || f?.estimated_in) ? 'estimated' : 'scheduled';
-  const adbKind = a && /^(Arrived)$/.test(a.status) ? 'actual' : a && (a.revised_in || a.runway_in) ? 'estimated' : 'scheduled';
-  const comparable = faKind === adbKind && faKind !== 'scheduled' && faTime && adbTime && !f?.cancelled && !f?.diverted;
+  const valid = (t: any) => typeof t === 'string' && Number.isFinite(Date.parse(t));
+  const select = (actual: any, estimated: any, scheduled: any, basis: string) =>
+    valid(actual) ? { arrival_at: actual, kind: 'actual', basis } :
+    valid(estimated) ? { arrival_at: estimated, kind: 'estimated', basis } :
+    { arrival_at: valid(scheduled) ? scheduled : null, kind: 'scheduled', basis };
+  // Legacy estimated_in could contain estimated_on as a fallback. Do not
+  // silently identify that runway fallback as a gate estimate.
+  const estimatedGate = f && Object.hasOwn(f, 'estimated_gate_in') ? f.estimated_gate_in :
+    f?.estimated_in !== f?.estimated_on ? f?.estimated_in : null;
+  const gate = select(f?.actual_in, estimatedGate, f?.scheduled_in, 'gate');
+  const runway = select(f?.actual_on, f?.estimated_on, f?.scheduled_on, 'runway');
+  const adbKind = a?.status === 'Arrived' ? 'actual' : 'estimated';
+  const hasRunway = valid(a?.runway_in);
+  // AeroDataBox only explicitly identifies revisedTime as gate when there
+  // is a different runwayTime. Without this, its event is unspecified.
+  const hasGate = hasRunway && valid(a?.revised_in) && Date.parse(a.revised_in) !== Date.parse(a.runway_in);
+  let faValue: any = gate.arrival_at ? gate : runway;
+  let adbValue: any = { arrival_at: null, kind: 'scheduled', basis: 'unspecified' };
+  if (hasRunway && runway.arrival_at) {
+    faValue = runway;
+    adbValue = { arrival_at: a.runway_in, kind: adbKind, basis: 'runway' };
+  } else if (hasGate && gate.arrival_at) {
+    faValue = gate;
+    adbValue = { arrival_at: a.revised_in, kind: adbKind, basis: 'gate' };
+  } else if (a) {
+    adbValue = { arrival_at: a.revised_in || a.runway_in || a.scheduled_in,
+      kind: a.revised_in || a.runway_in ? adbKind : 'scheduled',
+      basis: hasGate ? 'gate' : hasRunway && !a.revised_in ? 'runway' : 'unspecified' };
+  }
+  const sameBasis = faValue.basis === adbValue.basis && faValue.basis !== 'unspecified';
+  const comparable = sameBasis && faValue.kind === adbValue.kind && faValue.kind !== 'scheduled' &&
+    valid(faValue.arrival_at) && valid(adbValue.arrival_at) && !f?.cancelled && !f?.diverted;
   return {
-    flightaware: { arrival_at: faTime || null, kind: faKind, updated_at: fa.fetched_at || null, stale: !!fa.stale, cached: !!fa.cached },
-    aerodatabox: { arrival_at: adbTime, kind: adbKind, updated_at: adb.updated_at || null, stale: !!adb.stale, cached: !!adb.cached,
+    version: 2,
+    flightaware: { ...faValue, updated_at: fa.fetched_at || null, stale: !!fa.stale, cached: !!fa.cached },
+    aerodatabox: { ...adbValue, updated_at: adb.updated_at || null, stale: !!adb.stale, cached: !!adb.cached,
       error: adb.error || (!a ? (adb.records?.length ? 'no_matching_flight' : 'flight_not_found') : null) },
-    difference_minutes: comparable ? Math.round((Date.parse(adbTime) - Date.parse(faTime)) / 60000) : null,
-    basis: runway ? 'runway' : 'reported_arrival'
+    difference_minutes: comparable ? Math.round((Date.parse(adbValue.arrival_at) - Date.parse(faValue.arrival_at)) / 60000) : null,
+    difference_reason: comparable ? null : !sameBasis ? 'different_events' : 'missing_or_different_kinds',
+    basis: sameBasis ? faValue.basis : 'different_events'
   };
 }
