@@ -11,6 +11,7 @@
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icon.svg" type="image/svg+xml">
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bwip-js/dist/bwip-js-min.js"></script>
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <style>
     :root{--violet:#5B3DF5;--violet2:#7C5CFF;--teal:#2DD4BF;--bg:#F8F9FC;--surface:#fff;--text:#1F2937;--muted:#6B7280;--line:#E7EAF0;--danger:#EF4444;--warning:#F59E0B;--success:#16A34A;--shadow:0 10px 30px rgba(31,41,55,.08)}
@@ -30,10 +31,10 @@
     .modal{position:fixed;inset:0;z-index:40;background:rgba(17,24,39,.48);display:none;align-items:flex-end;justify-content:center}.modal.show{display:flex}.sheet{width:min(580px,100%);max-height:92dvh;overflow:auto;background:var(--bg);border-radius:28px 28px 0 0;padding:18px 16px calc(26px + env(safe-area-inset-bottom));box-shadow:0 -20px 60px rgba(17,24,39,.25)}.grab{width:42px;height:5px;border-radius:9px;background:#D7DAE0;margin:0 auto 15px}.sheetHead{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}.sheetHead h2{margin:0;font-size:20px}.close{border:0;background:#ECEEF3;width:36px;height:36px;border-radius:12px;font-size:20px}
     label{display:block;font-size:12px;color:var(--muted);margin:14px 2px 6px}.field{width:100%;border:1px solid var(--line);background:#fff;border-radius:15px;padding:13px 14px;outline:none}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.primary,.secondary,.danger{width:100%;border:0;border-radius:16px;padding:14px 16px;font-weight:800;margin-top:12px}.primary{background:var(--violet);color:#fff}.secondary{background:#EEEAFE;color:var(--violet)}.danger{background:#FEECEC;color:#B91C1C}.hint{font-size:12px;color:var(--muted);line-height:1.4;margin:8px 2px}
     .scanner{display:none;margin-top:10px;border-radius:18px;overflow:hidden;background:#111}.scanner.show{display:block}#reader{width:100%}
-    .detailHero{border-radius:24px;padding:19px;color:#fff;position:relative;overflow:hidden}.detailLogo{display:inline-grid;place-items:center;min-width:58px;height:42px;padding:0 10px;border-radius:12px;background:rgba(255,255,255,.94);color:#172033;font-size:12px;font-weight:900;box-shadow:0 5px 14px rgba(0,0,0,.08)}.detailHero h2{margin:14px 0 2px;font-size:24px}.detailHero p{margin:0;opacity:.88}.barcodeBox{background:#fff;border-radius:20px;margin-top:15px;padding:18px 10px 14px;text-align:center;color:#111;overflow:hidden}.barcodeBox svg{max-width:100%;height:92px}.num{font-size:15px;letter-spacing:1px;margin-top:5px;word-break:break-all}.detailActions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.detailActions button{border:1px solid var(--line);background:#fff;border-radius:15px;padding:12px;font-weight:700;color:var(--text)}
-    .widgetPreview{background:linear-gradient(145deg,#18264B,#0F1A38);border-radius:24px;color:#fff;padding:14px;margin-top:12px}.widgetTop{display:flex;justify-content:space-between;font-size:12px;opacity:.86}.widgetCard{background:#fff;color:#111;border-radius:17px;margin-top:12px;padding:10px}.widgetCard .wName{font-weight:800;color:var(--text)}.widgetCard svg{width:100%;height:65px;margin-top:4px}
+    .detailHero{border-radius:24px;padding:19px;color:#fff;position:relative;overflow:hidden}.detailLogo{display:inline-grid;place-items:center;min-width:58px;height:42px;padding:0 10px;border-radius:12px;background:rgba(255,255,255,.94);color:#172033;font-size:12px;font-weight:900;box-shadow:0 5px 14px rgba(0,0,0,.08)}.detailHero h2{margin:14px 0 2px;font-size:24px}.detailHero p{margin:0;opacity:.88}.barcodeBox{background:#fff;border-radius:20px;margin-top:15px;padding:18px 10px 14px;text-align:center;color:#111;overflow:hidden}.barcodeBox canvas{max-width:100%;max-height:120px}.num{font-size:15px;letter-spacing:1px;margin-top:5px;word-break:break-all}.detailActions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.detailActions button{border:1px solid var(--line);background:#fff;border-radius:15px;padding:12px;font-weight:700;color:var(--text)}
+    .widgetPreview{background:linear-gradient(145deg,#18264B,#0F1A38);border-radius:24px;color:#fff;padding:14px;margin-top:12px}.widgetTop{display:flex;justify-content:space-between;font-size:12px;opacity:.86}.widgetCard{background:#fff;color:#111;border-radius:17px;margin-top:12px;padding:10px}.widgetCard .wName{font-weight:800;color:var(--text)}.widgetCard canvas{max-width:100%;max-height:82px;margin-top:4px}
     .toast{position:fixed;z-index:60;left:50%;transform:translateX(-50%);bottom:110px;background:#111827;color:#fff;padding:11px 15px;border-radius:14px;font-size:13px;box-shadow:var(--shadow);display:none;max-width:90%;text-align:center}.toast.show{display:block}
-    .fullBarcode{position:fixed;z-index:70;inset:0;background:white;display:none;align-items:center;justify-content:center;flex-direction:column;padding:20px}.fullBarcode.show{display:flex}.fullBarcode svg{width:95vw;max-width:780px;height:35vh}.fullBarcode .num{font-size:22px}.fullBarcode button{margin-top:30px;border:0;background:#F1F3F7;padding:12px 18px;border-radius:14px;font-weight:800}
+    .fullBarcode{position:fixed;z-index:70;inset:0;background:white;display:none;align-items:center;justify-content:center;flex-direction:column;padding:20px}.fullBarcode.show{display:flex}.fullBarcode canvas{max-width:95vw;max-height:45vh}.fullBarcode .num{font-size:22px}.fullBarcode button{margin-top:30px;border:0;background:#F1F3F7;padding:12px 18px;border-radius:14px;font-weight:800}
     .mapDot{height:220px;border-radius:18px;background:radial-gradient(circle at 52% 48%,rgba(91,61,245,.22) 0 8%,rgba(91,61,245,.11) 8% 25%,transparent 25%),linear-gradient(45deg,#EEF1F6 25%,transparent 25%) 0 0/32px 32px,linear-gradient(-45deg,#EEF1F6 25%,transparent 25%) 0 16px/32px 32px,#F8FAFC;display:grid;place-items:center;font-size:38px;margin:10px 0}.coords{font-size:12px;color:var(--muted);word-break:break-all}
     @media(min-width:520px){.cardShelf .card{flex-basis:190px}}
   </style>
@@ -41,7 +42,7 @@
 <body>
 <div class="app">
   <header class="top">
-    <div class="brand"><div class="logo">F</div><div><h1>Fi-Card</h1><div class="subtitle">Le tue carte fedeltà, sempre con te.</div><div class="release">Release 01/10/2026 · 22:20</div></div></div>
+    <div class="brand"><div class="logo">F</div><div><h1>Fi-Card</h1><div class="subtitle">Le tue carte fedeltà, sempre con te.</div><div class="release">Release 01/10/2026 · 22:31</div></div></div>
     <div class="topActions"><button class="iconbtn" id="refreshBtn" title="Aggiorna Fi-Card" aria-label="Aggiorna Fi-Card">↻</button><button class="iconbtn" id="installBtn" title="Installa">⇩</button></div>
   </header>
 
@@ -103,7 +104,30 @@
   <div class="grab"></div><div class="sheetHead"><h2>Aggiungi una carta</h2><button class="close" data-close="addModal">×</button></div>
   <button class="primary" id="scanBtn">▣ Scansiona codice</button>
   <div id="scanner" class="scanner"><div id="reader"></div></div>
-  <label>Marchio / layout</label><select id="addBrand" class="field"><option value="">Generica Fi-Card</option><option value="esselunga">Esselunga</option><option value="conad">Conad</option><option value="coop">Coop</option><option value="carrefour">Carrefour</option><option value="lidl">Lidl</option><option value="decathlon">Decathlon</option><option value="ikea">IKEA</option><option value="leroymerlin">Leroy Merlin</option><option value="tigota">Tigotà</option></select>
+  <label>Marchio / layout</label><select id="addBrand" class="field">
+    <option value="">Generica Fi-Card</option>
+    <optgroup label="Supermercati">
+      <option value="esselunga">Esselunga</option><option value="conad">Conad</option><option value="coop">Coop</option><option value="carrefour">Carrefour</option><option value="lidl">Lidl</option><option value="eurospin">Eurospin</option><option value="md">MD</option><option value="pam">Pam Panorama</option><option value="despar">Despar</option><option value="todis">Todis</option>
+    </optgroup>
+    <optgroup label="Sport e calzature">
+      <option value="decathlon">Decathlon</option><option value="cisalfa">Cisalfa</option><option value="intersport">Intersport</option><option value="jdsports">JD Sports</option><option value="footlocker">Foot Locker</option><option value="bata">Bata</option><option value="deichmann">Deichmann</option><option value="pittarosso">PittaRosso</option>
+    </optgroup>
+    <optgroup label="Abbigliamento">
+      <option value="ovs">OVS</option><option value="hm">H&amp;M</option><option value="zara">Zara</option><option value="calzedonia">Calzedonia</option><option value="intimissimi">Intimissimi</option>
+    </optgroup>
+    <optgroup label="Casa e bricolage">
+      <option value="ikea">IKEA</option><option value="leroymerlin">Leroy Merlin</option><option value="obi">OBI</option><option value="bricocenter">Bricocenter</option>
+    </optgroup>
+    <optgroup label="Beauty">
+      <option value="tigota">Tigotà</option><option value="acquaesapone">Acqua &amp; Sapone</option><option value="sephora">Sephora</option><option value="douglas">Douglas</option>
+    </optgroup>
+    <optgroup label="Elettronica">
+      <option value="unieuro">Unieuro</option><option value="mediaworld">MediaWorld</option><option value="euronics">Euronics</option>
+    </optgroup>
+    <optgroup label="Carburanti">
+      <option value="eni">Eni</option><option value="q8">Q8</option><option value="ip">IP</option>
+    </optgroup>
+  </select>
   <label>Categoria</label><select id="addCategory" class="field">
     <option value="supermercati">Supermercati</option>
     <option value="sport">Articoli sportivi</option>
@@ -119,7 +143,7 @@
   </select>
   <label>Nome negozio / carta</label><input id="addName" class="field" placeholder="Es. Esselunga">
   <label>Numero / contenuto barcode</label><input id="addCode" class="field" inputmode="text" placeholder="Es. 1234567890123">
-  <div class="row"><div><label>Formato</label><select id="addFormat" class="field"><option value="CODE128">Code 128</option><option value="EAN13">EAN-13</option><option value="EAN8">EAN-8</option><option value="CODE39">Code 39</option><option value="UPC">UPC</option></select></div><div><label>Colore</label><input id="addColor" class="field" type="color" value="#5B3DF5" style="height:48px;padding:6px"></div></div>
+  <div class="row"><div><label>Formato barcode</label><div id="detectedFormat" class="field" style="background:#F3F4F6;color:#6B7280">Automatico</div></div><div><label>Colore</label><input id="addColor" class="field" type="color" value="#5B3DF5" style="height:48px;padding:6px"></div></div>
   <button class="primary" id="saveCard">Salva carta</button>
   <p class="hint">La carta resta sul telefono. Per il prototipo non viene inviata a nessun server.</p>
 </div></div>
@@ -135,18 +159,18 @@
   <div id="widgetContent"></div>
 </div></div>
 
-<div id="fullBarcode" class="fullBarcode"><svg id="fullSvg"></svg><div id="fullNum" class="num"></div><button id="closeFull">Chiudi</button></div>
+<div id="fullBarcode" class="fullBarcode"><canvas id="fullSvg"></canvas><div id="fullNum" class="num"></div><button id="closeFull">Chiudi</button></div>
 <div id="toast" class="toast"></div>
 
 <script>
-const RELEASE="2026.10.01-2220";
+const RELEASE="2026.10.01-2231";
 const KEY="ficard.cards.v3";
 const LEGACY_KEYS=["ficard.cards.v2","ficard.cards.v1"];
 const DB_NAME="ficard-local";
 const DB_VERSION=1;
 const STORE_NAME="state";
 let cards=[];
-let currentCardId=null, currentPos=null, deferredPrompt=null, qrScanner=null, currentCategory="all";
+let currentCardId=null, currentPos=null, deferredPrompt=null, qrScanner=null, currentCategory="all", pendingScanFormat=null;
 const CATEGORIES={
  supermercati:"Supermercati",
  sport:"Articoli sportivi",
@@ -166,11 +190,39 @@ const BRANDS={
  coop:{name:"Coop",color:"#E30613",mark:"COOP",category:"supermercati"},
  carrefour:{name:"Carrefour",color:"#1D4E9E",mark:"CARREFOUR",category:"supermercati"},
  lidl:{name:"Lidl",color:"#0050AA",mark:"LIDL",category:"supermercati"},
+ eurospin:{name:"Eurospin",color:"#00549F",mark:"EUROSPIN",category:"supermercati"},
+ md:{name:"MD",color:"#F7B500",mark:"MD",category:"supermercati"},
+ pam:{name:"Pam Panorama",color:"#E31E24",mark:"PAM",category:"supermercati"},
+ despar:{name:"Despar",color:"#00843D",mark:"DESPAR",category:"supermercati"},
+ todis:{name:"Todis",color:"#E63B2E",mark:"TODIS",category:"supermercati"},
  decathlon:{name:"Decathlon",color:"#1675E0",mark:"DECATHLON",category:"sport"},
+ cisalfa:{name:"Cisalfa",color:"#E31B23",mark:"CISALFA",category:"sport"},
+ intersport:{name:"Intersport",color:"#E31E24",mark:"INTERSPORT",category:"sport"},
+ jdsports:{name:"JD Sports",color:"#111111",mark:"JD",category:"sport"},
+ footlocker:{name:"Foot Locker",color:"#111111",mark:"FOOT LOCKER",category:"calzature"},
+ bata:{name:"Bata",color:"#D71920",mark:"BATA",category:"calzature"},
+ deichmann:{name:"Deichmann",color:"#00509D",mark:"DEICHMANN",category:"calzature"},
+ pittarosso:{name:"PittaRosso",color:"#D61F2C",mark:"PITTAROSSO",category:"calzature"},
+ ovs:{name:"OVS",color:"#111111",mark:"OVS",category:"abbigliamento"},
+ hm:{name:"H&M",color:"#D50000",mark:"H&M",category:"abbigliamento"},
+ zara:{name:"Zara",color:"#111111",mark:"ZARA",category:"abbigliamento"},
+ calzedonia:{name:"Calzedonia",color:"#111111",mark:"CALZEDONIA",category:"abbigliamento"},
+ intimissimi:{name:"Intimissimi",color:"#A98A7B",mark:"INTIMISSIMI",category:"abbigliamento"},
  ikea:{name:"IKEA",color:"#0058A3",mark:"IKEA",category:"casa"},
  leroymerlin:{name:"Leroy Merlin",color:"#62A744",mark:"LEROY",category:"casa"},
- tigota:{name:"Tigotà",color:"#19B8B8",mark:"TIGOTÀ",category:"beauty"}
-};
+ obi:{name:"OBI",color:"#F58220",mark:"OBI",category:"casa"},
+ bricocenter:{name:"Bricocenter",color:"#E53935",mark:"BRICOCENTER",category:"casa"},
+ tigota:{name:"Tigotà",color:"#19B8B8",mark:"TIGOTÀ",category:"beauty"},
+ acquaesapone:{name:"Acqua & Sapone",color:"#1F5CA9",mark:"A&S",category:"beauty"},
+ sephora:{name:"Sephora",color:"#111111",mark:"SEPHORA",category:"beauty"},
+ douglas:{name:"Douglas",color:"#0D4B3D",mark:"DOUGLAS",category:"beauty"},
+ unieuro:{name:"Unieuro",color:"#E20074",mark:"UNIEURO",category:"elettronica"},
+ mediaworld:{name:"MediaWorld",color:"#DF1B12",mark:"MEDIAWORLD",category:"elettronica"},
+ euronics:{name:"Euronics",color:"#0057A8",mark:"EURONICS",category:"elettronica"},
+ eni:{name:"Eni",color:"#FFD100",mark:"ENI",category:"carburanti"},
+ q8:{name:"Q8",color:"#E31B23",mark:"Q8",category:"carburanti"},
+ ip:{name:"IP",color:"#F57C00",mark:"IP",category:"carburanti"}
+}
 const offers=[
  {brand:"IdroMarket",title:"Oggi hai il 10% di sconto",text:"Ricordati di mostrare la carta alla cassa.",tag:"Oggi"},
  {brand:"Supermercato",title:"Doppi punti sulla spesa",text:"Promozione dimostrativa per titolari carta.",tag:"Promo"},
@@ -243,16 +295,38 @@ function renderNearby(){
 }
 function renderWidget(){
  const c=smartCard();const box=document.getElementById("widgetContent");if(!c){box.innerHTML='<div class="panel">Aggiungi una carta per vedere il widget.</div>';return}
- box.innerHTML='<div class="widgetPreview"><div class="widgetTop"><b>Fi-Card</b><span>Smart</span></div><div class="widgetCard"><div class="wName">'+esc(c.name)+'</div><svg id="widgetSvg"></svg><div class="num">'+esc(c.code)+'</div></div></div>';
+ box.innerHTML='<div class="widgetPreview"><div class="widgetTop"><b>Fi-Card</b><span>Smart</span></div><div class="widgetCard"><div class="wName">'+esc(c.name)+'</div><canvas id="widgetSvg"></canvas><div class="num">'+esc(c.code)+'</div></div></div>';
  setTimeout(()=>drawBarcode("widgetSvg",c),20)
 }
-function drawBarcode(id,c){try{JsBarcode("#"+id,c.code,{format:c.format||"CODE128",displayValue:false,margin:2,height:70,width:1.8,background:"#ffffff",lineColor:"#111111"})}catch(e){try{JsBarcode("#"+id,c.code,{format:"CODE128",displayValue:false,margin:2,height:70,width:1.8})}catch(_){}}}
+function scanFormatName(result){return result?.result?.format?.formatName||null}
+function normalizeFormat(name){
+ const n=String(name||"").toUpperCase().replace(/[- ]/g,"_");
+ const map={QR_CODE:"QR_CODE",AZTEC:"AZTEC",CODABAR:"CODABAR",CODE_39:"CODE39",CODE_93:"CODE93",CODE_128:"CODE128",DATA_MATRIX:"DATA_MATRIX",ITF:"ITF",EAN_13:"EAN13",EAN_8:"EAN8",PDF_417:"PDF417",UPC_A:"UPCA",UPC_E:"UPCE",RSS_14:"RSS14",RSS_EXPANDED:"RSS_EXPANDED"};
+ return map[n]||"CODE128"
+}
+function validGs1Checksum(text){
+ if(!/^\d+$/.test(text)||![8,12,13].includes(text.length))return false;
+ const ds=text.split("").map(Number),check=ds.pop();let sum=0,fromRight=0;
+ for(let i=ds.length-1;i>=0;i--,fromRight++)sum+=ds[i]*(fromRight%2===0?3:1);
+ return (10-(sum%10))%10===check
+}
+function inferManualFormat(text){if(validGs1Checksum(text)){if(text.length===13)return "EAN13";if(text.length===8)return "EAN8";if(text.length===12)return "UPCA"}return "CODE128"}
+function formatLabel(f){return {QR_CODE:"QR Code",AZTEC:"Aztec",CODABAR:"Codabar",CODE39:"Code 39",CODE93:"Code 93",CODE128:"Code 128",DATA_MATRIX:"Data Matrix",ITF:"ITF",EAN13:"EAN-13",EAN8:"EAN-8",PDF417:"PDF417",UPCA:"UPC-A",UPCE:"UPC-E",RSS14:"GS1 DataBar",RSS_EXPANDED:"GS1 DataBar Expanded"}[f]||f||"Automatico"}
+function bwipBcid(f){return {QR_CODE:"qrcode",AZTEC:"azteccode",CODABAR:"rationalizedCodabar",CODE39:"code39",CODE93:"code93",CODE128:"code128",DATA_MATRIX:"datamatrix",ITF:"interleaved2of5",EAN13:"ean13",EAN8:"ean8",PDF417:"pdf417",UPCA:"upca",UPCE:"upce",RSS14:"databaromni",RSS_EXPANDED:"databarexpanded"}[f]||"code128"}
+function drawBarcode(id,c){
+ const el=document.getElementById(id);if(!el)return;
+ const format=normalizeFormat(c.format||inferManualFormat(c.code));
+ try{
+   if(window.bwipjs&&el.tagName==="CANVAS"){const is2d=["QR_CODE","AZTEC","DATA_MATRIX","PDF417"].includes(format);bwipjs.toCanvas(el,{bcid:bwipBcid(format),text:String(c.code),scale:3,height:is2d?undefined:12,includetext:false,paddingwidth:4,paddingheight:4,backgroundcolor:"FFFFFF"});return}
+ }catch(e){}
+ try{if(el.tagName==="CANVAS"){const tmp=document.createElement("svg");tmp.id="tmp-"+Date.now();el.replaceWith(tmp);JsBarcode(tmp,c.code,{format:["EAN13","EAN8","CODE39","CODE128","UPCA"].includes(format)?format:"CODE128",displayValue:false,margin:2,height:70,width:1.8});tmp.id=id}}catch(e){}
+}
 
 function openCard(id){
  const c=cards.find(x=>x.id===id);if(!c)return;currentCardId=id;
  const b=brandFor(c),n=nearestFor(c,currentPos),locs=(c.locations||[]);
  const locHtml=locs.length?'<div class="panel" style="margin-top:12px"><b>Punti vendita associati</b>'+locs.map((l,i)=>'<div class="promo" style="margin-bottom:0"><div class="grow"><small>'+l.lat.toFixed(5)+', '+l.lng.toFixed(5)+' · raggio '+(l.radius||180)+' m</small></div><button class="chip" data-remove-loc="'+i+'">Dissocia</button></div>').join("")+'</div>':'<p class="hint">Nessun punto vendita associato a questa carta.</p>';
- document.getElementById("detailContent").innerHTML='<div class="detailHero" style="background:'+esc(c.color)+'"><span class="detailLogo">'+esc(b.mark)+'</span><h2>'+esc(c.name)+'</h2><p>'+esc(categoryLabel(c))+'</p><div class="barcodeBox"><svg id="detailSvg"></svg><div class="num">'+esc(c.code)+'</div></div></div>'+
+ document.getElementById("detailContent").innerHTML='<div class="detailHero" style="background:'+esc(c.color)+'"><span class="detailLogo">'+esc(b.mark)+'</span><h2>'+esc(c.name)+'</h2><p>'+esc(categoryLabel(c))+'</p><div class="barcodeBox"><canvas id="detailSvg"></canvas><div class="num">'+esc(c.code)+'</div></div></div>'+
  '<div class="detailActions"><button id="fullBtn">▣ Tutto schermo</button><button id="favBtn">'+(c.fav?"★ Preferita":"☆ Preferita")+'</button></div>'+
  '<button class="secondary" id="assocBtn">⌖ Associa questo punto vendita</button>'+locHtml+
  (n?'<p class="hint">Punto associato più vicino: '+Math.round(n.d)+' m.</p>':'')+
@@ -279,6 +353,7 @@ document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>hideModal(b.d
 document.querySelectorAll(".modal").forEach(m=>m.addEventListener("click",e=>{if(e.target===m)hideModal(m.id)}));
 document.getElementById("addFab").onclick=()=>showModal("addModal");
 document.getElementById("search").oninput=renderCards;
+document.getElementById("addCode").addEventListener("input",e=>{pendingScanFormat=null;const v=e.target.value.trim();document.getElementById("detectedFormat").textContent=v?"Automatico: "+formatLabel(inferManualFormat(v)):"Automatico"});
 document.getElementById("addBrand").onchange=e=>{const b=BRANDS[e.target.value];if(!b)return;document.getElementById("addName").value=b.name;document.getElementById("addColor").value=b.color;document.getElementById("addCategory").value=b.category||"altro"};
 document.querySelectorAll(".chip[data-filter]").forEach(b=>b.onclick=()=>{document.querySelectorAll(".chip[data-filter]").forEach(x=>x.classList.remove("active"));b.classList.add("active");renderCards()});
 document.querySelectorAll(".nav[data-view]").forEach(b=>b.onclick=()=>go(b.dataset.view));
@@ -289,17 +364,23 @@ document.getElementById("widgetDemo").onclick=()=>{renderWidget();showModal("wid
 document.getElementById("closeFull").onclick=()=>document.getElementById("fullBarcode").classList.remove("show");
 
 document.getElementById("saveCard").onclick=()=>{
- const brandKey=document.getElementById("addBrand").value,category=document.getElementById("addCategory").value,name=document.getElementById("addName").value.trim(),code=document.getElementById("addCode").value.trim(),format=document.getElementById("addFormat").value,color=document.getElementById("addColor").value;
+ const brandKey=document.getElementById("addBrand").value,category=document.getElementById("addCategory").value,name=document.getElementById("addName").value.trim(),code=document.getElementById("addCode").value.trim(),format=pendingScanFormat||inferManualFormat(code),color=document.getElementById("addColor").value;
  if(!name||!code)return toast("Inserisci nome e codice");
- const c={id:crypto.randomUUID(),name,brandKey,category,code,format,color,fav:false,locations:[]};cards.unshift(c);save();renderAll();hideModal("addModal");["addName","addCode"].forEach(id=>document.getElementById(id).value="");document.getElementById("addBrand").value="";document.getElementById("addCategory").value="altro";document.getElementById("addColor").value="#5B3DF5";openCard(c.id)
+ const c={id:crypto.randomUUID(),name,brandKey,category,code,format,color,fav:false,locations:[]};cards.unshift(c);save();renderAll();hideModal("addModal");["addName","addCode"].forEach(id=>document.getElementById(id).value="");document.getElementById("addBrand").value="";document.getElementById("addCategory").value="altro";document.getElementById("addColor").value="#5B3DF5";pendingScanFormat=null;document.getElementById("detectedFormat").textContent="Automatico";openCard(c.id)
 };
 
 document.getElementById("scanBtn").onclick=async()=>{
  const wrap=document.getElementById("scanner");wrap.classList.add("show");
  if(!window.Html5Qrcode)return toast("Scanner non disponibile: usa l'inserimento manuale");
  try{
-   qrScanner=new Html5Qrcode("reader");
-   await qrScanner.start({facingMode:"environment"},{fps:10,qrbox:{width:260,height:150}},txt=>{document.getElementById("addCode").value=txt;toast("Codice letto");stopScan()});
+   qrScanner=new Html5Qrcode("reader",{useBarCodeDetectorIfSupported:true});
+   await qrScanner.start({facingMode:"environment"},{fps:12,qrbox:(w,h)=>({width:Math.min(300,w*.82),height:Math.min(190,h*.55)})},(txt,result)=>{
+     document.getElementById("addCode").value=txt;
+     pendingScanFormat=normalizeFormat(scanFormatName(result)||inferManualFormat(txt));
+     document.getElementById("detectedFormat").textContent="Rilevato: "+formatLabel(pendingScanFormat);
+     toast("Codice letto · "+formatLabel(pendingScanFormat));
+     stopScan()
+   });
  }catch(e){wrap.classList.remove("show");toast("Fotocamera non disponibile. Inserisci il codice manualmente.")}
 };
 async function stopScan(){if(qrScanner){try{await qrScanner.stop()}catch(e){}try{await qrScanner.clear()}catch(e){}qrScanner=null}document.getElementById("scanner").classList.remove("show")}
