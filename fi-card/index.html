@@ -26,7 +26,6 @@
     .iconbtn{border:0;background:var(--surface);width:40px;height:40px;border-radius:14px;box-shadow:var(--shadow);font-size:19px}
     .search{display:flex;gap:10px;margin:4px 0 12px}.search input{width:100%;border:1px solid var(--line);background:#fff;border-radius:16px;padding:13px 14px;outline:none}.search input:focus{border-color:#B8AEFF;box-shadow:0 0 0 3px rgba(91,61,245,.08)}
     .chips{display:flex;gap:8px;overflow:auto;padding:2px 0 12px;scrollbar-width:none}.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:9px 13px;white-space:nowrap;color:var(--muted);font-size:13px}.chip.active{background:var(--violet);border-color:var(--violet);color:#fff}
-    .nearby{background:linear-gradient(115deg,#E9FFF8,#F2FFFC);border:1px solid #BCEFE4;border-radius:18px;padding:13px 14px;display:none;align-items:center;gap:11px;margin-bottom:14px}.nearby.show{display:flex}.nearby .pin{width:38px;height:38px;border-radius:12px;background:#D7FFF4;display:grid;place-items:center}.nearby b{font-size:14px}.nearby small{display:block;color:#41756C;margin-top:2px}
     .sectionTitle{display:flex;align-items:center;justify-content:space-between;margin:8px 2px 10px}.sectionTitle h2{font-size:17px;margin:0}.sectionTitle button{border:0;background:none;color:var(--violet);font-weight:700;font-size:13px}
     .cards{display:block}.categorySection{margin:0 0 20px}.categoryHead{display:flex;align-items:center;justify-content:space-between;margin:0 2px 9px}.categoryHead h3{font-size:15px;margin:0;display:flex;align-items:center;gap:7px}.categoryCount{display:inline-grid;place-items:center;min-width:23px;height:23px;padding:0 7px;border-radius:999px;background:#EEEAFE;color:var(--violet);font-size:11px;font-weight:900}.categoryMore{border:0;background:none;color:var(--violet);font-size:12px;font-weight:800;padding:5px}.cardShelf{display:flex;gap:12px;overflow-x:auto;padding:2px 2px 10px;scroll-snap-type:x proximity;scrollbar-width:none}.cardShelf::-webkit-scrollbar{display:none}.cardShelf .card{flex:0 0 176px;scroll-snap-align:start}.card{position:relative;min-height:132px;border:0;border-radius:22px;padding:16px;color:#fff;text-align:left;box-shadow:var(--shadow);overflow:hidden}.brandMark{position:absolute;left:14px;top:13px;min-width:40px;height:30px;padding:0 8px;border-radius:9px;background:rgba(255,255,255,.94);color:#172033;display:grid;place-items:center;font-size:10px;font-weight:900;letter-spacing:-.2px;box-shadow:0 3px 10px rgba(0,0,0,.08)}.card:after{content:"";position:absolute;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,.11);right:-34px;bottom:-45px}.card .star{position:absolute;right:12px;top:10px;font-size:19px}.card .name{font-size:17px;font-weight:800;margin-top:33px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.card .type{opacity:.9;font-size:12px;margin-top:4px}.card .mini{position:absolute;left:15px;top:14px;width:33px;height:25px;border:2px solid rgba(255,255,255,.85);border-radius:6px}.card .mini:after{content:"";position:absolute;left:4px;right:4px;top:6px;height:3px;background:rgba(255,255,255,.85);border-radius:3px}
     .empty{grid-column:1/-1;background:#fff;border:1px dashed #CFC9FF;border-radius:22px;padding:28px;text-align:center;color:var(--muted)}.empty strong{display:block;color:var(--text);font-size:16px;margin-bottom:6px}
@@ -57,7 +56,7 @@
 <body>
 <div class="app">
   <header class="top">
-    <div class="brand"><h1 class="brandLockup"><svg viewBox="370 835 515 177" role="img" aria-labelledby="brandTitle" xmlns="http://www.w3.org/2000/svg"><title id="brandTitle">Fi-Card</title><image href="./brand-approved.png" width="1448" height="1086"/></svg></h1><div class="release">02/10/2026 · 10:20 · v0.9.17</div></div>
+    <div class="brand"><h1 class="brandLockup"><svg viewBox="370 835 515 177" role="img" aria-labelledby="brandTitle" xmlns="http://www.w3.org/2000/svg"><title id="brandTitle">Fi-Card</title><image href="./brand-approved.png" width="1448" height="1086"/></svg></h1><div class="release">02/10/2026 · 10:35 · v0.9.18</div></div>
     <div class="topActions"><button class="iconbtn" id="refreshBtn" title="Aggiorna Fi-Card" aria-label="Aggiorna Fi-Card">↻</button><button class="iconbtn" id="installBtn" title="Installa">⇩</button></div>
   </header>
 
@@ -82,7 +81,7 @@
     </section>
 
     <section id="offersView" class="view">
-      <div class="sectionTitle"><h2>Offerte per te</h2><button id="notifyBtn">Attiva reminder</button></div>
+      <div class="sectionTitle"><h2>Offerte per te</h2></div>
       <p class="hint">Nel prototipo le offerte sono dimostrative. In futuro potranno arrivare dalle catene aderenti o da feed promozionali.</p>
       <div id="offersList"></div>
     </section>
@@ -164,8 +163,6 @@
   <p class="hint">Sposta la mappa OpenStreetMap e tocca il punto esatto del negozio. Puoi anche trascinare il segnaposto.</p>
   <div id="locationPickerMap" class="locationMap" aria-label="Mappa OpenStreetMap per scegliere il punto vendita"></div>
   <div id="pickerCoords" class="pickerCoords">Tocca sulla mappa per scegliere la posizione.</div>
-  <label for="pickerRadius">Raggio di riconoscimento</label>
-  <div class="row"><input id="pickerRadius" class="field" type="number" inputmode="numeric" min="30" max="5000" step="10" value="180"><div class="field" style="background:#F3F4F6;color:#6B7280;display:flex;align-items:center">metri</div></div>
   <button class="secondary" id="pickerUseGps">⌖ Usa la mia posizione</button>
   <button class="primary" id="pickerSave" disabled>Salva questo punto</button>
 </div></div>
@@ -182,7 +179,7 @@
 <div id="backupModal" class="modal"><div class="sheet"><div class="sheetHead"><h2>Ripristina backup</h2><button class="close" data-close="backupModal">×</button></div><p id="backupSummary"></p><button class="primary" id="mergeBackup">Unisci alle mie carte</button><button class="secondary" id="replaceBackup">Sostituisci le mie carte</button><p class="hint">Unisci conserva le carte esistenti. Sostituisci salva prima una copia di sicurezza scaricabile.</p></div></div>
 
 <script>
-const RELEASE="2026.10.02-1020-v0.9.17";
+const RELEASE="2026.10.02-1035-v0.9.18";
 const KEY="ficard.cards.v3";
 const LEGACY_KEYS=["ficard.cards.v2","ficard.cards.v1"];
 const DB_NAME="ficard-local";
@@ -272,7 +269,7 @@ function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&l
 function toast(t){const el=document.getElementById("toast");el.textContent=t;el.classList.add("show");clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove("show"),2600)}
 function distanceM(a,b){const R=6371000,p=Math.PI/180,dLat=(b.lat-a.lat)*p,dLon=(b.lng-a.lng)*p,x=Math.sin(dLat/2)**2+Math.cos(a.lat*p)*Math.cos(b.lat*p)*Math.sin(dLon/2)**2;return 2*R*Math.atan2(Math.sqrt(x),Math.sqrt(1-x))}
 function nearestFor(card,pos){if(!pos||!card.locations?.length)return null;let best=null;for(const l of card.locations){const d=distanceM(pos,l);if(!best||d<best.d)best={...l,d}}return best}
-function smartCard(){if(!currentPos)return cards.find(c=>c.fav)||cards[0];const candidates=cards.map(c=>({c,n:nearestFor(c,currentPos)})).filter(x=>x.n&&x.n.d<=(x.n.radius||180)).sort((a,b)=>a.n.d-b.n.d);return candidates[0]?.c||cards.find(c=>c.fav)||cards[0]}
+function smartCard(){if(!currentPos)return cards.find(c=>c.fav)||cards[0];const candidates=cards.map(c=>({c,n:nearestFor(c,currentPos)})).filter(x=>x.n).sort((a,b)=>a.n.d-b.n.d);return candidates[0]?.c||cards.find(c=>c.fav)||cards[0]}
 function brandFor(c){return c.brandKey&&BRANDS[c.brandKey]?BRANDS[c.brandKey]:{name:c.name,color:c.color||"#5B3DF5",mark:String(c.name||"CARD").toUpperCase().slice(0,10),category:c.category||"altro"}}
 function categoryFor(c){const category=c.category||(c.brandKey&&BRANDS[c.brandKey]?.category)||"altro";if(category==="calzature")return "abbigliamento";if(category==="altro"&&BRANDS[c.brandKey]?.category==="petstore")return "petstore";return category}
 function categoryLabel(c){return CATEGORIES[categoryFor(c)]||CATEGORIES.altro}
@@ -419,11 +416,6 @@ function renderOverviewMap(){
    else if(storeBounds.length>1)overviewMap.fitBounds(storeBounds,{padding:[28,28],maxZoom:16,animate:false});
  },80)
 }
-function renderNearby(){
- const b=document.getElementById("nearbyBanner");if(!currentPos){b.classList.remove("show");return}
- let best=null;for(const c of cards){const n=nearestFor(c,currentPos);if(n&&(!best||n.d<best.n.d))best={c,n}}
- if(best&&best.n.d<=(best.n.radius||180)){document.getElementById("nearbyTitle").textContent="Sei vicino a "+best.c.name;document.getElementById("nearbyText").textContent="Carta pronta · circa "+Math.round(best.n.d)+" m";b.classList.add("show");b.onclick=()=>openCard(best.c.id)}else b.classList.remove("show");
-}
 function renderWidget(){
  const c=smartCard();const box=document.getElementById("widgetContent");if(!c){box.innerHTML='<div class="panel">Aggiungi una carta per vedere il widget.</div>';return}
  box.innerHTML='<div class="widgetPreview"><div class="widgetTop"><b>Fi-Card</b><span>Smart</span></div><div class="widgetCard"><div class="wName">'+esc(c.name)+'</div><canvas id="widgetSvg"></canvas><div class="num">'+esc(c.code)+'</div></div></div>';
@@ -486,7 +478,7 @@ function showFull(c){document.getElementById("fullNum").textContent=c.code;drawB
 async function associateLocation(id){
  const c=cards.find(x=>x.id===id);if(!c)return;
  toast("Cerco la posizione…");
- try{const p=await getPosition();currentPos=p;const radius=Number(prompt("Raggio di riconoscimento in metri","180"))||180;c.locations=c.locations||[];c.locations.push({lat:p.lat,lng:p.lng,radius,createdAt:Date.now()});save();renderAll();openCard(id,false);toast("Punto vendita associato")}catch(e){toast("Posizione non disponibile: "+e.message)}
+ try{const p=await getPosition();currentPos=p;c.locations=c.locations||[];c.locations.push({lat:p.lat,lng:p.lng,createdAt:Date.now()});save();renderAll();openCard(id,false);toast("Punto vendita associato")}catch(e){toast("Posizione non disponibile: "+e.message)}
 }
 function removeLocation(id,i){const c=cards.find(x=>x.id===id);if(!c)return;c.locations.splice(i,1);save();renderAll()}
 function setPickerPoint(lat,lng,center=true){
@@ -504,7 +496,7 @@ function setPickerPoint(lat,lng,center=true){
 }
 function openLocationPicker(id){
  const c=cards.find(x=>x.id===id);if(!c)return;
- locationPickerCardId=id;locationPickerPoint=null;document.getElementById("pickerSave").disabled=true;document.getElementById("pickerRadius").value="180";document.getElementById("pickerCoords").textContent="Tocca sulla mappa per scegliere la posizione.";showModal("locationPickerModal");
+ locationPickerCardId=id;locationPickerPoint=null;document.getElementById("pickerSave").disabled=true;document.getElementById("pickerCoords").textContent="Tocca sulla mappa per scegliere la posizione.";showModal("locationPickerModal");
  setTimeout(()=>{
    if(!window.L){toast("La mappa richiede una connessione internet.");return}
    if(locationPickerMap){locationPickerMap.remove();locationPickerMap=null;locationPickerMarker=null}
@@ -532,7 +524,7 @@ document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.go)
 function go(v){document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));document.getElementById(v+"View").classList.add("active");document.querySelectorAll(".nav").forEach(x=>x.classList.toggle("active",x.dataset.view===v));if(v==="map")setTimeout(renderOverviewMap,80)}
 document.getElementById("mapRefresh").onclick=refreshPosition;
 document.getElementById("pickerUseGps").onclick=async()=>{try{const p=await getPosition();currentPos=p;setPickerPoint(p.lat,p.lng,true);renderSmartCarousel();toast("Posizione acquisita")}catch(e){toast("GPS: "+e.message)}};
-document.getElementById("pickerSave").onclick=()=>{const c=cards.find(x=>x.id===locationPickerCardId);if(!c||!locationPickerPoint)return;const radius=Math.max(30,Math.min(5000,Number(document.getElementById("pickerRadius").value)||180));c.locations=c.locations||[];c.locations.push({lat:locationPickerPoint.lat,lng:locationPickerPoint.lng,radius,createdAt:Date.now(),source:"osm"});save();hideModal("locationPickerModal");renderAll();openCard(c.id,false);toast("Punto OpenStreetMap associato")};
+document.getElementById("pickerSave").onclick=()=>{const c=cards.find(x=>x.id===locationPickerCardId);if(!c||!locationPickerPoint)return;c.locations=c.locations||[];c.locations.push({lat:locationPickerPoint.lat,lng:locationPickerPoint.lng,createdAt:Date.now(),source:"osm"});save();hideModal("locationPickerModal");renderAll();openCard(c.id,false);toast("Punto OpenStreetMap associato")};
 document.getElementById("widgetDemo").onclick=()=>{renderWidget();showModal("widgetModal")};
 document.getElementById("closeFull").onclick=()=>document.getElementById("fullBarcode").classList.remove("show");
 
@@ -566,10 +558,6 @@ document.getElementById("mergeBackup").onclick=()=>{const added=mergeCards(pendi
 document.getElementById("replaceBackup").onclick=()=>{if(!confirm("Sostituire le "+cards.length+" carte attuali con le "+pendingBackup.length+" carte del backup?"))return;downloadBackup(cards,"fi-card-prima-del-ripristino.json");cards=pendingBackup;save();renderAll();hideModal("backupModal");toast("Backup ripristinato")};
 document.getElementById("seedDemo").onclick=()=>{cards=demoCards();save();renderAll();toast("Carte demo ripristinate")};
 document.getElementById("clearData").onclick=async()=>{if(confirm("Cancellare tutte le carte e i punti vendita salvati?")){cards=[];try{[KEY,...LEGACY_KEYS].forEach(k=>localStorage.removeItem(k))}catch(e){}try{await idbSet("cards",[])}catch(e){}renderAll();toast("Dati locali cancellati")}};
-document.getElementById("notifyBtn").onclick=async()=>{
- if(!("Notification" in window))return toast("Notifiche web non supportate");
- const p=await Notification.requestPermission();if(p==="granted"){new Notification("Fi-Card",{body:"Oggi da IdroMarket hai il 10% di sconto. Ricordati la carta!"});toast("Reminder di prova inviato")}else toast("Permesso notifiche non concesso")
-};
 
 document.getElementById("refreshBtn").onclick=async()=>{toast("Aggiorno Fi-Card…");try{if("caches" in window){const keys=await caches.keys();await Promise.all(keys.filter(k=>k.startsWith("ficard-")).map(k=>caches.delete(k)))}if("serviceWorker" in navigator){const reg=await navigator.serviceWorker.getRegistration("./");if(reg)await reg.update()}}catch(e){}const u=new URL(location.href);u.searchParams.set("release",RELEASE);u.searchParams.set("_refresh",Date.now());location.replace(u.toString())};
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredPrompt=e;document.getElementById("installBtn").style.display=""});
@@ -585,7 +573,7 @@ function initCatalog(){document.getElementById('addBrand').innerHTML=catalogOpti
 function renderBrandResults(){const q=document.getElementById('brandSearch').value.toLocaleLowerCase('it').normalize('NFD').replace(/[\u0300-\u036f]/g,'');const popular=['conad','coop','esselunga','tigota','carrefour','ikea','mediaworld','decathlon','lidl','unieuro','acquaesapone','eurospin'];const matches=Object.entries(BRANDS).filter(([k,b])=>(b.name+' '+CATEGORIES[b.category]).toLocaleLowerCase('it').normalize('NFD').replace(/[\u0300-\u036f]/g,'').includes(q)).sort((a,b)=>q?a[1].name.localeCompare(b[1].name,'it'):(popular.includes(a[0])?popular.indexOf(a[0]):99)-(popular.includes(b[0])?popular.indexOf(b[0]):99));const box=document.getElementById('brandResults');box.innerHTML=(q?matches:matches.slice(0,12)).map(([k,b])=>'<button type="button" class="brandPick" data-brand="'+esc(k)+'"><span class="catalogLogo">'+brandLogoHtml(b)+'</span><span>'+esc(b.name)+'</span></button>').join('')||'<p class="hint">Nessun marchio trovato. Puoi creare una carta personalizzata.</p>';box.querySelectorAll('[data-brand]').forEach(btn=>btn.onclick=()=>{const el=document.getElementById('addBrand');el.value=btn.dataset.brand;el.dispatchEvent(new Event('change'));document.getElementById('scanBtn').scrollIntoView({behavior:'smooth',block:'center'})})}
 
 function downloadBackup(data,filename=''){const payload={app:'Fi-Card',version:2,exportedAt:new Date().toISOString(),cards:data};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename||'fi-card-backup-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),10000);localStorage.setItem('ficard.lastBackup',payload.exportedAt);document.getElementById('backupInfo').textContent='Backup creato: '+new Date().toLocaleString('it-IT')+'. Conserva il file per ripristinare le carte.';toast('Backup pronto da salvare in File')}
-function validateBackup(data){if(!Array.isArray(data)&&(!data||data.app!=='Fi-Card'||![1,2].includes(data.version)))throw Error('Questo file non è un backup Fi-Card compatibile');const arr=Array.isArray(data)?data:data.cards;if(!Array.isArray(arr)||arr.length>10000)throw Error('Elenco carte non valido');return arr.map((c,i)=>{if(!c||typeof c.name!=='string'||!c.name.trim()||c.name.length>200||typeof c.code!=='string'||!c.code||c.code.length>4096)throw Error('Carta '+(i+1)+' non valida: nessun dato è stato modificato');if(c.format&&!Object.prototype.hasOwnProperty.call({QR_CODE:1,AZTEC:1,CODABAR:1,CODE39:1,CODE93:1,CODE128:1,DATA_MATRIX:1,ITF:1,EAN13:1,EAN8:1,PDF417:1,UPCA:1,UPCE:1,RSS14:1,RSS_EXPANDED:1},normalizeFormat(c.format)))throw Error('Formato codice non supportato nella carta '+(i+1));const locations=c.locations||[];if(!Array.isArray(locations)||locations.some(l=>!l||typeof l.lat!=='number'||!Number.isFinite(l.lat)||Math.abs(l.lat)>90||typeof l.lng!=='number'||!Number.isFinite(l.lng)||Math.abs(l.lng)>180||(l.radius!==undefined&&(!Number.isFinite(l.radius)||l.radius<=0||l.radius>100000))))throw Error('Posizione non valida nella carta '+(i+1));if(c.photo&&(!(typeof c.photo==='string')||!/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(c.photo)||c.photo.length>2000000))throw Error('Foto non valida nella carta '+(i+1));return {id:crypto.randomUUID(),notes:typeof c.notes==='string'?c.notes.slice(0,2000):'',photo:c.photo||'',lastUsed:Number.isFinite(c.lastUsed)&&c.lastUsed>=0?c.lastUsed:0,useCount:Number.isInteger(c.useCount)&&c.useCount>=0?c.useCount:0,name:c.name.trim(),code:c.code,brandKey:Object.hasOwn(BRANDS,c.brandKey)?c.brandKey:'',category:c.category==='calzature'?'abbigliamento':Object.hasOwn(CATEGORIES,c.category)?c.category:'altro',color:/^#[0-9a-f]{6}$/i.test(c.color)?c.color:'#5B3DF5',format:normalizeFormat(c.format||inferManualFormat(c.code)),fav:c.fav===true,locations:locations.map(l=>({lat:l.lat,lng:l.lng,radius:l.radius||180}))}})}
+function validateBackup(data){if(!Array.isArray(data)&&(!data||data.app!=='Fi-Card'||![1,2].includes(data.version)))throw Error('Questo file non è un backup Fi-Card compatibile');const arr=Array.isArray(data)?data:data.cards;if(!Array.isArray(arr)||arr.length>10000)throw Error('Elenco carte non valido');return arr.map((c,i)=>{if(!c||typeof c.name!=='string'||!c.name.trim()||c.name.length>200||typeof c.code!=='string'||!c.code||c.code.length>4096)throw Error('Carta '+(i+1)+' non valida: nessun dato è stato modificato');if(c.format&&!Object.prototype.hasOwnProperty.call({QR_CODE:1,AZTEC:1,CODABAR:1,CODE39:1,CODE93:1,CODE128:1,DATA_MATRIX:1,ITF:1,EAN13:1,EAN8:1,PDF417:1,UPCA:1,UPCE:1,RSS14:1,RSS_EXPANDED:1},normalizeFormat(c.format)))throw Error('Formato codice non supportato nella carta '+(i+1));const locations=c.locations||[];if(!Array.isArray(locations)||locations.some(l=>!l||typeof l.lat!=='number'||!Number.isFinite(l.lat)||Math.abs(l.lat)>90||typeof l.lng!=='number'||!Number.isFinite(l.lng)||Math.abs(l.lng)>180))throw Error('Posizione non valida nella carta '+(i+1));if(c.photo&&(!(typeof c.photo==='string')||!/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(c.photo)||c.photo.length>2000000))throw Error('Foto non valida nella carta '+(i+1));return {id:crypto.randomUUID(),notes:typeof c.notes==='string'?c.notes.slice(0,2000):'',photo:c.photo||'',lastUsed:Number.isFinite(c.lastUsed)&&c.lastUsed>=0?c.lastUsed:0,useCount:Number.isInteger(c.useCount)&&c.useCount>=0?c.useCount:0,name:c.name.trim(),code:c.code,brandKey:Object.hasOwn(BRANDS,c.brandKey)?c.brandKey:'',category:c.category==='calzature'?'abbigliamento':Object.hasOwn(CATEGORIES,c.category)?c.category:'altro',color:/^#[0-9a-f]{6}$/i.test(c.color)?c.color:'#5B3DF5',format:normalizeFormat(c.format||inferManualFormat(c.code)),fav:c.fav===true,locations:locations.map(l=>({lat:l.lat,lng:l.lng}))}})}
 function cardIdentity(c){return JSON.stringify([c.name.trim().toLocaleLowerCase('it'),c.code,normalizeFormat(c.format||inferManualFormat(c.code))])}
 function mergeCards(incoming){const seen=new Map(cards.map(c=>[cardIdentity(c),c]));let added=0;for(const c of incoming){const key=cardIdentity(c),existing=seen.get(key);if(existing){for(const l of c.locations||[])if(!(existing.locations||[]).some(x=>x.lat===l.lat&&x.lng===l.lng)){(existing.locations||(existing.locations=[])).push(l)}if(!existing.notes&&c.notes)existing.notes=c.notes;if(!existing.photo&&c.photo)existing.photo=c.photo;existing.lastUsed=Math.max(existing.lastUsed||0,c.lastUsed||0);existing.useCount=Math.max(existing.useCount||0,c.useCount||0)}else{cards.push(c);seen.set(key,c);added++}}return added}
 async function imageToScanCandidates(file){
