@@ -51,7 +51,7 @@
 <body>
 <div class="app">
   <header class="top">
-    <div class="brand"><h1 class="brandLockup"><svg viewBox="370 835 515 177" role="img" aria-labelledby="brandTitle" xmlns="http://www.w3.org/2000/svg"><title id="brandTitle">Fi-Card</title><image href="./brand-approved.png" width="1448" height="1086"/></svg></h1><div class="release">02/10/2026 · 09:13 · v0.9.9</div></div>
+    <div class="brand"><h1 class="brandLockup"><svg viewBox="370 835 515 177" role="img" aria-labelledby="brandTitle" xmlns="http://www.w3.org/2000/svg"><title id="brandTitle">Fi-Card</title><image href="./brand-approved.png" width="1448" height="1086"/></svg></h1><div class="release">02/10/2026 · 09:14 · v0.9.10</div></div>
     <div class="topActions"><button class="iconbtn" id="refreshBtn" title="Aggiorna Fi-Card" aria-label="Aggiorna Fi-Card">↻</button><button class="iconbtn" id="installBtn" title="Installa">⇩</button></div>
   </header>
 
@@ -171,7 +171,7 @@
 <div id="backupModal" class="modal"><div class="sheet"><div class="sheetHead"><h2>Ripristina backup</h2><button class="close" data-close="backupModal">×</button></div><p id="backupSummary"></p><button class="primary" id="mergeBackup">Unisci alle mie carte</button><button class="secondary" id="replaceBackup">Sostituisci le mie carte</button><p class="hint">Unisci conserva le carte esistenti. Sostituisci salva prima una copia di sicurezza scaricabile.</p></div></div>
 
 <script>
-const RELEASE="2026.10.02-0913-v0.9.9";
+const RELEASE="2026.10.02-0914-v0.9.10";
 const KEY="ficard.cards.v3";
 const LEGACY_KEYS=["ficard.cards.v2","ficard.cards.v1"];
 const DB_NAME="ficard-local";
@@ -265,7 +265,18 @@ function smartCard(){if(!currentPos)return cards.find(c=>c.fav)||cards[0];const 
 function brandFor(c){return c.brandKey&&BRANDS[c.brandKey]?BRANDS[c.brandKey]:{name:c.name,color:c.color||"#5B3DF5",mark:String(c.name||"CARD").toUpperCase().slice(0,10),category:c.category||"altro"}}
 function categoryFor(c){return c.category||(c.brandKey&&BRANDS[c.brandKey]?.category)||"altro"}
 function categoryLabel(c){return CATEGORIES[categoryFor(c)]||CATEGORIES.altro}
-function normalizeCategories(){let changed=false;cards.forEach(c=>{if(!c.category){c.category=categoryFor(c);changed=true}});if(changed)save()}
+function normalizeCategories(){
+ let changed=false;
+ cards.forEach(c=>{
+   if(!c.brandKey){
+     const target=String(c.name||"").toLocaleLowerCase("it").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]/g,"");
+     const match=Object.entries(BRANDS).find(([k,b])=>String(b.name||"").toLocaleLowerCase("it").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]/g,"")===target);
+     if(match){c.brandKey=match[0];changed=true}
+   }
+   if(!c.category){c.category=categoryFor(c);changed=true}
+ });
+ if(changed)save()
+}
 function renderCategoryChips(){
  const box=document.getElementById("categoryChips");if(!box)return;
  const active=document.querySelector(".chip[data-filter].active")?.dataset.filter||"all";
