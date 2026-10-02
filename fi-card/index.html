@@ -51,7 +51,7 @@
 <body>
 <div class="app">
   <header class="top">
-    <div class="brand"><h1 class="brandLockup"><svg viewBox="370 835 515 177" role="img" aria-labelledby="brandTitle" xmlns="http://www.w3.org/2000/svg"><title id="brandTitle">Fi-Card</title><image href="./brand-approved.png" width="1448" height="1086"/></svg></h1><div class="release">02/10/2026 · 08:30 · v0.9.6</div></div>
+    <div class="brand"><h1 class="brandLockup"><svg viewBox="370 835 515 177" role="img" aria-labelledby="brandTitle" xmlns="http://www.w3.org/2000/svg"><title id="brandTitle">Fi-Card</title><image href="./brand-approved.png" width="1448" height="1086"/></svg></h1><div class="release">02/10/2026 · 08:42 · v0.9.7</div></div>
     <div class="topActions"><button class="iconbtn" id="refreshBtn" title="Aggiorna Fi-Card" aria-label="Aggiorna Fi-Card">↻</button><button class="iconbtn" id="installBtn" title="Installa">⇩</button></div>
   </header>
 
@@ -171,7 +171,7 @@
 <div id="backupModal" class="modal"><div class="sheet"><div class="sheetHead"><h2>Ripristina backup</h2><button class="close" data-close="backupModal">×</button></div><p id="backupSummary"></p><button class="primary" id="mergeBackup">Unisci alle mie carte</button><button class="secondary" id="replaceBackup">Sostituisci le mie carte</button><p class="hint">Unisci conserva le carte esistenti. Sostituisci salva prima una copia di sicurezza scaricabile.</p></div></div>
 
 <script>
-const RELEASE="2026.10.02-0830-v0.9.6";
+const RELEASE="2026.10.02-0842-v0.9.7";
 const KEY="ficard.cards.v3";
 const LEGACY_KEYS=["ficard.cards.v2","ficard.cards.v1"];
 const DB_NAME="ficard-local";
@@ -333,18 +333,21 @@ function renderOverviewMap(){
    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"&copy; OpenStreetMap contributors"}).addTo(overviewMap);
  }
  if(overviewLayer)overviewLayer.remove();overviewLayer=L.layerGroup().addTo(overviewMap);
- const bounds=[];
+ const storeBounds=[];
  cards.forEach(c=>(c.locations||[]).forEach(l=>{
    const marker=L.marker([l.lat,l.lng]).addTo(overviewLayer),wrap=document.createElement("div"),title=document.createElement("b"),meta=document.createElement("div");
-   title.textContent=c.name;meta.textContent="Raggio "+(l.radius||180)+" m";wrap.append(title,meta);marker.bindPopup(wrap);marker.on("click",()=>{});
-   bounds.push([l.lat,l.lng])
+   title.textContent=c.name;meta.textContent="Raggio "+(l.radius||180)+" m";wrap.append(title,meta);marker.bindPopup(wrap);
+   storeBounds.push([l.lat,l.lng])
  }));
  if(currentPos){
-   L.circleMarker([currentPos.lat,currentPos.lng],{radius:8,weight:3,fillOpacity:.45}).addTo(overviewLayer).bindTooltip("La tua posizione");
-   bounds.push([currentPos.lat,currentPos.lng])
+   L.circleMarker([currentPos.lat,currentPos.lng],{radius:9,weight:3,fillOpacity:.6}).addTo(overviewLayer).bindTooltip("La tua posizione");
  }
- if(bounds.length===1)overviewMap.setView(bounds[0],16);else if(bounds.length>1)overviewMap.fitBounds(bounds,{padding:[28,28],maxZoom:16});
- setTimeout(()=>overviewMap.invalidateSize(),80)
+ setTimeout(()=>{
+   overviewMap.invalidateSize();
+   if(currentPos)overviewMap.setView([currentPos.lat,currentPos.lng],16,{animate:false});
+   else if(storeBounds.length===1)overviewMap.setView(storeBounds[0],16,{animate:false});
+   else if(storeBounds.length>1)overviewMap.fitBounds(storeBounds,{padding:[28,28],maxZoom:16,animate:false});
+ },80)
 }
 function renderNearby(){
  const b=document.getElementById("nearbyBanner");if(!currentPos){b.classList.remove("show");return}
