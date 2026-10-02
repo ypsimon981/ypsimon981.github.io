@@ -49,12 +49,13 @@
 .top{align-items:flex-start}.brand{flex-direction:column;align-items:flex-start;gap:3px;flex:1 1 auto}.brandLockup{margin:0;width:210px;max-width:100%;line-height:0}.brandLockup svg{display:block;width:100%;height:auto}.brand .release{font-size:10px;margin:0 0 0 5px}.topActions{padding-top:8px}@media(max-width:350px){.brandLockup{width:180px}.brand .release{font-size:9px}}
 .smartBlock{margin:2px 0 16px}.smartHead{display:flex;align-items:end;justify-content:space-between;gap:10px;margin:0 2px 9px}.smartHead h2{font-size:17px;margin:0}.smartHead small{color:var(--muted);font-size:11px;text-align:right}.smartCarousel{display:flex;gap:12px;overflow-x:auto;padding:2px 2px 12px;scroll-snap-type:x mandatory;scrollbar-width:none}.smartCarousel::-webkit-scrollbar{display:none}.smartCard{position:relative;flex:0 0 188px;scroll-snap-align:start;border:0;border-radius:22px;padding:13px;text-align:left;aspect-ratio:1.46;min-height:142px;color:var(--card-ink,#fff);background:var(--card-color);box-shadow:var(--shadow);overflow:hidden}.smartCard .brandMark{position:static;width:100%;height:70px;padding:11px;border-radius:14px;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:none}.smartCard .brandMark .brandLogo{max-width:155px}.smartCard .name{font-size:14px;font-weight:850;margin-top:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.smartMeta{font-size:11px;opacity:.88;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.smartEmpty{background:#fff;border:1px dashed #CFC9FF;border-radius:20px;padding:18px;color:var(--muted);width:100%}#categoryChips{display:none}#categoryChips.show{display:flex}.locationMap{position:relative;z-index:0;isolation:isolate;height:340px;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#EEF1F6;margin:10px 0}.pickerCoords{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;margin-top:8px}.leaflet-container{font-family:inherit}.leaflet-control-attribution{font-size:9px}.mapLegend{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 2px}.mapLegend .chip{padding:6px 10px;font-size:11px}.brandPin{width:40px;height:40px;border-radius:50% 50% 50% 8px;transform:rotate(-45deg);display:grid;place-items:center;border:3px solid #fff;box-shadow:0 5px 14px rgba(17,24,39,.28);overflow:hidden}.brandPinInner{width:29px;height:29px;border-radius:50%;background:#fff;display:grid;place-items:center;transform:rotate(45deg);overflow:hidden;font-weight:900;font-size:14px;line-height:1}.brandPinInner img{width:23px;height:23px;object-fit:contain;border-radius:3px}.locationBrandIcon{width:46px;height:46px;flex:0 0 46px;border-radius:15px;display:grid;place-items:center;border:2px solid #fff;box-shadow:0 4px 12px rgba(31,41,55,.10);font-weight:900;overflow:hidden}.locationBrandIcon span{width:34px;height:34px;border-radius:50%;background:#fff;display:grid;place-items:center;overflow:hidden}.locationBrandIcon img{width:29px;height:29px;object-fit:contain}.editGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.editGrid .full{grid-column:1/-1}.importRow .scanWarning{background:#FFF7E6;border:1px solid #F9D99A;color:#8A5A00;border-radius:12px;padding:9px 10px;margin:8px 0;font-size:12px;line-height:1.35}
 .storeCluster{border:0;background:none}.storeClusterBadge{width:48px;height:48px;border:3px solid #fff;border-radius:50%;background:#5B3DF5;color:#fff;box-shadow:0 5px 16px rgba(31,41,55,.3);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}.storeClusterBadge b{font-size:18px}.storeClusterBadge small{font-size:8px;margin-top:3px}.leaflet-cluster-spider-leg{pointer-events:none}
+.locationResult{flex-wrap:wrap}.locationResult .grow{min-width:0}.locationActions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%}.locationActions .chip{padding:9px 6px;color:var(--violet);font-weight:700}.navigationChoices{display:grid;gap:10px;margin-top:16px}.navigationChoices a{display:block;text-decoration:none;color:var(--text);background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;font-weight:800}.navigationChoices a:focus-visible{outline:3px solid var(--violet);outline-offset:2px}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="top">
-    <div class="brand"><h1 class="brandLockup"><svg viewBox="370 835 515 177" role="img" aria-labelledby="brandTitle" xmlns="http://www.w3.org/2000/svg"><title id="brandTitle">Fi-Card</title><image href="./brand-approved.png" width="1448" height="1086"/></svg></h1><div class="release">02/10/2026 · 10:00 · v0.9.14</div></div>
+    <div class="brand"><h1 class="brandLockup"><svg viewBox="370 835 515 177" role="img" aria-labelledby="brandTitle" xmlns="http://www.w3.org/2000/svg"><title id="brandTitle">Fi-Card</title><image href="./brand-approved.png" width="1448" height="1086"/></svg></h1><div class="release">02/10/2026 · 10:10 · v0.9.15</div></div>
     <div class="topActions"><button class="iconbtn" id="refreshBtn" title="Aggiorna Fi-Card" aria-label="Aggiorna Fi-Card">↻</button><button class="iconbtn" id="installBtn" title="Installa">⇩</button></div>
   </header>
 
@@ -151,6 +152,10 @@
   <div id="detailContent"></div>
 </div></div>
 
+<div id="navigationModal" class="modal"><div class="sheet">
+  <div class="grab"></div><div class="sheetHead"><h2>Scegli il navigatore</h2><button class="close" data-close="navigationModal" aria-label="Chiudi">×</button></div>
+  <p id="navigationDestination" class="hint"></p><div id="navigationChoices" class="navigationChoices"></div>
+</div></div>
 <div id="locationPickerModal" class="modal"><div class="sheet">
   <div class="grab"></div><div class="sheetHead"><h2>Associa punto vendita</h2><button class="close" data-close="locationPickerModal">×</button></div>
   <p class="hint">Sposta la mappa OpenStreetMap e tocca il punto esatto del negozio. Puoi anche trascinare il segnaposto.</p>
@@ -174,7 +179,7 @@
 <div id="backupModal" class="modal"><div class="sheet"><div class="sheetHead"><h2>Ripristina backup</h2><button class="close" data-close="backupModal">×</button></div><p id="backupSummary"></p><button class="primary" id="mergeBackup">Unisci alle mie carte</button><button class="secondary" id="replaceBackup">Sostituisci le mie carte</button><p class="hint">Unisci conserva le carte esistenti. Sostituisci salva prima una copia di sicurezza scaricabile.</p></div></div>
 
 <script>
-const RELEASE="2026.10.02-1000-v0.9.14";
+const RELEASE="2026.10.02-1010-v0.9.15";
 const KEY="ficard.cards.v3";
 const LEGACY_KEYS=["ficard.cards.v2","ficard.cards.v1"];
 const DB_NAME="ficard-local";
@@ -351,9 +356,26 @@ function mapBrandInnerHtml(c){
 function renderLocations(){
  const items=[];cards.forEach(c=>(c.locations||[]).forEach((l,i)=>items.push({c,l,i,d:currentPos?distanceM(currentPos,l):Infinity})));
  items.sort((a,b)=>a.d-b.d||a.c.name.localeCompare(b.c.name,"it")||a.i-b.i);
- document.getElementById("locationsList").innerHTML=items.length?items.map(x=>{const v=mapBrandVisual(x.c);return '<div class="promo"><div class="locationBrandIcon" style="background:'+esc(v.color)+'"><span>'+mapBrandInnerHtml(x.c)+'</span></div><div class="grow"><b>'+esc(x.c.name)+'</b><small>'+esc(distanceLabel(x.d))+'</small></div><button class="chip" data-map-card="'+x.c.id+'">Apri</button><button class="chip" data-remove-map-loc="'+x.c.id+'|'+x.i+'">Rimuovi</button></div>'}).join(""):'<div class="panel hint">Non hai ancora associato punti vendita.</div>';
+ document.getElementById("locationsList").innerHTML=items.length?items.map(x=>{const v=mapBrandVisual(x.c);return '<div class="promo locationResult"><div class="locationBrandIcon" style="background:'+esc(v.color)+'"><span>'+mapBrandInnerHtml(x.c)+'</span></div><div class="grow"><b>'+esc(x.c.name)+'</b><small>'+esc(distanceLabel(x.d))+'</small></div><div class="locationActions"><button class="chip" data-map-card="'+x.c.id+'">Apri</button><button class="chip" data-navigate="'+x.c.id+'|'+x.i+'">Naviga</button><button class="chip" data-remove-map-loc="'+x.c.id+'|'+x.i+'">Rimuovi</button></div></div>'}).join(""):'<div class="panel hint">Non hai ancora associato punti vendita.</div>';
  document.querySelectorAll("[data-map-card]").forEach(b=>b.onclick=()=>openCard(b.dataset.mapCard));
+ document.querySelectorAll("[data-navigate]").forEach(b=>b.onclick=()=>{const [id,i]=b.dataset.navigate.split("|");openNavigation(id,Number(i))});
  document.querySelectorAll("[data-remove-map-loc]").forEach(b=>b.onclick=()=>{const [id,i]=b.dataset.removeMapLoc.split("|");removeLocation(id,Number(i));renderOverviewMap()});
+}
+function navigationLinks(l){
+ const destination=encodeURIComponent(l.lat+","+l.lng);
+ return [
+  {name:"Google Maps",url:"https://www.google.com/maps/dir/?api=1&destination="+destination+"&travelmode=driving&dir_action=navigate"},
+  {name:"Mappe Apple",url:"https://maps.apple.com/?daddr="+destination+"&dirflg=d"},
+  {name:"Waze",url:"https://waze.com/ul?ll="+destination+"&navigate=yes"}
+ ]
+}
+function openNavigation(id,index){
+ const c=cards.find(x=>x.id===id),l=c?.locations?.[index];
+ if(!l||!Number.isFinite(l.lat)||!Number.isFinite(l.lng))return toast("Posizione del punto vendita non disponibile");
+ document.getElementById("navigationDestination").textContent=c.name+" · "+distanceLabel(currentPos?distanceM(currentPos,l):Infinity);
+ document.getElementById("navigationChoices").innerHTML=navigationLinks(l).map(n=>'<a href="'+esc(n.url)+'" target="_blank" rel="noopener noreferrer">↗ '+esc(n.name)+'</a>').join("");
+ document.querySelectorAll("#navigationChoices a").forEach(a=>a.onclick=()=>hideModal("navigationModal"));
+ showModal("navigationModal")
 }
 function renderOverviewMap(){
  const el=document.getElementById("overviewMap");if(!el||!window.L)return;
