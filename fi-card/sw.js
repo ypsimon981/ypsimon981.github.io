@@ -1,4 +1,4 @@
-const CACHE="ficard-2026.10.02-brand-lockup-3";
+const CACHE="ficard-2026.10.02-smart-carousel-osm-1";
 const CORE=["./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./brand-approved.png", "./vendor/JsBarcode.all.min.js", "./vendor/bwip-js-min.js", "./vendor/html5-qrcode.min.js", "./logos-hq/adidas.svg", "./logos-hq/bata.svg", "./logos-hq/carrefour.svg", "./logos-hq/conad.svg", "./logos-hq/coop.png", "./logos-hq/decathlon.svg", "./logos-hq/douglas.svg", "./logos-hq/eni.svg", "./logos-hq/esselunga.svg", "./logos-hq/eurospin.png", "./logos-hq/hm.svg", "./logos-hq/ikea.svg", "./logos-hq/lidl.svg", "./logos-hq/mediaworld.svg", "./logos-hq/nike.png", "./logos-hq/ovs.svg", "./logos-hq/q8.svg", "./logos-hq/sephora.svg", "./logos-hq/tigota.svg", "./logos-hq/unieuro.svg"];
 self.addEventListener("install",e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting())));
 self.addEventListener("activate",e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith("ficard-")&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
