@@ -50,12 +50,13 @@
 .smartBlock{margin:2px 0 16px}.smartHead{display:flex;align-items:end;justify-content:space-between;gap:10px;margin:0 2px 9px}.smartHead h2{font-size:17px;margin:0}.smartHead small{color:var(--muted);font-size:11px;text-align:right}.smartCarousel{display:flex;gap:12px;overflow-x:auto;padding:2px 2px 12px;scroll-snap-type:x mandatory;scrollbar-width:none}.smartCarousel::-webkit-scrollbar{display:none}.smartCard{position:relative;flex:0 0 188px;scroll-snap-align:start;border:0;border-radius:22px;padding:13px;text-align:left;aspect-ratio:1.46;min-height:142px;color:var(--card-ink,#fff);background:var(--card-color);box-shadow:var(--shadow);overflow:hidden}.smartCard .brandMark{position:static;width:100%;height:70px;padding:11px;border-radius:14px;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:none}.smartCard .brandMark .brandLogo{max-width:155px}.smartCard .name{font-size:14px;font-weight:850;margin-top:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.smartMeta{font-size:11px;opacity:.88;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.smartEmpty{background:#fff;border:1px dashed #CFC9FF;border-radius:20px;padding:18px;color:var(--muted);width:100%}#categoryChips{display:none}#categoryChips.show{display:flex}.locationMap{position:relative;z-index:0;isolation:isolate;height:340px;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#EEF1F6;margin:10px 0}.pickerCoords{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;margin-top:8px}.leaflet-container{font-family:inherit}.leaflet-control-attribution{font-size:9px}.mapLegend{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 2px}.mapLegend .chip{padding:6px 10px;font-size:11px}.brandPin{width:40px;height:40px;border-radius:50% 50% 50% 8px;transform:rotate(-45deg);display:grid;place-items:center;border:3px solid #fff;box-shadow:0 5px 14px rgba(17,24,39,.28);overflow:hidden}.brandPinInner{width:29px;height:29px;border-radius:50%;background:#fff;display:grid;place-items:center;transform:rotate(45deg);overflow:hidden;font-weight:900;font-size:14px;line-height:1}.brandPinInner img{width:23px;height:23px;object-fit:contain;border-radius:3px}.locationBrandIcon{width:46px;height:46px;flex:0 0 46px;border-radius:15px;display:grid;place-items:center;border:2px solid #fff;box-shadow:0 4px 12px rgba(31,41,55,.10);font-weight:900;overflow:hidden}.locationBrandIcon span{width:34px;height:34px;border-radius:50%;background:#fff;display:grid;place-items:center;overflow:hidden}.locationBrandIcon img{width:29px;height:29px;object-fit:contain}.editGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.editGrid .full{grid-column:1/-1}.importRow .scanWarning{background:#FFF7E6;border:1px solid #F9D99A;color:#8A5A00;border-radius:12px;padding:9px 10px;margin:8px 0;font-size:12px;line-height:1.35}
 .storeCluster{border:0;background:none}.storeClusterBadge{width:48px;height:48px;border:3px solid #fff;border-radius:50%;background:#5B3DF5;color:#fff;box-shadow:0 5px 16px rgba(31,41,55,.3);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}.storeClusterBadge b{font-size:18px}.storeClusterBadge small{font-size:8px;margin-top:3px}.leaflet-cluster-spider-leg{pointer-events:none}
 .locationResult{flex-wrap:wrap}.locationResult .grow{min-width:0}.locationActions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%}.locationActions .chip{padding:9px 6px;color:var(--violet);font-weight:700}.navigationChoices{display:grid;gap:10px;margin-top:16px}.navigationChoices a{display:block;text-decoration:none;color:var(--text);background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;font-weight:800}.navigationChoices a:focus-visible{outline:3px solid var(--violet);outline-offset:2px}
+.usageGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.usageGrid .card{width:100%;min-width:0;min-height:102px;padding:8px;border-radius:15px;background:var(--card-color);color:var(--card-ink,#fff);box-shadow:0 3px 10px rgba(31,41,55,.06)}.usageGrid .card .brandMark{height:58px;padding:8px;border-radius:10px;font-size:13px}.usageGrid .card .name{font-size:12px;margin-top:7px;padding-right:14px;line-height:16px}.usageGrid .card .type{display:none}.usageGrid .card .star{right:7px;bottom:8px;font-size:13px;line-height:16px}.usageGrid .empty{grid-column:1/-1}@media(min-width:520px){.usageGrid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="top">
-    <div class="brand"><h1 class="brandLockup"><svg viewBox="370 835 515 177" role="img" aria-labelledby="brandTitle" xmlns="http://www.w3.org/2000/svg"><title id="brandTitle">Fi-Card</title><image href="./brand-approved.png" width="1448" height="1086"/></svg></h1><div class="release">02/10/2026 · 10:10 · v0.9.15</div></div>
+    <div class="brand"><h1 class="brandLockup"><svg viewBox="370 835 515 177" role="img" aria-labelledby="brandTitle" xmlns="http://www.w3.org/2000/svg"><title id="brandTitle">Fi-Card</title><image href="./brand-approved.png" width="1448" height="1086"/></svg></h1><div class="release">02/10/2026 · 10:15 · v0.9.16</div></div>
     <div class="topActions"><button class="iconbtn" id="refreshBtn" title="Aggiorna Fi-Card" aria-label="Aggiorna Fi-Card">↻</button><button class="iconbtn" id="installBtn" title="Installa">⇩</button></div>
   </header>
 
@@ -67,9 +68,10 @@
       </div>
       <div class="search"><input id="search" placeholder="Cerca una carta…"></div>
       <div class="chips">
-        <button class="chip active" data-filter="all">Tutte</button>
+        <button class="chip" data-filter="all">Tutte</button>
+        <button class="chip active" data-filter="used">Più usate</button>
         <button class="chip" data-filter="fav">Preferite</button>
-        <button class="chip" data-filter="category">Categoria</button>
+        <button class="chip" data-filter="category">Per categoria</button>
       </div>
       <div id="categoryChips" class="chips"></div>
       <div class="sectionTitle"><h2>Le mie carte</h2></div>
@@ -179,7 +181,7 @@
 <div id="backupModal" class="modal"><div class="sheet"><div class="sheetHead"><h2>Ripristina backup</h2><button class="close" data-close="backupModal">×</button></div><p id="backupSummary"></p><button class="primary" id="mergeBackup">Unisci alle mie carte</button><button class="secondary" id="replaceBackup">Sostituisci le mie carte</button><p class="hint">Unisci conserva le carte esistenti. Sostituisci salva prima una copia di sicurezza scaricabile.</p></div></div>
 
 <script>
-const RELEASE="2026.10.02-1010-v0.9.15";
+const RELEASE="2026.10.02-1015-v0.9.16";
 const KEY="ficard.cards.v3";
 const LEGACY_KEYS=["ficard.cards.v2","ficard.cards.v1"];
 const DB_NAME="ficard-local";
@@ -287,7 +289,7 @@ function normalizeCategories(){
 }
 function renderCategoryChips(){
  const box=document.getElementById("categoryChips");if(!box)return;
- const active=document.querySelector(".chip[data-filter].active")?.dataset.filter||"all";
+ const active=document.querySelector(".chip[data-filter].active")?.dataset.filter||"used";
  const present=[...new Set(cards.map(categoryFor))],ordered=Object.keys(CATEGORIES).filter(k=>present.includes(k));
  box.classList.toggle("show",active==="category");
  if(active!=="category"){box.innerHTML="";return}
@@ -319,13 +321,19 @@ function cardHtml(c){
  const b=brandFor(c);
  return '<button class="card" style="--card-color:'+esc(c.color)+';--card-ink:'+cardInk(c.color)+'" data-card="'+c.id+'"><span class="brandMark" aria-hidden="true">'+brandLogoHtml(b)+'</span><span class="star">'+(c.fav?"★":"☆")+'</span><div class="name">'+esc(c.name)+'</div><div class="type">'+esc(categoryLabel(c))+'</div></button>'
 }
+function mostUsedFirst(a,b){return (Number(b.useCount)||0)-(Number(a.useCount)||0)||(Number(b.lastUsed)||0)-(Number(a.lastUsed)||0)||a.name.localeCompare(b.name,"it")}
 function renderCards(){
- const q=document.getElementById("search").value.toLowerCase().trim(),active=document.querySelector(".chip[data-filter].active")?.dataset.filter||"all";
+ const q=document.getElementById("search").value.toLowerCase().trim(),active=document.querySelector(".chip[data-filter].active")?.dataset.filter||"used";
  let list=cards.filter(c=>c.name.toLowerCase().includes(q)||c.code.toLowerCase().includes(q));
  if(active==="fav")list=list.filter(c=>c.fav);
  if(active==="category"&&currentCategory!=="all")list=list.filter(c=>categoryFor(c)===currentCategory);
  const grid=document.getElementById("cardGrid");
+ grid.classList.toggle("usageGrid",active==="used");
  if(!list.length){grid.innerHTML='<div class="empty"><strong>Nessuna carta qui</strong>Tocca ＋ per aggiungerne una.</div>';return}
+ if(active==="used"){
+   list.sort(mostUsedFirst);grid.innerHTML=list.map(cardHtml).join("");
+   grid.querySelectorAll("[data-card]").forEach(x=>x.onclick=()=>openCard(x.dataset.card));return
+ }
  const grouped={};list.forEach(c=>{const k=categoryFor(c);(grouped[k]||(grouped[k]=[])).push(c)});
  Object.values(grouped).forEach(arr=>arr.sort((a,b)=>a.name.localeCompare(b.name,"it")));
  const order=Object.keys(CATEGORIES).filter(k=>grouped[k]?.length);
@@ -456,7 +464,7 @@ function openCard(id,recordUse=true){
  document.getElementById('notesBtn').onclick=()=>{document.getElementById('cardExtras').innerHTML='<div class="panel"><label for="cardNotes">Note della carta</label><textarea id="cardNotes" class="field" rows="4" maxlength="2000" placeholder="Es. tessera famiglia, scadenza…">'+esc(c.notes||'')+'</textarea><button id="saveNotes" class="secondary">Salva note</button></div>';document.getElementById('saveNotes').onclick=()=>{c.notes=document.getElementById('cardNotes').value;save();toast('Note salvate')}};
  document.getElementById('photoBtn').onclick=()=>{document.getElementById('cardExtras').innerHTML='<div class="panel">'+(c.photo?'<img class="originalPhoto" src="'+esc(c.photo)+'" alt="Foto della tessera originale">':'<p class="hint">Conserva una foto della tessera originale su questo dispositivo.</p>')+'<label for="cardPhoto">Scegli o scatta una foto</label><input id="cardPhoto" type="file" accept="image/*" class="field">'+(c.photo?'<button class="secondary" id="removePhoto">Rimuovi foto</button>':'')+'</div>';document.getElementById('cardPhoto').onchange=async e=>{const file=e.target.files?.[0];if(!file)return;try{c.photo=await resizeCardPhoto(file);save();openCard(c.id,false);document.getElementById('photoBtn').click();toast('Foto salvata sul dispositivo')}catch(err){toast(err.message)}};const remove=document.getElementById('removePhoto');if(remove)remove.onclick=()=>{delete c.photo;save();openCard(c.id,false);toast('Foto rimossa')}};
  document.getElementById('shareBtn').onclick=()=>shareCard(c);
- document.getElementById("favBtn").onclick=()=>{c.fav=!c.fav;save();renderAll();openCard(c.id)};
+ document.getElementById("favBtn").onclick=()=>{c.fav=!c.fav;save();renderAll();openCard(c.id,false)};
  document.getElementById("assocBtn").onclick=()=>associateLocation(c.id);
  document.getElementById("mapAssocBtn").onclick=()=>openLocationPicker(c.id);
  document.querySelectorAll("[data-remove-loc]").forEach(btn=>btn.onclick=()=>{removeLocation(c.id,Number(btn.dataset.removeLoc));openCard(c.id,false);toast("Posizione dissociata")});
