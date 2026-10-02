@@ -51,7 +51,7 @@
 <body>
 <div class="app">
   <header class="top">
-    <div class="brand"><h1 class="brandLockup"><svg viewBox="370 835 515 177" role="img" aria-labelledby="brandTitle" xmlns="http://www.w3.org/2000/svg"><title id="brandTitle">Fi-Card</title><image href="./brand-approved.png" width="1448" height="1086"/></svg></h1><div class="release">02/10/2026 · carosello smart + OSM</div></div>
+    <div class="brand"><h1 class="brandLockup"><svg viewBox="370 835 515 177" role="img" aria-labelledby="brandTitle" xmlns="http://www.w3.org/2000/svg"><title id="brandTitle">Fi-Card</title><image href="./brand-approved.png" width="1448" height="1086"/></svg></h1><div class="release">02/10/2026 · 07:55 · v0.9.5</div></div>
     <div class="topActions"><button class="iconbtn" id="refreshBtn" title="Aggiorna Fi-Card" aria-label="Aggiorna Fi-Card">↻</button><button class="iconbtn" id="installBtn" title="Installa">⇩</button></div>
   </header>
 
@@ -170,7 +170,7 @@
 <div id="backupModal" class="modal"><div class="sheet"><div class="sheetHead"><h2>Ripristina backup</h2><button class="close" data-close="backupModal">×</button></div><p id="backupSummary"></p><button class="primary" id="mergeBackup">Unisci alle mie carte</button><button class="secondary" id="replaceBackup">Sostituisci le mie carte</button><p class="hint">Unisci conserva le carte esistenti. Sostituisci salva prima una copia di sicurezza scaricabile.</p></div></div>
 
 <script>
-const RELEASE="2026.10.02-smart-carousel-osm-1";
+const RELEASE="2026.10.02-0755-v0.9.5";
 const KEY="ficard.cards.v3";
 const LEGACY_KEYS=["ficard.cards.v2","ficard.cards.v1"];
 const DB_NAME="ficard-local";
@@ -486,7 +486,60 @@ function saveImageDrafts(){if(imageImportBusy)return;const incoming=[];for(const
 
 
 async function resizeCardPhoto(file){if(file.size>15000000)throw Error('Foto troppo grande: massimo 15 MB');const url=URL.createObjectURL(file);try{const image=new Image();image.src=url;await image.decode();const scale=Math.min(1,1200/Math.max(image.width,image.height)),canvas=document.createElement('canvas');canvas.width=Math.round(image.width*scale);canvas.height=Math.round(image.height*scale);canvas.getContext('2d').drawImage(image,0,0,canvas.width,canvas.height);return canvas.toDataURL('image/jpeg',.85)}finally{URL.revokeObjectURL(url)}}
-async function shareCard(c){const canvas=document.getElementById('detailSvg');if(!(canvas instanceof HTMLCanvasElement))return toast('Codice non disponibile');try{const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));if(!blob)throw Error();const file=new File([blob],'fi-card-'+c.name.replace(/[^a-zA-Z0-9]/g,'-')+'.png',{type:'image/png'});if(navigator.canShare?.({files:[file]})){await navigator.share({title:c.name,text:c.name+' · '+c.code,files:[file]})}else{const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=file.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),10000);toast('Codice pronto da salvare o condividere')}}catch(err){if(err?.name!=='AbortError')toast('Condivisione non disponibile')}}
+function shareRoundRect(ctx,x,y,w,h,r){
+ r=Math.min(r,w/2,h/2);ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()
+}
+function shareHexMix(a,b,t){
+ const norm=x=>/^#[0-9a-f]{6}$/i.test(x)?x:"#5B3DF5",aa=norm(a),bb=norm(b),v=[1,3,5].map(i=>Math.round(parseInt(aa.slice(i,i+2),16)*(1-t)+parseInt(bb.slice(i,i+2),16)*t));
+ return "#"+v.map(n=>n.toString(16).padStart(2,"0")).join("")
+}
+function shareLoadImage(src){return new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=reject;img.src=src})}
+function shareContain(ctx,img,x,y,w,h,pad=0){
+ const iw=img.naturalWidth||img.width,ih=img.naturalHeight||img.height,scale=Math.min((w-pad*2)/iw,(h-pad*2)/ih),dw=iw*scale,dh=ih*scale;
+ ctx.drawImage(img,x+(w-dw)/2,y+(h-dh)/2,dw,dh)
+}
+async function createShareCard(c){
+ const source=document.getElementById("detailSvg");if(!(source instanceof HTMLCanvasElement))throw Error("Codice non disponibile");
+ const W=1080,H=1350,out=document.createElement("canvas");out.width=W;out.height=H;const ctx=out.getContext("2d");
+ const base=/^#[0-9a-f]{6}$/i.test(c.color)?c.color:"#5B3DF5",dark=shareHexMix(base,"#17114D",.58),light=shareHexMix(base,"#FFFFFF",.18),b=brandFor(c);
+ const bg=ctx.createLinearGradient(0,0,W,H);bg.addColorStop(0,light);bg.addColorStop(.48,base);bg.addColorStop(1,dark);ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+ ctx.globalAlpha=.13;ctx.fillStyle="#FFFFFF";ctx.beginPath();ctx.arc(920,135,260,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(80,1180,340,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
+
+ let lockup=null;try{lockup=await shareLoadImage("./brand-approved.png")}catch(e){}
+ if(lockup){ctx.globalAlpha=.98;ctx.drawImage(lockup,370,835,515,177,72,58,278,96);ctx.globalAlpha=1}else{ctx.fillStyle="#FFFFFF";ctx.font="800 48px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif";ctx.fillText("Fi-Card",72,122)}
+ ctx.fillStyle="rgba(255,255,255,.88)";ctx.textAlign="right";ctx.font="700 24px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif";ctx.fillText("TESSERA FEDELTÀ",1008,112);ctx.textAlign="left";
+
+ shareRoundRect(ctx,58,188,964,1088,58);ctx.fillStyle="#FFFFFF";ctx.fill();
+ ctx.save();shareRoundRect(ctx,58,188,964,360,58);ctx.clip();const head=ctx.createLinearGradient(58,188,1022,548);head.addColorStop(0,shareHexMix(base,"#FFFFFF",.08));head.addColorStop(1,shareHexMix(base,"#000000",.18));ctx.fillStyle=head;ctx.fillRect(58,188,964,360);ctx.restore();
+
+ shareRoundRect(ctx,160,254,760,174,32);ctx.fillStyle="rgba(255,255,255,.97)";ctx.fill();
+ let brandImg=null;if(b.logo){try{brandImg=await shareLoadImage(b.logo)}catch(e){}}
+ if(brandImg)shareContain(ctx,brandImg,190,278,700,126,12);
+ else{ctx.fillStyle="#1F2937";ctx.textAlign="center";ctx.font="900 58px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif";ctx.fillText(String(b.mark||c.name).toUpperCase().slice(0,24),540,358);ctx.textAlign="left"}
+
+ ctx.fillStyle=cardInk(base);ctx.font="800 44px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif";ctx.fillText(c.name,112,497);
+ ctx.globalAlpha=.84;ctx.font="600 24px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif";ctx.fillText(categoryLabel(c),112,530);ctx.globalAlpha=1;
+
+ shareRoundRect(ctx,106,604,868,422,38);ctx.fillStyle="#F7F8FB";ctx.fill();
+ shareRoundRect(ctx,140,642,800,274,24);ctx.fillStyle="#FFFFFF";ctx.fill();
+ const availW=744,availH=226,sw=source.width||1,sh=source.height||1,scale=Math.min(availW/sw,availH/sh),dw=sw*scale,dh=sh*scale;
+ ctx.imageSmoothingEnabled=false;ctx.drawImage(source,540-dw/2,665+(226-dh)/2,dw,dh);ctx.imageSmoothingEnabled=true;
+ ctx.fillStyle="#1F2937";ctx.textAlign="center";ctx.font="700 34px ui-monospace,SFMono-Regular,Menlo,monospace";ctx.fillText(c.code,540,978);ctx.textAlign="left";
+
+ ctx.strokeStyle="#E7EAF0";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(112,1094);ctx.lineTo(968,1094);ctx.stroke();
+ ctx.fillStyle="#6B7280";ctx.font="600 24px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif";ctx.fillText("Condiviso da",112,1154);
+ if(lockup){ctx.drawImage(lockup,370,835,515,177,276,1114,226,78)}else{ctx.fillStyle="#5B3DF5";ctx.font="800 34px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif";ctx.fillText("Fi-Card",276,1157)}
+ ctx.fillStyle="#9CA3AF";ctx.font="500 21px -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif";ctx.fillText("Le tue carte fedeltà, sempre con te.",112,1216);
+ return out
+}
+async function shareCard(c){
+ try{
+   toast("Preparo la carta…");const canvas=await createShareCard(c),blob=await new Promise(resolve=>canvas.toBlob(resolve,"image/png",1));if(!blob)throw Error();
+   const file=new File([blob],"fi-card-"+c.name.replace(/[^a-zA-Z0-9]/g,"-")+".png",{type:"image/png"});
+   if(navigator.canShare?.({files:[file]})){await navigator.share({title:c.name,text:"Tessera "+c.name+" · Fi-Card",files:[file]})}
+   else{const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=file.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),10000);toast("Carta grafica pronta")}
+ }catch(err){if(err?.name!=="AbortError")toast("Condivisione non disponibile")}
+}
 
 initCatalog();
 load();
