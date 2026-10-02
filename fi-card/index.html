@@ -16,6 +16,8 @@
   <script src="./vendor/html5-qrcode.min.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="./vendor/MarkerCluster.css">
+  <script src="./vendor/leaflet.markercluster.js"></script>
   <style>
     :root{--violet:#5B3DF5;--violet2:#7C5CFF;--teal:#2DD4BF;--bg:#F8F9FC;--surface:#fff;--text:#1F2937;--muted:#6B7280;--line:#E7EAF0;--danger:#EF4444;--warning:#F59E0B;--success:#16A34A;--shadow:0 10px 30px rgba(31,41,55,.08)}
     *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
@@ -46,12 +48,13 @@
 .cardShelf .card,.detailBrandHeader{color:var(--card-ink,#fff)}.card .type{padding-right:22px;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}.brandLogo{border-radius:6px}#detailModal .sheet{max-height:96dvh}.detailLogo{height:105px}.detailBrandHeader{padding:18px 18px 14px}.barcodeBox{padding-top:22px}
 .top{align-items:flex-start}.brand{flex-direction:column;align-items:flex-start;gap:3px;flex:1 1 auto}.brandLockup{margin:0;width:210px;max-width:100%;line-height:0}.brandLockup svg{display:block;width:100%;height:auto}.brand .release{font-size:10px;margin:0 0 0 5px}.topActions{padding-top:8px}@media(max-width:350px){.brandLockup{width:180px}.brand .release{font-size:9px}}
 .smartBlock{margin:2px 0 16px}.smartHead{display:flex;align-items:end;justify-content:space-between;gap:10px;margin:0 2px 9px}.smartHead h2{font-size:17px;margin:0}.smartHead small{color:var(--muted);font-size:11px;text-align:right}.smartCarousel{display:flex;gap:12px;overflow-x:auto;padding:2px 2px 12px;scroll-snap-type:x mandatory;scrollbar-width:none}.smartCarousel::-webkit-scrollbar{display:none}.smartCard{position:relative;flex:0 0 188px;scroll-snap-align:start;border:0;border-radius:22px;padding:13px;text-align:left;aspect-ratio:1.46;min-height:142px;color:var(--card-ink,#fff);background:var(--card-color);box-shadow:var(--shadow);overflow:hidden}.smartCard .brandMark{position:static;width:100%;height:70px;padding:11px;border-radius:14px;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:none}.smartCard .brandMark .brandLogo{max-width:155px}.smartCard .name{font-size:14px;font-weight:850;margin-top:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.smartMeta{font-size:11px;opacity:.88;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.smartEmpty{background:#fff;border:1px dashed #CFC9FF;border-radius:20px;padding:18px;color:var(--muted);width:100%}#categoryChips{display:none}#categoryChips.show{display:flex}.locationMap{position:relative;z-index:0;isolation:isolate;height:340px;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#EEF1F6;margin:10px 0}.pickerCoords{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;margin-top:8px}.leaflet-container{font-family:inherit}.leaflet-control-attribution{font-size:9px}.mapLegend{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 2px}.mapLegend .chip{padding:6px 10px;font-size:11px}.brandPin{width:40px;height:40px;border-radius:50% 50% 50% 8px;transform:rotate(-45deg);display:grid;place-items:center;border:3px solid #fff;box-shadow:0 5px 14px rgba(17,24,39,.28);overflow:hidden}.brandPinInner{width:29px;height:29px;border-radius:50%;background:#fff;display:grid;place-items:center;transform:rotate(45deg);overflow:hidden;font-weight:900;font-size:14px;line-height:1}.brandPinInner img{width:23px;height:23px;object-fit:contain;border-radius:3px}.locationBrandIcon{width:46px;height:46px;flex:0 0 46px;border-radius:15px;display:grid;place-items:center;border:2px solid #fff;box-shadow:0 4px 12px rgba(31,41,55,.10);font-weight:900;overflow:hidden}.locationBrandIcon span{width:34px;height:34px;border-radius:50%;background:#fff;display:grid;place-items:center;overflow:hidden}.locationBrandIcon img{width:29px;height:29px;object-fit:contain}.editGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.editGrid .full{grid-column:1/-1}.importRow .scanWarning{background:#FFF7E6;border:1px solid #F9D99A;color:#8A5A00;border-radius:12px;padding:9px 10px;margin:8px 0;font-size:12px;line-height:1.35}
+.storeCluster{border:0;background:none}.storeClusterBadge{width:48px;height:48px;border:3px solid #fff;border-radius:50%;background:#5B3DF5;color:#fff;box-shadow:0 5px 16px rgba(31,41,55,.3);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}.storeClusterBadge b{font-size:18px}.storeClusterBadge small{font-size:8px;margin-top:3px}.leaflet-cluster-spider-leg{pointer-events:none}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="top">
-    <div class="brand"><h1 class="brandLockup"><svg viewBox="370 835 515 177" role="img" aria-labelledby="brandTitle" xmlns="http://www.w3.org/2000/svg"><title id="brandTitle">Fi-Card</title><image href="./brand-approved.png" width="1448" height="1086"/></svg></h1><div class="release">02/10/2026 · 09:45 · v0.9.12</div></div>
+    <div class="brand"><h1 class="brandLockup"><svg viewBox="370 835 515 177" role="img" aria-labelledby="brandTitle" xmlns="http://www.w3.org/2000/svg"><title id="brandTitle">Fi-Card</title><image href="./brand-approved.png" width="1448" height="1086"/></svg></h1><div class="release">02/10/2026 · 09:50 · v0.9.13</div></div>
     <div class="topActions"><button class="iconbtn" id="refreshBtn" title="Aggiorna Fi-Card" aria-label="Aggiorna Fi-Card">↻</button><button class="iconbtn" id="installBtn" title="Installa">⇩</button></div>
   </header>
 
@@ -85,7 +88,7 @@
       <div class="panel">
         <div id="overviewMap" class="locationMap" aria-label="Mappa OpenStreetMap dei punti vendita associati"></div>
         <div id="mapInfo" class="hint">I pin mostrano tutti i punti vendita associati alle tue carte.</div>
-        <div class="mapLegend"><span class="chip">📍 Punto vendita</span><span class="chip">◎ La tua posizione</span></div>
+        <div class="mapLegend"><span class="chip">📍 Punto vendita</span><span class="chip">◎ La tua posizione</span><span class="chip">Tocca un gruppo per vedere i negozi</span></div>
       </div>
       <div id="locationsList" style="margin-top:12px"></div>
     </section>
@@ -171,7 +174,7 @@
 <div id="backupModal" class="modal"><div class="sheet"><div class="sheetHead"><h2>Ripristina backup</h2><button class="close" data-close="backupModal">×</button></div><p id="backupSummary"></p><button class="primary" id="mergeBackup">Unisci alle mie carte</button><button class="secondary" id="replaceBackup">Sostituisci le mie carte</button><p class="hint">Unisci conserva le carte esistenti. Sostituisci salva prima una copia di sicurezza scaricabile.</p></div></div>
 
 <script>
-const RELEASE="2026.10.02-0945-v0.9.12";
+const RELEASE="2026.10.02-0950-v0.9.13";
 const KEY="ficard.cards.v3";
 const LEGACY_KEYS=["ficard.cards.v2","ficard.cards.v1"];
 const DB_NAME="ficard-local";
@@ -358,7 +361,13 @@ function renderOverviewMap(){
    overviewMap=L.map(el,{zoomControl:true}).setView([42.2,12.5],6);
    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"&copy; OpenStreetMap contributors"}).addTo(overviewMap);
  }
- if(overviewLayer)overviewLayer.remove();overviewLayer=L.layerGroup().addTo(overviewMap);
+ if(overviewLayer)overviewLayer.remove();
+ if(currentPosLayer){currentPosLayer.remove();currentPosLayer=null}
+ overviewLayer=(L.markerClusterGroup?L.markerClusterGroup({
+   maxClusterRadius:60,spiderfyOnEveryZoom:true,zoomToBoundsOnClick:false,showCoverageOnHover:false,
+   spiderfyDistanceMultiplier:2,spiderLegPolylineOptions:{weight:1.5,color:"#5B3DF5",opacity:.55},
+   iconCreateFunction:cluster=>L.divIcon({className:"storeCluster",html:'<div class="storeClusterBadge"><b>'+cluster.getChildCount()+'</b><small>negozi</small></div>',iconSize:[48,48],iconAnchor:[24,24]})
+ }):L.layerGroup()).addTo(overviewMap);
  const storeBounds=[];
  cards.forEach(c=>(c.locations||[]).forEach(l=>{
    const v=mapBrandVisual(c),icon=L.divIcon({className:"",html:'<div class="brandPin" style="background:'+esc(v.color)+'"><div class="brandPinInner">'+mapBrandInnerHtml(c)+'</div></div>',iconSize:[40,40],iconAnchor:[20,38],popupAnchor:[0,-34]});
@@ -367,7 +376,7 @@ function renderOverviewMap(){
    storeBounds.push([l.lat,l.lng])
  }));
  if(currentPos){
-   L.circleMarker([currentPos.lat,currentPos.lng],{radius:9,weight:3,fillOpacity:.6}).addTo(overviewLayer).bindTooltip("La tua posizione");
+   currentPosLayer=L.circleMarker([currentPos.lat,currentPos.lng],{radius:9,weight:3,fillOpacity:.6}).addTo(overviewMap).bindTooltip("La tua posizione");
  }
  setTimeout(()=>{
    overviewMap.invalidateSize();
@@ -411,7 +420,7 @@ function drawBarcode(id,c){
 }
 
 function openCard(id,recordUse=true){
- const c=cards.find(x=>x.id===id);if(!c)return;currentCardId=id;if(overviewMap)overviewMap.closePopup();if(recordUse){c.lastUsed=Date.now();c.useCount=(c.useCount||0)+1;save();renderCards()}
+ const c=cards.find(x=>x.id===id);if(!c)return;currentCardId=id;if(overviewMap)overviewMap.closePopup();if(overviewLayer?.unspiderfy)overviewLayer.unspiderfy();if(recordUse){c.lastUsed=Date.now();c.useCount=(c.useCount||0)+1;save();renderCards()}
  const b=brandFor(c),n=nearestFor(c,currentPos),locs=(c.locations||[]).map((l,i)=>({l,i,d:currentPos?distanceM(currentPos,l):Infinity})).sort((a,b)=>a.d-b.d||a.i-b.i);
  const locHtml=locs.length?'<div class="panel" style="margin-top:12px"><b>Punti vendita associati</b>'+locs.map(x=>'<div class="promo" style="margin-bottom:0"><div class="locationBrandIcon" style="background:'+esc(c.color||"#5B3DF5")+'"><span>'+mapBrandInnerHtml(c)+'</span></div><div class="grow"><small>'+esc(distanceLabel(x.d))+'</small></div><button class="chip" data-remove-loc="'+x.i+'">Dissocia</button></div>').join("")+'</div>':'<p class="hint">Nessun punto vendita associato a questa carta.</p>';
  document.getElementById("detailContent").innerHTML='<div class="detailHero"><div class="detailBrandHeader" style="--card-color:'+esc(c.color)+';--card-ink:'+cardInk(c.color)+'"><span class="detailLogo">'+brandLogoHtml(b)+'</span><h2>'+esc(c.name)+'</h2><p>'+esc(categoryLabel(c))+'</p></div><div class="barcodeBox"><canvas id="detailSvg"></canvas><div class="num">'+esc(c.code)+'</div></div></div>'+
