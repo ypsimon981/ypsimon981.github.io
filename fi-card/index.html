@@ -439,7 +439,7 @@ function drawBarcode(id,c){
  const el=document.getElementById(id);if(!el)return;
  const format=normalizeFormat(c.format||inferManualFormat(c.code));
  try{
-   if(window.bwipjs&&el.tagName==="CANVAS"){const is2d=["QR_CODE","AZTEC","DATA_MATRIX","PDF417"].includes(format);el.classList.toggle("matrixCode",is2d);bwipjs.toCanvas(el,{bcid:bwipBcid(format),text:String(c.code),scale:4,height:is2d?undefined:22,includetext:false,paddingwidth:4,paddingheight:4,backgroundcolor:"FFFFFF"});return}
+   if(window.bwipjs&&el.tagName==="CANVAS"){const is2d=["QR_CODE","AZTEC","DATA_MATRIX","PDF417"].includes(format);el.classList.toggle("matrixCode",is2d);bwipjs.toCanvas(el,{bcid:bwipBcid(format),text:String(c.code),scale:4,...(is2d?{}:{height:22}),includetext:false,paddingwidth:4,paddingheight:4,backgroundcolor:"FFFFFF"});return}
  }catch(e){const warning=document.createElement('p');warning.className='hint';warning.textContent='Codice non visualizzabile: controlla il numero sulla tessera originale.';el.replaceWith(warning);return}
  if(!window.bwipjs)toast('Generatore codici non disponibile. Aggiorna Fi-Card quando sei connesso.');
 }
