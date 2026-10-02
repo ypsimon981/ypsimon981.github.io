@@ -14,6 +14,8 @@
   <script src="./vendor/JsBarcode.all.min.js"></script>
   <script src="./vendor/bwip-js-min.js"></script>
   <script src="./vendor/html5-qrcode.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
     :root{--violet:#5B3DF5;--violet2:#7C5CFF;--teal:#2DD4BF;--bg:#F8F9FC;--surface:#fff;--text:#1F2937;--muted:#6B7280;--line:#E7EAF0;--danger:#EF4444;--warning:#F59E0B;--success:#16A34A;--shadow:0 10px 30px rgba(31,41,55,.08)}
     *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
@@ -43,25 +45,31 @@
 .cardToolbar{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin:0 0 16px;color:var(--muted);font-size:14px}.cardToolbar .field{width:auto;max-width:220px;margin:0;min-height:40px;padding:9px 12px}.cardShelf{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;overflow:visible;padding:0}.cardShelf .card{width:100%;min-width:0;min-height:155px;padding:14px;aspect-ratio:1.48;flex:none;background:linear-gradient(150deg,var(--card-color),var(--card-color));border:1px solid rgba(0,0,0,.04)}.card:after{display:none}.card .brandMark{position:static;display:flex;align-items:center;justify-content:center;width:100%;height:74px;padding:12px;background:#fff;border-radius:14px;color:var(--text);font-size:20px;box-shadow:none;letter-spacing:-.5px}.card .brandMark .brandLogo{width:100%;height:100%;max-width:180px}.card .name{margin-top:10px;font-size:15px}.card .type{font-size:12px}.card .star{right:17px;top:auto;bottom:13px;background:transparent;font-size:18px;line-height:20px}.brandResults{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));max-height:285px;overflow:auto;gap:8px;padding:2px}.brandPick{display:flex;align-items:center;gap:10px;text-align:left;min-width:0;min-height:62px;padding:8px;font-size:14px}.catalogLogo{display:flex;align-items:center;justify-content:center;width:64px;height:40px;flex:0 0 64px;color:#1F2937;font-weight:800;font-size:12px;overflow:hidden}.brandPick img{width:100%;height:100%;margin:0}.brandPick span:last-child{min-width:0;overflow-wrap:anywhere}.detailHero{padding:0;background:#fff;border:1px solid var(--line);color:var(--text);box-shadow:var(--shadow)}.detailBrandHeader{padding:24px 22px 18px;background:var(--card-color);color:#fff;text-align:center}.detailLogo{display:flex;align-items:center;justify-content:center;background:#fff;border-radius:18px;padding:20px;width:100%;height:125px;box-shadow:none;color:var(--text);font-size:30px;font-weight:900}.detailLogo .brandLogo{max-width:350px}.detailBrandHeader h2{margin:14px 0 4px;font-size:22px}.detailBrandHeader p{font-size:14px}.barcodeBox{margin:0;padding:28px 18px 24px;border-radius:0}.barcodeBox canvas{width:auto;max-width:100%;height:auto;max-height:210px;image-rendering:pixelated}.barcodeBox .num{font-size:24px;font-weight:650;letter-spacing:1.5px;margin-top:16px}.detailActions{display:flex;gap:8px;flex-wrap:wrap}.detailActions button{flex:1 1 100px;font-size:14px;min-height:48px}.originalPhoto{max-width:100%;max-height:300px;object-fit:contain;border-radius:12px;display:block;margin:0 auto 12px}textarea.field{resize:vertical;width:100%}#addModal .sheet>label{font-size:14px}@media(min-width:540px){.cardShelf{grid-template-columns:repeat(3,minmax(0,1fr))}.cardShelf .card{min-height:148px}.card .brandMark{height:67px}.card .name{font-size:14px}}@media(max-width:350px){.brandResults{grid-template-columns:1fr}.cardShelf .card{padding:10px;min-height:140px}.card .brandMark{height:62px}.card .name{font-size:14px}.barcodeBox .num{font-size:20px}}
 .cardShelf .card,.detailBrandHeader{color:var(--card-ink,#fff)}.card .type{padding-right:22px;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}.brandLogo{border-radius:6px}#detailModal .sheet{max-height:96dvh}.detailLogo{height:105px}.detailBrandHeader{padding:18px 18px 14px}.barcodeBox{padding-top:22px}
 .top{align-items:flex-start}.brand{flex-direction:column;align-items:flex-start;gap:3px;flex:1 1 auto}.brandLockup{margin:0;width:210px;max-width:100%;line-height:0}.brandLockup svg{display:block;width:100%;height:auto}.brand .release{font-size:10px;margin:0 0 0 5px}.topActions{padding-top:8px}@media(max-width:350px){.brandLockup{width:180px}.brand .release{font-size:9px}}
+.smartBlock{margin:2px 0 16px}.smartHead{display:flex;align-items:end;justify-content:space-between;gap:10px;margin:0 2px 9px}.smartHead h2{font-size:17px;margin:0}.smartHead small{color:var(--muted);font-size:11px;text-align:right}.smartCarousel{display:flex;gap:12px;overflow-x:auto;padding:2px 2px 12px;scroll-snap-type:x mandatory;scrollbar-width:none}.smartCarousel::-webkit-scrollbar{display:none}.smartCard{position:relative;flex:0 0 188px;scroll-snap-align:start;border:0;border-radius:22px;padding:13px;text-align:left;aspect-ratio:1.46;min-height:142px;color:var(--card-ink,#fff);background:var(--card-color);box-shadow:var(--shadow);overflow:hidden}.smartCard .brandMark{position:static;width:100%;height:70px;padding:11px;border-radius:14px;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:none}.smartCard .brandMark .brandLogo{max-width:155px}.smartCard .name{font-size:14px;font-weight:850;margin-top:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.smartMeta{font-size:11px;opacity:.88;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.smartEmpty{background:#fff;border:1px dashed #CFC9FF;border-radius:20px;padding:18px;color:var(--muted);width:100%}#categoryChips{display:none}#categoryChips.show{display:flex}.locationMap{height:340px;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#EEF1F6;margin:10px 0}.pickerCoords{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;margin-top:8px}.leaflet-container{font-family:inherit}.leaflet-control-attribution{font-size:9px}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="top">
-    <div class="brand"><h1 class="brandLockup"><svg viewBox="370 835 515 177" role="img" aria-labelledby="brandTitle" xmlns="http://www.w3.org/2000/svg"><title id="brandTitle">Fi-Card</title><image href="./brand-approved.png" width="1448" height="1086"/></svg></h1><div class="release">02/10/2026 · logo completo</div></div>
+    <div class="brand"><h1 class="brandLockup"><svg viewBox="370 835 515 177" role="img" aria-labelledby="brandTitle" xmlns="http://www.w3.org/2000/svg"><title id="brandTitle">Fi-Card</title><image href="./brand-approved.png" width="1448" height="1086"/></svg></h1><div class="release">02/10/2026 · carosello smart + OSM</div></div>
     <div class="topActions"><button class="iconbtn" id="refreshBtn" title="Aggiorna Fi-Card" aria-label="Aggiorna Fi-Card">↻</button><button class="iconbtn" id="installBtn" title="Installa">⇩</button></div>
   </header>
 
   <main>
     <section id="homeView" class="view active">
+      <div class="smartBlock">
+        <div class="smartHead"><h2>Carte rapide</h2><small id="smartOrderLabel">Ordinate per utilizzo</small></div>
+        <div id="smartCarousel" class="smartCarousel"></div>
+      </div>
       <div class="search"><input id="search" placeholder="Cerca una carta…"></div>
       <div class="chips">
-        <button class="chip active" data-filter="all">Tutte</button><button class="chip" data-filter="fav">Preferite</button><button class="chip" data-filter="near">Vicino a te</button>
+        <button class="chip active" data-filter="all">Tutte</button>
+        <button class="chip" data-filter="fav">Preferite</button>
+        <button class="chip" data-filter="category">Categoria</button>
       </div>
       <div id="categoryChips" class="chips"></div>
-      <div id="nearbyBanner" class="nearby"><div class="pin">📍</div><div><b id="nearbyTitle">Carta vicina</b><small id="nearbyText"></small></div></div>
-      <div class="sectionTitle"><h2>Le mie carte</h2><button id="geoRefresh">Aggiorna posizione</button></div>
-      <div class="cardToolbar"><label for="cardSort">Ordina</label><select id="cardSort" class="field"><option value="name">Nome</option><option value="recent">Ultimo utilizzo</option><option value="frequency">Frequenza di utilizzo</option></select></div><div id="cardGrid" class="cards"></div>
+      <div class="sectionTitle"><h2>Le mie carte</h2></div>
+      <div id="cardGrid" class="cards"></div>
       <div class="sectionTitle" style="margin-top:24px"><h2>Vantaggi di oggi</h2><button data-go="offers">Vedi tutti</button></div>
       <div id="homePromos"></div>
     </section>
@@ -139,6 +147,17 @@
   <div id="detailContent"></div>
 </div></div>
 
+<div id="locationPickerModal" class="modal"><div class="sheet">
+  <div class="grab"></div><div class="sheetHead"><h2>Associa punto vendita</h2><button class="close" data-close="locationPickerModal">×</button></div>
+  <p class="hint">Sposta la mappa OpenStreetMap e tocca il punto esatto del negozio. Puoi anche trascinare il segnaposto.</p>
+  <div id="locationPickerMap" class="locationMap" aria-label="Mappa OpenStreetMap per scegliere il punto vendita"></div>
+  <div id="pickerCoords" class="pickerCoords">Tocca sulla mappa per scegliere la posizione.</div>
+  <label for="pickerRadius">Raggio di riconoscimento</label>
+  <div class="row"><input id="pickerRadius" class="field" type="number" inputmode="numeric" min="30" max="5000" step="10" value="180"><div class="field" style="background:#F3F4F6;color:#6B7280;display:flex;align-items:center">metri</div></div>
+  <button class="secondary" id="pickerUseGps">⌖ Usa la mia posizione</button>
+  <button class="primary" id="pickerSave" disabled>Salva questo punto</button>
+</div></div>
+
 <div id="widgetModal" class="modal"><div class="sheet">
   <div class="grab"></div><div class="sheetHead"><h2>Widget Smart · anteprima</h2><button class="close" data-close="widgetModal">×</button></div>
   <p class="hint">Nel prototipo web possiamo provare la logica e il visual. Il vero widget della schermata Home richiederà la versione nativa iOS/Android.</p>
@@ -151,7 +170,7 @@
 <div id="backupModal" class="modal"><div class="sheet"><div class="sheetHead"><h2>Ripristina backup</h2><button class="close" data-close="backupModal">×</button></div><p id="backupSummary"></p><button class="primary" id="mergeBackup">Unisci alle mie carte</button><button class="secondary" id="replaceBackup">Sostituisci le mie carte</button><p class="hint">Unisci conserva le carte esistenti. Sostituisci salva prima una copia di sicurezza scaricabile.</p></div></div>
 
 <script>
-const RELEASE="2026.10.02-brand-lockup-3";
+const RELEASE="2026.10.02-smart-carousel-osm-1";
 const KEY="ficard.cards.v3";
 const LEGACY_KEYS=["ficard.cards.v2","ficard.cards.v1"];
 const DB_NAME="ficard-local";
@@ -159,6 +178,7 @@ const DB_VERSION=1;
 const STORE_NAME="state";
 let cards=[];
 let currentCardId=null, currentPos=null, deferredPrompt=null, qrScanner=null, currentCategory="all", pendingScanFormat=null;
+let locationPickerMap=null,locationPickerMarker=null,locationPickerCardId=null,locationPickerPoint=null;
 const CATEGORIES={
  supermercati:"Supermercati",
  sport:"Articoli sportivi",
@@ -243,9 +263,36 @@ function brandFor(c){return c.brandKey&&BRANDS[c.brandKey]?BRANDS[c.brandKey]:{n
 function categoryFor(c){return c.category||(c.brandKey&&BRANDS[c.brandKey]?.category)||"altro"}
 function categoryLabel(c){return CATEGORIES[categoryFor(c)]||CATEGORIES.altro}
 function normalizeCategories(){let changed=false;cards.forEach(c=>{if(!c.category){c.category=categoryFor(c);changed=true}});if(changed)save()}
-function renderCategoryChips(){const box=document.getElementById("categoryChips");if(!box)return;const present=[...new Set(cards.map(categoryFor))];const ordered=Object.keys(CATEGORIES).filter(k=>present.includes(k));box.innerHTML='<button class="chip '+(currentCategory==="all"?"active":"")+'" data-category="all">Tutte le categorie</button>'+ordered.map(k=>'<button class="chip '+(currentCategory===k?"active":"")+'" data-category="'+k+'">'+CATEGORIES[k]+'</button>').join("");box.querySelectorAll("[data-category]").forEach(btn=>btn.onclick=()=>{currentCategory=btn.dataset.category;renderCategoryChips();renderCards()})}
+function renderCategoryChips(){
+ const box=document.getElementById("categoryChips");if(!box)return;
+ const active=document.querySelector(".chip[data-filter].active")?.dataset.filter||"all";
+ const present=[...new Set(cards.map(categoryFor))],ordered=Object.keys(CATEGORIES).filter(k=>present.includes(k));
+ box.classList.toggle("show",active==="category");
+ if(active!=="category"){box.innerHTML="";return}
+ if(currentCategory==="all"&&!ordered.includes(currentCategory))currentCategory=ordered[0]||"all";
+ box.innerHTML=ordered.map(k=>'<button class="chip '+(currentCategory===k?"active":"")+'" data-category="'+k+'">'+CATEGORIES[k]+'</button>').join("");
+ box.querySelectorAll("[data-category]").forEach(btn=>btn.onclick=()=>{currentCategory=btn.dataset.category;renderCategoryChips();renderCards()})
+}
+function smartOrder(){
+ const geoReady=!!currentPos&&cards.some(c=>nearestFor(c,currentPos));
+ const ordered=[...cards].sort((a,b)=>{
+   if(geoReady){
+     const da=nearestFor(a,currentPos)?.d??Infinity,db=nearestFor(b,currentPos)?.d??Infinity;
+     if(da!==db)return da-db
+   }
+   return (b.useCount||0)-(a.useCount||0)||(b.lastUsed||0)-(a.lastUsed||0)||a.name.localeCompare(b.name,"it")
+ });
+ return {ordered,geoReady}
+}
+function renderSmartCarousel(){
+ const box=document.getElementById("smartCarousel"),label=document.getElementById("smartOrderLabel");if(!box||!label)return;
+ const {ordered,geoReady}=smartOrder();label.textContent=geoReady?"Più vicine prima":"Più usate prima";
+ if(!ordered.length){box.innerHTML='<div class="smartEmpty">Aggiungi una carta: comparirà qui automaticamente.</div>';return}
+ box.innerHTML=ordered.map(c=>{const b=brandFor(c),n=geoReady?nearestFor(c,currentPos):null,meta=n&&Number.isFinite(n.d)?(n.d<1000?Math.round(n.d)+" m":(n.d/1000).toFixed(1)+" km"):(c.useCount?"Usata "+c.useCount+" "+(c.useCount===1?"volta":"volte"):"Non ancora usata");return '<button class="smartCard" style="--card-color:'+esc(c.color)+';--card-ink:'+cardInk(c.color)+'" data-smart-card="'+c.id+'"><span class="brandMark" aria-hidden="true">'+brandLogoHtml(b)+'</span><div class="name">'+esc(c.name)+'</div><div class="smartMeta">'+esc(meta)+'</div></button>'}).join("");
+ box.querySelectorAll("[data-smart-card]").forEach(x=>x.onclick=()=>openCard(x.dataset.smartCard))
+}
 
-function renderAll(){renderCategoryChips();renderCards();renderOffers();renderLocations();renderNearby()}
+function renderAll(){renderCategoryChips();renderSmartCarousel();renderCards();renderOffers();renderLocations()}
 function cardHtml(c){
  const b=brandFor(c);
  return '<button class="card" style="--card-color:'+esc(c.color)+';--card-ink:'+cardInk(c.color)+'" data-card="'+c.id+'"><span class="brandMark" aria-hidden="true">'+brandLogoHtml(b)+'</span><span class="star">'+(c.fav?"★":"☆")+'</span><div class="name">'+esc(c.name)+'</div><div class="type">'+esc(categoryLabel(c))+'</div></button>'
@@ -253,23 +300,19 @@ function cardHtml(c){
 function renderCards(){
  const q=document.getElementById("search").value.toLowerCase().trim(),active=document.querySelector(".chip[data-filter].active")?.dataset.filter||"all";
  let list=cards.filter(c=>c.name.toLowerCase().includes(q)||c.code.toLowerCase().includes(q));
- if(currentCategory!=="all")list=list.filter(c=>categoryFor(c)===currentCategory);
  if(active==="fav")list=list.filter(c=>c.fav);
- if(active==="near"){
-   if(currentPos)list=list.filter(c=>{const n=nearestFor(c,currentPos);return n&&n.d<=(n.radius||180)});
-   else list=[];
- }
- const mode=document.getElementById('cardSort').value;list.sort((a,b)=>mode==='recent'?(b.lastUsed||0)-(a.lastUsed||0)||a.name.localeCompare(b.name,'it'):mode==='frequency'?(b.useCount||0)-(a.useCount||0)||a.name.localeCompare(b.name,'it'):a.name.localeCompare(b.name,'it'));
+ if(active==="category"&&currentCategory!=="all")list=list.filter(c=>categoryFor(c)===currentCategory);
  const grid=document.getElementById("cardGrid");
- if(!list.length){grid.innerHTML='<div class="empty"><strong>Nessuna carta qui</strong>'+(active==="near"&&!currentPos?"Aggiorna la posizione per vedere le carte vicine.":"Tocca ＋ per aggiungerne una.")+'</div>';return}
+ if(!list.length){grid.innerHTML='<div class="empty"><strong>Nessuna carta qui</strong>Tocca ＋ per aggiungerne una.</div>';return}
  const grouped={};list.forEach(c=>{const k=categoryFor(c);(grouped[k]||(grouped[k]=[])).push(c)});
+ Object.values(grouped).forEach(arr=>arr.sort((a,b)=>a.name.localeCompare(b.name,"it")));
  const order=Object.keys(CATEGORIES).filter(k=>grouped[k]?.length);
  grid.innerHTML=order.map(k=>{
    const arr=grouped[k];
-   return '<section class="categorySection"><div class="categoryHead"><h3>'+esc(CATEGORIES[k])+' <span class="categoryCount">'+arr.length+'</span></h3>'+(currentCategory==="all"?'<button class="categoryMore" data-open-category="'+k+'">Vedi tutte</button>':'')+'</div><div class="cardShelf">'+arr.map(cardHtml).join("")+'</div></section>'
+   return '<section class="categorySection"><div class="categoryHead"><h3>'+esc(CATEGORIES[k])+' <span class="categoryCount">'+arr.length+'</span></h3>'+(active==="all"?'<button class="categoryMore" data-open-category="'+k+'">Vedi tutte</button>':'')+'</div><div class="cardShelf">'+arr.map(cardHtml).join("")+'</div></section>'
  }).join("");
  grid.querySelectorAll("[data-card]").forEach(x=>x.onclick=()=>openCard(x.dataset.card));
- grid.querySelectorAll("[data-open-category]").forEach(x=>x.onclick=()=>{currentCategory=x.dataset.openCategory;renderCategoryChips();renderCards();document.getElementById("cardGrid").scrollIntoView({behavior:"smooth",block:"start"})});
+ grid.querySelectorAll("[data-open-category]").forEach(x=>x.onclick=()=>{currentCategory=x.dataset.openCategory;document.querySelectorAll(".chip[data-filter]").forEach(b=>b.classList.toggle("active",b.dataset.filter==="category"));renderCategoryChips();renderCards();document.getElementById("cardGrid").scrollIntoView({behavior:"smooth",block:"start"})});
 }
 function renderOffers(){
  const html=offers.map(o=>'<div class="promo"><div class="promoIcon">%</div><div class="grow"><b>'+esc(o.brand)+' · '+esc(o.title)+'</b><small>'+esc(o.text)+'</small></div><span class="badge">'+esc(o.tag)+'</span></div>').join("");
@@ -319,7 +362,7 @@ function openCard(id,recordUse=true){
  const locHtml=locs.length?'<div class="panel" style="margin-top:12px"><b>Punti vendita associati</b>'+locs.map((l,i)=>'<div class="promo" style="margin-bottom:0"><div class="grow"><small>'+l.lat.toFixed(5)+', '+l.lng.toFixed(5)+' · raggio '+(l.radius||180)+' m</small></div><button class="chip" data-remove-loc="'+i+'">Dissocia</button></div>').join("")+'</div>':'<p class="hint">Nessun punto vendita associato a questa carta.</p>';
  document.getElementById("detailContent").innerHTML='<div class="detailHero"><div class="detailBrandHeader" style="--card-color:'+esc(c.color)+';--card-ink:'+cardInk(c.color)+'"><span class="detailLogo">'+brandLogoHtml(b)+'</span><h2>'+esc(c.name)+'</h2><p>'+esc(categoryLabel(c))+'</p></div><div class="barcodeBox"><canvas id="detailSvg"></canvas><div class="num">'+esc(c.code)+'</div></div></div>'+
  '<div class="detailActions"><button id="fullBtn">▣ Tutto schermo</button><button id="favBtn">'+(c.fav?"★ Preferita":"☆ Preferita")+'</button></div>'+
- '<div class="detailActions"><button id="notesBtn">✎ Note</button><button id="photoBtn">▣ Foto tessera</button><button id="shareBtn">↗ Condividi</button></div><div id="cardExtras"></div><button class="secondary" id="assocBtn">⌖ Associa questo punto vendita</button>'+locHtml+
+ '<div class="detailActions"><button id="notesBtn">✎ Note</button><button id="photoBtn">▣ Foto tessera</button><button id="shareBtn">↗ Condividi</button></div><div id="cardExtras"></div><div class="detailActions"><button id="assocBtn">⌖ Posizione attuale</button><button id="mapAssocBtn">🗺 Scegli su mappa</button></div>'+locHtml+
  (n?'<p class="hint">Punto associato più vicino: '+Math.round(n.d)+' m.</p>':'')+
  '<button class="danger" id="deleteBtn">Elimina carta</button>';
  drawBarcode("detailSvg",c);showModal("detailModal");
@@ -329,6 +372,7 @@ function openCard(id,recordUse=true){
  document.getElementById('shareBtn').onclick=()=>shareCard(c);
  document.getElementById("favBtn").onclick=()=>{c.fav=!c.fav;save();renderAll();openCard(c.id)};
  document.getElementById("assocBtn").onclick=()=>associateLocation(c.id);
+ document.getElementById("mapAssocBtn").onclick=()=>openLocationPicker(c.id);
  document.querySelectorAll("[data-remove-loc]").forEach(btn=>btn.onclick=()=>{removeLocation(c.id,Number(btn.dataset.removeLoc));openCard(c.id,false);toast("Posizione dissociata")});
  document.getElementById("deleteBtn").onclick=()=>{if(confirm("Eliminare questa carta?")){cards=cards.filter(x=>x.id!==c.id);save();hideModal("detailModal");renderAll()}};
 }
@@ -339,22 +383,50 @@ async function associateLocation(id){
  try{const p=await getPosition();currentPos=p;const radius=Number(prompt("Raggio di riconoscimento in metri","180"))||180;c.locations=c.locations||[];c.locations.push({lat:p.lat,lng:p.lng,radius,createdAt:Date.now()});save();renderAll();openCard(id,false);toast("Punto vendita associato")}catch(e){toast("Posizione non disponibile: "+e.message)}
 }
 function removeLocation(id,i){const c=cards.find(x=>x.id===id);if(!c)return;c.locations.splice(i,1);save();renderAll()}
+function setPickerPoint(lat,lng,center=true){
+ if(!Number.isFinite(lat)||!Number.isFinite(lng))return;
+ locationPickerPoint={lat,lng};
+ document.getElementById("pickerCoords").textContent=lat.toFixed(6)+", "+lng.toFixed(6);
+ document.getElementById("pickerSave").disabled=false;
+ if(locationPickerMap&&window.L){
+   if(!locationPickerMarker){
+     locationPickerMarker=L.marker([lat,lng],{draggable:true}).addTo(locationPickerMap);
+     locationPickerMarker.on("dragend",e=>{const p=e.target.getLatLng();setPickerPoint(p.lat,p.lng,false)})
+   }else locationPickerMarker.setLatLng([lat,lng]);
+   if(center)locationPickerMap.setView([lat,lng],Math.max(locationPickerMap.getZoom(),16))
+ }
+}
+function openLocationPicker(id){
+ const c=cards.find(x=>x.id===id);if(!c)return;
+ locationPickerCardId=id;locationPickerPoint=null;document.getElementById("pickerSave").disabled=true;document.getElementById("pickerRadius").value="180";document.getElementById("pickerCoords").textContent="Tocca sulla mappa per scegliere la posizione.";showModal("locationPickerModal");
+ setTimeout(()=>{
+   if(!window.L){toast("La mappa richiede una connessione internet.");return}
+   if(locationPickerMap){locationPickerMap.remove();locationPickerMap=null;locationPickerMarker=null}
+   const existing=c.locations?.[0],center=currentPos||existing||{lat:42.2,lng:12.5},zoom=(currentPos||existing)?15:6;
+   locationPickerMap=L.map("locationPickerMap",{zoomControl:true}).setView([center.lat,center.lng],zoom);
+   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"&copy; OpenStreetMap contributors"}).addTo(locationPickerMap);
+   locationPickerMap.on("click",e=>setPickerPoint(e.latlng.lat,e.latlng.lng,false));
+   if(existing)setPickerPoint(existing.lat,existing.lng,false);
+   setTimeout(()=>locationPickerMap.invalidateSize(),80)
+ },80)
+}
 function getPosition(){return new Promise((res,rej)=>{if(!navigator.geolocation)return rej(new Error("GPS non supportato"));navigator.geolocation.getCurrentPosition(p=>res({lat:p.coords.latitude,lng:p.coords.longitude,accuracy:p.coords.accuracy}),e=>rej(new Error(e.message)),{enableHighAccuracy:true,timeout:12000,maximumAge:30000})})}
-async function refreshPosition(){try{toast("Aggiorno la posizione…");currentPos=await getPosition();document.getElementById("mapInfo").innerHTML='<b>Posizione corrente</b><br><span class="coords">'+currentPos.lat.toFixed(6)+', '+currentPos.lng.toFixed(6)+' · precisione ±'+Math.round(currentPos.accuracy)+' m</span>';renderAll();toast("Posizione aggiornata")}catch(e){toast("GPS: "+e.message)}}
+async function refreshPosition(){try{currentPos=await getPosition();document.getElementById("mapInfo").innerHTML='<b>Posizione corrente</b><br><span class="coords">'+currentPos.lat.toFixed(6)+', '+currentPos.lng.toFixed(6)+' · precisione ±'+Math.round(currentPos.accuracy)+' m</span>';renderAll()}catch(e){renderSmartCarousel()}}
 
 function showModal(id){document.getElementById(id).classList.add("show")}function hideModal(id){document.getElementById(id).classList.remove("show");if(id==="addModal")stopScan()}
 document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>hideModal(b.dataset.close));
 document.querySelectorAll(".modal").forEach(m=>m.addEventListener("click",e=>{if(e.target===m)hideModal(m.id)}));
 document.getElementById("addFab").onclick=()=>showModal("addModal");
 document.getElementById("search").oninput=renderCards;
- const savedSort=localStorage.getItem('ficard.sort')||'name';document.getElementById('cardSort').value=['name','recent','frequency'].includes(savedSort)?savedSort:'name';document.getElementById('cardSort').onchange=e=>{localStorage.setItem('ficard.sort',e.target.value);renderCards()};
 document.getElementById("addCode").addEventListener("input",e=>{pendingScanFormat=null;const v=e.target.value.trim();document.getElementById("detectedFormat").textContent=v?"Automatico: "+formatLabel(inferManualFormat(v)):"Automatico"});
 document.getElementById("addBrand").onchange=e=>{const b=BRANDS[e.target.value];if(!b)return;document.getElementById("addName").value=b.name;document.getElementById("addColor").value=b.color;document.getElementById("addCategory").value=b.category||"altro"};
-document.querySelectorAll(".chip[data-filter]").forEach(b=>b.onclick=()=>{document.querySelectorAll(".chip[data-filter]").forEach(x=>x.classList.remove("active"));b.classList.add("active");renderCards()});
+document.querySelectorAll(".chip[data-filter]").forEach(b=>b.onclick=()=>{document.querySelectorAll(".chip[data-filter]").forEach(x=>x.classList.remove("active"));b.classList.add("active");if(b.dataset.filter==="category"&&currentCategory==="all"){const first=Object.keys(CATEGORIES).find(k=>cards.some(c=>categoryFor(c)===k));if(first)currentCategory=first}renderCategoryChips();renderCards()});
 document.querySelectorAll(".nav[data-view]").forEach(b=>b.onclick=()=>go(b.dataset.view));
 document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.go));
 function go(v){document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));document.getElementById(v+"View").classList.add("active");document.querySelectorAll(".nav").forEach(x=>x.classList.toggle("active",x.dataset.view===v))}
-document.getElementById("geoRefresh").onclick=refreshPosition;document.getElementById("mapRefresh").onclick=refreshPosition;
+document.getElementById("mapRefresh").onclick=refreshPosition;
+document.getElementById("pickerUseGps").onclick=async()=>{try{const p=await getPosition();currentPos=p;setPickerPoint(p.lat,p.lng,true);renderSmartCarousel();toast("Posizione acquisita")}catch(e){toast("GPS: "+e.message)}};
+document.getElementById("pickerSave").onclick=()=>{const c=cards.find(x=>x.id===locationPickerCardId);if(!c||!locationPickerPoint)return;const radius=Math.max(30,Math.min(5000,Number(document.getElementById("pickerRadius").value)||180));c.locations=c.locations||[];c.locations.push({lat:locationPickerPoint.lat,lng:locationPickerPoint.lng,radius,createdAt:Date.now(),source:"osm"});save();hideModal("locationPickerModal");renderAll();openCard(c.id,false);toast("Punto OpenStreetMap associato")};
 document.getElementById("widgetDemo").onclick=()=>{renderWidget();showModal("widgetModal")};
 document.getElementById("closeFull").onclick=()=>document.getElementById("fullBarcode").classList.remove("show");
 
