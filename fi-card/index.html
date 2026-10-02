@@ -51,12 +51,13 @@
 .storeCluster{border:0;background:none}.storeClusterBadge{width:48px;height:48px;border:3px solid #fff;border-radius:50%;background:#5B3DF5;color:#fff;box-shadow:0 5px 16px rgba(31,41,55,.3);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}.storeClusterBadge b{font-size:18px}.storeClusterBadge small{font-size:8px;margin-top:3px}.leaflet-cluster-spider-leg{pointer-events:none}
 .locationResult{flex-wrap:wrap}.locationResult .grow{min-width:0}.locationActions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%}.locationActions .chip{padding:9px 6px;color:var(--violet);font-weight:700}.navigationChoices{display:grid;gap:10px;margin-top:16px}.navigationChoices a{display:block;text-decoration:none;color:var(--text);background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;font-weight:800}.navigationChoices a:focus-visible{outline:3px solid var(--violet);outline-offset:2px}
 .usageGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.usageGrid .card{width:100%;min-width:0;min-height:102px;padding:8px;border-radius:15px;background:var(--card-color);color:var(--card-ink,#fff);box-shadow:0 3px 10px rgba(31,41,55,.06)}.usageGrid .card .brandMark{height:58px;padding:8px;border-radius:10px;font-size:13px}.usageGrid .card .name{font-size:12px;margin-top:7px;padding-right:14px;line-height:16px}.usageGrid .card .type{display:none}.usageGrid .card .star{right:7px;bottom:8px;font-size:13px;line-height:16px}.usageGrid .empty{grid-column:1/-1}@media(min-width:520px){.usageGrid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.smartCarousel.denseNearby{gap:10px;padding:2px 0 10px;scroll-snap-type:x mandatory}.smartPage{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;flex:0 0 100%;min-width:0;scroll-snap-align:start;align-content:start}.denseNearby .smartCard{width:100%;min-width:0;min-height:104px;aspect-ratio:auto;padding:7px;border-radius:14px;box-shadow:0 3px 10px rgba(31,41,55,.06)}.denseNearby .smartCard .brandMark{height:48px;padding:5px;border-radius:9px;font-size:10px}.denseNearby .smartCard .name{font-size:11px;margin-top:6px;line-height:14px}.denseNearby .smartMeta{font-size:10px;margin-top:3px}.denseNearby .smartEmpty{grid-column:1/-1}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="top">
-    <div class="brand"><h1 class="brandLockup"><svg viewBox="370 835 515 177" role="img" aria-labelledby="brandTitle" xmlns="http://www.w3.org/2000/svg"><title id="brandTitle">Fi-Card</title><image href="./brand-approved.png" width="1448" height="1086"/></svg></h1><div class="release">02/10/2026 · 10:15 · v0.9.16</div></div>
+    <div class="brand"><h1 class="brandLockup"><svg viewBox="370 835 515 177" role="img" aria-labelledby="brandTitle" xmlns="http://www.w3.org/2000/svg"><title id="brandTitle">Fi-Card</title><image href="./brand-approved.png" width="1448" height="1086"/></svg></h1><div class="release">02/10/2026 · 10:20 · v0.9.17</div></div>
     <div class="topActions"><button class="iconbtn" id="refreshBtn" title="Aggiorna Fi-Card" aria-label="Aggiorna Fi-Card">↻</button><button class="iconbtn" id="installBtn" title="Installa">⇩</button></div>
   </header>
 
@@ -181,7 +182,7 @@
 <div id="backupModal" class="modal"><div class="sheet"><div class="sheetHead"><h2>Ripristina backup</h2><button class="close" data-close="backupModal">×</button></div><p id="backupSummary"></p><button class="primary" id="mergeBackup">Unisci alle mie carte</button><button class="secondary" id="replaceBackup">Sostituisci le mie carte</button><p class="hint">Unisci conserva le carte esistenti. Sostituisci salva prima una copia di sicurezza scaricabile.</p></div></div>
 
 <script>
-const RELEASE="2026.10.02-1015-v0.9.16";
+const RELEASE="2026.10.02-1020-v0.9.17";
 const KEY="ficard.cards.v3";
 const LEGACY_KEYS=["ficard.cards.v2","ficard.cards.v1"];
 const DB_NAME="ficard-local";
@@ -308,11 +309,14 @@ function smartOrder(){
  });
  return {ordered,geoReady}
 }
+function nearbyCardCount(){return currentPos?cards.filter(c=>{const n=nearestFor(c,currentPos);return n&&n.d<=100}).length:0}
 function renderSmartCarousel(){
  const box=document.getElementById("smartCarousel"),label=document.getElementById("smartOrderLabel");if(!box||!label)return;
- const {ordered,geoReady}=smartOrder();label.textContent=geoReady?"Più vicine prima":"Più usate prima";
+ const {ordered,geoReady}=smartOrder(),nearCount=nearbyCardCount(),dense=nearCount>2;box.classList.toggle("denseNearby",dense);label.textContent=geoReady?"Più vicine prima":"Più usate prima";
  if(!ordered.length){box.innerHTML='<div class="smartEmpty">Aggiungi una carta: comparirà qui automaticamente.</div>';return}
- box.innerHTML=ordered.map(c=>{const b=brandFor(c),n=geoReady?nearestFor(c,currentPos):null,meta=n&&Number.isFinite(n.d)?(n.d<1000?Math.round(n.d)+" m":(n.d/1000).toFixed(1)+" km"):(c.useCount?"Usata "+c.useCount+" "+(c.useCount===1?"volta":"volte"):"Non ancora usata");return '<button class="smartCard" style="--card-color:'+esc(c.color)+';--card-ink:'+cardInk(c.color)+'" data-smart-card="'+c.id+'"><span class="brandMark" aria-hidden="true">'+brandLogoHtml(b)+'</span><div class="name">'+esc(c.name)+'</div><div class="smartMeta">'+esc(meta)+'</div></button>'}).join("");
+ const previews=ordered.map(c=>{const b=brandFor(c),n=geoReady?nearestFor(c,currentPos):null,meta=n&&Number.isFinite(n.d)?(n.d<1000?Math.round(n.d)+" m":(n.d/1000).toFixed(1)+" km"):(c.useCount?"Usata "+c.useCount+" "+(c.useCount===1?"volta":"volte"):"Non ancora usata");return '<button class="smartCard" style="--card-color:'+esc(c.color)+';--card-ink:'+cardInk(c.color)+'" data-smart-card="'+c.id+'"><span class="brandMark" aria-hidden="true">'+brandLogoHtml(b)+'</span><div class="name">'+esc(c.name)+'</div><div class="smartMeta">'+esc(meta)+'</div></button>'});
+ if(dense){const pageSize=nearCount>4?8:4,pages=[];for(let i=0;i<previews.length;i+=pageSize)pages.push('<div class="smartPage">'+previews.slice(i,i+pageSize).join("")+'</div>');box.innerHTML=pages.join("")}
+ else box.innerHTML=previews.join("");
  box.querySelectorAll("[data-smart-card]").forEach(x=>x.onclick=()=>openCard(x.dataset.smartCard))
 }
 
