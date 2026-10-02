@@ -1,37 +1,37 @@
 {
-  "checked_at": "2026-10-02T21:28:56.721Z",
+  "checked_at": "2026-10-02T22:28:27.769Z",
   "ports": [
     {
       "id": "civitavecchia",
       "name": "Civitavecchia",
       "provider_id": "civitavecchia",
       "status": "ok",
-      "count": 232,
-      "fetched_at": "2026-10-02T21:26:38.903Z"
+      "count": 224,
+      "fetched_at": "2026-10-02T22:25:52.297Z"
     },
     {
       "id": "ancona",
       "name": "Ancona",
       "provider_id": "anconaitaly",
       "status": "ok",
-      "count": 5,
-      "fetched_at": "2026-10-02T21:26:43.867Z"
+      "count": 4,
+      "fetched_at": "2026-10-02T22:25:58.015Z"
     },
     {
       "id": "bari",
       "name": "Bari",
       "provider_id": "bariitaly",
       "status": "ok",
-      "count": 40,
-      "fetched_at": "2026-10-02T21:26:48.519Z"
+      "count": 39,
+      "fetched_at": "2026-10-02T22:26:03.534Z"
     },
     {
       "id": "brindisi",
       "name": "Brindisi",
       "provider_id": "brindisiitaly",
       "status": "ok",
-      "count": 12,
-      "fetched_at": "2026-10-02T21:26:53.429Z"
+      "count": 11,
+      "fetched_at": "2026-10-02T22:26:09.262Z"
     },
     {
       "id": "cagliari",
@@ -39,23 +39,23 @@
       "provider_id": "52",
       "status": "ok",
       "count": 54,
-      "fetched_at": "2026-10-02T21:27:17.358Z"
+      "fetched_at": "2026-10-02T22:26:35.825Z"
     },
     {
       "id": "catania",
       "name": "Catania",
       "provider_id": "50",
       "status": "ok",
-      "count": 25,
-      "fetched_at": "2026-10-02T21:27:27.777Z"
+      "count": 23,
+      "fetched_at": "2026-10-02T22:26:47.323Z"
     },
     {
       "id": "genova",
       "name": "Genova",
       "provider_id": "genoaitaly",
       "status": "ok",
-      "count": 86,
-      "fetched_at": "2026-10-02T21:27:32.741Z"
+      "count": 85,
+      "fetched_at": "2026-10-02T22:26:52.603Z"
     },
     {
       "id": "laspezia",
@@ -63,7 +63,7 @@
       "provider_id": "laspeziaitaly",
       "status": "ok",
       "count": 46,
-      "fetched_at": "2026-10-02T21:27:37.465Z"
+      "fetched_at": "2026-10-02T22:26:58.025Z"
     },
     {
       "id": "livorno",
@@ -71,39 +71,39 @@
       "provider_id": "livornoflorencepisaitaly",
       "status": "ok",
       "count": 52,
-      "fetched_at": "2026-10-02T21:27:42.167Z"
+      "fetched_at": "2026-10-02T22:27:03.562Z"
     },
     {
       "id": "messina",
       "name": "Messina",
       "provider_id": "messinasicily",
       "status": "ok",
-      "count": 67,
-      "fetched_at": "2026-10-02T21:27:47.030Z"
+      "count": 65,
+      "fetched_at": "2026-10-02T22:27:08.809Z"
     },
     {
       "id": "napoli",
       "name": "Napoli",
       "provider_id": "naplesitaly",
       "status": "ok",
-      "count": 105,
-      "fetched_at": "2026-10-02T21:27:51.733Z"
+      "count": 104,
+      "fetched_at": "2026-10-02T22:27:14.294Z"
     },
     {
       "id": "olbia",
       "name": "Olbia",
       "provider_id": "olbiasardinia",
       "status": "ok",
-      "count": 6,
-      "fetched_at": "2026-10-02T21:28:11.339Z"
+      "count": 5,
+      "fetched_at": "2026-10-02T22:27:34.755Z"
     },
     {
       "id": "palermo",
       "name": "Palermo",
       "provider_id": "palermosicily",
       "status": "ok",
-      "count": 75,
-      "fetched_at": "2026-10-02T21:28:15.997Z"
+      "count": 74,
+      "fetched_at": "2026-10-02T22:27:40.153Z"
     },
     {
       "id": "portoferraio",
@@ -111,15 +111,15 @@
       "provider_id": "portoferraioitaly",
       "status": "ok",
       "count": 6,
-      "fetched_at": "2026-10-02T21:28:20.765Z"
+      "fetched_at": "2026-10-02T22:27:45.782Z"
     },
     {
       "id": "ravenna",
       "name": "Ravenna",
       "provider_id": "ravennaitaly",
       "status": "ok",
-      "count": 15,
-      "fetched_at": "2026-10-02T21:28:25.495Z"
+      "count": 14,
+      "fetched_at": "2026-10-02T22:27:51.325Z"
     },
     {
       "id": "salerno",
@@ -127,7 +127,7 @@
       "provider_id": "salernoitaly",
       "status": "ok",
       "count": 25,
-      "fetched_at": "2026-10-02T21:28:30.315Z"
+      "fetched_at": "2026-10-02T22:27:56.826Z"
     },
     {
       "id": "savona",
@@ -135,7 +135,7 @@
       "provider_id": "savonaitaly",
       "status": "ok",
       "count": 53,
-      "fetched_at": "2026-10-02T21:28:34.959Z"
+      "fetched_at": "2026-10-02T22:28:02.579Z"
     },
     {
       "id": "siracusa",
@@ -143,7 +143,7 @@
       "provider_id": "siracusasicily",
       "status": "ok",
       "count": 11,
-      "fetched_at": "2026-10-02T21:28:39.593Z"
+      "fetched_at": "2026-10-02T22:28:07.985Z"
     },
     {
       "id": "taranto",
@@ -151,7 +151,7 @@
       "provider_id": "51",
       "status": "empty",
       "count": 0,
-      "fetched_at": "2026-10-02T21:28:42.553Z"
+      "fetched_at": "2026-10-02T22:28:11.027Z"
     },
     {
       "id": "trapani",
@@ -159,15 +159,15 @@
       "provider_id": "trapaniitaly",
       "status": "ok",
       "count": 16,
-      "fetched_at": "2026-10-02T21:28:47.331Z"
+      "fetched_at": "2026-10-02T22:28:16.742Z"
     },
     {
       "id": "trieste",
       "name": "Trieste",
       "provider_id": "triesteitaly",
       "status": "ok",
-      "count": 22,
-      "fetched_at": "2026-10-02T21:28:52.071Z"
+      "count": 21,
+      "fetched_at": "2026-10-02T22:28:22.390Z"
     },
     {
       "id": "venezia",
@@ -175,7 +175,7 @@
       "provider_id": "veniceitaly",
       "status": "ok",
       "count": 25,
-      "fetched_at": "2026-10-02T21:28:56.721Z"
+      "fetched_at": "2026-10-02T22:28:27.769Z"
     }
   ]
 }
