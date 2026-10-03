@@ -2,7 +2,7 @@
   "use strict";
   function apply(){
     document.querySelectorAll(".sw-accountbar-release,.sw-entry-release").forEach(function(el){
-      el.textContent="03/10/2026 · OPS-API-1";
+      if(el.textContent!=="03/10/2026 · OPS-API-2") el.textContent="03/10/2026 · OPS-API-2";
     });
     var gate=document.querySelector(".sw-entry-card");
     if(gate && !gate.querySelector(".sw-tester-hint")){
@@ -14,6 +14,7 @@
       if(input) gate.insertBefore(hint,input);
     }
   }
-  new MutationObserver(apply).observe(document.documentElement,{childList:true,subtree:true});
-  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",apply); else apply();
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",apply,{once:true});
+  else apply();
+  window.addEventListener("pageshow",apply);
 })();
