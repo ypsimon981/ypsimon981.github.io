@@ -14,7 +14,7 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
-          tag='<script defer src="assets/service-context.js?v=20261004-2"></script>'
+          tag='<script defer src="assets/service-context.js?v=20261004-3"></script>'
           for name in ['cartello.html','timestamp.html','voli.html','treni.html','navi.html']:
               p=Path(name)
               s=p.read_text()
@@ -27,5 +27,5 @@ jobs:
           git config user.name "steerwill-bot"
           git config user.email "actions@users.noreply.github.com"
           git add cartello.html timestamp.html voli.html treni.html navi.html
-          git diff --cached --quiet || git commit -m "Connect assigned services to Driver tools"
+          git diff --cached --quiet || git commit -m "Restore service context bridge"
           git push
