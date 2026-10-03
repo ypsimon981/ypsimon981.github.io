@@ -1,8 +1,8 @@
 // SteerWill modular shell: entry gate, admin profile switcher, release controls and navigation.
 (function(){
  "use strict";
- var RELEASE="2026.10.03-navsavefix";
- var RELEASE_LABEL="03/10/2026 · 21:31";
+ var RELEASE="2026.10.03-2313-apitest";
+ var RELEASE_LABEL="03/10/2026 · 23:13";
  var PROFILE_KEY="steerwill.profile.v1";
  var ACCESS_KEY="steerwill.access.v1";
  var ACCESS_SCHEMA_KEY="steerwill.access.schema.v1";
