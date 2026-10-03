@@ -1,6 +1,6 @@
 (function(){
 "use strict";
-function enhance(){
+function enhance(){\n  var rel=document.querySelector(".sw-accountbar-release");if(rel)rel.textContent="03/10/2026 · 23:31";
   var gate=document.querySelector(".sw-entry-card");
   if(gate&&!gate.querySelector(".sw-tester-hint")){
     var hint=document.createElement("div");
