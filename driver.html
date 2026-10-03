@@ -9,6 +9,7 @@
 <link rel="icon" type="image/svg+xml" href="assets/steerwill-brush-icon.svg?v=brush20261001">
 <link rel="stylesheet" href="assets/module-shell.css?v=release20261003_2106">
 <link rel="stylesheet" href="assets/mobile.css?v=20261003-garage-alerts">
+<link rel="stylesheet" href="assets/driver-services-test.css?v=20261004-1">
 <style>
 .driverHome{width:min(780px,100%);margin:0 auto;padding:16px 14px 112px}.driverIntro{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:2px 2px 12px}.driverIntro strong{font-size:18px;letter-spacing:-.02em}.driverIntro span{color:#817a75;font-size:10px}.driverSection{margin-top:12px}.driverSectionTitle{margin:0 0 9px;color:#9ea4aa;font-size:11px;font-weight:900;letter-spacing:.11em;text-transform:uppercase}
 .driverCard{display:flex;color:#f5f1ec;text-decoration:none;border:1px solid #3a3f44;background:#202428;border-radius:20px;overflow:hidden}.driverHero{min-height:122px;padding:17px 18px;align-items:center;justify-content:space-between;background:linear-gradient(135deg,#4a3025 0%,#2b211d 100%);border-color:#6f4a39}.driverHeroCopy{display:grid;gap:5px}.driverEyebrow{color:#b99b89;font-size:9px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}.driverHeroTitle{font-size:38px;font-weight:950;line-height:.9;letter-spacing:-.04em}.driverHeroIcon{width:58px;height:58px;flex:0 0 58px;border:1px solid rgba(255,255,255,.18);border-radius:18px;display:grid;place-items:center;color:#dca06e}.driverHeroIcon svg{width:34px;height:34px;fill:none;stroke:currentColor;stroke-width:1.55;stroke-linecap:round;stroke-linejoin:round}
@@ -19,10 +20,24 @@
 @media(max-width:430px){.driverHome{padding-left:12px;padding-right:12px}.driverHero{min-height:116px}.driverHeroTitle{font-size:34px}.trackerGrid{gap:7px}.trackerTile{border-radius:15px}.trackerIcon{width:52px;height:52px}.trackerTile strong{font-size:12px}.quickGrid{gap:7px}.quickCard{min-height:102px;padding:12px}.quickTitle{font-size:21px}}
 </style>
 <script defer src="assets/mobile.js?v=20261003-garage-alerts2"></script>
+<script defer src="assets/driver-services-test.js?v=20261004-1"></script>
 </head>
 <body class="sw-module-page">
 <main class="driverHome">
   <div class="driverIntro"><strong>Driver</strong><span>Strumenti operativi</span></div>
+
+  <section class="driverSection" id="assigned-services">
+    <div class="sw-assigned">
+      <div class="sw-assigned-head"><div><strong>I miei servizi</strong><div class="sw-assigned-meta" id="swAssignedMeta">Dataset NCC GEST · test</div></div><button class="sw-assigned-config" id="swAssignedConfig" type="button">Autista</button></div>
+      <div class="sw-assigned-setup" id="swAssignedSetup">
+        <div class="sw-assigned-row"><input id="swAssignedPhone" inputmode="tel" placeholder="Numero autista, es. +393391529617"><button id="swAssignedSave" type="button">Salva</button></div>
+        <textarea id="swAssignedJson" placeholder="Incolla qui il JSON restituito da API Test (accetta sia l'oggetto completo con data, sia il solo array dei servizi)"></textarea>
+        <button class="sw-assigned-import" id="swAssignedImport" type="button">Importa dataset di test</button>
+        <div class="sw-assigned-note">Passaggio temporaneo: serve solo per collaudare il filtro per autista e la nuova visualizzazione. Quando avremo la lettura globale, il dataset arriverà automaticamente dal backend.</div>
+      </div>
+      <div class="sw-assigned-list" id="swAssignedList"><div class="sw-assigned-empty">Configura l'autista e importa un dataset di test.</div></div>
+    </div>
+  </section>
 
   <section class="driverSection">
     <a class="driverCard driverHero" href="cartello.html?release=2026.10.03-2106-driver-layout">
