@@ -28,3 +28,16 @@ body{padding-top:58px!important}.sw-accountbar{display:flex;position:fixed;top:0
 
 }
 .agenda-day{font-size:14px;font-weight:500;color:#d0b687;padding:13px 2px 4px;margin:0}.shipFilters{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}.shipFilters button{font:inherit;font-size:13px;border:1px solid #555;border-radius:8px;padding:8px 12px;background:#202020;color:#ddd}.shipFilters button[aria-pressed=true]{border-color:#bda16a;color:#d0b687}
+
+.sw-alert-badges{display:inline-flex;align-items:center;gap:4px;vertical-align:middle;white-space:nowrap}
+.sw-alert-count{display:inline-grid;place-items:center;min-width:17px;height:17px;padding:0 4px;border:1px solid transparent;border-radius:999px;font:900 9px/1 Arial,sans-serif;font-variant-numeric:tabular-nums}
+.sw-alert-orange{border-color:#c57a1d;background:#4a3115;color:#ffc35d}
+.sw-alert-red{border-color:#b63c38;background:#491d1c;color:#ff8b86}
+.sw-module-name[data-garage-alerts],.sw-section-title[data-garage-alerts]{display:flex;align-items:center;gap:7px}
+.sw-module-name[data-garage-alerts]>.sw-alert-badges,.sw-section-title[data-garage-alerts]>.sw-alert-badges{margin-left:auto}
+.sw-mobile-nav a[data-garage-alerts]{position:relative}
+.sw-mobile-nav a[data-garage-alerts]>.sw-alert-badges{position:absolute;top:0;right:calc(50% - 25px);gap:2px;z-index:2}
+.sw-mobile-nav .sw-alert-count{min-width:14px;height:14px;padding:0 3px;font-size:8px}
+.sw-tool[data-garage-alerts]{position:relative}
+.sw-tool[data-garage-alerts]>.sw-alert-badges{position:absolute;top:10px;right:10px;z-index:2}
+.sw-tool[data-garage-alerts] .sw-alert-count{min-width:20px;height:20px;font-size:10px}

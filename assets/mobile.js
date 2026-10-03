@@ -93,6 +93,55 @@
   }
   bar.appendChild(lock);document.body.insertBefore(bar,document.body.firstChild);
  }
+ function garageAlertCounts(){
+  var empty={orange:0,red:0,deadlineOrange:0,deadlineRed:0,maintenanceOrange:0,maintenanceRed:0};
+  var vehicles=[];
+  try{vehicles=JSON.parse(localStorage.getItem("codriver_vehicles_v1")||"[]");}catch(e){return empty;}
+  if(!Array.isArray(vehicles))return empty;
+  function dateStatus(value){
+   if(!value)return 0;
+   var date=new Date(String(value)+"T12:00:00");if(isNaN(date.getTime()))return 0;
+   var today=new Date();today.setHours(0,0,0,0);
+   var days=Math.ceil((date.getTime()-today.getTime())/86400000);
+   return days<0?2:days<=30?1:0;
+  }
+  function kmStatus(target,current){
+   var t=Number(target||0),c=Number(current||0);if(!t)return 0;
+   var left=t-c;return left<0?2:left<=1000?1:0;
+  }
+  function add(status,kind){
+   if(!status)return;
+   if(kind==="deadline"){if(status===2)empty.deadlineRed++;else empty.deadlineOrange++;}
+   else{if(status===2)empty.maintenanceRed++;else empty.maintenanceOrange++;}
+  }
+  vehicles.forEach(function(v){
+   ["revision","insurance","ztl","tax"].forEach(function(k){add(dateStatus(v[k]),"deadline");});
+   [["serviceKm","serviceDate"],["tyresKm","tyresDate"]].forEach(function(pair){
+    var status=Math.max(kmStatus(v[pair[0]],v.km),dateStatus(v[pair[1]]));add(status,"maintenance");
+   });
+  });
+  empty.orange=empty.deadlineOrange+empty.maintenanceOrange;
+  empty.red=empty.deadlineRed+empty.maintenanceRed;
+  return empty;
+ }
+ function garageAlertMarkup(orange,red){
+  if(!orange&&!red)return "";
+  var labels=[];
+  if(orange)labels.push('<span class="sw-alert-count sw-alert-orange" aria-label="'+orange+' avvisi in scadenza">'+orange+'</span>');
+  if(red)labels.push('<span class="sw-alert-count sw-alert-red" aria-label="'+red+' avvisi scaduti o da fare">'+red+'</span>');
+  return '<span class="sw-alert-badges" aria-label="Avvisi: '+orange+' arancioni, '+red+' rossi">'+labels.join("")+'</span>';
+ }
+ function renderGarageAlertBadges(){
+  var totals=garageAlertCounts();
+  document.querySelectorAll("[data-garage-alerts]").forEach(function(el){
+   var type=el.getAttribute("data-garage-alerts"),orange=totals.orange,red=totals.red;
+   if(type==="deadlines"){orange=totals.deadlineOrange;red=totals.deadlineRed;}
+   if(type==="maintenance"){orange=totals.maintenanceOrange;red=totals.maintenanceRed;}
+   var badge=el.querySelector(":scope > .sw-alert-badges");
+   if(!badge){badge=document.createElement("span");badge.className="sw-alert-badges";el.appendChild(badge);}
+   badge.outerHTML=garageAlertMarkup(orange,red)||'<span class="sw-alert-badges" hidden></span>';
+  });
+ }
  function addBottomNav(profileId){
   var old=document.querySelector(".sw-mobile-nav");if(old)old.remove();
   var profile=profiles[profileId],file=fileName(),current=moduleForFile(file);
@@ -107,9 +156,9 @@
    ],
    garage:[
     {href:"index.html",label:"Home",title:"Home SteerWill",path:"M3 10 12 3l9 7v11h-6v-7H9v7H3z"},
-    {href:"garage.html#amministrazione",label:"Admin",title:"Amministrazione veicoli",path:"M4 4h16v16H4z M8 8h8M8 12h8M8 16h5"},
-    {href:"garage.html#scadenze",label:"Scadenze",title:"Scadenze",path:"M4 5h16v16H4z M8 2v6m8-6v6M4 11h16"},
-    {href:"garage.html#manutenzione",label:"Manutenzione",title:"Manutenzione",path:"M14 6a5 5 0 0 0-6 6l-4 4a2 2 0 1 0 3 3l4-4a5 5 0 0 0 6-6l-3 3-3-3z"},
+    {href:"garage.html#amministrazione",label:"Admin",title:"Amministrazione veicoli",alerts:"all",path:"M4 4h16v16H4z M8 8h8M8 12h8M8 16h5"},
+    {href:"garage.html#scadenze",label:"Scadenze",title:"Scadenze",alerts:"deadlines",path:"M4 5h16v16H4z M8 2v6m8-6v6M4 11h16"},
+    {href:"garage.html#manutenzione",label:"Manutenzione",title:"Manutenzione",alerts:"maintenance",path:"M14 6a5 5 0 0 0-6 6l-4 4a2 2 0 1 0 3 3l4-4a5 5 0 0 0 6-6l-3 3-3-3z"},
     {href:"garage.html#impostazioni",label:"Impost.",title:"Impostazioni Garage",path:"M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z M19 13a7 7 0 0 0 0-2l2-1-2-3-2 1a7 7 0 0 0-2-1l-.3-2h-4L10 7a7 7 0 0 0-2 1L6 7 4 10l2 1a7 7 0 0 0 0 2l-2 1 2 3 2-1a7 7 0 0 0 2 1l.7 2h4l.3-2a7 7 0 0 0 2-1l2 1 2-3z"}
    ],
    fleet:[
@@ -133,6 +182,7 @@
     var a=document.createElement("a"),parts=item.href.split("#"),path=parts[0],hashPart=parts.length>1?"#"+parts.slice(1).join("#"):"";
     a.href=path+(path.indexOf("?")===-1?"?":"&")+"release="+encodeURIComponent(RELEASE)+hashPart;
     a.title=item.title||item.label;a.setAttribute("aria-label",item.title||item.label);
+    if(item.alerts)a.setAttribute("data-garage-alerts",item.alerts);
     var activePath=path.split("?")[0];
     if(file===activePath&&location.hash===(hashPart||""))a.setAttribute("aria-current","page");
     a.innerHTML=icon(item.path)+"<span>"+item.label+"</span>";nav.appendChild(a);
@@ -143,12 +193,12 @@
   var all=[
    {id:"home",href:"index.html",label:"Home",path:"M3 10 12 3l9 7v11h-6v-7H9v7H3z"},
    {id:"driver",href:"driver.html",label:"Driver",path:"M12 4a4 4 0 1 1 0 8 4 4 0 0 1 0-8z M5 21c.8-4 3.1-6 7-6s6.2 2 7 6"},
-   {id:"garage",href:"garage.html",label:"Garage",path:"M4 18v-7l3-5h10l3 5v7 M6 18h12 M7 13h10 M8 18v2m8-2v2"},
+   {id:"garage",href:"garage.html",label:"Garage",alerts:"all",path:"M4 18v-7l3-5h10l3 5v7 M6 18h12 M7 13h10 M8 18v2m8-2v2"},
    {id:"fleet",href:"fleet.html",label:"Fleet",path:"M4 17h16M6 17l1-7h10l1 7M8 10l1-4h6l1 4M8 20h.01M16 20h.01"},
    {id:"ops",href:"ops.html",label:"Ops",path:"M4 5h16v14H4z M8 9h8M8 13h5M8 17h3"}
   ];
   var allowed=["home"].concat(profile.modules);
-  all.filter(function(x){return allowed.indexOf(x.id)!==-1;}).forEach(function(item){var a=document.createElement("a");a.href=item.href+"?release="+encodeURIComponent(RELEASE);if(current===item.id)a.setAttribute("aria-current","page");a.innerHTML=icon(item.path)+"<span>"+item.label+"</span>";nav.appendChild(a);});
+  all.filter(function(x){return allowed.indexOf(x.id)!==-1;}).forEach(function(item){var a=document.createElement("a");a.href=item.href+"?release="+encodeURIComponent(RELEASE);if(current===item.id)a.setAttribute("aria-current","page");if(item.alerts)a.setAttribute("data-garage-alerts",item.alerts);a.innerHTML=icon(item.path)+"<span>"+item.label+"</span>";nav.appendChild(a);});
   nav.style.gridTemplateColumns="repeat("+nav.children.length+",minmax(0,1fr))";document.body.appendChild(nav);
  }
  function subItems(module,file){
@@ -186,7 +236,7 @@
  if(!access){if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",showGate);else showGate();return;}
  var profileId=readProfile(access);
  if(!guardProfile(profileId,access))return;
- function init(){document.documentElement.classList.remove("sw-locked");addTopBar(profileId,access);applyVisibility(profileId);addSubNav();addBottomNav(profileId);enhanceHomeLinks();document.querySelectorAll("a[href]").forEach(function(a){try{if(new URL(a.href,location.href).origin===location.origin)a.target="_self";}catch(e){}});}
+ function init(){document.documentElement.classList.remove("sw-locked");addTopBar(profileId,access);applyVisibility(profileId);addSubNav();addBottomNav(profileId);enhanceHomeLinks();renderGarageAlertBadges();window.addEventListener("pageshow",renderGarageAlertBadges);window.addEventListener("storage",function(e){if(!e.key||e.key==="codriver_vehicles_v1")renderGarageAlertBadges();});document.querySelectorAll("a[href]").forEach(function(a){try{if(new URL(a.href,location.href).origin===location.origin)a.target="_self";}catch(e){}});}
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();
 
