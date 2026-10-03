@@ -1,30 +1,22 @@
-// SteerWill modular shell: protected profile selector, release controls, module navigation.
+// SteerWill modular shell: entry gate, admin profile switcher, release controls and navigation.
 (function(){
  "use strict";
- var RELEASE="2026.10.03-1932-modular";
- var RELEASE_LABEL="03/10/2026 · 19:32";
+ var RELEASE="2026.10.03-1950-gate";
+ var RELEASE_LABEL="03/10/2026 · 19:50";
  var PROFILE_KEY="steerwill.profile.v1";
- var PROFILE_SCHEMA_KEY="steerwill.profile.schema.v2";
- var PROFILE_SCHEMA="2";
- // Test/admin code 1981 stored only as SHA-256, not in clear text.
- var ADMIN_HASH="a78f19952edd18bf02b3c9eb704b088e2120941d6acb22f6f795c42796e60252";
+ var ACCESS_KEY="steerwill.access.v1";
+ var ACCESS_SCHEMA_KEY="steerwill.access.schema.v1";
+ var ACCESS_SCHEMA="1";
+ var ADMIN_HASH="a78f19952edd18bf02b3c9eb704b088e2120941d6acb22f6f795c42796e60252"; // 1981
+ var DRIVER_HASH="9af15b336e6a9619928537df30b2e6a2376569fcf9d7e773eccede65606529a0"; // 0000
  var profiles={
   private:{label:"Privato",modules:["garage"],quote:false},
   owner:{label:"Padroncino",modules:["driver","garage"],quote:true},
-  small:{label:"Piccola realtà",modules:["driver","garage","fleet"],quote:true},
-  complete:{label:"Flotta completa",modules:["driver","garage","fleet","ops"],quote:true},
-  driver:{label:"Driver flotta",modules:["driver"],quote:false},
+  small:{label:"Flotta",modules:["driver","garage","fleet"],quote:true},
+  complete:{label:"Gestionale NCC",modules:["driver","garage","fleet","ops"],quote:true},
+  driver:{label:"Autista di flotta",modules:["driver"],quote:false},
   office:{label:"Ufficio / Ops",modules:["garage","fleet","ops"],quote:true}
  };
- function migrateProfile(){
-  try{
-   if(localStorage.getItem(PROFILE_SCHEMA_KEY)!==PROFILE_SCHEMA){
-    localStorage.setItem(PROFILE_KEY,"driver");
-    localStorage.setItem(PROFILE_SCHEMA_KEY,PROFILE_SCHEMA);
-   }
-  }catch(e){}
- }
- function readProfile(){var id="driver";try{id=localStorage.getItem(PROFILE_KEY)||"driver";}catch(e){}return profiles[id]?id:"driver";}
  function fileName(){return location.pathname.split("/").pop()||"index.html";}
  function moduleForFile(file){
   if(file==="driver.html"||["cartello.html","monitor.html","timestamp.html","traduttore.html","preventivo.html","preventivi-salvati.html","voli.html","treni.html","navi.html","testo-cliente.html"].indexOf(file)!==-1)return "driver";
@@ -35,11 +27,42 @@
  }
  function icon(path){return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+path+'"/></svg>';}
  function hex(buffer){return Array.from(new Uint8Array(buffer)).map(function(b){return b.toString(16).padStart(2,"0");}).join("");}
- async function validAdminCode(value){
-  if(!value||!window.crypto||!crypto.subtle)return false;
-  var data=new TextEncoder().encode(String(value));
-  return hex(await crypto.subtle.digest("SHA-256",data))===ADMIN_HASH;
+ async function hash(value){if(!window.crypto||!crypto.subtle)return "";return hex(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(String(value||""))));}
+ function readAccess(){try{return localStorage.getItem(ACCESS_KEY)||"";}catch(e){return "";}}
+ function readProfile(access){
+  if(access==="driver")return "driver";
+  var id="small";try{id=localStorage.getItem(PROFILE_KEY)||"small";}catch(e){}
+  return profiles[id]?id:"small";
  }
+ function prepareGate(){
+  try{
+   if(localStorage.getItem(ACCESS_SCHEMA_KEY)!==ACCESS_SCHEMA){
+    localStorage.removeItem(ACCESS_KEY);
+    localStorage.setItem(PROFILE_KEY,"driver");
+    localStorage.setItem(ACCESS_SCHEMA_KEY,ACCESS_SCHEMA);
+   }
+  }catch(e){}
+ }
+ function showGate(){
+  document.documentElement.classList.add("sw-locked");
+  var overlay=document.createElement("div");overlay.className="sw-entry-gate";
+  overlay.innerHTML='<div class="sw-entry-card" role="dialog" aria-modal="true" aria-labelledby="swEntryTitle"><div class="sw-entry-brand">Steer<span>Will</span></div><div class="sw-entry-title" id="swEntryTitle">Codice di accesso</div><div class="sw-entry-copy">Inserisci il codice per entrare in SteerWill.</div><input class="sw-entry-input" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" autocomplete="off" placeholder="••••" aria-label="Codice di accesso"><button class="sw-entry-submit" type="button">Entra</button><div class="sw-entry-error" aria-live="polite"></div><div class="sw-entry-release">'+RELEASE_LABEL+'</div></div>';
+  document.body.appendChild(overlay);
+  var input=overlay.querySelector(".sw-entry-input"),button=overlay.querySelector(".sw-entry-submit"),error=overlay.querySelector(".sw-entry-error");
+  async function enter(){
+   button.disabled=true;error.textContent="";
+   var digest="";try{digest=await hash(input.value);}catch(e){}
+   var access="";
+   if(digest===ADMIN_HASH)access="admin";
+   if(digest===DRIVER_HASH)access="driver";
+   if(!access){error.textContent="Codice non corretto.";input.value="";input.focus();button.disabled=false;return;}
+   try{localStorage.setItem(ACCESS_KEY,access);if(access==="driver")localStorage.setItem(PROFILE_KEY,"driver");else if((localStorage.getItem(PROFILE_KEY)||"driver")==="driver")localStorage.setItem(PROFILE_KEY,"small");}catch(e){}
+   var target=access==="driver"?"driver.html":"index.html";
+   location.replace(target+"?release="+encodeURIComponent(RELEASE));
+  }
+  button.addEventListener("click",enter);input.addEventListener("keydown",function(e){if(e.key==="Enter")enter();});setTimeout(function(){input.focus();},60);
+ }
+ function logout(){try{localStorage.removeItem(ACCESS_KEY);}catch(e){}location.replace("index.html?locked="+Date.now());}
  function refreshApp(button){
   if(button){button.disabled=true;button.textContent="…";}
   (async function(){
@@ -50,43 +73,25 @@
    var u=new URL(location.href);u.searchParams.set("release",RELEASE);u.searchParams.set("_refresh",Date.now());location.replace(u.toString());
   })();
  }
- function adminDialog(onSuccess,onCancel){
-  var old=document.querySelector(".sw-admin-lock");if(old)old.remove();
-  var overlay=document.createElement("div");overlay.className="sw-admin-lock";
-  overlay.innerHTML='<div class="sw-admin-card" role="dialog" aria-modal="true" aria-labelledby="swAdminTitle"><div class="sw-admin-title" id="swAdminTitle">Cambio livello utente</div><div class="sw-admin-copy">Inserisci il codice amministratore per modificare il profilo di SteerWill.</div><input class="sw-admin-input" type="password" inputmode="numeric" autocomplete="off" placeholder="Password" aria-label="Password amministratore"><div class="sw-admin-error" aria-live="polite"></div><div class="sw-admin-actions"><button type="button" class="sw-admin-cancel">Annulla</button><button type="button" class="sw-admin-confirm">Sblocca</button></div></div>';
-  document.body.appendChild(overlay);
-  var input=overlay.querySelector(".sw-admin-input"),error=overlay.querySelector(".sw-admin-error"),confirm=overlay.querySelector(".sw-admin-confirm"),cancel=overlay.querySelector(".sw-admin-cancel");
-  function close(ok){overlay.remove();if(ok){if(onSuccess)onSuccess();}else if(onCancel)onCancel();}
-  async function check(){
-   confirm.disabled=true;error.textContent="";
-   var ok=false;try{ok=await validAdminCode(input.value);}catch(e){}
-   if(ok){close(true);return;}
-   error.textContent="Password non corretta.";input.value="";input.focus();confirm.disabled=false;
-  }
-  confirm.addEventListener("click",check);cancel.addEventListener("click",function(){close(false);});overlay.addEventListener("click",function(e){if(e.target===overlay)close(false);});input.addEventListener("keydown",function(e){if(e.key==="Enter")check();});
-  setTimeout(function(){input.focus();},40);
- }
- function addTopBar(profileId){
+ function addTopBar(profileId,access){
   if(document.querySelector(".sw-accountbar"))return;
+  document.documentElement.setAttribute("data-sw-access",access);
+  document.documentElement.setAttribute("data-sw-file",fileName());
   var bar=document.createElement("div");bar.className="sw-accountbar";
-  var top=document.createElement("div");top.className="sw-accountbar-top";
   var brand=document.createElement("div");brand.className="sw-accountbar-brand";brand.innerHTML='Steer<b>Will</b>';
   var release=document.createElement("div");release.className="sw-accountbar-release";release.textContent=RELEASE_LABEL;
   var refresh=document.createElement("button");refresh.type="button";refresh.className="sw-refresh-btn";refresh.setAttribute("aria-label","Aggiorna SteerWill");refresh.title="Aggiorna SteerWill";refresh.textContent="↻";refresh.addEventListener("click",function(){refreshApp(refresh);});
-  var releaseWrap=document.createElement("div");releaseWrap.className="sw-release-wrap";releaseWrap.appendChild(release);releaseWrap.appendChild(refresh);
-  top.appendChild(brand);top.appendChild(releaseWrap);
-
-  var profileRow=document.createElement("div");profileRow.className="sw-accountbar-profile";
-  var label=document.createElement("div");label.className="sw-accountbar-label";label.innerHTML='Livello utente <span aria-hidden="true">🔒</span>';
-  var select=document.createElement("select");select.setAttribute("aria-label","Livello utente SteerWill protetto da password");
-  Object.keys(profiles).forEach(function(id){var o=document.createElement("option");o.value=id;o.textContent=profiles[id].label;if(id===profileId)o.selected=true;select.appendChild(o);});
-  select.addEventListener("change",function(){
-   var requested=select.value,current=profileId;if(requested===current)return;
-   select.value=current;
-   adminDialog(function(){try{localStorage.setItem(PROFILE_KEY,requested);}catch(e){}location.href=(requested==="driver"?"driver.html":"index.html")+"?v="+encodeURIComponent(RELEASE);},function(){select.value=current;});
-  });
-  profileRow.appendChild(label);profileRow.appendChild(select);
-  bar.appendChild(top);bar.appendChild(profileRow);document.body.insertBefore(bar,document.body.firstChild);
+  var lock=document.createElement("button");lock.type="button";lock.className="sw-lock-btn";lock.setAttribute("aria-label","Esci e cambia codice");lock.title="Esci e cambia codice";lock.textContent="⌁";lock.addEventListener("click",logout);
+  bar.appendChild(brand);bar.appendChild(release);bar.appendChild(refresh);
+  if(access==="admin"){
+   var select=document.createElement("select");select.className="sw-profile-select";select.setAttribute("aria-label","Livello utente SteerWill");
+   Object.keys(profiles).forEach(function(id){var o=document.createElement("option");o.value=id;o.textContent=profiles[id].label;if(id===profileId)o.selected=true;select.appendChild(o);});
+   select.addEventListener("change",function(){var requested=select.value;try{localStorage.setItem(PROFILE_KEY,requested);}catch(e){}var target=requested==="driver"?"driver.html":"index.html";location.href=target+"?release="+encodeURIComponent(RELEASE);});
+   bar.appendChild(select);
+  }else{
+   var mode=document.createElement("div");mode.className="sw-driver-mode";mode.textContent="Autista";bar.appendChild(mode);
+  }
+  bar.appendChild(lock);document.body.insertBefore(bar,document.body.firstChild);
  }
  function addBottomNav(profileId){
   var old=document.querySelector(".sw-mobile-nav");if(old)old.remove();
@@ -99,30 +104,23 @@
    {id:"ops",href:"ops.html",label:"Ops",path:"M4 5h16v14H4z M8 9h8M8 13h5M8 17h3"}
   ];
   var allowed=["home"].concat(profile.modules);
+  if(profileId==="driver")allowed=["driver"];
   var nav=document.createElement("nav");nav.className="sw-mobile-nav";nav.setAttribute("aria-label","Moduli SteerWill");
-  all.filter(function(x){return allowed.indexOf(x.id)!==-1;}).forEach(function(item){var a=document.createElement("a");a.href=item.href+"?v="+encodeURIComponent(RELEASE);if(current===item.id)a.setAttribute("aria-current","page");a.innerHTML=icon(item.path)+"<span>"+item.label+"</span>";nav.appendChild(a);});
+  all.filter(function(x){return allowed.indexOf(x.id)!==-1;}).forEach(function(item){var a=document.createElement("a");a.href=item.href+"?release="+encodeURIComponent(RELEASE);if(current===item.id)a.setAttribute("aria-current","page");a.innerHTML=icon(item.path)+"<span>"+item.label+"</span>";nav.appendChild(a);});
   nav.style.gridTemplateColumns="repeat("+nav.children.length+",minmax(0,1fr))";document.body.appendChild(nav);
  }
  function subItems(module,file){
-  if(module==="driver")return [
-   ["driver.html","Driver",file==="driver.html"],
-   ["monitor.html","Viaggi",file==="monitor.html"],
-   ["cartello.html","Cartello",file==="cartello.html"],
-   ["driver.html#tracker","Tracker",["voli.html","treni.html","navi.html"].indexOf(file)!==-1],
-   ["timestamp.html","Timestamp",file==="timestamp.html"],
-   ["driver.html#altro","Altro",["traduttore.html","preventivo.html","preventivi-salvati.html","testo-cliente.html"].indexOf(file)!==-1]
-  ];
-  if(module==="garage")return [["garage.html","Garage",file==="garage.html"],["veicolo.html","Veicoli",file==="veicolo.html"],["garage.html#scadenze","Scadenze",false],["garage.html#manutenzione","Manutenzione",false],["garage.html#documenti","Documenti",false]];
-  if(module==="fleet")return [["fleet.html","Fleet",true],["fleet.html#mappa","Mappa",false],["fleet.html#stato","Stato",false],["fleet.html#percorsi","Percorsi",false],["fleet.html#alert","Alert",false]];
-  if(module==="ops")return [["ops.html","Ops",true],["ops.html#servizi","Servizi",false],["ops.html#dispatch","Dispatch",false],["ops.html#turni","Turni",false],["ops.html#clienti","Clienti",false]];
+  if(module==="driver"&&file==="driver.html")return [["driver.html","Driver",true],["monitor.html","Viaggi",false],["cartello.html","Cartello",false],["driver.html#tracker","Tracker",false],["timestamp.html","Timestamp",false],["driver.html#altro","Altro",false]];
+  if(module==="garage"&&file==="garage.html")return [["garage.html","Garage",true],["veicolo.html","Veicoli",false],["garage.html#scadenze","Scadenze",false],["garage.html#manutenzione","Manutenzione",false],["garage.html#documenti","Documenti",false]];
+  if(module==="fleet"&&file==="fleet.html")return [["fleet.html","Fleet",true],["fleet.html#mappa","Mappa",false],["fleet.html#stato","Stato",false],["fleet.html#percorsi","Percorsi",false],["fleet.html#alert","Alert",false]];
+  if(module==="ops"&&file==="ops.html")return [["ops.html","Ops",true],["ops.html#servizi","Servizi",false],["ops.html#dispatch","Dispatch",false],["ops.html#turni","Turni",false],["ops.html#clienti","Clienti",false]];
   return [];
  }
  function addSubNav(){
   var file=fileName(),module=moduleForFile(file),items=subItems(module,file);if(!items.length)return;
   var nav=document.createElement("nav");nav.className="sw-module-subnav";nav.setAttribute("aria-label","Navigazione "+module);
-  items.forEach(function(x){var a=document.createElement("a");a.href=x[0]+(x[0].indexOf("#")===-1?"?v="+encodeURIComponent(RELEASE):"");a.textContent=x[1];if(x[2])a.setAttribute("aria-current","page");nav.appendChild(a);});
-  var main=document.querySelector("main")||document.querySelector(".wrap")||document.querySelector(".shell")||document.body;
-  if(main===document.body){document.body.insertBefore(nav,document.body.children[1]||null);}else{main.insertBefore(nav,main.firstChild);}
+  items.forEach(function(x){var a=document.createElement("a");a.href=x[0]+(x[0].indexOf("#")===-1?"?release="+encodeURIComponent(RELEASE):"");a.textContent=x[1];if(x[2])a.setAttribute("aria-current","page");nav.appendChild(a);});
+  var main=document.querySelector("main");if(main)main.insertBefore(nav,main.firstChild);
  }
  function applyVisibility(profileId){
   var p=profiles[profileId];document.documentElement.setAttribute("data-sw-profile",profileId);
@@ -135,22 +133,23 @@
   var homeIcon='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="flex:0 0 18px"><path d="m3 10 9-7 9 7v11h-6v-7H9v7H3Z"/></svg>';
   document.querySelectorAll('a[href]').forEach(function(link){var href=link.getAttribute("href")||"";if(!/^(?:\.\/)?index\.html(?:[?#]|$)/.test(href)||!/^\s*(?:←\s*)?Home\s*$/i.test(link.textContent))return;link.innerHTML=homeIcon+'<span>Home</span>';link.style.display="inline-flex";link.style.alignItems="center";link.style.justifyContent="center";link.style.gap="7px";});
  }
- function guardProfile(profileId){
+ function guardProfile(profileId,access){
   var file=fileName(),module=moduleForFile(file),p=profiles[profileId];
-  if((file==="preventivo.html"||file==="preventivi-salvati.html")&&!p.quote){location.replace("driver.html?v="+encodeURIComponent(RELEASE));return false;}
-  if(module!=="home"&&p.modules.indexOf(module)===-1){location.replace((p.modules.indexOf("driver")!==-1?"driver.html":"index.html")+"?v="+encodeURIComponent(RELEASE));return false;}
-  if(module==="home"&&profileId==="driver"){location.replace("driver.html?v="+encodeURIComponent(RELEASE));return false;}
+  if(access==="driver"&&module!=="driver"){location.replace("driver.html?release="+encodeURIComponent(RELEASE));return false;}
+  if((file==="preventivo.html"||file==="preventivi-salvati.html")&&!p.quote){location.replace("driver.html?release="+encodeURIComponent(RELEASE));return false;}
+  if(module!=="home"&&p.modules.indexOf(module)===-1){location.replace((p.modules.indexOf("driver")!==-1?"driver.html":"index.html")+"?release="+encodeURIComponent(RELEASE));return false;}
   return true;
  }
- migrateProfile();
- var profileId=readProfile();
- if(!guardProfile(profileId))return;
- function init(){addTopBar(profileId);applyVisibility(profileId);addSubNav();addBottomNav(profileId);enhanceHomeLinks();}
+ prepareGate();
+ var access=readAccess();
+ if(!access){if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",showGate);else showGate();return;}
+ var profileId=readProfile(access);
+ if(!guardProfile(profileId,access))return;
+ function init(){document.documentElement.classList.remove("sw-locked");addTopBar(profileId,access);applyVisibility(profileId);addSubNav();addBottomNav(profileId);enhanceHomeLinks();}
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();
 
 // Daily first-party module counts; random ID is replaced each Rome calendar day.
-// No names, form values, query strings, IP addresses or user agents are sent.
 (function(){
  "use strict";
  var modules={"index.html":"home","driver.html":"driver","garage.html":"garage","fleet.html":"fleet","ops.html":"ops","cartello.html":"cartello","timestamp.html":"timestamp","monitor.html":"monitor","navi.html":"navi","voli.html":"voli","treni.html":"treni","preventivo.html":"preventivo","preventivi-salvati.html":"preventivi-salvati","testo-cliente.html":"testo-cliente","traduttore.html":"traduttore","veicolo.html":"veicolo"};
