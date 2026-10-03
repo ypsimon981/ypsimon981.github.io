@@ -175,7 +175,7 @@ h1{margin:0;font-size:clamp(38px,7vw,64px);line-height:.95;letter-spacing:-.045e
 .deadlines{gap:6px;padding:6px;border:0}.deadline{border:1px solid #333;border-radius:9px;padding:10px 7px}.deadline.ok,.maintCard.ok{border-color:#46a463}.deadline.warn,.maintCard.warn{border-color:#f19e39}.deadline.bad,.maintCard.bad{border-color:#ff5353}.deadlineName{font-size:12px}.deadlineDate{font-weight:600}.state{font-size:12px}.maintenance{gap:6px;padding:6px}.maintCard{border-radius:9px;padding:10px}.maintMain{font-size:18px}.list{gap:10px}
 </style>
 <link rel="stylesheet" href="assets/steerwill-theme.css?v=1">
-<link rel="stylesheet" href="assets/revision.css?v=20260930"><link rel="stylesheet" href="assets/mobile.css?v=20261003-garage-alerts"><script defer src="assets/mobile.js?v=20261003-garage-alerts"></script>
+<link rel="stylesheet" href="assets/revision.css?v=20260930"><link rel="stylesheet" href="assets/mobile.css?v=20261003-garage-alerts"><script defer src="assets/mobile.js?v=20261003-garage-alerts2"></script>
 </head>
 <body>
 <main class="page">
@@ -302,6 +302,7 @@ h1{margin:0;font-size:clamp(38px,7vw,64px);line-height:.95;letter-spacing:-.045e
 
   function saveVehicles(items){
     localStorage.setItem(STORAGE_KEY,JSON.stringify(items));
+    window.dispatchEvent(new Event("steerwill:vehicles-updated"));
   }
 
   function openForm(vehicle){

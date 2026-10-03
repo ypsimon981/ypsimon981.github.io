@@ -236,7 +236,7 @@
  if(!access){if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",showGate);else showGate();return;}
  var profileId=readProfile(access);
  if(!guardProfile(profileId,access))return;
- function init(){document.documentElement.classList.remove("sw-locked");addTopBar(profileId,access);applyVisibility(profileId);addSubNav();addBottomNav(profileId);enhanceHomeLinks();renderGarageAlertBadges();window.addEventListener("pageshow",renderGarageAlertBadges);window.addEventListener("storage",function(e){if(!e.key||e.key==="codriver_vehicles_v1")renderGarageAlertBadges();});document.querySelectorAll("a[href]").forEach(function(a){try{if(new URL(a.href,location.href).origin===location.origin)a.target="_self";}catch(e){}});}
+ function init(){document.documentElement.classList.remove("sw-locked");addTopBar(profileId,access);applyVisibility(profileId);addSubNav();addBottomNav(profileId);enhanceHomeLinks();renderGarageAlertBadges();window.addEventListener("pageshow",renderGarageAlertBadges);window.addEventListener("storage",function(e){if(!e.key||e.key==="codriver_vehicles_v1")renderGarageAlertBadges();});window.addEventListener("steerwill:vehicles-updated",renderGarageAlertBadges);document.querySelectorAll("a[href]").forEach(function(a){try{if(new URL(a.href,location.href).origin===location.origin)a.target="_self";}catch(e){}});}
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();
 
