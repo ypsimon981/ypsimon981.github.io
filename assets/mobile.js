@@ -98,14 +98,16 @@
   var profile=profiles[profileId],file=fileName(),current=moduleForFile(file);
   var nav=document.createElement("nav");nav.className="sw-mobile-nav";
 
-  if(profileId==="driver"){
-   nav.setAttribute("aria-label","Strumenti Driver");
-   var driverItems=[
+  if(current==="driver"){
+   nav.setAttribute("aria-label","Navigazione Driver");
+   var driverItems=[];
+   if(profileId!=="driver"&&profile.modules.length>1)driverItems.push({href:"index.html",label:"Moduli",file:"index.html",path:"M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z"});
+   driverItems=driverItems.concat([
     {href:"driver.html",label:"Home",file:"driver.html",path:"M3 10 12 3l9 7v11h-6v-7H9v7H3z"},
     {href:"monitor.html",label:"Viaggi salvati",file:"monitor.html",path:"M4 5h16v16H4z M8 2v6m8-6v6M4 11h16"},
     {href:"cartello.html",label:"Cartello",file:"cartello.html",path:"M2 5h20v14H2z M7 14l3-6 3 6m-5-2h4m4-4v6"},
     {href:"timestamp.html",label:"Timestamp",file:"timestamp.html",path:"M3 7h4l2-3h6l2 3h4v13H3z M16 13a4 4 0 1 1-8 0 4 4 0 0 1 8 0"}
-   ];
+   ]);
    driverItems.forEach(function(item){var a=document.createElement("a");a.href=item.href+"?release="+encodeURIComponent(RELEASE);if(file===item.file)a.setAttribute("aria-current","page");a.innerHTML=icon(item.path)+"<span>"+item.label+"</span>";nav.appendChild(a);});
    nav.style.gridTemplateColumns="repeat(4,minmax(0,1fr))";document.body.appendChild(nav);return;
   }
