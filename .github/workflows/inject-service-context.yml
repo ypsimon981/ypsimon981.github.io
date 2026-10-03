@@ -1,0 +1,31 @@
+name: Inject service context bridge
+on:
+  push:
+    paths:
+      - '.github/workflows/inject-service-context.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inject bridge
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          tag='<script defer src="assets/service-context.js?v=20261004-2"></script>'
+          for name in ['cartello.html','timestamp.html','voli.html','treni.html','navi.html']:
+              p=Path(name)
+              s=p.read_text()
+              if 'assets/service-context.js' not in s:
+                  s=s.replace('</head>',tag+'\n</head>',1)
+                  p.write_text(s)
+          PY
+      - name: Commit
+        run: |
+          git config user.name "steerwill-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add cartello.html timestamp.html voli.html treni.html navi.html
+          git diff --cached --quiet || git commit -m "Connect assigned services to Driver tools"
+          git push
