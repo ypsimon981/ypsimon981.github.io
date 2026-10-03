@@ -61,7 +61,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
 }
 </style>
 <link rel="stylesheet" href="assets/steerwill-theme.css?v=1">
-<link rel="stylesheet" href="assets/revision.css?v=20260930"><link rel="stylesheet" href="assets/mobile.css?v=mobile20260930"><script defer src="assets/mobile.js?v=mobile20260930"></script>
+<link rel="stylesheet" href="assets/revision.css?v=20260930"><link rel="stylesheet" href="assets/mobile.css?v=mobile20260930"><script defer src="assets/mobile.js?v=navsavefix20261003"></script>
 </head>
 <body>
 <main class="page">
@@ -105,6 +105,20 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
     catch(e){return [];}
   }
   function write(key,items){localStorage.setItem(key,JSON.stringify(items));}
+
+  // Reconcile asynchronous refreshes with the latest local list. Items added while
+  // a network request was pending are preserved; items removed remain removed.
+  function mergeLatest(key,before,after,keyOf){
+    var original=new Set(before.map(keyOf));
+    var refreshed=new Map(after.map(function(item){return [keyOf(item),item];}));
+    return read(key).map(function(current){
+      var id=keyOf(current);
+      return original.has(id)&&refreshed.has(id)?refreshed.get(id):current;
+    });
+  }
+  function flightKey(f){return JSON.stringify([String(f.ident||""),String(f.target_date||"")]);}
+  function trainKey(t){return JSON.stringify([String(t.train||""),String(t.station_slug||""),String(t.mode||"departures"),String(t.service_date||"")]);}
+  function shipKey(s){return String(s.id||JSON.stringify([s.date||"",s.port_slug||s.port||"",s.name||""]));}
 
   var AUTO_REMOVE_AFTER = 2 * 60 * 60 * 1000;
 
@@ -360,7 +374,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
         updated.push(normalizeFlight(data,old));
       }catch(e){updated.push(old);}
     }
-    write(FLIGHT_KEY,updated);
+    write(FLIGHT_KEY,mergeLatest(FLIGHT_KEY,items,updated,flightKey));
   }
 
   async function refreshTrains(){
@@ -423,7 +437,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
       }catch(e){}
     }
 
-    write(TRAIN_KEY,updated);
+    write(TRAIN_KEY,mergeLatest(TRAIN_KEY,followed,updated,trainKey));
   }
 
   async function refreshShips(){
@@ -463,7 +477,7 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
       }catch(e){}
     }
 
-    write(SHIP_KEY,updated);
+    write(SHIP_KEY,mergeLatest(SHIP_KEY,followed,updated,shipKey));
   }
 
   async function refresh(){
@@ -477,6 +491,8 @@ h1{margin:0;font-size:clamp(40px,8vw,66px);line-height:.94;letter-spacing:-.045e
   }
 
   refreshAll.onclick=refresh;
+  window.addEventListener("storage",function(e){if(!e.key||[FLIGHT_KEY,TRAIN_KEY,SHIP_KEY].indexOf(e.key)!==-1)render();});
+  window.addEventListener("pageshow",render);
   pruneExpired();
   render();
   refresh();
