@@ -55,12 +55,12 @@
 .locationActions{grid-template-columns:minmax(0,1fr) repeat(2,44px);gap:8px;align-items:center}.locationActions .chip{min-height:44px;padding:8px;display:flex;align-items:center;justify-content:center}.locationActions .locationOpen{min-width:0}.locationActions .storeIconAction{width:44px;font-size:0;line-height:1}.storeIconAction svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.locationActions .storeRemove{color:#dc2626;background:#FEF2F2;border-color:#FECACA}.locationResult .grow b,.locationResult .grow small{overflow-wrap:anywhere}.storePopup .leaflet-popup-content{margin:16px 14px;width:250px!important;max-width:calc(100vw - 100px)}.storePopup .locationResult{padding:10px;gap:9px;margin:0;box-sizing:border-box}.storePopup .locationBrandIcon{width:40px;height:40px;flex-basis:40px}.storePopup .locationActions{grid-template-columns:minmax(50px,1fr) repeat(3,40px);gap:4px}.storePopup .locationActions .storeIconAction{width:40px}.storePopup .locationResult .grow{flex-basis:calc(100% - 50px)}
 .storePopupActions{display:flex;gap:7px;margin-top:10px}.storePopupActions button{min-width:42px;height:40px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--violet);font-weight:800}.storePopupActions button:first-child{flex:1}.storePopupActions button svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle}.storePopupActions .storeRemove{color:#dc2626;background:#FEF2F2;border-color:#FECACA}.promo [data-nav-loc]{width:42px;height:42px;padding:8px;color:var(--violet)}.promo [data-nav-loc] svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle}
 .barcodeBox canvas.matrixCode{width:auto;height:auto;max-width:100%;max-height:280px;image-rendering:pixelated}.fullBarcode canvas.matrixCode{max-height:70vh;image-rendering:pixelated}.fullCardHeader{position:absolute;top:calc(16px + env(safe-area-inset-top,0px));left:20px;right:20px;max-width:560px;margin:0 auto;padding:12px 16px;border-radius:20px;display:flex;align-items:center;gap:14px;box-sizing:border-box}.fullCardLogo{flex:0 0 76px;height:54px;display:flex;align-items:center;justify-content:center;background:#fff;border-radius:12px;padding:8px;box-sizing:border-box}.fullCardLogo img{max-width:100%;max-height:100%;object-fit:contain}.fullCardLogo .brandLogo{max-width:100%;max-height:100%}.fullCardHeader strong{font-size:22px;line-height:1.2;overflow-wrap:anywhere}.fullBarcode{padding-top:calc(112px + env(safe-area-inset-top,0px));padding-bottom:calc(20px + env(safe-area-inset-bottom,0px));overflow:auto}.fullBarcode canvas,.fullBarcode canvas.matrixCode{flex-shrink:0;max-height:min(50dvh,calc(100dvh - 260px));max-width:95vw}.fullBarcode .num{max-width:100%}@media(max-height:480px){.fullCardHeader{top:8px;padding:8px 12px}.fullCardLogo{height:36px}.fullCardHeader strong{font-size:18px}.fullBarcode{padding-top:76px}.fullBarcode button{margin-top:12px}.fullBarcode canvas,.fullBarcode canvas.matrixCode{max-height:calc(100dvh - 170px)}}
-</style>
+.favoriteToggle{position:absolute;z-index:4;display:grid;place-items:center;width:50px;height:50px;padding:0;border:2px solid rgba(91,61,245,.18);border-radius:50%;background:rgba(255,255,255,.97);color:var(--violet);font-size:31px;line-height:1;box-shadow:0 5px 14px rgba(31,41,55,.2);cursor:pointer;touch-action:manipulation}.favoriteToggle.isFavorite{color:#5B3DF5;background:#fff}.cardItem{padding:0}.cardOpen{position:relative;z-index:1;display:block;width:100%;height:100%;padding:14px;border:0;background:transparent;color:inherit;text-align:left;font:inherit;cursor:pointer}.cardItem .cardFavorite{right:9px;bottom:9px}.smartCard{padding:0}.smartCardOpen{position:relative;z-index:1;display:block;width:100%;height:100%;min-height:inherit;padding:13px 13px 55px;border:0;background:transparent;color:inherit;text-align:left;font:inherit;cursor:pointer}.smartFavorite{right:9px;bottom:8px}.smartPage .smartCard{height:100%}.denseNearby .smartCardOpen{padding:7px 7px 48px}.denseNearby .smartFavorite{width:42px;height:42px;font-size:26px;right:5px;bottom:5px}</style>
 </head>
 <body>
 <div class="app">
   <header class="top">
-    <div class="brand"><h1 class="brandLockup"><svg viewBox="370 835 515 177" role="img" aria-labelledby="brandTitle" xmlns="http://www.w3.org/2000/svg"><title id="brandTitle">Fi-Card</title><image href="./brand-approved.png" width="1448" height="1086"/></svg></h1><div class="release">03/10/2026 · 10:57 · v0.9.48</div></div>
+    <div class="brand"><h1 class="brandLockup"><svg viewBox="370 835 515 177" role="img" aria-labelledby="brandTitle" xmlns="http://www.w3.org/2000/svg"><title id="brandTitle">Fi-Card</title><image href="./brand-approved.png" width="1448" height="1086"/></svg></h1><div class="release">03/10/2026 · 19:37 · v0.9.49</div></div>
     <div class="topActions"><button class="iconbtn" id="refreshBtn" title="Aggiorna Fi-Card" aria-label="Aggiorna Fi-Card">↻</button><button class="iconbtn" id="installBtn" title="Installa">⇩</button></div>
   </header>
 
@@ -184,7 +184,7 @@
 <div id="backupModal" class="modal"><div class="sheet"><div class="sheetHead"><h2>Ripristina backup</h2><button class="close" data-close="backupModal">×</button></div><p id="backupSummary"></p><button class="primary" id="mergeBackup">Unisci alle mie carte</button><button class="secondary" id="replaceBackup">Sostituisci le mie carte</button><p class="hint">Unisci conserva le carte esistenti. Sostituisci salva prima una copia di sicurezza scaricabile.</p></div></div>
 
 <script>
-const RELEASE="2026.10.03-1057-v0.9.48";
+const RELEASE="2026.10.03-1937-v0.9.49";
 const KEY="ficard.cards.v3";
 const LEGACY_KEYS=["ficard.cards.v2","ficard.cards.v1"];
 const DB_NAME="ficard-local";
@@ -320,16 +320,21 @@ function renderSmartCarousel(){
  box.classList.toggle("denseNearby",dense);box.classList.toggle("proximityFocus",!!focusCard);
  label.textContent=focusCard?"Negozio a meno di 50 m":geoReady?"Più vicine prima":"Più usate prima";
  if(!ordered.length){box.innerHTML='<div class="smartEmpty">Aggiungi una carta: comparirà qui automaticamente.</div>';return}
- const previews=displayCards.map(c=>{const b=brandFor(c),n=geoReady?nearestFor(c,currentPos):null,meta=n&&Number.isFinite(n.d)?(n.d<1000?Math.round(n.d)+" m":(n.d/1000).toFixed(1)+" km"):(c.useCount?"Usata "+c.useCount+" "+(c.useCount===1?"volta":"volte"):"Non ancora usata");return '<button class="smartCard" style="--card-color:'+esc(c.color)+';--card-ink:'+cardInk(c.color)+'" data-smart-card="'+c.id+'"><span class="brandMark" aria-hidden="true">'+brandLogoHtml(b)+'</span><div class="name">'+esc(c.name)+'</div><div class="smartMeta">'+esc(meta)+'</div></button>'});
+ const previews=displayCards.map(c=>{const b=brandFor(c),n=geoReady?nearestFor(c,currentPos):null,meta=n&&Number.isFinite(n.d)?(n.d<1000?Math.round(n.d)+" m":(n.d/1000).toFixed(1)+" km"):(c.useCount?"Usata "+c.useCount+" "+(c.useCount===1?"volta":"volte"):"Non ancora usata"),label=c.fav?"Rimuovi dai preferiti":"Aggiungi ai preferiti";return '<div class="smartCard" style="--card-color:'+esc(c.color)+';--card-ink:'+cardInk(c.color)+'"><button class="smartCardOpen cardOpen" data-card-open="'+c.id+'" aria-label="Apri '+esc(c.name)+'"><span class="brandMark" aria-hidden="true">'+brandLogoHtml(b)+'</span><div class="name">'+esc(c.name)+'</div><div class="smartMeta">'+esc(meta)+'</div></button><button type="button" class="favoriteToggle smartFavorite '+(c.fav?"isFavorite":"")+'" data-toggle-fav="'+c.id+'" aria-label="'+label+'" aria-pressed="'+(c.fav?"true":"false")+'" title="'+label+'">'+(c.fav?"★":"☆")+'</button></div>'});
  if(dense){const pageSize=nearCount>4?8:4,pages=[];for(let i=0;i<previews.length;i+=pageSize)pages.push('<div class="smartPage">'+previews.slice(i,i+pageSize).join("")+'</div>');box.innerHTML=pages.join("")}
  else box.innerHTML=previews.join("");
- box.querySelectorAll("[data-smart-card]").forEach(x=>x.onclick=()=>openCard(x.dataset.smartCard))
+ bindCardInteractions(box)
 }
 
 function renderAll(){renderCategoryChips();renderSmartCarousel();renderCards();renderLocations();if(document.getElementById("mapView")?.classList.contains("active"))renderOverviewMap()}
+function bindCardInteractions(root){
+ root.querySelectorAll("[data-card-open]").forEach(x=>x.onclick=()=>openCard(x.dataset.cardOpen));
+ root.querySelectorAll("[data-toggle-fav]").forEach(x=>x.onclick=e=>{e.preventDefault();e.stopPropagation();toggleFavorite(x.dataset.toggleFav)})
+}
+function toggleFavorite(id){const c=cards.find(x=>x.id===id);if(!c)return;c.fav=!c.fav;save();renderAll();toast(c.fav?"Aggiunta ai preferiti":"Rimossa dai preferiti")}
 function cardHtml(c){
- const b=brandFor(c);
- return '<button class="card" style="--card-color:'+esc(c.color)+';--card-ink:'+cardInk(c.color)+'" data-card="'+c.id+'"><span class="brandMark" aria-hidden="true">'+brandLogoHtml(b)+'</span><span class="star">'+(c.fav?"★":"☆")+'</span><div class="name">'+esc(c.name)+'</div><div class="type">'+esc(categoryLabel(c))+'</div></button>'
+ const b=brandFor(c),label=c.fav?"Rimuovi dai preferiti":"Aggiungi ai preferiti";
+ return '<div class="card cardItem" style="--card-color:'+esc(c.color)+';--card-ink:'+cardInk(c.color)+'"><button class="cardOpen" data-card-open="'+c.id+'" aria-label="Apri '+esc(c.name)+'"><span class="brandMark" aria-hidden="true">'+brandLogoHtml(b)+'</span><div class="name">'+esc(c.name)+'</div><div class="type">'+esc(categoryLabel(c))+'</div></button><button type="button" class="favoriteToggle cardFavorite '+(c.fav?"isFavorite":"")+'" data-toggle-fav="'+c.id+'" aria-label="'+label+'" aria-pressed="'+(c.fav?"true":"false")+'" title="'+label+'">'+(c.fav?"★":"☆")+'</button></div>'
 }
 function mostUsedFirst(a,b){return (Number(b.useCount)||0)-(Number(a.useCount)||0)||(Number(b.lastUsed)||0)-(Number(a.lastUsed)||0)||a.name.localeCompare(b.name,"it")}
 function renderCards(){
@@ -342,7 +347,7 @@ function renderCards(){
  if(!list.length){grid.innerHTML='<div class="empty"><strong>Nessuna carta qui</strong>Tocca ＋ per aggiungerne una.</div>';return}
  if(active==="used"){
    list.sort(mostUsedFirst);grid.innerHTML=list.map(cardHtml).join("");
-   grid.querySelectorAll("[data-card]").forEach(x=>x.onclick=()=>openCard(x.dataset.card));return
+   bindCardInteractions(grid);return
  }
  const grouped={};list.forEach(c=>{const k=categoryFor(c);(grouped[k]||(grouped[k]=[])).push(c)});
  Object.values(grouped).forEach(arr=>arr.sort((a,b)=>a.name.localeCompare(b.name,"it")));
@@ -351,7 +356,7 @@ function renderCards(){
    const arr=grouped[k];
    return '<section class="categorySection"><div class="categoryHead"><h3>'+esc(CATEGORIES[k])+' <span class="categoryCount">'+arr.length+'</span></h3>'+(active==="all"?'<button class="categoryMore" data-open-category="'+k+'">Vedi tutte</button>':'')+'</div><div class="cardShelf">'+arr.map(cardHtml).join("")+'</div></section>'
  }).join("");
- grid.querySelectorAll("[data-card]").forEach(x=>x.onclick=()=>openCard(x.dataset.card));
+ bindCardInteractions(grid);
  grid.querySelectorAll("[data-open-category]").forEach(x=>x.onclick=()=>{currentCategory=x.dataset.openCategory;document.querySelectorAll(".chip[data-filter]").forEach(b=>b.classList.toggle("active",b.dataset.filter==="category"));renderCategoryChips();renderCards();document.getElementById("cardGrid").scrollIntoView({behavior:"smooth",block:"start"})});
 }
 function distanceLabel(m){
