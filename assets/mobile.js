@@ -1,8 +1,8 @@
 // SteerWill modular shell: entry gate, admin profile switcher, release controls and navigation.
 (function(){
  "use strict";
- var RELEASE="2026.10.03-1950-gate";
- var RELEASE_LABEL="03/10/2026 · 19:50";
+ var RELEASE="2026.10.03-2106-driver-layout";
+ var RELEASE_LABEL="03/10/2026 · 21:06";
  var PROFILE_KEY="steerwill.profile.v1";
  var ACCESS_KEY="steerwill.access.v1";
  var ACCESS_SCHEMA_KEY="steerwill.access.schema.v1";
@@ -96,6 +96,21 @@
  function addBottomNav(profileId){
   var old=document.querySelector(".sw-mobile-nav");if(old)old.remove();
   var profile=profiles[profileId],file=fileName(),current=moduleForFile(file);
+  var nav=document.createElement("nav");nav.className="sw-mobile-nav";
+
+  if(profileId==="driver"){
+   nav.setAttribute("aria-label","Strumenti Driver");
+   var driverItems=[
+    {href:"driver.html",label:"Home",file:"driver.html",path:"M3 10 12 3l9 7v11h-6v-7H9v7H3z"},
+    {href:"monitor.html",label:"Viaggi salvati",file:"monitor.html",path:"M4 5h16v16H4z M8 2v6m8-6v6M4 11h16"},
+    {href:"cartello.html",label:"Cartello",file:"cartello.html",path:"M2 5h20v14H2z M7 14l3-6 3 6m-5-2h4m4-4v6"},
+    {href:"timestamp.html",label:"Timestamp",file:"timestamp.html",path:"M3 7h4l2-3h6l2 3h4v13H3z M16 13a4 4 0 1 1-8 0 4 4 0 0 1 8 0"}
+   ];
+   driverItems.forEach(function(item){var a=document.createElement("a");a.href=item.href+"?release="+encodeURIComponent(RELEASE);if(file===item.file)a.setAttribute("aria-current","page");a.innerHTML=icon(item.path)+"<span>"+item.label+"</span>";nav.appendChild(a);});
+   nav.style.gridTemplateColumns="repeat(4,minmax(0,1fr))";document.body.appendChild(nav);return;
+  }
+
+  nav.setAttribute("aria-label","Moduli SteerWill");
   var all=[
    {id:"home",href:"index.html",label:"Home",path:"M3 10 12 3l9 7v11h-6v-7H9v7H3z"},
    {id:"driver",href:"driver.html",label:"Driver",path:"M12 4a4 4 0 1 1 0 8 4 4 0 0 1 0-8z M5 21c.8-4 3.1-6 7-6s6.2 2 7 6"},
@@ -104,13 +119,10 @@
    {id:"ops",href:"ops.html",label:"Ops",path:"M4 5h16v14H4z M8 9h8M8 13h5M8 17h3"}
   ];
   var allowed=["home"].concat(profile.modules);
-  if(profileId==="driver")allowed=["driver"];
-  var nav=document.createElement("nav");nav.className="sw-mobile-nav";nav.setAttribute("aria-label","Moduli SteerWill");
   all.filter(function(x){return allowed.indexOf(x.id)!==-1;}).forEach(function(item){var a=document.createElement("a");a.href=item.href+"?release="+encodeURIComponent(RELEASE);if(current===item.id)a.setAttribute("aria-current","page");a.innerHTML=icon(item.path)+"<span>"+item.label+"</span>";nav.appendChild(a);});
   nav.style.gridTemplateColumns="repeat("+nav.children.length+",minmax(0,1fr))";document.body.appendChild(nav);
  }
  function subItems(module,file){
-  if(module==="driver"&&file==="driver.html")return [["driver.html","Driver",true],["monitor.html","Viaggi",false],["cartello.html","Cartello",false],["driver.html#tracker","Tracker",false],["timestamp.html","Timestamp",false],["driver.html#altro","Altro",false]];
   if(module==="garage"&&file==="garage.html")return [["garage.html","Garage",true],["veicolo.html","Veicoli",false],["garage.html#scadenze","Scadenze",false],["garage.html#manutenzione","Manutenzione",false],["garage.html#documenti","Documenti",false]];
   if(module==="fleet"&&file==="fleet.html")return [["fleet.html","Fleet",true],["fleet.html#mappa","Mappa",false],["fleet.html#stato","Stato",false],["fleet.html#percorsi","Percorsi",false],["fleet.html#alert","Alert",false]];
   if(module==="ops"&&file==="ops.html")return [["ops.html","Ops",true],["ops.html#servizi","Servizi",false],["ops.html#dispatch","Dispatch",false],["ops.html#turni","Turni",false],["ops.html#clienti","Clienti",false]];
