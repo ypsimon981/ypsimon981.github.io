@@ -1,8 +1,8 @@
 // SteerWill modular shell: entry gate, admin profile switcher, release controls and navigation.
 (function(){
  "use strict";
- var RELEASE="2026.10.03-2106-driver-layout";
- var RELEASE_LABEL="03/10/2026 · 21:06";
+ var RELEASE="2026.10.03-navsavefix";
+ var RELEASE_LABEL="03/10/2026 · 21:31";
  var PROFILE_KEY="steerwill.profile.v1";
  var ACCESS_KEY="steerwill.access.v1";
  var ACCESS_SCHEMA_KEY="steerwill.access.schema.v1";
@@ -157,7 +157,7 @@
  if(!access){if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",showGate);else showGate();return;}
  var profileId=readProfile(access);
  if(!guardProfile(profileId,access))return;
- function init(){document.documentElement.classList.remove("sw-locked");addTopBar(profileId,access);applyVisibility(profileId);addSubNav();addBottomNav(profileId);enhanceHomeLinks();}
+ function init(){document.documentElement.classList.remove("sw-locked");addTopBar(profileId,access);applyVisibility(profileId);addSubNav();addBottomNav(profileId);enhanceHomeLinks();document.querySelectorAll("a[href]").forEach(function(a){try{if(new URL(a.href,location.href).origin===location.origin)a.target="_self";}catch(e){}});}
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();
 
