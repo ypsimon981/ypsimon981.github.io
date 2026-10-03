@@ -1,7 +1,13 @@
-// SteerWill modular shell: profile selector, module navigation, contextual sub-navigation.
+// SteerWill modular shell: protected profile selector, release controls, module navigation.
 (function(){
  "use strict";
+ var RELEASE="2026.10.03-1932-modular";
+ var RELEASE_LABEL="03/10/2026 · 19:32";
  var PROFILE_KEY="steerwill.profile.v1";
+ var PROFILE_SCHEMA_KEY="steerwill.profile.schema.v2";
+ var PROFILE_SCHEMA="2";
+ // Test/admin code 1981 stored only as SHA-256, not in clear text.
+ var ADMIN_HASH="a78f19952edd18bf02b3c9eb704b088e2120941d6acb22f6f795c42796e60252";
  var profiles={
   private:{label:"Privato",modules:["garage"],quote:false},
   owner:{label:"Padroncino",modules:["driver","garage"],quote:true},
@@ -10,7 +16,15 @@
   driver:{label:"Driver flotta",modules:["driver"],quote:false},
   office:{label:"Ufficio / Ops",modules:["garage","fleet","ops"],quote:true}
  };
- function readProfile(){var id=localStorage.getItem(PROFILE_KEY)||"small";return profiles[id]?id:"small";}
+ function migrateProfile(){
+  try{
+   if(localStorage.getItem(PROFILE_SCHEMA_KEY)!==PROFILE_SCHEMA){
+    localStorage.setItem(PROFILE_KEY,"driver");
+    localStorage.setItem(PROFILE_SCHEMA_KEY,PROFILE_SCHEMA);
+   }
+  }catch(e){}
+ }
+ function readProfile(){var id="driver";try{id=localStorage.getItem(PROFILE_KEY)||"driver";}catch(e){}return profiles[id]?id:"driver";}
  function fileName(){return location.pathname.split("/").pop()||"index.html";}
  function moduleForFile(file){
   if(file==="driver.html"||["cartello.html","monitor.html","timestamp.html","traduttore.html","preventivo.html","preventivi-salvati.html","voli.html","treni.html","navi.html","testo-cliente.html"].indexOf(file)!==-1)return "driver";
@@ -20,15 +34,59 @@
   return "home";
  }
  function icon(path){return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+path+'"/></svg>';}
+ function hex(buffer){return Array.from(new Uint8Array(buffer)).map(function(b){return b.toString(16).padStart(2,"0");}).join("");}
+ async function validAdminCode(value){
+  if(!value||!window.crypto||!crypto.subtle)return false;
+  var data=new TextEncoder().encode(String(value));
+  return hex(await crypto.subtle.digest("SHA-256",data))===ADMIN_HASH;
+ }
+ function refreshApp(button){
+  if(button){button.disabled=true;button.textContent="…";}
+  (async function(){
+   try{
+    if("caches" in window){var keys=await caches.keys();await Promise.all(keys.filter(function(k){return k.indexOf("steerwill-")===0;}).map(function(k){return caches.delete(k);}));}
+    if("serviceWorker" in navigator){var regs=await navigator.serviceWorker.getRegistrations();await Promise.all(regs.map(function(reg){return reg.update().catch(function(){});}));}
+   }catch(e){}
+   var u=new URL(location.href);u.searchParams.set("release",RELEASE);u.searchParams.set("_refresh",Date.now());location.replace(u.toString());
+  })();
+ }
+ function adminDialog(onSuccess,onCancel){
+  var old=document.querySelector(".sw-admin-lock");if(old)old.remove();
+  var overlay=document.createElement("div");overlay.className="sw-admin-lock";
+  overlay.innerHTML='<div class="sw-admin-card" role="dialog" aria-modal="true" aria-labelledby="swAdminTitle"><div class="sw-admin-title" id="swAdminTitle">Cambio livello utente</div><div class="sw-admin-copy">Inserisci il codice amministratore per modificare il profilo di SteerWill.</div><input class="sw-admin-input" type="password" inputmode="numeric" autocomplete="off" placeholder="Password" aria-label="Password amministratore"><div class="sw-admin-error" aria-live="polite"></div><div class="sw-admin-actions"><button type="button" class="sw-admin-cancel">Annulla</button><button type="button" class="sw-admin-confirm">Sblocca</button></div></div>';
+  document.body.appendChild(overlay);
+  var input=overlay.querySelector(".sw-admin-input"),error=overlay.querySelector(".sw-admin-error"),confirm=overlay.querySelector(".sw-admin-confirm"),cancel=overlay.querySelector(".sw-admin-cancel");
+  function close(ok){overlay.remove();if(ok){if(onSuccess)onSuccess();}else if(onCancel)onCancel();}
+  async function check(){
+   confirm.disabled=true;error.textContent="";
+   var ok=false;try{ok=await validAdminCode(input.value);}catch(e){}
+   if(ok){close(true);return;}
+   error.textContent="Password non corretta.";input.value="";input.focus();confirm.disabled=false;
+  }
+  confirm.addEventListener("click",check);cancel.addEventListener("click",function(){close(false);});overlay.addEventListener("click",function(e){if(e.target===overlay)close(false);});input.addEventListener("keydown",function(e){if(e.key==="Enter")check();});
+  setTimeout(function(){input.focus();},40);
+ }
  function addTopBar(profileId){
   if(document.querySelector(".sw-accountbar"))return;
   var bar=document.createElement("div");bar.className="sw-accountbar";
+  var top=document.createElement("div");top.className="sw-accountbar-top";
   var brand=document.createElement("div");brand.className="sw-accountbar-brand";brand.innerHTML='Steer<b>Will</b>';
-  var label=document.createElement("div");label.className="sw-accountbar-label";label.textContent="Livello utente";
-  var select=document.createElement("select");select.setAttribute("aria-label","Livello utente SteerWill");
+  var release=document.createElement("div");release.className="sw-accountbar-release";release.textContent=RELEASE_LABEL;
+  var refresh=document.createElement("button");refresh.type="button";refresh.className="sw-refresh-btn";refresh.setAttribute("aria-label","Aggiorna SteerWill");refresh.title="Aggiorna SteerWill";refresh.textContent="↻";refresh.addEventListener("click",function(){refreshApp(refresh);});
+  var releaseWrap=document.createElement("div");releaseWrap.className="sw-release-wrap";releaseWrap.appendChild(release);releaseWrap.appendChild(refresh);
+  top.appendChild(brand);top.appendChild(releaseWrap);
+
+  var profileRow=document.createElement("div");profileRow.className="sw-accountbar-profile";
+  var label=document.createElement("div");label.className="sw-accountbar-label";label.innerHTML='Livello utente <span aria-hidden="true">🔒</span>';
+  var select=document.createElement("select");select.setAttribute("aria-label","Livello utente SteerWill protetto da password");
   Object.keys(profiles).forEach(function(id){var o=document.createElement("option");o.value=id;o.textContent=profiles[id].label;if(id===profileId)o.selected=true;select.appendChild(o);});
-  select.addEventListener("change",function(){localStorage.setItem(PROFILE_KEY,select.value);location.reload();});
-  bar.appendChild(brand);bar.appendChild(label);bar.appendChild(select);document.body.insertBefore(bar,document.body.firstChild);
+  select.addEventListener("change",function(){
+   var requested=select.value,current=profileId;if(requested===current)return;
+   select.value=current;
+   adminDialog(function(){try{localStorage.setItem(PROFILE_KEY,requested);}catch(e){}location.href=(requested==="driver"?"driver.html":"index.html")+"?v="+encodeURIComponent(RELEASE);},function(){select.value=current;});
+  });
+  profileRow.appendChild(label);profileRow.appendChild(select);
+  bar.appendChild(top);bar.appendChild(profileRow);document.body.insertBefore(bar,document.body.firstChild);
  }
  function addBottomNav(profileId){
   var old=document.querySelector(".sw-mobile-nav");if(old)old.remove();
@@ -42,7 +100,7 @@
   ];
   var allowed=["home"].concat(profile.modules);
   var nav=document.createElement("nav");nav.className="sw-mobile-nav";nav.setAttribute("aria-label","Moduli SteerWill");
-  all.filter(function(x){return allowed.indexOf(x.id)!==-1;}).forEach(function(item){var a=document.createElement("a");a.href=item.href+"?v=modular20261003";if(current===item.id)a.setAttribute("aria-current","page");a.innerHTML=icon(item.path)+"<span>"+item.label+"</span>";nav.appendChild(a);});
+  all.filter(function(x){return allowed.indexOf(x.id)!==-1;}).forEach(function(item){var a=document.createElement("a");a.href=item.href+"?v="+encodeURIComponent(RELEASE);if(current===item.id)a.setAttribute("aria-current","page");a.innerHTML=icon(item.path)+"<span>"+item.label+"</span>";nav.appendChild(a);});
   nav.style.gridTemplateColumns="repeat("+nav.children.length+",minmax(0,1fr))";document.body.appendChild(nav);
  }
  function subItems(module,file){
@@ -62,7 +120,7 @@
  function addSubNav(){
   var file=fileName(),module=moduleForFile(file),items=subItems(module,file);if(!items.length)return;
   var nav=document.createElement("nav");nav.className="sw-module-subnav";nav.setAttribute("aria-label","Navigazione "+module);
-  items.forEach(function(x){var a=document.createElement("a");a.href=x[0]+(x[0].indexOf("#")===-1?"?v=modular20261003":"");a.textContent=x[1];if(x[2])a.setAttribute("aria-current","page");nav.appendChild(a);});
+  items.forEach(function(x){var a=document.createElement("a");a.href=x[0]+(x[0].indexOf("#")===-1?"?v="+encodeURIComponent(RELEASE):"");a.textContent=x[1];if(x[2])a.setAttribute("aria-current","page");nav.appendChild(a);});
   var main=document.querySelector("main")||document.querySelector(".wrap")||document.querySelector(".shell")||document.body;
   if(main===document.body){document.body.insertBefore(nav,document.body.children[1]||null);}else{main.insertBefore(nav,main.firstChild);}
  }
@@ -77,10 +135,16 @@
   var homeIcon='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="flex:0 0 18px"><path d="m3 10 9-7 9 7v11h-6v-7H9v7H3Z"/></svg>';
   document.querySelectorAll('a[href]').forEach(function(link){var href=link.getAttribute("href")||"";if(!/^(?:\.\/)?index\.html(?:[?#]|$)/.test(href)||!/^\s*(?:←\s*)?Home\s*$/i.test(link.textContent))return;link.innerHTML=homeIcon+'<span>Home</span>';link.style.display="inline-flex";link.style.alignItems="center";link.style.justifyContent="center";link.style.gap="7px";});
  }
- var profileId=readProfile();
- if(fileName()==="preventivo.html"||fileName()==="preventivi-salvati.html"){
-  if(!profiles[profileId].quote){location.replace("driver.html?v=modular20261003");return;}
+ function guardProfile(profileId){
+  var file=fileName(),module=moduleForFile(file),p=profiles[profileId];
+  if((file==="preventivo.html"||file==="preventivi-salvati.html")&&!p.quote){location.replace("driver.html?v="+encodeURIComponent(RELEASE));return false;}
+  if(module!=="home"&&p.modules.indexOf(module)===-1){location.replace((p.modules.indexOf("driver")!==-1?"driver.html":"index.html")+"?v="+encodeURIComponent(RELEASE));return false;}
+  if(module==="home"&&profileId==="driver"){location.replace("driver.html?v="+encodeURIComponent(RELEASE));return false;}
+  return true;
  }
+ migrateProfile();
+ var profileId=readProfile();
+ if(!guardProfile(profileId))return;
  function init(){addTopBar(profileId);applyVisibility(profileId);addSubNav();addBottomNav(profileId);enhanceHomeLinks();}
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();
