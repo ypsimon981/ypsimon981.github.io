@@ -14,11 +14,11 @@
 .driverCard{display:flex;color:#f5f1ec;text-decoration:none;border:1px solid #3a3f44;background:#202428;border-radius:20px;overflow:hidden}.driverHero{min-height:122px;padding:17px 18px;align-items:center;justify-content:space-between;background:linear-gradient(135deg,#4a3025 0%,#2b211d 100%);border-color:#6f4a39}.driverHeroCopy{display:grid;gap:5px}.driverEyebrow{color:#b99b89;font-size:9px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}.driverHeroTitle{font-size:38px;font-weight:950;line-height:.9;letter-spacing:-.04em}.driverHeroIcon{width:58px;height:58px;flex:0 0 58px;border:1px solid rgba(255,255,255,.18);border-radius:18px;display:grid;place-items:center;color:#dca06e}.driverHeroIcon svg{width:34px;height:34px;fill:none;stroke:currentColor;stroke-width:1.55;stroke-linecap:round;stroke-linejoin:round}
 .trackerBox{padding:13px;border:1px solid #363b40;border-radius:20px;background:linear-gradient(180deg,#202428,#1a1d20)}.trackerGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.trackerTile{min-width:0;aspect-ratio:1/1;border:1px solid #343a40;border-radius:17px;background:#252a2f;color:#f5f1ec;text-decoration:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}.trackerIcon{width:58px;height:58px;border-radius:16px;overflow:hidden;background:#b9785b}.trackerIcon img{width:100%;height:100%;object-fit:cover;display:block}.trackerTile strong{font-size:14px}
 .quickGrid{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:9px}.quickCard{min-height:108px;padding:14px;border:1px solid #3a3f44;border-radius:19px;background:#202428;color:#f5f1ec;text-decoration:none;display:flex;flex-direction:column;justify-content:space-between}.quickCard.timestamp{background:linear-gradient(135deg,#4b3a33,#2b2421);border-color:#725344}.quickTop{font-size:9px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:#a89b94}.quickTitle{font-size:24px;font-weight:930;letter-spacing:-.03em;line-height:1}.quickIcon{width:36px;height:36px;color:#d7a17f}.quickIcon svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}.quickCard.translator{align-items:center;justify-content:center;text-align:center;gap:7px}.quickCard.translator .quickTitle{font-size:13px;letter-spacing:0}.quickCard.translator .quickIcon{width:31px;height:31px}
-.monitorCard{min-height:84px;padding:14px 15px;align-items:center;gap:12px}.monitorIcon{width:42px;height:42px;flex:0 0 42px;color:#c99570}.monitorIcon svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.55;stroke-linecap:round;stroke-linejoin:round}.monitorCopy{min-width:0;flex:1}.monitorTitle{font-size:16px;font-weight:900}.monitorMeta{margin-top:4px;color:#8d949a;font-size:10px}.monitorArrow{color:#c99570;font-weight:900}
+.monitorCard{min-height:84px;padding:14px 15px;align-items:center;gap:12px}.monitorIcon{width:42px;height:42px;flex:0 0 42px;color:#c99570}.monitorIcon svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.55;stroke-linecap:round;stroke-linejoin:round}.monitorCopy{min-width:0;flex:1;display:grid}.monitorTitle{font-size:16px;font-weight:900}.monitorMeta{display:block;margin-top:3px;color:#8d949a;font-size:10px}.monitorPreview{display:block;max-width:100%;margin-top:4px;overflow:hidden;color:#c9a17f;font-size:10px;font-weight:750;text-overflow:ellipsis;white-space:nowrap}.monitorArrow{color:#c99570;font-weight:900}
 .quoteCompact{min-height:90px;padding:15px;align-items:center;justify-content:space-between;gap:12px;background:linear-gradient(135deg,#33251f,#211d1b);border-color:#65483b}.quoteCompact strong{font-size:17px}.quoteCompact small{display:block;margin-top:4px;color:#a08f86;font-size:10px}.quoteBadge{width:46px;height:46px;flex:0 0 46px;border-radius:15px;background:#b9785b;color:#17100d;display:grid;place-items:center;font-size:19px;font-weight:950}
 @media(max-width:430px){.driverHome{padding-left:12px;padding-right:12px}.driverHero{min-height:116px}.driverHeroTitle{font-size:34px}.trackerGrid{gap:7px}.trackerTile{border-radius:15px}.trackerIcon{width:52px;height:52px}.trackerTile strong{font-size:12px}.quickGrid{gap:7px}.quickCard{min-height:102px;padding:12px}.quickTitle{font-size:21px}}
 </style>
-<script defer src="assets/mobile.js?v=release20261003_2106"></script>
+<script defer src="assets/mobile.js?v=navsavefix20261003"></script>
 </head>
 <body class="sw-module-page">
 <main class="driverHome">
@@ -58,7 +58,7 @@
   <section class="driverSection">
     <a class="driverCard monitorCard" href="monitor.html?release=2026.10.03-2106-driver-layout">
       <span class="monitorIcon" aria-hidden="true"><svg viewBox="0 0 64 64"><rect x="8" y="11" width="48" height="37" rx="5"/><path d="M16 38V28M26 38V20M36 38V31M46 38V16M25 54h14"/></svg></span>
-      <span class="monitorCopy"><span class="monitorTitle">Monitor viaggi salvati</span><span class="monitorMeta" id="driverSavedMeta">Agenda voli, treni e navi</span></span>
+      <span class="monitorCopy"><span class="monitorTitle">Monitor viaggi salvati</span><span class="monitorMeta" id="driverSavedMeta">Agenda voli, treni e navi</span><span class="monitorPreview" id="driverSavedPreview"></span></span>
       <span class="monitorArrow">›</span>
     </a>
   </section>
@@ -71,9 +71,31 @@
 </main>
 <script>
 (function(){
- function read(k){try{var x=JSON.parse(localStorage.getItem(k)||"[]");return Array.isArray(x)?x:[];}catch(e){return [];}}
- var count=read("codriver_monitored_flights_v1").length+read("codriver_monitored_trains_v1").length+read("codriver_monitored_ships_v1").length;
- var el=document.getElementById("driverSavedMeta");if(el)el.textContent=count?count+(count===1?" viaggio salvato":" viaggi salvati"):"Nessun viaggio salvato";
+ "use strict";
+ var flightKey="codriver_monitored_flights_v1",trainKey="codriver_monitored_trains_v1",shipKey="codriver_monitored_ships_v1";
+ function read(key){try{var value=JSON.parse(localStorage.getItem(key)||"[]");return Array.isArray(value)?value:[];}catch(e){return [];}}
+ function timeOf(item){
+  if(item.kind==="flight")return new Date(item.data.estimated_in||item.data.scheduled_in||0).getTime()||0;
+  if(item.kind==="train")return Number(item.data.service_ts)||new Date((item.data.service_date||"")+"T"+(item.data.estimated||item.data.scheduled||"23:59")+":00").getTime()||0;
+  var s=item.data;return new Date((s.date||"")+"T"+(s.arrival||s.departure||"23:59")+":00").getTime()||0;
+ }
+ function render(){
+  var items=read(flightKey).map(function(x){return {kind:"flight",data:x};})
+   .concat(read(trainKey).map(function(x){return {kind:"train",data:x};}),read(shipKey).map(function(x){return {kind:"ship",data:x};}));
+  var count=items.length,meta=document.getElementById("driverSavedMeta"),preview=document.getElementById("driverSavedPreview");
+  if(meta)meta.textContent=count?count+(count===1?" viaggio salvato":" viaggi salvati"):"Nessun viaggio salvato";
+  if(!preview)return;
+  if(!count){preview.textContent="";return;}
+  items.sort(function(a,b){return (timeOf(a)||Number.MAX_SAFE_INTEGER)-(timeOf(b)||Number.MAX_SAFE_INTEGER);});
+  var item=items[0],x=item.data,label="";
+  if(item.kind==="flight"){
+   var route=((x.origin&&x.origin.code)||"—")+" → "+((x.destination&&x.destination.code)||"—"),date=x.estimated_in||x.scheduled_in||"";
+   label=(x.ident||"Volo")+" · "+route+(date?" · "+new Date(date).toLocaleDateString("it-IT",{day:"2-digit",month:"short"})+" "+new Date(date).toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"}):"");
+  }else if(item.kind==="train")label=(x.train||"Treno")+" · "+(x.station||x.destination||"")+" · "+(x.estimated||x.scheduled||"");
+  else label=(x.name||"Nave")+" · "+(x.port||"")+" · "+(x.arrival||x.departure||"");
+  preview.textContent=label;
+ }
+ render();window.addEventListener("pageshow",render);window.addEventListener("storage",function(e){if(!e.key||[flightKey,trainKey,shipKey].indexOf(e.key)!==-1)render();});
 })();
 </script>
 </body>
