@@ -3,8 +3,10 @@
 var PHONE_KEY="steerwill.driver.phone.v1",DATA_KEY="steerwill.nccgest.services.test.v1";
 function $(id){return document.getElementById(id)}
 function digits(v){return String(v||"").replace(/\D/g,"")}
+function phoneKey(v){var d=digits(v);return d.length>10?d.slice(-10):d}
 function esc(v){return String(v==null?"":v).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
-function phoneFromDriver(v){var m=String(v||"").match(/\+?\d[\d\s-]{7,}/);return m?digits(m[0]):""}
+function phoneFromDriver(v){var all=String(v||"").match(/\+?\d[\d\s().-]{7,}\d/g)||[];return all.length?phoneKey(all[all.length-1]):""}
+function sameDriver(driver,phone){var a=phoneFromDriver(driver),b=phoneKey(phone);return !!a&&!!b&&(a===b||a.endsWith(b)||b.endsWith(a))}
 function route(v){return String(v||"").replace(/,\s*/g,", ")}
 function readData(){try{var raw=JSON.parse(localStorage.getItem(DATA_KEY)||"[]");return Array.isArray(raw)?raw:[];}catch(e){return []}}
 function card(s){
@@ -17,10 +19,10 @@ function card(s){
  return html;
 }
 function render(){
- var phone=digits(localStorage.getItem(PHONE_KEY)||""),all=readData(),list=$("swAssignedList"),meta=$("swAssignedMeta"); if(!list||!meta)return;
- if(!phone){meta.textContent="Configura autista";list.innerHTML='<div class="sw-assigned-empty">Imposta il numero di telefono dell’autista. Durante il test lo usiamo per riconoscere i servizi assegnati.</div>';return}
- var mine=all.filter(function(s){return phoneFromDriver(s.driver)===phone}).sort(function(a,b){return String(a.date||"")+String(a.time||"")>String(b.date||"")+String(b.time||"")?1:-1});
- meta.textContent=mine.length+(mine.length===1?" servizio assegnato":" servizi assegnati")+" nel dataset test";
+ var configured=localStorage.getItem(PHONE_KEY)||"",all=readData(),list=$("swAssignedList"),meta=$("swAssignedMeta");if(!list||!meta)return;
+ if(!phoneKey(configured)){meta.textContent="Configura autista";list.innerHTML='<div class="sw-assigned-empty">Imposta il numero di telefono dell’autista. Durante il test lo usiamo per riconoscere i servizi assegnati.</div>';return}
+ var mine=all.filter(function(s){return sameDriver(s.driver,configured)}).sort(function(a,b){var aa=String(a.date||"")+String(a.time||""),bb=String(b.date||"")+String(b.time||"");return aa===bb?0:(aa>bb?1:-1)});
+ meta.textContent=mine.length+(mine.length===1?" servizio assegnato":" servizi assegnati")+" · "+all.length+" nel dataset";
  list.innerHTML=mine.length?mine.map(card).join(""):'<div class="sw-assigned-empty">Nessun servizio nel dataset importato per questo autista.</div>';
 }
 function init(){
