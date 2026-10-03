@@ -97,21 +97,48 @@
   var old=document.querySelector(".sw-mobile-nav");if(old)old.remove();
   var profile=profiles[profileId],file=fileName(),current=moduleForFile(file);
   var nav=document.createElement("nav");nav.className="sw-mobile-nav";
-
-  if(current==="driver"){
-   nav.setAttribute("aria-label","Navigazione Driver");
-   var driverItems=[];
-   if(profileId!=="driver"&&profile.modules.length>1)driverItems.push({href:"index.html",label:"Moduli",file:"index.html",path:"M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z"});
-   driverItems=driverItems.concat([
-    {href:"driver.html",label:"Home",file:"driver.html",path:"M3 10 12 3l9 7v11h-6v-7H9v7H3z"},
-    {href:"monitor.html",label:"Viaggi salvati",file:"monitor.html",path:"M4 5h16v16H4z M8 2v6m8-6v6M4 11h16"},
-    {href:"cartello.html",label:"Cartello",file:"cartello.html",path:"M2 5h20v14H2z M7 14l3-6 3 6m-5-2h4m4-4v6"},
-    {href:"timestamp.html",label:"Timestamp",file:"timestamp.html",path:"M3 7h4l2-3h6l2 3h4v13H3z M16 13a4 4 0 1 1-8 0 4 4 0 0 1 8 0"}
-   ]);
-   driverItems.forEach(function(item){var a=document.createElement("a");a.href=item.href+"?release="+encodeURIComponent(RELEASE);if(file===item.file)a.setAttribute("aria-current","page");a.innerHTML=icon(item.path)+"<span>"+item.label+"</span>";nav.appendChild(a);});
-   nav.style.gridTemplateColumns="repeat(4,minmax(0,1fr))";document.body.appendChild(nav);return;
+  var contextual={
+   driver:[
+    {href:"index.html",label:"Home",title:"Home SteerWill",path:"M3 10 12 3l9 7v11h-6v-7H9v7H3z"},
+    {href:"driver.html",label:"Driver",title:"Area Driver",path:"M12 4a4 4 0 1 1 0 8 4 4 0 0 1 0-8z M5 21c.8-4 3.1-6 7-6s6.2 2 7 6"},
+    {href:"monitor.html",label:"Viaggi",title:"Viaggi salvati",path:"M4 5h16v16H4z M8 2v6m8-6v6M4 11h16"},
+    {href:"cartello.html",label:"Cartello",title:"Cartello accoglienza",path:"M2 5h20v14H2z M7 14l3-6 3 6m-5-2h4m4-4v6"},
+    {href:"timestamp.html",label:"Timestamp",title:"Timestamp e prova no-show",path:"M3 7h4l2-3h6l2 3h4v13H3z M16 13a4 4 0 1 1-8 0 4 4 0 0 1 8 0"}
+   ],
+   garage:[
+    {href:"index.html",label:"Home",title:"Home SteerWill",path:"M3 10 12 3l9 7v11h-6v-7H9v7H3z"},
+    {href:"garage.html#amministrazione",label:"Admin",title:"Amministrazione veicoli",path:"M4 4h16v16H4z M8 8h8M8 12h8M8 16h5"},
+    {href:"garage.html#scadenze",label:"Scadenze",title:"Scadenze",path:"M4 5h16v16H4z M8 2v6m8-6v6M4 11h16"},
+    {href:"garage.html#manutenzione",label:"Manutenzione",title:"Manutenzione",path:"M14 6a5 5 0 0 0-6 6l-4 4a2 2 0 1 0 3 3l4-4a5 5 0 0 0 6-6l-3 3-3-3z"},
+    {href:"garage.html#impostazioni",label:"Impost.",title:"Impostazioni Garage",path:"M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z M19 13a7 7 0 0 0 0-2l2-1-2-3-2 1a7 7 0 0 0-2-1l-.3-2h-4L10 7a7 7 0 0 0-2 1L6 7 4 10l2 1a7 7 0 0 0 0 2l-2 1 2 3 2-1a7 7 0 0 0 2 1l.7 2h4l.3-2a7 7 0 0 0 2-1l2 1 2-3z"}
+   ],
+   fleet:[
+    {href:"index.html",label:"Home",title:"Home SteerWill",path:"M3 10 12 3l9 7v11h-6v-7H9v7H3z"},
+    {href:"fleet.html#mappa",label:"Live",title:"Live flotta",path:"M4 17h16M6 17l1-7h10l1 7M8 10l1-4h6l1 4"},
+    {href:"fleet.html#percorsi",label:"Storico",title:"Storico percorsi",path:"M4 19V5m0 14h17M8 15l3-4 3 2 5-7"},
+    {href:"fleet.html#impostazioni",label:"Impost.",title:"Impostazioni Fleet",path:"M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z M19 13a7 7 0 0 0 0-2l2-1-2-3-2 1a7 7 0 0 0-2-1l-.3-2h-4L10 7a7 7 0 0 0-2 1L6 7 4 10l2 1a7 7 0 0 0 0 2l-2 1 2 3 2-1a7 7 0 0 0 2 1l.7 2h4l.3-2a7 7 0 0 0 2-1l2 1 2-3z"}
+   ],
+   ops:[
+    {href:"index.html",label:"Home",title:"Home SteerWill",path:"M3 10 12 3l9 7v11h-6v-7H9v7H3z"},
+    {href:"ops.html#servizi",label:"Servizi",title:"Servizi",path:"M4 5h16v14H4z M8 9h8M8 13h5M8 17h3"},
+    {href:"ops.html#dispatch",label:"Dispatch",title:"Dispatch",path:"M3 12h18M12 3v18M5 5l14 14M19 5 5 19"},
+    {href:"ops.html#turni",label:"Turni",title:"Turni",path:"M4 5h16v16H4z M8 2v6m8-6v6M4 11h16"},
+    {href:"ops.html#clienti",label:"Clienti",title:"Clienti e booking",path:"M4 5h16v14H4z M8 9h8M8 13h6"}
+   ]
+  };
+  var items=contextual[current];
+  if(items){
+   nav.setAttribute("aria-label","Navigazione "+current.charAt(0).toUpperCase()+current.slice(1));
+   items.forEach(function(item){
+    var a=document.createElement("a"),parts=item.href.split("#"),path=parts[0],hashPart=parts.length>1?"#"+parts.slice(1).join("#"):"";
+    a.href=path+(path.indexOf("?")===-1?"?":"&")+"release="+encodeURIComponent(RELEASE)+hashPart;
+    a.title=item.title||item.label;a.setAttribute("aria-label",item.title||item.label);
+    var activePath=path.split("?")[0];
+    if(file===activePath&&location.hash===(hashPart||""))a.setAttribute("aria-current","page");
+    a.innerHTML=icon(item.path)+"<span>"+item.label+"</span>";nav.appendChild(a);
+   });
+   nav.style.gridTemplateColumns="repeat("+nav.children.length+",minmax(0,1fr))";document.body.appendChild(nav);return;
   }
-
   nav.setAttribute("aria-label","Moduli SteerWill");
   var all=[
    {id:"home",href:"index.html",label:"Home",path:"M3 10 12 3l9 7v11h-6v-7H9v7H3z"},
