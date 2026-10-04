@@ -34,10 +34,30 @@ function contextObject(s){return {id:s.id||"",date:s.date||"",time:s.time||"",pi
 function contextAttr(s){return esc(encodeURIComponent(JSON.stringify(contextObject(s))))}
 function navUrl(address){return "https://www.google.com/maps/dir/?api=1&destination="+encodeURIComponent(address||"")}
 function addressRow(label,address){return '<div class="sw-service-address"><div class="sw-service-address-copy"><span class="sw-service-address-label">'+label+'</span><span class="sw-service-address-text">'+esc(route(address)||"—")+'</span></div><a class="sw-service-pin" target="_blank" rel="noopener" href="'+navUrl(address)+'" aria-label="Naviga verso '+label.toLowerCase()+'" title="Naviga verso '+label.toLowerCase()+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-6.1 7-13a7 7 0 1 0-14 0c0 6.9 7 13 7 13Z"/><circle cx="12" cy="8" r="2.5"/></svg></a></div>'}
+function hhmmFromDate(v){if(!v)return "";var d=new Date(v);if(isNaN(d))return "";return d.toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"})}
+function minutesOfDay(v){var m=String(v||"").match(/^(\d{1,2}):(\d{2})/);if(!m)return null;return Number(m[1])*60+Number(m[2])}
+function minuteDelta(base,eta){var a=minutesOfDay(base),b=minutesOfDay(eta);if(a==null||b==null)return null;var d=b-a;if(d>720)d-=1440;if(d<-720)d+=1440;return d}
+function arrivalEta(s){
+ if(!/arriv/i.test(String(s.servicetype||"")))return null;
+ var code=String(s.transport_number||"").replace(/\s+/g,"").toUpperCase();if(!code)return null;
+ var eta="",source="";
+ if(airportCode(s.pickup_address)){
+  var f=readList(FLIGHT_KEY).find(function(x){return String(x.ident||"").replace(/\s+/g,"").toUpperCase()===code&&(!s.date||!x.target_date||String(x.target_date)===String(s.date))});
+  if(f){eta=hhmmFromDate(f.estimated_in||f.estimated_gate_in||f.estimated_on||"");source="flight"}
+ }else if(stationSlug(s.pickup_address)){
+  var t=readList(TRAIN_KEY).find(function(x){return String(x.train||"").replace(/\s+/g,"").toUpperCase()===code&&(!s.date||!x.service_date||String(x.service_date)===String(s.date))});
+  if(t){eta=String(t.estimated||"").trim();source="train"}
+ }
+ if(!eta)return null;
+ var delta=minuteDelta(s.time,eta),tone=delta!=null&&delta>20?"late":delta!=null&&delta<-10?"early":"neutral";
+ return {time:eta,delta:delta,tone:tone,source:source};
+}
+function etaMarkup(s){var e=arrivalEta(s);if(!e)return "";var title=e.delta==null?"Orario aggiornato":e.delta>0?"Ritardo +"+e.delta+" min":e.delta<0?"Anticipo "+Math.abs(e.delta)+" min":"In orario";return '<span class="sw-service-eta '+e.tone+'" title="'+esc(title)+'"><small>ETA</small> '+esc(e.time)+'</span>'}
+function ensureEtaStyle(){if(document.getElementById("swEtaStyle"))return;var st=document.createElement("style");st.id="swEtaStyle";st.textContent='.sw-service-when{flex-wrap:wrap}.sw-service-eta{display:inline-flex;align-items:baseline;gap:3px;padding:3px 6px;border-radius:8px;border:1px solid #59636c;background:#242a2f;color:#dfe4e7;font-size:12px;font-weight:950;letter-spacing:-.01em}.sw-service-eta small{font-size:7px;letter-spacing:.08em}.sw-service-eta.late{color:#ffb8b3;background:#3b2020;border-color:#7b4141}.sw-service-eta.early{color:#bce9c6;background:#17351f;border-color:#356345}.sw-service.is-done .sw-service-eta,.sw-service.is-noshow .sw-service-eta{font-size:10px}.sw-service.is-done .sw-service-eta small,.sw-service.is-noshow .sw-service-eta small{font-size:6px}';document.head.appendChild(st)}
 function card(s){
  var transport=s.transport_number||"",driver=String(s.driver||"").split(" - ")[0],pax=s.paxname||"Cliente",count=Number(s.pax||0),tracker=trackerFor(s),ctx=contextAttr(s),state=eventState(s),done=state.status==="done",noShow=state.status==="no_show",step=Math.max(0,Math.min(4,Number(state.step||0))),nextLabel=EVENT_STEPS[Math.min(step,3)];
  var cls="sw-service"+(done?" is-done":"")+(noShow?" is-noshow":"");
- var html='<article class="'+cls+'" data-service-id="'+esc(eventId(s))+'"><div class="sw-service-top"><div class="sw-service-when"><span class="sw-service-time">'+esc(s.time||"--:--")+'</span><span class="sw-service-type">'+esc(s.servicetype||"SERVIZIO")+'</span></div><div class="sw-service-topright"><span class="sw-service-status">'+esc(s.status||"—")+'</span>';
+ var html='<article class="'+cls+'" data-service-id="'+esc(eventId(s))+'"><div class="sw-service-top"><div class="sw-service-when"><span class="sw-service-time">'+esc(s.time||"--:--")+'</span>'+etaMarkup(s)+'<span class="sw-service-type">'+esc(s.servicetype||"SERVIZIO")+'</span></div><div class="sw-service-topright"><span class="sw-service-status">'+esc(s.status||"—")+'</span>';
  if(!done&&!noShow)html+='<button class="sw-driver-event" type="button" data-event-service="'+esc(eventId(s))+'">'+esc(nextLabel)+'</button>';
  else html+='<span class="sw-service-result '+(done?"ok":"bad")+'">'+(done?'SERVIZIO OK':'NO SHOW')+'</span>';
  html+='</div></div>';
@@ -63,10 +83,13 @@ function render(){
  list.innerHTML=mine.length?mine.map(card).join(""):'<div class="sw-assigned-empty">Nessun servizio nel dataset importato per questo autista.</div>';bindContext();bindEvents();
 }
 function init(){
+ ensureEtaStyle();
  var setup=$("swAssignedSetup"),phone=$("swAssignedPhone"),json=$("swAssignedJson");
  $("swAssignedConfig").onclick=function(){setup.classList.toggle("open");phone.value=localStorage.getItem(PHONE_KEY)||""};
  $("swAssignedSave").onclick=function(){localStorage.setItem(PHONE_KEY,phone.value.trim());setup.classList.remove("open");render()};
  $("swAssignedImport").onclick=function(){try{var parsed=JSON.parse(json.value),items=Array.isArray(parsed)?parsed:(Array.isArray(parsed.data)?parsed.data:[]);localStorage.setItem(DATA_KEY,JSON.stringify(items));json.value="";render()}catch(e){alert("JSON non valido")}};
+ window.addEventListener("storage",function(e){if(e.key===FLIGHT_KEY||e.key===TRAIN_KEY)render()});
+ window.addEventListener("pageshow",function(){render()});
  render();
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
