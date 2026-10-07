@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-10-06T23:27:58.346Z",
+  "checked_at": "2026-10-07T00:40:52.703Z",
   "ports": [
     {
       "id": "civitavecchia",
@@ -7,7 +7,7 @@
       "provider_id": "civitavecchia",
       "status": "ok",
       "count": 196,
-      "fetched_at": "2026-10-06T23:25:53.555Z"
+      "fetched_at": "2026-10-07T00:38:47.875Z"
     },
     {
       "id": "ancona",
@@ -15,7 +15,7 @@
       "provider_id": "anconaitaly",
       "status": "ok",
       "count": 4,
-      "fetched_at": "2026-10-06T23:25:58.073Z"
+      "fetched_at": "2026-10-07T00:38:53.503Z"
     },
     {
       "id": "bari",
@@ -23,7 +23,7 @@
       "provider_id": "bariitaly",
       "status": "ok",
       "count": 35,
-      "fetched_at": "2026-10-06T23:26:02.498Z"
+      "fetched_at": "2026-10-07T00:38:58.728Z"
     },
     {
       "id": "brindisi",
@@ -31,23 +31,21 @@
       "provider_id": "brindisiitaly",
       "status": "ok",
       "count": 10,
-      "fetched_at": "2026-10-06T23:26:06.904Z"
+      "fetched_at": "2026-10-07T00:39:04.090Z"
     },
     {
       "id": "cagliari",
       "name": "Cagliari",
       "provider_id": "52",
-      "status": "ok",
-      "count": 50,
-      "fetched_at": "2026-10-06T23:26:26.460Z"
+      "status": "source_error",
+      "error": "\", line 492, in _call_chain\n    result = func(*args)\n             ^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/urllib/request.py\", line 639, in http_error_default\n    raise HTTPError(req.full_url, code, msg, hdrs, fp)\nurllib.error.HTTPError: HTTP Error 502: Bad Gateway\n"
     },
     {
       "id": "catania",
       "name": "Catania",
       "provider_id": "50",
-      "status": "ok",
-      "count": 20,
-      "fetched_at": "2026-10-06T23:26:33.804Z"
+      "status": "source_error",
+      "error": "\", line 492, in _call_chain\n    result = func(*args)\n             ^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.12.15/x64/lib/python3.12/urllib/request.py\", line 639, in http_error_default\n    raise HTTPError(req.full_url, code, msg, hdrs, fp)\nurllib.error.HTTPError: HTTP Error 502: Bad Gateway\n"
     },
     {
       "id": "genova",
@@ -55,7 +53,7 @@
       "provider_id": "genoaitaly",
       "status": "ok",
       "count": 82,
-      "fetched_at": "2026-10-06T23:26:38.190Z"
+      "fetched_at": "2026-10-07T00:39:20.312Z"
     },
     {
       "id": "laspezia",
@@ -63,7 +61,7 @@
       "provider_id": "laspeziaitaly",
       "status": "ok",
       "count": 42,
-      "fetched_at": "2026-10-06T23:26:42.571Z"
+      "fetched_at": "2026-10-07T00:39:25.383Z"
     },
     {
       "id": "livorno",
@@ -71,7 +69,7 @@
       "provider_id": "livornoflorencepisaitaly",
       "status": "ok",
       "count": 46,
-      "fetched_at": "2026-10-06T23:26:46.955Z"
+      "fetched_at": "2026-10-07T00:39:30.457Z"
     },
     {
       "id": "messina",
@@ -79,7 +77,7 @@
       "provider_id": "messinasicily",
       "status": "ok",
       "count": 60,
-      "fetched_at": "2026-10-06T23:26:51.327Z"
+      "fetched_at": "2026-10-07T00:39:35.512Z"
     },
     {
       "id": "napoli",
@@ -87,7 +85,7 @@
       "provider_id": "naplesitaly",
       "status": "ok",
       "count": 100,
-      "fetched_at": "2026-10-06T23:26:55.762Z"
+      "fetched_at": "2026-10-07T00:39:40.614Z"
     },
     {
       "id": "olbia",
@@ -95,7 +93,7 @@
       "provider_id": "olbiasardinia",
       "status": "ok",
       "count": 4,
-      "fetched_at": "2026-10-06T23:27:15.810Z"
+      "fetched_at": "2026-10-07T00:40:01.085Z"
     },
     {
       "id": "palermo",
@@ -103,7 +101,7 @@
       "provider_id": "palermosicily",
       "status": "ok",
       "count": 72,
-      "fetched_at": "2026-10-06T23:27:20.182Z"
+      "fetched_at": "2026-10-07T00:40:06.981Z"
     },
     {
       "id": "portoferraio",
@@ -111,7 +109,7 @@
       "provider_id": "portoferraioitaly",
       "status": "ok",
       "count": 6,
-      "fetched_at": "2026-10-06T23:27:24.573Z"
+      "fetched_at": "2026-10-07T00:40:12.460Z"
     },
     {
       "id": "ravenna",
@@ -119,7 +117,7 @@
       "provider_id": "ravennaitaly",
       "status": "ok",
       "count": 10,
-      "fetched_at": "2026-10-06T23:27:28.979Z"
+      "fetched_at": "2026-10-07T00:40:17.854Z"
     },
     {
       "id": "salerno",
@@ -127,7 +125,7 @@
       "provider_id": "salernoitaly",
       "status": "ok",
       "count": 22,
-      "fetched_at": "2026-10-06T23:27:33.351Z"
+      "fetched_at": "2026-10-07T00:40:23.113Z"
     },
     {
       "id": "savona",
@@ -135,7 +133,7 @@
       "provider_id": "savonaitaly",
       "status": "ok",
       "count": 50,
-      "fetched_at": "2026-10-06T23:27:37.730Z"
+      "fetched_at": "2026-10-07T00:40:28.353Z"
     },
     {
       "id": "siracusa",
@@ -143,7 +141,7 @@
       "provider_id": "siracusasicily",
       "status": "ok",
       "count": 10,
-      "fetched_at": "2026-10-06T23:27:42.101Z"
+      "fetched_at": "2026-10-07T00:40:33.443Z"
     },
     {
       "id": "taranto",
@@ -151,7 +149,7 @@
       "provider_id": "51",
       "status": "empty",
       "count": 0,
-      "fetched_at": "2026-10-06T23:27:45.184Z"
+      "fetched_at": "2026-10-07T00:40:36.473Z"
     },
     {
       "id": "trapani",
@@ -159,7 +157,7 @@
       "provider_id": "trapaniitaly",
       "status": "ok",
       "count": 15,
-      "fetched_at": "2026-10-06T23:27:49.576Z"
+      "fetched_at": "2026-10-07T00:40:42.030Z"
     },
     {
       "id": "trieste",
@@ -167,7 +165,7 @@
       "provider_id": "triesteitaly",
       "status": "ok",
       "count": 16,
-      "fetched_at": "2026-10-06T23:27:53.969Z"
+      "fetched_at": "2026-10-07T00:40:47.624Z"
     },
     {
       "id": "venezia",
@@ -175,7 +173,7 @@
       "provider_id": "veniceitaly",
       "status": "ok",
       "count": 22,
-      "fetched_at": "2026-10-06T23:27:58.346Z"
+      "fetched_at": "2026-10-07T00:40:52.703Z"
     }
   ]
 }
