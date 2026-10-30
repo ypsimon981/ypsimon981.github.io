@@ -3,11 +3,13 @@
 'use strict';
 const dayRecord=(records,id,day)=>records.find(r=>r.vehicle_id===id&&r.day===day);
 function weekDefault(defaults,id,day){return defaults.filter(r=>r.vehicle_id===id&&r.effective_week<=day).sort((a,b)=>b.effective_week.localeCompare(a.effective_week))[0];}
+const defaultState=base=>base?.state||(base?.excluded?'out_of_service':'available');
+const nextVehicleState={available:'broken',broken:'maintenance',maintenance:'out_of_service',out_of_service:'available'};
 function vehicleState(vehicle,day,records=[],maintenance=[],defaults=[]){
  const row=dayRecord(records,vehicle.id,day),period=maintenance.find(r=>r.vehicle_id===vehicle.id&&r.starts_on<=day&&(!r.ends_on||r.ends_on>=day));
- const base=weekDefault(defaults,vehicle.id,day),exception=!!base?.excluded&&row?.state==='available'&&!!base.revision&&row.week_default_revision===base.revision;
+ const base=weekDefault(defaults,vehicle.id,day),exception=defaultState(base)!=='available'&&row?.state==='available'&&!!base.revision&&row.week_default_revision===base.revision;
  let state=row?.state||'available',reason=row?.note||'';
- if(base?.excluded&&state==='available'&&!exception){state='out_of_service';reason='Escluso dalla settimana del '+base.effective_week;}
+ if(defaultState(base)!=='available'&&state==='available'&&!exception){state=defaultState(base);reason='Stato predefinito dalla settimana del '+base.effective_week;}
  if(period){state='maintenance';reason=period.note||'Manutenzione programmata';}
  if(!vehicle.active||vehicle.listed_in_service===false){state='inactive';reason=vehicle.operational_note||'Fuori servizio in anagrafica';}
  return {state,reason,period,row,base,exception:exception&&state==='available',available:state==='available',required_morning:!!row?.required_morning,required_afternoon:!!row?.required_afternoon};
@@ -31,7 +33,7 @@ function requiredGaps(vehicles,days,draft={},records=[],maintenance=[],defaults=
  }
  return gaps;
 }
-const rules={weekDefault,vehicleState,fleetCapacity,assignmentErrors,requiredGaps,shiftPhases};
+const rules={weekDefault,defaultState,nextVehicleState,vehicleState,fleetCapacity,assignmentErrors,requiredGaps,shiftPhases};
 if(typeof module!=='undefined'&&module.exports){module.exports=rules;return;}
 root.SWVehicleRules=rules;
 const fmt=day=>new Date(day+'T12:00:00').toLocaleDateString('it-IT',{day:'numeric',month:'short'});
@@ -82,17 +84,17 @@ root.SWVehicleCalendar=class{
   }catch(e){this.setMessage(e.status===409?'Un altro dispositivo ha modificato questa giornata. Ricarica il calendario.':e.message,true);return false;}
   finally{this.busy=false;this.onChange();}
  }
- async saveWeekDefault(vehicle,excluded){
+ async saveWeekDefault(vehicle,state){
   if(this.busy||!this.ready)return false;
   const week=this.week,previous=this.defaults.find(r=>r.vehicle_id===vehicle.id&&r.effective_week===week);
-  const body={company_id:this.cloud.companyId,vehicle_id:vehicle.id,effective_week:week,excluded,revision:newRevision(),version:(previous?.version||0)+1,updated_at:new Date().toISOString()};
+  const body={company_id:this.cloud.companyId,vehicle_id:vehicle.id,effective_week:week,state,excluded:state!=='available',revision:newRevision(),version:(previous?.version||0)+1,updated_at:new Date().toISOString()};
   this.loadId++;this.busy=true;this.setMessage('Salvataggio disponibilità dalla settimana selezionata…');this.render();
   try{
    const query=previous?'?company_id=eq.'+this.cloud.companyId+'&vehicle_id=eq.'+vehicle.id+'&effective_week=eq.'+week+'&version=eq.'+previous.version:'';
    const rows=await this.cloud.api('/rest/v1/sw_vehicle_week_defaults'+query,{method:previous?'PATCH':'POST',body,headers:{Prefer:'return=representation'}});
    if(rows.length!==1)throw Error('Disponibilità modificata da un altro dispositivo. Ricarica e riprova.');
    this.defaults=this.defaults.filter(r=>r.vehicle_id!==vehicle.id||r.effective_week!==week);this.defaults.push(rows[0]);
-   this.setMessage(vehicle.plate+(excluded?' non disponibile':' disponibile')+' dalla settimana del '+fmt(week)+'. Le singole giornate possono essere modificate.');return true;
+   this.setMessage(vehicle.plate+': '+({available:'marciante',broken:'guasto',maintenance:'manutenzione programmata',out_of_service:'fuori servizio'}[state])+' dalla settimana del '+fmt(week)+'. Le singole giornate possono essere modificate.');return true;
   }catch(e){this.setMessage(e.status===409?'Un altro dispositivo ha modificato questa settimana. Ricarica il calendario.':e.message,true);return false;}
   finally{this.busy=false;this.onChange();}
  }
@@ -108,19 +110,19 @@ root.SWVehicleCalendar=class{
   root.replaceChildren();const status=element('p',this.message||(!this.ready?'Caricamento calendario dal server…':'Calendario caricato dal server. Le modifiche si salvano automaticamente.'),this.isError?'status error':'status');status.id='vehicle-calendar-status';status.setAttribute('role','status');root.append(status);
   if(!this.ready){const retry=element('button','Ricarica calendario','secondary');retry.onclick=()=>this.load(this.week);root.append(retry);return;}
   const wrap=element('div',undefined,'vehicle-calendar-box'),table=element('table',undefined,'vehicle-calendar'),head=element('thead'),tr=element('tr');tr.append(element('th','Targa · priorità'));this.days().forEach((d,i)=>{const th=element('th',['Lun','Mar','Mer','Gio','Ven','Sab','Dom'][i]+' '+fmt(d));th.dataset.calendarDay=d;tr.append(th)});head.append(tr);table.append(head);const body=element('tbody');
+  const stateNames={available:'marciante',broken:'guasto',maintenance:'manutenzione programmata',out_of_service:'fuori servizio',inactive:'fuori servizio'};
+  const paths={available:'<path d="m5 12 4 4L19 6"/>',broken:'<path d="M14.5 6.5a5 5 0 0 0-6.2 6.2L3 18a2.1 2.1 0 0 0 3 3l5.3-5.3a5 5 0 0 0 6.2-6.2L14 13l-3-3z"/>',maintenance:'<rect x="3" y="4" width="17" height="17" rx="2"/><path d="M7 2v4m9-4v4M3 9h17"/><path d="M15 11a3 3 0 0 0-3.8 3.8L8 18a1.4 1.4 0 0 0 2 2l3.2-3.2A3 3 0 0 0 17 13l-2 2-2-2z"/>',out_of_service:'<path d="m6 6 12 12M18 6 6 18"/>',inactive:'<circle cx="12" cy="12" r="8"/><path d="m6 6 12 12"/>'};
   for(const vehicle of [...this.vehicles()].sort((a,b)=>a.plate.localeCompare(b.plate))){
-   const row=element('tr'),th=element('th');th.scope='row';const title=element('div',undefined,'vehicle-title'),exclude=element('input');exclude.type='checkbox';exclude.id='vehicle-excluded-'+vehicle.id;exclude.checked=!!weekDefault(this.defaults,vehicle.id,this.week)?.excluded;exclude.disabled=this.busy;exclude.setAttribute('aria-label',vehicle.plate+' non disponibile da questa settimana');exclude.title='Non disponibile da questa settimana e per le successive';exclude.onchange=()=>this.saveWeekDefault(vehicle,exclude.checked);title.append(element('strong',vehicle.plate),exclude);const excludeLabel=element('label','Non disponibile da questa settimana','vehicle-exclude-label');excludeLabel.htmlFor=exclude.id;th.append(title,excludeLabel);const label=element('label','Priorità');label.htmlFor='vehicle-priority-'+vehicle.id;const priority=element('select');priority.id=label.htmlFor;priority.setAttribute('aria-label','Priorità '+vehicle.plate);
+   const row=element('tr'),th=element('th');th.scope='row';const title=element('div',undefined,'vehicle-title'),defaultButton=element('button',undefined,'vehicle-maintenance vehicle-default'),baseState=defaultState(weekDefault(this.defaults,vehicle.id,this.week));defaultButton.type='button';defaultButton.id='vehicle-default-'+vehicle.id;defaultButton.disabled=this.busy;defaultButton.dataset.state=baseState;defaultButton.setAttribute('aria-label',vehicle.plate+' stato predefinito: '+stateNames[baseState]);defaultButton.title='Stato predefinito da questa settimana: '+stateNames[baseState]+'. Clic per cambiare.';defaultButton.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true">'+paths[baseState]+'</svg>';defaultButton.onclick=()=>this.saveWeekDefault(vehicle,nextVehicleState[baseState]);title.append(element('strong',vehicle.plate),defaultButton);const seatValue=vehicle.technical_details?.seats||vehicle.technical_details?.posti||String(vehicle.category||'').match(/(\d+)\s*(?:PAX|POSTI)/i)?.[1];const details=element('small',(vehicle.description||vehicle.model||vehicle.category||'Modello n.d.')+' · '+(seatValue?seatValue+' posti':'posti n.d.'),'vehicle-details');th.append(title,details,element('small','Stato predefinito ↗','vehicle-default-caption'));const label=element('label','Priorità');label.htmlFor='vehicle-priority-'+vehicle.id;const priority=element('select');priority.id=label.htmlFor;priority.setAttribute('aria-label','Priorità '+vehicle.plate);
    for(let i=1;i<=5;i++){const option=element('option',i+(i===1?' · prima scelta':i===5?' · ultima scelta':''));option.value=i;priority.append(option);}priority.value=vehicle.priority;priority.disabled=this.busy;priority.onchange=()=>this.savePriority(vehicle,priority.value);th.append(label,priority);if(!vehicle.active||vehicle.listed_in_service===false)th.append(element('small','Fuori servizio','error'));row.append(th);
    for(const day of this.days()){
     const state=this.state(vehicle,day),td=element('td'),slot=element('div',undefined,'vehicle-slot');slot.dataset.plate=vehicle.plate;slot.dataset.day=day;
     const available=element('button','Disp.','vehicle-available'),middle=element('div',undefined,'vehicle-required'),maintenance=element('button',undefined,'vehicle-maintenance');
     available.title='Marciante, disponibile per entrambe le fasce';available.setAttribute('aria-label',vehicle.plate+' '+day+' disponibile');available.setAttribute('aria-pressed',state.available);available.disabled=this.busy||!!state.period||state.state==='inactive';available.onclick=()=>this.saveCell(vehicle,day,{state:'available',note:''});
     for(const phase of ['m','p']){const key=phase==='m'?'required_morning':'required_afternoon',button=element('button',phase==='m'?'AM':'PM','vehicle-required-'+phase);button.setAttribute('aria-label',vehicle.plate+' '+day+' obbligo '+(phase==='m'?'AM':'PM'));button.title='Uso obbligatorio '+(phase==='m'?'mattina':'pomeriggio');button.setAttribute('aria-pressed',state[key]);button.disabled=this.busy||(!state.available&&!state[key]);button.onclick=()=>this.saveCell(vehicle,day,{[key]:!state[key]});middle.append(button);}
-    const stateNames={available:'marciante',broken:'guasto',maintenance:'manutenzione programmata',out_of_service:'fuori servizio',inactive:'fuori servizio'},nextState={available:'broken',broken:'maintenance',maintenance:'out_of_service',out_of_service:'available'};
     maintenance.dataset.state=state.state;maintenance.setAttribute('aria-label',vehicle.plate+' '+day+' stato: '+stateNames[state.state]);maintenance.title=state.reason||('Stato: '+stateNames[state.state]+'. Clic per cambiare.');maintenance.disabled=this.busy||!!state.period||state.state==='inactive';
-    const paths={available:'<path d="m5 12 4 4L19 6"/>',broken:'<path d="M14.5 6.5a5 5 0 0 0-6.2 6.2L3 18a2.1 2.1 0 0 0 3 3l5.3-5.3a5 5 0 0 0 6.2-6.2L14 13l-3-3z"/>',maintenance:'<rect x="3" y="4" width="17" height="17" rx="2"/><path d="M7 2v4m9-4v4M3 9h17"/><path d="M15 11a3 3 0 0 0-3.8 3.8L8 18a1.4 1.4 0 0 0 2 2l3.2-3.2A3 3 0 0 0 17 13l-2 2-2-2z"/>',out_of_service:'<path d="m6 6 12 12M18 6 6 18"/>',inactive:'<circle cx="12" cy="12" r="8"/><path d="m6 6 12 12"/>'};
     maintenance.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true">'+paths[state.state]+'</svg>';
-    maintenance.onclick=()=>{const next=nextState[state.state];const patch={state:next};if(next!=='available'){patch.required_morning=false;patch.required_afternoon=false;}else patch.note='';this.saveCell(vehicle,day,patch);};
+    maintenance.onclick=()=>{const next=nextVehicleState[state.state];const patch={state:next};if(next!=='available'){patch.required_morning=false;patch.required_afternoon=false;}else patch.note='';this.saveCell(vehicle,day,patch);};
     td.dataset.calendarDay=day;slot.append(available,middle,maintenance);td.append(slot);if(state.reason||state.exception)td.append(element('small',state.exception?'Eccezione: disponibile solo oggi':state.reason,'vehicle-reason'));row.append(td);
    }body.append(row);
   }
