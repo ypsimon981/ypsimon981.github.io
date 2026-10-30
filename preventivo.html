@@ -208,7 +208,7 @@ h1{font-size:32px}.hero{padding:16px}.field label{font-size:14px;font-weight:500
       </div>
       <div class="field">
         <label for="vehicleSelect">Mezzo usato</label>
-        <select id="vehicleSelect"></select>
+        <select id="vehicleSelect"></select><small>Mezzi dall’anagrafica server. <a href="veicolo.html">Accedi a Garage</a> per caricare i mezzi aziendali.</small>
       </div>
     </div>
     <div class="note">La tariffa qui e quella mostrata nel preventivo sono lo stesso valore. Consumo e alimentazione vengono letti dall'anagrafica del mezzo selezionato.</div>
@@ -289,13 +289,15 @@ h1{font-size:32px}.hero{padding:16px}.field label{font-size:14px;font-weight:500
 
 <script src="flight-config.js?v=steerwill3"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="assets/steerwill-cloud.js?v=20261030-server"></script>
 <script>
-(function(){
+(async function(){
   "use strict";
+  await SteerWillCloud.resume();
 
   var RATE_KEY="codriver_quote_rate_v1";
   var COST_KEY="codriver_quote_costs_v1";
-  var VEHICLE_KEY="codriver_vehicles_v1";
+
   var SAVED_QUOTES_KEY="codriver_saved_quotes_v1";
   var DEFAULT_RATE=1.50;
 
@@ -342,8 +344,7 @@ h1{font-size:32px}.hero{padding:16px}.field label{font-size:14px;font-weight:500
   }
 
   function readVehicles(){
-    try{return JSON.parse(localStorage.getItem(VEHICLE_KEY)||"[]");}
-    catch(e){return [];}
+    return SteerWillCloud.vehicles.filter(v=>v.active);
   }
 
   function readCostPrefs(){
