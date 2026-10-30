@@ -175,7 +175,7 @@ h1{margin:0;font-size:clamp(38px,7vw,64px);line-height:.95;letter-spacing:-.045e
 .deadlines{gap:6px;padding:6px;border:0}.deadline{border:1px solid #333;border-radius:9px;padding:10px 7px}.deadline.ok,.maintCard.ok{border-color:#46a463}.deadline.warn,.maintCard.warn{border-color:#f19e39}.deadline.bad,.maintCard.bad{border-color:#ff5353}.deadlineName{font-size:12px}.deadlineDate{font-weight:600}.state{font-size:12px}.maintenance{gap:6px;padding:6px}.maintCard{border-radius:9px;padding:10px}.maintMain{font-size:18px}.list{gap:10px}
 body{padding-top:0!important;padding-bottom:0!important}</style>
 <link rel="stylesheet" href="assets/steerwill-theme.css?v=1">
-<link rel="stylesheet" href="assets/revision.css?v=20260930"><link rel="stylesheet" href="assets/mobile.css?v=20261003-garage-alerts"><script src="assets/steerwill-cloud.js?v=20261030-signup"></script>
+<link rel="stylesheet" href="assets/revision.css?v=20260930"><link rel="stylesheet" href="assets/mobile.css?v=20261003-garage-alerts"><script src="assets/steerwill-cloud.js?v=20261030-calendar"></script>
 </head>
 <body>
 <main class="page">
@@ -273,7 +273,7 @@ body{padding-top:0!important;padding-bottom:0!important}</style>
         </div>
       </div>
 
-<div class="sectionLabel">Anagrafica aziendale importata</div><div class="grid3"><div class="field"><label for="category">Tipologia</label><input id="category" name="category" type="text" maxlength="1000"></div><div class="field"><label for="municipalAuthorization">Scadenza autorizzazione comunale</label><input id="municipalAuthorization" name="municipalAuthorization" type="date" maxlength="1000"></div><div class="field"><label for="telepass">Telepass</label><input id="telepass" name="telepass" type="text" maxlength="1000"></div><div class="field"><label for="ztlNotes">Note ZTL</label><input id="ztlNotes" name="ztlNotes" type="text" maxlength="1000"></div><div class="field"><label for="operationalNote">Note operative</label><input id="operationalNote" name="operationalNote" type="text" maxlength="1000"></div></div><div class="formActions">
+<div class="sectionLabel">Anagrafica aziendale importata</div><div class="grid3"><div class="field"><label for="priority">Priorità di assegnazione</label><select id="priority" name="priority"><option value="1">1 · prima scelta</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5 · ultima scelta</option></select></div><div class="field"><label for="listedInService"><input type="checkbox" id="listedInService" name="listedInService" checked> Mezzo marciante / disponibile di base</label><small>I fermi giornalieri si gestiscono nel calendario mezzi.</small></div><div class="field"><label for="category">Tipologia</label><input id="category" name="category" type="text" maxlength="1000"></div><div class="field"><label for="municipalAuthorization">Scadenza autorizzazione comunale</label><input id="municipalAuthorization" name="municipalAuthorization" type="date" maxlength="1000"></div><div class="field"><label for="telepass">Telepass</label><input id="telepass" name="telepass" type="text" maxlength="1000"></div><div class="field"><label for="ztlNotes">Note ZTL</label><input id="ztlNotes" name="ztlNotes" type="text" maxlength="1000"></div><div class="field"><label for="operationalNote">Note operative</label><input id="operationalNote" name="operationalNote" type="text" maxlength="1000"></div></div><div class="formActions">
         <button id="cancelBtn" class="secondary" type="button">Annulla</button>
         <button class="primary" type="submit">Salva veicolo</button>
       </div>
@@ -307,7 +307,7 @@ body{padding-top:0!important;padding-bottom:0!important}</style>
       const old=Cloud.vehicleRows.find(v=>v.id===vehicle.id);
       let body,path,method;
       if(disactivate){body={active:false,data_version:old.data_version+1};method='PATCH';path='/rest/v1/sw_vehicles?id=eq.'+old.id+'&company_id=eq.'+Cloud.companyId+'&data_version=eq.'+old.data_version;}
-      else{body={company_id:Cloud.companyId,plate:vehicle.plate,description:vehicle.model||null,category:vehicle.category||null,inspection_due:vehicle.revision||null,insurance_due:vehicle.insurance||null,road_tax_due:vehicle.tax||null,municipal_authorization_due:vehicle.municipalAuthorization||null,ztl_notes:vehicle.ztlNotes||null,telepass_number:vehicle.telepass||null,operational_note:vehicle.operationalNote||null,technical_details:{...(old?.technical_details||{}),km:vehicle.km,fuelType:vehicle.fuelType,consumption:vehicle.consumption,ztl:vehicle.ztl,serviceKm:vehicle.serviceKm,serviceDate:vehicle.serviceDate,tyresKm:vehicle.tyresKm,tyresDate:vehicle.tyresDate}};
+      else{body={company_id:Cloud.companyId,plate:vehicle.plate,description:vehicle.model||null,category:vehicle.category||null,priority:Number(vehicle.priority)||3,listed_in_service:vehicle.listedInService!==false,inspection_due:vehicle.revision||null,insurance_due:vehicle.insurance||null,road_tax_due:vehicle.tax||null,municipal_authorization_due:vehicle.municipalAuthorization||null,ztl_notes:vehicle.ztlNotes||null,telepass_number:vehicle.telepass||null,operational_note:vehicle.operationalNote||null,technical_details:{...(old?.technical_details||{}),km:vehicle.km,fuelType:vehicle.fuelType,consumption:vehicle.consumption,ztl:vehicle.ztl,serviceKm:vehicle.serviceKm,serviceDate:vehicle.serviceDate,tyresKm:vehicle.tyresKm,tyresDate:vehicle.tyresDate}};
         method=old?'PATCH':'POST';path='/rest/v1/sw_vehicles';if(old){body.data_version=old.data_version+1;path+='?id=eq.'+old.id+'&company_id=eq.'+Cloud.companyId+'&data_version=eq.'+old.data_version;}}
       const rows=await Cloud.api(path,{method,body,headers:{Prefer:'return=representation'}});
       if(rows.length!==1)throw Error('Il veicolo è stato modificato da un altro dispositivo. Ricarica l’anagrafica prima di riprovare.');
@@ -322,11 +322,12 @@ body{padding-top:0!important;padding-bottom:0!important}</style>
     formTitle.textContent = vehicle ? "Modifica veicolo" : "Aggiungi un veicolo";
 
     if(vehicle){
-      ["plate","model","km","fuelType","consumption","revision","insurance","ztl","tax","serviceKm","serviceDate","tyresKm","tyresDate","category","municipalAuthorization","ztlNotes","telepass","operationalNote"].forEach(function(k){
+      ["plate","model","km","fuelType","consumption","revision","insurance","ztl","tax","serviceKm","serviceDate","tyresKm","tyresDate","category","municipalAuthorization","ztlNotes","telepass","operationalNote","priority"].forEach(function(k){
         if(form.elements[k]) form.elements[k].value = vehicle[k] == null ? "" : vehicle[k];
       });
     }
 
+    form.elements.listedInService.checked=vehicle?vehicle.listedInService!==false:true;
     updateConsumptionLabel();
     formWrap.classList.add("show");
     setTimeout(function(){document.getElementById("plate").focus();},80);
@@ -514,7 +515,7 @@ body{padding-top:0!important;padding-bottom:0!important}</style>
       serviceDate:String(fd.get("serviceDate")||""),
       tyresKm:Number(fd.get("tyresKm")||0),
       tyresDate:String(fd.get("tyresDate")||""),
-      category:String(fd.get("category")||""),municipalAuthorization:String(fd.get("municipalAuthorization")||""),ztlNotes:String(fd.get("ztlNotes")||""),telepass:String(fd.get("telepass")||""),operationalNote:String(fd.get("operationalNote")||"")
+      priority:Number(fd.get("priority"))||3,listedInService:fd.get("listedInService")==="on",category:String(fd.get("category")||""),municipalAuthorization:String(fd.get("municipalAuthorization")||""),ztlNotes:String(fd.get("ztlNotes")||""),telepass:String(fd.get("telepass")||""),operationalNote:String(fd.get("operationalNote")||"")
     };
 
     if(await saveVehicle(vehicle)){closeForm();render();}
