@@ -78,3 +78,16 @@ test('daily exceptions never override maintenance or an inactive vehicle',()=>{
  assert.equal(vehicleState(vehicles[0],day,records,maintenance,defaults).exception,false);
  assert.equal(vehicleState({...vehicles[0],active:false},day,records,[],defaults).state,'inactive');
 });
+
+test('all default states propagate forward, with daily availability exceptions and untouched history',()=>{
+ const cycle=require('../assets/steerwill-vehicle-calendar.js').nextVehicleState;
+ assert.deepEqual(['available','broken','maintenance','out_of_service'].map(s=>cycle[s]),['broken','maintenance','out_of_service','available']);
+ for(const state of ['broken','maintenance','out_of_service']){
+  const timeline=[{...defaults[0],state}];
+  assert.equal(vehicleState(vehicles[0],'2026-11-01',[],[],timeline).state,'available');
+  for(const d of [day,'2026-11-10','2027-01-04'])assert.equal(vehicleState(vehicles[0],d,[],[],timeline).state,state);
+  const exception=[{vehicle_id:'a',day,state:'available',week_default_revision:'rule-1'}];
+  assert.equal(vehicleState(vehicles[0],day,exception,[],timeline).available,true);
+  assert.equal(fleetCapacity(vehicles,'2026-11-03',exception,[],timeline),1);
+ }
+});
