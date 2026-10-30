@@ -81,37 +81,28 @@ root.SWVehicleCalendar=class{
    const i=this.cloud.vehicleRows.findIndex(v=>v.id===vehicle.id);this.cloud.vehicleRows[i]=rows[0];this.cloud.vehicles=this.cloud.vehicleRows.map(v=>this.cloud.legacyVehicle(v));this.setMessage(vehicle.plate+': priorità '+value+' salvata sul server.');
   }catch(e){this.setMessage(e.message,true)}finally{this.busy=false;this.onChange();}
  }
- openStateDialog(vehicle,day){
-  if(this.busy)return;this.dialog?.remove();const state=this.state(vehicle,day),dialog=element('dialog',undefined,'vehicle-dialog');this.dialog=dialog;
-  const form=element('form'),title=element('h2',vehicle.plate+' · '+fmt(day));title.id='vehicle-dialog-title';dialog.setAttribute('aria-labelledby',title.id);
-  const label=element('label','Stato del mezzo');label.htmlFor='vehicle-day-state';const select=element('select');select.id=label.htmlFor;
-  for(const [value,text] of [['available','Marciante / disponibile'],['maintenance','Manutenzione programmata'],['broken','Fermo per guasto']]){const o=element('option',text);o.value=value;select.append(o);}
-  select.value=['maintenance','broken'].includes(state.state)?state.state:'maintenance';
-  const nl=element('label','Nota del fermo');nl.htmlFor='vehicle-day-note';const note=element('textarea');note.id=nl.htmlFor;note.maxLength=1000;note.rows=3;note.value=state.reason;
-  const actions=element('div',undefined,'actions'),cancel=element('button','Annulla','secondary'),save=element('button','Salva stato');cancel.type='button';save.type='submit';cancel.onclick=()=>dialog.close();actions.append(cancel,save);
-  form.append(title,label,select,nl,note);
-  if(state.period||state.state==='inactive'){form.append(element('p',state.period?'Fermo registrato in manutenzione: questo periodo prevale sul calendario.':'Mezzo escluso dall’anagrafica: non può rientrare nelle assegnazioni dal calendario.','error'));select.disabled=true;save.disabled=true;}
-  form.append(actions);dialog.append(form);document.body.append(dialog);dialog.showModal();
-  form.onsubmit=async e=>{e.preventDefault();save.disabled=true;cancel.disabled=true;const patch={state:select.value,note:note.value};if(select.value!=='available'){patch.required_morning=false;patch.required_afternoon=false;}const ok=await this.saveCell(vehicle,day,patch);if(ok)dialog.close();else{save.disabled=false;cancel.disabled=false;form.querySelector('[role=alert]')?.remove();const error=element('p',this.message,'error');error.setAttribute('role','alert');form.append(error);}};
-  dialog.addEventListener('close',()=>{dialog.remove();if(this.dialog===dialog)this.dialog=null;},{once:true});
- }
  render(){
-  const root=this.container,scroll=root.querySelector('.vehicle-calendar-scroll'),position=scroll?{top:scroll.scrollTop,left:scroll.scrollLeft}:null;
+  const root=this.container;
   root.replaceChildren();const status=element('p',this.message||(!this.ready?'Caricamento calendario dal server…':'Calendario caricato dal server. Le modifiche si salvano automaticamente.'),this.isError?'status error':'status');status.id='vehicle-calendar-status';status.setAttribute('role','status');root.append(status);
   if(!this.ready){const retry=element('button','Ricarica calendario','secondary');retry.onclick=()=>this.load(this.week);root.append(retry);return;}
-  const wrap=element('div',undefined,'tablewrap vehicle-calendar-scroll'),table=element('table',undefined,'vehicle-calendar'),head=element('thead'),tr=element('tr');tr.append(element('th','Targa · priorità'));this.days().forEach((d,i)=>tr.append(element('th',['Lun','Mar','Mer','Gio','Ven','Sab','Dom'][i]+' '+fmt(d))));head.append(tr);table.append(head);const body=element('tbody');
+  const wrap=element('div',undefined,'vehicle-calendar-box'),table=element('table',undefined,'vehicle-calendar'),head=element('thead'),tr=element('tr');tr.append(element('th','Targa · priorità'));this.days().forEach((d,i)=>{const th=element('th',['Lun','Mar','Mer','Gio','Ven','Sab','Dom'][i]+' '+fmt(d));th.dataset.calendarDay=d;tr.append(th)});head.append(tr);table.append(head);const body=element('tbody');
   for(const vehicle of [...this.vehicles()].sort((a,b)=>a.plate.localeCompare(b.plate))){
    const row=element('tr'),th=element('th');th.scope='row';th.append(element('strong',vehicle.plate));const label=element('label','Priorità');label.htmlFor='vehicle-priority-'+vehicle.id;const priority=element('select');priority.id=label.htmlFor;priority.setAttribute('aria-label','Priorità '+vehicle.plate);
    for(let i=1;i<=5;i++){const option=element('option',i+(i===1?' · prima scelta':i===5?' · ultima scelta':''));option.value=i;priority.append(option);}priority.value=vehicle.priority;priority.disabled=this.busy;priority.onchange=()=>this.savePriority(vehicle,priority.value);th.append(label,priority);if(!vehicle.active||vehicle.listed_in_service===false)th.append(element('small','Fuori servizio','error'));row.append(th);
    for(const day of this.days()){
     const state=this.state(vehicle,day),td=element('td'),slot=element('div',undefined,'vehicle-slot');slot.dataset.plate=vehicle.plate;slot.dataset.day=day;
-    const available=element('button','Disp.','vehicle-available'),middle=element('div',undefined,'vehicle-required'),maintenance=element('button',state.state==='broken'?'Guasto':state.state==='inactive'?'Escl.':'🔧','vehicle-maintenance');
+    const available=element('button','Disp.','vehicle-available'),middle=element('div',undefined,'vehicle-required'),maintenance=element('button',undefined,'vehicle-maintenance');
     available.title='Marciante, disponibile per entrambe le fasce';available.setAttribute('aria-label',vehicle.plate+' '+day+' disponibile');available.setAttribute('aria-pressed',state.available);available.disabled=this.busy||!!state.period||state.state==='inactive';available.onclick=()=>this.saveCell(vehicle,day,{state:'available',note:''});
     for(const phase of ['m','p']){const key=phase==='m'?'required_morning':'required_afternoon',button=element('button',phase==='m'?'AM':'PM','vehicle-required-'+phase);button.setAttribute('aria-label',vehicle.plate+' '+day+' obbligo '+(phase==='m'?'AM':'PM'));button.title='Uso obbligatorio '+(phase==='m'?'mattina':'pomeriggio');button.setAttribute('aria-pressed',state[key]);button.disabled=this.busy||(!state.available&&!state[key]);button.onclick=()=>this.saveCell(vehicle,day,{[key]:!state[key]});middle.append(button);}
-    maintenance.setAttribute('aria-label',vehicle.plate+' '+day+' fermo o manutenzione');maintenance.setAttribute('aria-pressed',!state.available);maintenance.title=state.reason||'Fermo per guasto o manutenzione programmata';maintenance.disabled=this.busy;maintenance.onclick=()=>this.openStateDialog(vehicle,day);slot.append(available,middle,maintenance);td.append(slot);if(state.reason)td.append(element('small',state.reason,'vehicle-reason'));row.append(td);
+    const stateNames={available:'marciante',broken:'guasto',maintenance:'manutenzione programmata',inactive:'fuori servizio'},nextState={available:'broken',broken:'maintenance',maintenance:'available'};
+    maintenance.dataset.state=state.state;maintenance.setAttribute('aria-label',vehicle.plate+' '+day+' stato: '+stateNames[state.state]);maintenance.title=state.reason||('Stato: '+stateNames[state.state]+'. Clic per cambiare.');maintenance.disabled=this.busy||!!state.period||state.state==='inactive';
+    const paths={available:'<path d="m5 12 4 4L19 6"/>',broken:'<path d="M14.5 6.5a5 5 0 0 0-6.2 6.2L3 18a2.1 2.1 0 0 0 3 3l5.3-5.3a5 5 0 0 0 6.2-6.2L14 13l-3-3z"/>',maintenance:'<rect x="3" y="4" width="17" height="17" rx="2"/><path d="M7 2v4m9-4v4M3 9h17"/><path d="M15 11a3 3 0 0 0-3.8 3.8L8 18a1.4 1.4 0 0 0 2 2l3.2-3.2A3 3 0 0 0 17 13l-2 2-2-2z"/>',inactive:'<circle cx="12" cy="12" r="8"/><path d="m6 6 12 12"/>'};
+    maintenance.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true">'+paths[state.state]+'</svg>';
+    maintenance.onclick=()=>{const next=nextState[state.state];const patch={state:next};if(next!=='available'){patch.required_morning=false;patch.required_afternoon=false;}else patch.note='';this.saveCell(vehicle,day,patch);};
+    td.dataset.calendarDay=day;slot.append(available,middle,maintenance);td.append(slot);if(state.reason)td.append(element('small',state.reason,'vehicle-reason'));row.append(td);
    }body.append(row);
   }
-  table.append(body);wrap.append(table);root.append(wrap);if(position){wrap.scrollTop=position.top;wrap.scrollLeft=position.left;}
+  table.append(body);wrap.append(table);const filter=element('div',undefined,'vehicle-day-filter');const label=element('label','Giorno del calendario mezzi');label.htmlFor='vehicle-calendar-day';const daySelect=element('select');daySelect.id=label.htmlFor;for(const day of this.days()){const o=element('option',fmt(day));o.value=day;daySelect.append(o);}if(!this.days().includes(this.selectedDay))this.selectedDay=this.days()[0];daySelect.value=this.selectedDay;const filterDays=()=>root.querySelectorAll('[data-calendar-day]').forEach(e=>e.dataset.active=String(e.dataset.calendarDay===this.selectedDay));daySelect.onchange=()=>{this.selectedDay=daySelect.value;filterDays();};filter.append(label,daySelect);root.append(filter,wrap);filterDays();
   const actions=element('div',undefined,'actions'),reload=element('button','Ricarica dal server','secondary');reload.disabled=this.busy;reload.onclick=()=>this.load(this.week);actions.append(reload);root.append(actions);
  }
 };
