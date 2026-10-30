@@ -40,3 +40,41 @@ test('out-of-service is reversible per day and excluded from ordinary capacity a
  assert.equal(fleetCapacity(vehicles,'2026-11-03',records),2);
  assert.equal(fleetCapacity(vehicles,day,[{...records[0],state:'available'}]),2);
 });
+
+const defaults=[{vehicle_id:'a',effective_week:'2026-11-02',excluded:true,revision:'rule-1',version:1}];
+test('weekly exclusion carries forward, leaves earlier weeks intact and changes capacity and assignments',()=>{
+ assert.equal(fleetCapacity(vehicles,'2026-11-01',[],[],defaults),2);
+ for(const date of ['2026-11-02','2026-11-08','2026-11-09','2027-01-04']){
+  assert.equal(fleetCapacity(vehicles,date,[],[],defaults),1);
+  assert.equal(assignmentErrors(vehicles,date,'long','AA',[],[],defaults).length,1);
+ }
+});
+test('daily availability overrides only its own day and only the current weekly default revision',()=>{
+ const records=[{vehicle_id:'a',day,state:'available',week_default_revision:'rule-1',required_morning:true}];
+ assert.equal(fleetCapacity(vehicles,day,records,[],defaults),2);
+ assert.equal(vehicleState(vehicles[0],day,records,[],defaults).exception,true);
+ assert.equal(fleetCapacity(vehicles,'2026-11-03',records,[],defaults),1);
+ assert.equal(fleetCapacity(vehicles,'2026-11-09',records,[],defaults),1);
+ assert.equal(assignmentErrors(vehicles,day,'morning','AA',records,[],defaults).length,0);
+ assert.equal(requiredGaps(vehicles,[day],{},records,[],defaults).length,1);
+ assert.equal(requiredGaps(vehicles,[day],{'driver|2026-11-02':{vehicle:'AA',shift:'long'}},records,[],defaults).length,0);
+ for(const revision of [null,'old-rule']){
+  assert.equal(fleetCapacity(vehicles,day,[{...records[0],week_default_revision:revision}],[],defaults),1);
+ }
+ const nextDefault=[{...defaults[0],revision:'rule-2',version:2}];
+ assert.equal(fleetCapacity(vehicles,day,records,[],nextDefault),1);
+});
+test('removing weekly exclusion resumes availability forward, without changing history or explicit day blocks',()=>{
+ const timeline=[{vehicle_id:'a',effective_week:'2026-11-16',excluded:false,revision:'rule-2'},...defaults];
+ assert.equal(fleetCapacity(vehicles,'2026-11-09',[],[],timeline),1);
+ assert.equal(fleetCapacity(vehicles,'2026-11-16',[],[],timeline),2);
+ assert.equal(fleetCapacity(vehicles,'2027-01-04',[],[],timeline),2);
+ assert.equal(fleetCapacity(vehicles,'2026-11-16',[{vehicle_id:'a',day:'2026-11-16',state:'broken'}],[],timeline),1);
+});
+test('daily exceptions never override maintenance or an inactive vehicle',()=>{
+ const records=[{vehicle_id:'a',day,state:'available',week_default_revision:'rule-1'}];
+ const maintenance=[{vehicle_id:'a',starts_on:day,ends_on:day}];
+ assert.equal(vehicleState(vehicles[0],day,records,maintenance,defaults).state,'maintenance');
+ assert.equal(vehicleState(vehicles[0],day,records,maintenance,defaults).exception,false);
+ assert.equal(vehicleState({...vehicles[0],active:false},day,records,[],defaults).state,'inactive');
+});

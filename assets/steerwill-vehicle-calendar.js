@@ -2,25 +2,28 @@
 (function(root){
 'use strict';
 const dayRecord=(records,id,day)=>records.find(r=>r.vehicle_id===id&&r.day===day);
-function vehicleState(vehicle,day,records=[],maintenance=[]){
+function weekDefault(defaults,id,day){return defaults.filter(r=>r.vehicle_id===id&&r.effective_week<=day).sort((a,b)=>b.effective_week.localeCompare(a.effective_week))[0];}
+function vehicleState(vehicle,day,records=[],maintenance=[],defaults=[]){
  const row=dayRecord(records,vehicle.id,day),period=maintenance.find(r=>r.vehicle_id===vehicle.id&&r.starts_on<=day&&(!r.ends_on||r.ends_on>=day));
+ const base=weekDefault(defaults,vehicle.id,day),exception=!!base?.excluded&&row?.state==='available'&&!!base.revision&&row.week_default_revision===base.revision;
  let state=row?.state||'available',reason=row?.note||'';
+ if(base?.excluded&&state==='available'&&!exception){state='out_of_service';reason='Escluso dalla settimana del '+base.effective_week;}
  if(period){state='maintenance';reason=period.note||'Manutenzione programmata';}
  if(!vehicle.active||vehicle.listed_in_service===false){state='inactive';reason=vehicle.operational_note||'Fuori servizio in anagrafica';}
- return {state,reason,period,row,available:state==='available',required_morning:!!row?.required_morning,required_afternoon:!!row?.required_afternoon};
+ return {state,reason,period,row,base,exception:exception&&state==='available',available:state==='available',required_morning:!!row?.required_morning,required_afternoon:!!row?.required_afternoon};
 }
 const shiftPhases=shift=>shift==='long'?['m','p']:shift==='morning'?['m']:shift==='afternoon'?['p']:shift==='night'?['n']:[];
-function fleetCapacity(vehicles,day,records=[],maintenance=[]){return vehicles.filter(v=>vehicleState(v,day,records,maintenance).available).length;}
-function assignmentErrors(vehicles,day,shift,plate,records=[],maintenance=[]){
+function fleetCapacity(vehicles,day,records=[],maintenance=[],defaults=[]){return vehicles.filter(v=>vehicleState(v,day,records,maintenance,defaults).available).length;}
+function assignmentErrors(vehicles,day,shift,plate,records=[],maintenance=[],defaults=[]){
  if(!shiftPhases(shift).length)return [];
  const v=vehicles.find(v=>v.plate===plate);
  if(!v)return ['Veicolo non presente nell’anagrafica aziendale.'];
- const s=vehicleState(v,day,records,maintenance);
+ const s=vehicleState(v,day,records,maintenance,defaults);
  return s.available?[]:[plate+' non assegnabile il '+day+': '+(s.reason||({broken:'guasto',maintenance:'manutenzione',out_of_service:'fuori servizio',inactive:'fuori servizio'}[s.state]))];
 }
-function requiredGaps(vehicles,days,draft={},records=[],maintenance=[]){
+function requiredGaps(vehicles,days,draft={},records=[],maintenance=[],defaults=[]){
  const gaps=[];
- for(const day of days)for(const v of vehicles){const s=vehicleState(v,day,records,maintenance);
+ for(const day of days)for(const v of vehicles){const s=vehicleState(v,day,records,maintenance,defaults);
   for(const phase of ['m','p'])if(s[phase==='m'?'required_morning':'required_afternoon']){
    const covered=s.available&&Object.entries(draft).some(([key,shift])=>key.split('|')[1]===day&&shift.vehicle===v.plate&&shiftPhases(shift.shift).includes(phase));
    if(!covered)gaps.push({day,phase,plate:v.plate,blocked:!s.available});
@@ -28,43 +31,48 @@ function requiredGaps(vehicles,days,draft={},records=[],maintenance=[]){
  }
  return gaps;
 }
-const rules={vehicleState,fleetCapacity,assignmentErrors,requiredGaps,shiftPhases};
+const rules={weekDefault,vehicleState,fleetCapacity,assignmentErrors,requiredGaps,shiftPhases};
 if(typeof module!=='undefined'&&module.exports){module.exports=rules;return;}
 root.SWVehicleRules=rules;
 const fmt=day=>new Date(day+'T12:00:00').toLocaleDateString('it-IT',{day:'numeric',month:'short'});
 const add=(day,n)=>{const d=new Date(day+'T12:00:00');d.setDate(d.getDate()+n);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
+function newRevision(){const b=crypto.getRandomValues(new Uint8Array(16));b[6]=(b[6]&15)|64;b[8]=(b[8]&63)|128;const h=[...b].map(v=>v.toString(16).padStart(2,'0')).join('');return h.slice(0,8)+'-'+h.slice(8,12)+'-'+h.slice(12,16)+'-'+h.slice(16,20)+'-'+h.slice(20);}
 function element(tag,text,cls){const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(cls)e.className=cls;return e;}
 root.SWVehicleCalendar=class{
- constructor({cloud,container,onChange,getDraft}){this.cloud=cloud;this.container=container;this.onChange=onChange;this.getDraft=getDraft;this.rows=[];this.maintenance=[];this.week='';this.ready=false;this.busy=false;this.loadId=0;this.snapshot='';this.message='';this.isError=false;this.dialog=null;}
+ constructor({cloud,container,onChange,getDraft}){this.cloud=cloud;this.container=container;this.onChange=onChange;this.getDraft=getDraft;this.rows=[];this.maintenance=[];this.defaults=[];this.week='';this.ready=false;this.busy=false;this.loadId=0;this.snapshot='';this.message='';this.isError=false;this.dialog=null;}
  vehicles(){return this.cloud.vehicleRows;}
  days(){return Array.from({length:7},(_,i)=>add(this.week,i));}
- state(v,day){return vehicleState(v,day,this.rows,this.maintenance);}
- capacity(day){return this.ready&&this.days().includes(day)?fleetCapacity(this.vehicles(),day,this.rows,this.maintenance):null;}
- gaps(draft=this.getDraft()){return this.ready?requiredGaps(this.vehicles(),this.days(),draft,this.rows,this.maintenance):[];}
- errors(day,shift,plate){return !this.ready?['Calendario mezzi non disponibile. Ricarica i dati dal server.']:assignmentErrors(this.vehicles(),day,shift,plate,this.rows,this.maintenance);}
+ state(v,day){return vehicleState(v,day,this.rows,this.maintenance,this.defaults);}
+ capacity(day){return this.ready&&this.days().includes(day)?fleetCapacity(this.vehicles(),day,this.rows,this.maintenance,this.defaults):null;}
+ gaps(draft=this.getDraft()){return this.ready?requiredGaps(this.vehicles(),this.days(),draft,this.rows,this.maintenance,this.defaults):[];}
+ errors(day,shift,plate){return !this.ready?['Calendario mezzi non disponibile. Ricarica i dati dal server.']:assignmentErrors(this.vehicles(),day,shift,plate,this.rows,this.maintenance,this.defaults);}
  async load(week,{background=false}={}){
   if(this.busy)return false;
   const id=++this.loadId;this.week=week;
   if(!background){this.ready=false;this.onChange();}
   try{
    const company=encodeURIComponent(this.cloud.companyId),last=add(week,6);
-   const [rows,maintenance,vehicles]=await Promise.all([
+   const [rows,maintenance,vehicles,defaults]=await Promise.all([
     this.cloud.api('/rest/v1/sw_vehicle_calendar?select=*&company_id=eq.'+company+'&day=gte.'+week+'&day=lte.'+last),
     this.cloud.api('/rest/v1/sw_maintenance?select=vehicle_id,starts_on,ends_on,note&company_id=eq.'+company+'&starts_on=lte.'+last+'&or=(ends_on.is.null,ends_on.gte.'+week+')'),
-    this.cloud.api('/rest/v1/sw_vehicles?select=*&company_id=eq.'+company+'&order=plate.asc')
+    this.cloud.api('/rest/v1/sw_vehicles?select=*&company_id=eq.'+company+'&order=plate.asc'),
+    this.loadDefaults(company,week)
    ]);
    if(id!==this.loadId||this.busy)return false;
    this.cloud.vehicleRows=vehicles;this.cloud.vehicles=vehicles.map(v=>this.cloud.legacyVehicle(v));
-   const snapshot=JSON.stringify([rows,maintenance,this.vehicles()]);const changed=this.snapshot!==snapshot||!this.ready;
-   this.rows=rows;this.maintenance=maintenance;this.ready=true;this.snapshot=snapshot;
+   const snapshot=JSON.stringify([rows,maintenance,this.vehicles(),defaults]);const changed=this.snapshot!==snapshot||!this.ready;
+   this.rows=rows;this.maintenance=maintenance;this.defaults=defaults;this.ready=true;this.snapshot=snapshot;
    if(changed)this.onChange();return true;
   }catch(e){if(id!==this.loadId)return false;this.ready=false;this.message=e.message;this.isError=true;this.onChange();return false;}
+ }
+ async loadDefaults(company,week){
+  const result=[];for(let offset=0;;offset+=1000){const page=await this.cloud.api('/rest/v1/sw_vehicle_week_defaults?select=*&company_id=eq.'+company+'&effective_week=lte.'+week+'&order=effective_week.desc,vehicle_id.asc&limit=1000&offset='+offset);result.push(...page);if(page.length<1000)return result;}
  }
  setMessage(message,bad=false){this.message=message;this.isError=bad;}
  async saveCell(vehicle,day,patch){
   if(this.busy||!this.ready)return false;
   const previous=dayRecord(this.rows,vehicle.id,day);
-  const body={company_id:this.cloud.companyId,vehicle_id:vehicle.id,day,state:previous?.state||'available',required_morning:previous?.required_morning||false,required_afternoon:previous?.required_afternoon||false,note:previous?.note||'',...patch,version:(previous?.version||0)+1,updated_at:new Date().toISOString()};
+  const body={company_id:this.cloud.companyId,vehicle_id:vehicle.id,day,state:previous?.state||'available',required_morning:previous?.required_morning||false,required_afternoon:previous?.required_afternoon||false,note:previous?.note||'',...patch,week_default_revision:patch.state==='available'?(weekDefault(this.defaults,vehicle.id,day)?.revision||null):(previous?.week_default_revision||null),version:(previous?.version||0)+1,updated_at:new Date().toISOString()};
   this.loadId++;this.busy=true;this.setMessage('Salvataggio calendario sul server…');this.render();
   try{
    const query=previous?'?company_id=eq.'+this.cloud.companyId+'&vehicle_id=eq.'+vehicle.id+'&day=eq.'+day+'&version=eq.'+previous.version:'';
@@ -72,6 +80,20 @@ root.SWVehicleCalendar=class{
    if(rows.length!==1)throw Error('Calendario modificato da un altro dispositivo. Ricarica e riprova.');
    this.rows=this.rows.filter(r=>r.vehicle_id!==vehicle.id||r.day!==day);this.rows.push(rows[0]);this.setMessage(vehicle.plate+' · '+fmt(day)+' salvato sul server.');return true;
   }catch(e){this.setMessage(e.status===409?'Un altro dispositivo ha modificato questa giornata. Ricarica il calendario.':e.message,true);return false;}
+  finally{this.busy=false;this.onChange();}
+ }
+ async saveWeekDefault(vehicle,excluded){
+  if(this.busy||!this.ready)return false;
+  const week=this.week,previous=this.defaults.find(r=>r.vehicle_id===vehicle.id&&r.effective_week===week);
+  const body={company_id:this.cloud.companyId,vehicle_id:vehicle.id,effective_week:week,excluded,revision:newRevision(),version:(previous?.version||0)+1,updated_at:new Date().toISOString()};
+  this.loadId++;this.busy=true;this.setMessage('Salvataggio disponibilità dalla settimana selezionata…');this.render();
+  try{
+   const query=previous?'?company_id=eq.'+this.cloud.companyId+'&vehicle_id=eq.'+vehicle.id+'&effective_week=eq.'+week+'&version=eq.'+previous.version:'';
+   const rows=await this.cloud.api('/rest/v1/sw_vehicle_week_defaults'+query,{method:previous?'PATCH':'POST',body,headers:{Prefer:'return=representation'}});
+   if(rows.length!==1)throw Error('Disponibilità modificata da un altro dispositivo. Ricarica e riprova.');
+   this.defaults=this.defaults.filter(r=>r.vehicle_id!==vehicle.id||r.effective_week!==week);this.defaults.push(rows[0]);
+   this.setMessage(vehicle.plate+(excluded?' non disponibile':' disponibile')+' dalla settimana del '+fmt(week)+'. Le singole giornate possono essere modificate.');return true;
+  }catch(e){this.setMessage(e.status===409?'Un altro dispositivo ha modificato questa settimana. Ricarica il calendario.':e.message,true);return false;}
   finally{this.busy=false;this.onChange();}
  }
  async savePriority(vehicle,value){
@@ -87,7 +109,7 @@ root.SWVehicleCalendar=class{
   if(!this.ready){const retry=element('button','Ricarica calendario','secondary');retry.onclick=()=>this.load(this.week);root.append(retry);return;}
   const wrap=element('div',undefined,'vehicle-calendar-box'),table=element('table',undefined,'vehicle-calendar'),head=element('thead'),tr=element('tr');tr.append(element('th','Targa · priorità'));this.days().forEach((d,i)=>{const th=element('th',['Lun','Mar','Mer','Gio','Ven','Sab','Dom'][i]+' '+fmt(d));th.dataset.calendarDay=d;tr.append(th)});head.append(tr);table.append(head);const body=element('tbody');
   for(const vehicle of [...this.vehicles()].sort((a,b)=>a.plate.localeCompare(b.plate))){
-   const row=element('tr'),th=element('th');th.scope='row';th.append(element('strong',vehicle.plate));const label=element('label','Priorità');label.htmlFor='vehicle-priority-'+vehicle.id;const priority=element('select');priority.id=label.htmlFor;priority.setAttribute('aria-label','Priorità '+vehicle.plate);
+   const row=element('tr'),th=element('th');th.scope='row';const title=element('div',undefined,'vehicle-title'),exclude=element('input');exclude.type='checkbox';exclude.id='vehicle-excluded-'+vehicle.id;exclude.checked=!!weekDefault(this.defaults,vehicle.id,this.week)?.excluded;exclude.disabled=this.busy;exclude.setAttribute('aria-label',vehicle.plate+' non disponibile da questa settimana');exclude.title='Non disponibile da questa settimana e per le successive';exclude.onchange=()=>this.saveWeekDefault(vehicle,exclude.checked);title.append(element('strong',vehicle.plate),exclude);const excludeLabel=element('label','Non disponibile da questa settimana','vehicle-exclude-label');excludeLabel.htmlFor=exclude.id;th.append(title,excludeLabel);const label=element('label','Priorità');label.htmlFor='vehicle-priority-'+vehicle.id;const priority=element('select');priority.id=label.htmlFor;priority.setAttribute('aria-label','Priorità '+vehicle.plate);
    for(let i=1;i<=5;i++){const option=element('option',i+(i===1?' · prima scelta':i===5?' · ultima scelta':''));option.value=i;priority.append(option);}priority.value=vehicle.priority;priority.disabled=this.busy;priority.onchange=()=>this.savePriority(vehicle,priority.value);th.append(label,priority);if(!vehicle.active||vehicle.listed_in_service===false)th.append(element('small','Fuori servizio','error'));row.append(th);
    for(const day of this.days()){
     const state=this.state(vehicle,day),td=element('td'),slot=element('div',undefined,'vehicle-slot');slot.dataset.plate=vehicle.plate;slot.dataset.day=day;
@@ -99,7 +121,7 @@ root.SWVehicleCalendar=class{
     const paths={available:'<path d="m5 12 4 4L19 6"/>',broken:'<path d="M14.5 6.5a5 5 0 0 0-6.2 6.2L3 18a2.1 2.1 0 0 0 3 3l5.3-5.3a5 5 0 0 0 6.2-6.2L14 13l-3-3z"/>',maintenance:'<rect x="3" y="4" width="17" height="17" rx="2"/><path d="M7 2v4m9-4v4M3 9h17"/><path d="M15 11a3 3 0 0 0-3.8 3.8L8 18a1.4 1.4 0 0 0 2 2l3.2-3.2A3 3 0 0 0 17 13l-2 2-2-2z"/>',out_of_service:'<path d="m6 6 12 12M18 6 6 18"/>',inactive:'<circle cx="12" cy="12" r="8"/><path d="m6 6 12 12"/>'};
     maintenance.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true">'+paths[state.state]+'</svg>';
     maintenance.onclick=()=>{const next=nextState[state.state];const patch={state:next};if(next!=='available'){patch.required_morning=false;patch.required_afternoon=false;}else patch.note='';this.saveCell(vehicle,day,patch);};
-    td.dataset.calendarDay=day;slot.append(available,middle,maintenance);td.append(slot);if(state.reason)td.append(element('small',state.reason,'vehicle-reason'));row.append(td);
+    td.dataset.calendarDay=day;slot.append(available,middle,maintenance);td.append(slot);if(state.reason||state.exception)td.append(element('small',state.exception?'Eccezione: disponibile solo oggi':state.reason,'vehicle-reason'));row.append(td);
    }body.append(row);
   }
   table.append(body);wrap.append(table);const filter=element('div',undefined,'vehicle-day-filter');const label=element('label','Giorno del calendario mezzi');label.htmlFor='vehicle-calendar-day';const daySelect=element('select');daySelect.id=label.htmlFor;for(const day of this.days()){const o=element('option',fmt(day));o.value=day;daySelect.append(o);}if(!this.days().includes(this.selectedDay))this.selectedDay=this.days()[0];daySelect.value=this.selectedDay;const filterDays=()=>root.querySelectorAll('[data-calendar-day]').forEach(e=>e.dataset.active=String(e.dataset.calendarDay===this.selectedDay));daySelect.onchange=()=>{this.selectedDay=daySelect.value;filterDays();};filter.append(label,daySelect);root.append(filter,wrap);filterDays();
