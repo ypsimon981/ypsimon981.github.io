@@ -21,7 +21,7 @@
 <section class="panel"><div class="row"><div style="flex:1"><h2>Griglia settimanale</h2><p class="muted">Anagrafica server · 7 giorni. Tocca una cella per assegnare; il nome per simulare l’autista.</p></div><button id="publish">Pubblica turni simulati</button><button id="unpublish" class="secondary">Ritira pubblicazione</button></div><p class="legend">L · Lunga &nbsp; M · Mattina &nbsp; P · Pomeriggio &nbsp; N · Notte &nbsp; R · Riposo &nbsp; ND · Non disponibile &nbsp; — · Non compilata</p><div class="mobile-day-filter"><label for="office-day">Giorno da consultare</label><select id="office-day"></select></div><p id="conflicts" class="error" role="status"></p><div class="tablewrap"><table><caption>Disponibilità e assegnazioni in bozza · <span data-company-name></span></caption><thead id="grid-head"></thead><tbody id="grid"></tbody></table></div></section></section>
 <footer>SteerWill · Turni integrati v3.0 · Salvataggio automatico sul server. Le modifiche alla bozza non sostituiscono i turni già pubblicati finché non pubblichi di nuovo.</footer>
 <noscript><p>Abilita JavaScript per utilizzare il simulatore.</p></noscript>
-<script src="assets/steerwill-cloud.js?v=20261030-server"></script><script>
+<script src="assets/steerwill-cloud.js?v=20261030-signup"></script><script>
 'use strict';
 (async function(){const Cloud=await SteerWillCloud.connect({requireOffice:true});document.querySelectorAll('[data-company-name]').forEach(e=>e.textContent=Cloud.companyName);
 const names=Cloud.drivers.filter(d=>d.active).map(d=>d.id),plates=Cloud.vehicleRows.filter(v=>v.active).map(v=>v.plate);
