@@ -96,7 +96,7 @@
  function garageAlertCounts(){
   var empty={orange:0,red:0,deadlineOrange:0,deadlineRed:0,maintenanceOrange:0,maintenanceRed:0};
   var vehicles=[];
-  try{vehicles=JSON.parse(localStorage.getItem("codriver_vehicles_v1")||"[]");}catch(e){return empty;}
+  vehicles=window.SteerWillCloud?.vehicles||[];
   if(!Array.isArray(vehicles))return empty;
   function dateStatus(value){
    if(!value)return 0;
@@ -236,7 +236,7 @@
  if(!access){if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",showGate);else showGate();return;}
  var profileId=readProfile(access);
  if(!guardProfile(profileId,access))return;
- function init(){document.documentElement.classList.remove("sw-locked");addTopBar(profileId,access);applyVisibility(profileId);addSubNav();addBottomNav(profileId);enhanceHomeLinks();renderGarageAlertBadges();window.addEventListener("pageshow",renderGarageAlertBadges);window.addEventListener("storage",function(e){if(!e.key||e.key==="codriver_vehicles_v1")renderGarageAlertBadges();});window.addEventListener("steerwill:vehicles-updated",renderGarageAlertBadges);document.querySelectorAll("a[href]").forEach(function(a){try{if(new URL(a.href,location.href).origin===location.origin)a.target="_self";}catch(e){}});}
+ function init(){document.documentElement.classList.remove("sw-locked");addTopBar(profileId,access);applyVisibility(profileId);addSubNav();addBottomNav(profileId);enhanceHomeLinks();renderGarageAlertBadges();if(window.SteerWillCloud)window.SteerWillCloud.resume().then(renderGarageAlertBadges);window.addEventListener("pageshow",renderGarageAlertBadges);window.addEventListener("steerwill:vehicles-updated",renderGarageAlertBadges);document.querySelectorAll("a[href]").forEach(function(a){try{if(new URL(a.href,location.href).origin===location.origin)a.target="_self";}catch(e){}});}
  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();
 

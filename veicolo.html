@@ -173,9 +173,9 @@ h1{margin:0;font-size:clamp(38px,7vw,64px);line-height:.95;letter-spacing:-.045e
 }
 
 .deadlines{gap:6px;padding:6px;border:0}.deadline{border:1px solid #333;border-radius:9px;padding:10px 7px}.deadline.ok,.maintCard.ok{border-color:#46a463}.deadline.warn,.maintCard.warn{border-color:#f19e39}.deadline.bad,.maintCard.bad{border-color:#ff5353}.deadlineName{font-size:12px}.deadlineDate{font-weight:600}.state{font-size:12px}.maintenance{gap:6px;padding:6px}.maintCard{border-radius:9px;padding:10px}.maintMain{font-size:18px}.list{gap:10px}
-</style>
+body{padding-top:0!important;padding-bottom:0!important}</style>
 <link rel="stylesheet" href="assets/steerwill-theme.css?v=1">
-<link rel="stylesheet" href="assets/revision.css?v=20260930"><link rel="stylesheet" href="assets/mobile.css?v=20261003-garage-alerts"><script defer src="assets/mobile.js?v=20261003-garage-alerts2"></script>
+<link rel="stylesheet" href="assets/revision.css?v=20260930"><link rel="stylesheet" href="assets/mobile.css?v=20261003-garage-alerts"><script src="assets/steerwill-cloud.js?v=20261030-server"></script>
 </head>
 <body>
 <main class="page">
@@ -273,36 +273,47 @@ h1{margin:0;font-size:clamp(38px,7vw,64px);line-height:.95;letter-spacing:-.045e
         </div>
       </div>
 
-      <div class="formActions">
+<div class="sectionLabel">Anagrafica aziendale importata</div><div class="grid3"><div class="field"><label for="category">Tipologia</label><input id="category" name="category" type="text" maxlength="1000"></div><div class="field"><label for="municipalAuthorization">Scadenza autorizzazione comunale</label><input id="municipalAuthorization" name="municipalAuthorization" type="date" maxlength="1000"></div><div class="field"><label for="telepass">Telepass</label><input id="telepass" name="telepass" type="text" maxlength="1000"></div><div class="field"><label for="ztlNotes">Note ZTL</label><input id="ztlNotes" name="ztlNotes" type="text" maxlength="1000"></div><div class="field"><label for="operationalNote">Note operative</label><input id="operationalNote" name="operationalNote" type="text" maxlength="1000"></div></div><div class="formActions">
         <button id="cancelBtn" class="secondary" type="button">Annulla</button>
         <button class="primary" type="submit">Salva veicolo</button>
       </div>
     </form>
   </section>
 
-  <div id="list" class="list"></div>
-  <div class="note">Questa prima versione salva i veicoli sul dispositivo. Le scadenze vengono evidenziate quando mancano 30 giorni; prossimo tagliando e prossimo cambio gomme anche quando mancano 1.000 km.</div>
+  <p id="vehicleServerStatus" role="status"></p><button type="button" id="reloadVehicles" class="home">Ricarica dal server</button><div id="list" class="list"></div>
+  <div class="note">L’anagrafica viene letta e salvata sul server aziendale. La vecchia cache del dispositivo non viene utilizzata. Le scadenze vengono evidenziate quando mancano 30 giorni; prossimo tagliando e prossimo cambio gomme anche quando mancano 1.000 km.</div>
 </main>
 
 <script>
-(function(){
+(async function(){
   "use strict";
+  const Cloud=await SteerWillCloud.connect({requireOffice:true});
+  let vehicles=Cloud.vehicles.filter(v=>v.active);
+  let saving=false;
 
-  var STORAGE_KEY = "codriver_vehicles_v1";
+
   var editId = null;
   var formWrap = document.getElementById("formWrap");
   var form = document.getElementById("vehicleForm");
   var list = document.getElementById("list");
   var formTitle = document.getElementById("formTitle");
 
-  function getVehicles(){
-    try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");}
-    catch(e){return [];}
-  }
-
-  function saveVehicles(items){
-    localStorage.setItem(STORAGE_KEY,JSON.stringify(items));
-    window.dispatchEvent(new Event("steerwill:vehicles-updated"));
+  function getVehicles(){return vehicles;}
+  function status(message,bad=false){var e=document.getElementById('vehicleServerStatus');e.textContent=message;e.style.color=bad?'#ffb2a6':'#c5dfb9';}
+  async function refresh(){await Cloud.refreshVehicles();vehicles=Cloud.vehicles.filter(v=>v.active);render();status(vehicles.length+' veicoli caricati dal server.');}
+  async function saveVehicle(vehicle,disactivate=false){
+    if(saving)return false;saving=true;document.querySelectorAll('#vehicleForm button,#addBtn,[data-delete]').forEach(b=>b.disabled=true);
+    try{
+      const old=Cloud.vehicleRows.find(v=>v.id===vehicle.id);
+      let body,path,method;
+      if(disactivate){body={active:false,data_version:old.data_version+1};method='PATCH';path='/rest/v1/sw_vehicles?id=eq.'+old.id+'&company_id=eq.'+Cloud.companyId+'&data_version=eq.'+old.data_version;}
+      else{body={company_id:Cloud.companyId,plate:vehicle.plate,description:vehicle.model||null,category:vehicle.category||null,inspection_due:vehicle.revision||null,insurance_due:vehicle.insurance||null,road_tax_due:vehicle.tax||null,municipal_authorization_due:vehicle.municipalAuthorization||null,ztl_notes:vehicle.ztlNotes||null,telepass_number:vehicle.telepass||null,operational_note:vehicle.operationalNote||null,technical_details:{...(old?.technical_details||{}),km:vehicle.km,fuelType:vehicle.fuelType,consumption:vehicle.consumption,ztl:vehicle.ztl,serviceKm:vehicle.serviceKm,serviceDate:vehicle.serviceDate,tyresKm:vehicle.tyresKm,tyresDate:vehicle.tyresDate}};
+        method=old?'PATCH':'POST';path='/rest/v1/sw_vehicles';if(old){body.data_version=old.data_version+1;path+='?id=eq.'+old.id+'&company_id=eq.'+Cloud.companyId+'&data_version=eq.'+old.data_version;}}
+      const rows=await Cloud.api(path,{method,body,headers:{Prefer:'return=representation'}});
+      if(rows.length!==1)throw Error('Il veicolo è stato modificato da un altro dispositivo. Ricarica l’anagrafica prima di riprovare.');
+      await refresh();status(disactivate?'Veicolo disattivato sul server. Conservato nello storico.':'Veicolo salvato sul server.');return true;
+    }catch(e){status(e.message,true);return false}
+    finally{saving=false;document.querySelectorAll('#vehicleForm button,#addBtn,[data-delete]').forEach(b=>b.disabled=false)}
   }
 
   function openForm(vehicle){
@@ -311,7 +322,7 @@ h1{margin:0;font-size:clamp(38px,7vw,64px);line-height:.95;letter-spacing:-.045e
     formTitle.textContent = vehicle ? "Modifica veicolo" : "Aggiungi un veicolo";
 
     if(vehicle){
-      ["plate","model","km","fuelType","consumption","revision","insurance","ztl","tax","serviceKm","serviceDate","tyresKm","tyresDate"].forEach(function(k){
+      ["plate","model","km","fuelType","consumption","revision","insurance","ztl","tax","serviceKm","serviceDate","tyresKm","tyresDate","category","municipalAuthorization","ztlNotes","telepass","operationalNote"].forEach(function(k){
         if(form.elements[k]) form.elements[k].value = vehicle[k] == null ? "" : vehicle[k];
       });
     }
@@ -434,6 +445,7 @@ h1{margin:0;font-size:clamp(38px,7vw,64px);line-height:.95;letter-spacing:-.045e
           deadlineCell("Revisione",v.revision) +
           deadlineCell("Assicurazione",v.insurance) +
           deadlineCell("ZTL",v.ztl) +
+          deadlineCell("Autorizzazione comunale",v.municipalAuthorization) +
           deadlineCell("Bollo",v.tax) +
         '</div>' +
         insuranceBanner(v) +
@@ -450,7 +462,7 @@ h1{margin:0;font-size:clamp(38px,7vw,64px);line-height:.95;letter-spacing:-.045e
         '</div>' +
         '<div class="vehicleActions">' +
           '<button type="button" data-edit="'+escapeHtml(v.id)+'">Modifica</button>' +
-          '<button class="delete" type="button" data-delete="'+escapeHtml(v.id)+'">Elimina</button>' +
+          '<button class="delete" type="button" data-delete="'+escapeHtml(v.id)+'">Disattiva</button>' +
         '</div>' +
       '</article>';
     }).join("");
@@ -464,11 +476,10 @@ h1{margin:0;font-size:clamp(38px,7vw,64px);line-height:.95;letter-spacing:-.045e
     });
 
     Array.prototype.forEach.call(document.querySelectorAll("[data-delete]"),function(btn){
-      btn.onclick = function(){
-        var id = btn.getAttribute("data-delete");
-        var items = getVehicles().filter(function(x){return x.id!==id;});
-        saveVehicles(items);
-        render();
+      btn.onclick = async function(){
+        var id=btn.getAttribute('data-delete');
+        if(!confirm('Disattivare questo veicolo? Rimarrà sul server nello storico.'))return;
+        await saveVehicle({id},true);
       };
     });
   }
@@ -484,12 +495,12 @@ h1{margin:0;font-size:clamp(38px,7vw,64px);line-height:.95;letter-spacing:-.045e
   document.getElementById("closeBtn").onclick = closeForm;
   document.getElementById("cancelBtn").onclick = closeForm;
 
-  form.addEventListener("submit",function(e){
+  form.addEventListener("submit",async function(e){
     e.preventDefault();
     var fd = new FormData(form);
     var items = getVehicles();
     var vehicle = {
-      id:editId || ("veh_"+Date.now()),
+      id:editId,
       plate:String(fd.get("plate")||"").toUpperCase().replace(/\s+/g,""),
       model:String(fd.get("model")||"").trim(),
       km:Number(fd.get("km")||0),
@@ -502,22 +513,16 @@ h1{margin:0;font-size:clamp(38px,7vw,64px);line-height:.95;letter-spacing:-.045e
       serviceKm:Number(fd.get("serviceKm")||0),
       serviceDate:String(fd.get("serviceDate")||""),
       tyresKm:Number(fd.get("tyresKm")||0),
-      tyresDate:String(fd.get("tyresDate")||"")
+      tyresDate:String(fd.get("tyresDate")||""),
+      category:String(fd.get("category")||""),municipalAuthorization:String(fd.get("municipalAuthorization")||""),ztlNotes:String(fd.get("ztlNotes")||""),telepass:String(fd.get("telepass")||""),operationalNote:String(fd.get("operationalNote")||"")
     };
 
-    if(editId){
-      items = items.map(function(x){return x.id===editId ? vehicle : x;});
-    }else{
-      items.push(vehicle);
-    }
-
-    saveVehicles(items);
-    closeForm();
-    render();
+    if(await saveVehicle(vehicle)){closeForm();render();}
   });
 
-  render();
-})();
+  document.getElementById("reloadVehicles").onclick=()=>refresh().catch(e=>status(e.message,true));
+  render();status(vehicles.length+" veicoli caricati dal server.");
+})().catch(e=>{const p=document.createElement("p");p.setAttribute("role","alert");p.textContent=e.message;document.body.append(p)});
 </script>
 </body>
 </html>
