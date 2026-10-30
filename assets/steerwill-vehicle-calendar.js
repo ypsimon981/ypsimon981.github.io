@@ -16,7 +16,7 @@ function assignmentErrors(vehicles,day,shift,plate,records=[],maintenance=[]){
  const v=vehicles.find(v=>v.plate===plate);
  if(!v)return ['Veicolo non presente nell’anagrafica aziendale.'];
  const s=vehicleState(v,day,records,maintenance);
- return s.available?[]:[plate+' non assegnabile il '+day+': '+(s.reason||({broken:'guasto',maintenance:'manutenzione',inactive:'fuori servizio'}[s.state]))];
+ return s.available?[]:[plate+' non assegnabile il '+day+': '+(s.reason||({broken:'guasto',maintenance:'manutenzione',out_of_service:'fuori servizio',inactive:'fuori servizio'}[s.state]))];
 }
 function requiredGaps(vehicles,days,draft={},records=[],maintenance=[]){
  const gaps=[];
@@ -94,9 +94,9 @@ root.SWVehicleCalendar=class{
     const available=element('button','Disp.','vehicle-available'),middle=element('div',undefined,'vehicle-required'),maintenance=element('button',undefined,'vehicle-maintenance');
     available.title='Marciante, disponibile per entrambe le fasce';available.setAttribute('aria-label',vehicle.plate+' '+day+' disponibile');available.setAttribute('aria-pressed',state.available);available.disabled=this.busy||!!state.period||state.state==='inactive';available.onclick=()=>this.saveCell(vehicle,day,{state:'available',note:''});
     for(const phase of ['m','p']){const key=phase==='m'?'required_morning':'required_afternoon',button=element('button',phase==='m'?'AM':'PM','vehicle-required-'+phase);button.setAttribute('aria-label',vehicle.plate+' '+day+' obbligo '+(phase==='m'?'AM':'PM'));button.title='Uso obbligatorio '+(phase==='m'?'mattina':'pomeriggio');button.setAttribute('aria-pressed',state[key]);button.disabled=this.busy||(!state.available&&!state[key]);button.onclick=()=>this.saveCell(vehicle,day,{[key]:!state[key]});middle.append(button);}
-    const stateNames={available:'marciante',broken:'guasto',maintenance:'manutenzione programmata',inactive:'fuori servizio'},nextState={available:'broken',broken:'maintenance',maintenance:'available'};
+    const stateNames={available:'marciante',broken:'guasto',maintenance:'manutenzione programmata',out_of_service:'fuori servizio',inactive:'fuori servizio'},nextState={available:'broken',broken:'maintenance',maintenance:'out_of_service',out_of_service:'available'};
     maintenance.dataset.state=state.state;maintenance.setAttribute('aria-label',vehicle.plate+' '+day+' stato: '+stateNames[state.state]);maintenance.title=state.reason||('Stato: '+stateNames[state.state]+'. Clic per cambiare.');maintenance.disabled=this.busy||!!state.period||state.state==='inactive';
-    const paths={available:'<path d="m5 12 4 4L19 6"/>',broken:'<path d="M14.5 6.5a5 5 0 0 0-6.2 6.2L3 18a2.1 2.1 0 0 0 3 3l5.3-5.3a5 5 0 0 0 6.2-6.2L14 13l-3-3z"/>',maintenance:'<rect x="3" y="4" width="17" height="17" rx="2"/><path d="M7 2v4m9-4v4M3 9h17"/><path d="M15 11a3 3 0 0 0-3.8 3.8L8 18a1.4 1.4 0 0 0 2 2l3.2-3.2A3 3 0 0 0 17 13l-2 2-2-2z"/>',inactive:'<circle cx="12" cy="12" r="8"/><path d="m6 6 12 12"/>'};
+    const paths={available:'<path d="m5 12 4 4L19 6"/>',broken:'<path d="M14.5 6.5a5 5 0 0 0-6.2 6.2L3 18a2.1 2.1 0 0 0 3 3l5.3-5.3a5 5 0 0 0 6.2-6.2L14 13l-3-3z"/>',maintenance:'<rect x="3" y="4" width="17" height="17" rx="2"/><path d="M7 2v4m9-4v4M3 9h17"/><path d="M15 11a3 3 0 0 0-3.8 3.8L8 18a1.4 1.4 0 0 0 2 2l3.2-3.2A3 3 0 0 0 17 13l-2 2-2-2z"/>',out_of_service:'<path d="m6 6 12 12M18 6 6 18"/>',inactive:'<circle cx="12" cy="12" r="8"/><path d="m6 6 12 12"/>'};
     maintenance.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true">'+paths[state.state]+'</svg>';
     maintenance.onclick=()=>{const next=nextState[state.state];const patch={state:next};if(next!=='available'){patch.required_morning=false;patch.required_afternoon=false;}else patch.note='';this.saveCell(vehicle,day,patch);};
     td.dataset.calendarDay=day;slot.append(available,middle,maintenance);td.append(slot);if(state.reason)td.append(element('small',state.reason,'vehicle-reason'));row.append(td);

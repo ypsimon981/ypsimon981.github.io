@@ -31,3 +31,12 @@ test('unknown, inactive and broken vehicles cannot receive working shifts; rest 
  assert.equal(assignmentErrors(vehicles,day,'afternoon','AA',[{vehicle_id:'a',day,state:'broken'}]).length,1);
  assert.deepEqual(assignmentErrors(vehicles,day,'off',''),[]);
 });
+
+test('out-of-service is reversible per day and excluded from ordinary capacity and shifts',()=>{
+ const records=[{vehicle_id:'b',day,state:'out_of_service'}];
+ assert.equal(vehicleState(vehicles[1],day,records).state,'out_of_service');
+ assert.equal(fleetCapacity(vehicles,day,records),1);
+ assert.match(assignmentErrors(vehicles,day,'long','BB',records)[0],/fuori servizio/);
+ assert.equal(fleetCapacity(vehicles,'2026-11-03',records),2);
+ assert.equal(fleetCapacity(vehicles,day,[{...records[0],state:'available'}]),2);
+});
