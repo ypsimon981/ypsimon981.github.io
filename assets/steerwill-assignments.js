@@ -22,6 +22,7 @@ function cellErrors(ctx,plan,key,value,cells=allocations(plan)){
  if(value.kind==='parked'){if(state[phase==='m'?'required_morning':'required_afternoon'])errors.push(plate+': obbligo di utilizzo '+phaseName(phase)+'.');return errors;}
  if(value.kind!=='driver')return [...errors,plate+': assegnazione in conflitto da correggere.'];
  if(!eligible(ctx,plan,value.driver,day,phase))errors.push(ctx.name(value.driver)+': disponibilità incompatibile o riposo imposto.');
+ if(ctx.availability(value.driver,day).shift==='long'){const other=cells[cellKey(day,phase==='m'?'p':'m',plate)];if(other?.kind!=='driver'||other.driver!==value.driver)errors.push(ctx.name(value.driver)+': Lunga deve occupare AM e PM sullo stesso mezzo.');}
  if(Object.entries(cells).some(([k,e])=>k!==key&&k.startsWith(day+'|'+phase+'|')&&e.kind==='driver'&&e.driver===value.driver))errors.push(ctx.name(value.driver)+': già assegnato nella stessa fascia.');
  return errors;
 }
@@ -32,14 +33,15 @@ function validate(ctx,plan,cells=allocations(plan),checkRequired=true){
 }
 function setAllocation(ctx,plan,{day,phase,plate,kind,driver,both=false}){
  const next=structuredClone(plan||{}),cells=allocations(next);if(!ctx.days.includes(day)||!['m','p'].includes(phase)||(kind!=='empty'&&!ctx.vehicles.some(v=>v.plate===plate)))throw Error('Cella non valida.');
- const targets=both?['m','p']:[phase];if(both&&kind==='driver'&&ctx.availability(driver,day).shift!=='long')throw Error('AM e PM insieme richiedono disponibilità Lunga.');
- for(const part of targets){const key=cellKey(day,part,plate),existing=cells[key];
-  if(part!==phase&&existing&&!(existing.kind===kind&&(kind!=='driver'||existing.driver===driver)))throw Error('L’altra fascia è già occupata: modificala separatamente.');
-  if(kind==='empty'){delete cells[key];continue;}
-  if(!['driver','parked'].includes(kind))throw Error('Operazione non valida.');
-  const entry=kind==='driver'?{kind,driver}:{kind};cells[key]=entry;
-  const errors=cellErrors(ctx,next,key,entry,cells);if(errors.length)throw Error(errors.join(' · '));
- }
+ if(!['empty','driver','parked'].includes(kind))throw Error('Operazione non valida.');
+ const isLong=kind==='driver'&&ctx.availability(driver,day).shift==='long';
+ if(both&&kind==='driver'&&!isLong)throw Error('AM e PM insieme richiedono disponibilità Lunga.');
+ const targets=isLong||both?['m','p']:[phase];
+ // A move and any displaced full-day allocation are changed in one server payload.
+ for(const part of targets){const old=cells[cellKey(day,part,plate)];if(old?.kind==='driver'&&ctx.availability(old.driver,day).shift==='long')for(const [key,e] of Object.entries(cells))if(key.startsWith(day+'|')&&e.kind==='driver'&&e.driver===old.driver)delete cells[key];}
+ if(kind==='driver')for(const [key,e] of Object.entries(cells)){const [date,part]=key.split('|');if(date===day&&targets.includes(part)&&e.kind==='driver'&&e.driver===driver)delete cells[key];}
+ for(const part of targets){const key=cellKey(day,part,plate);if(kind==='empty')delete cells[key];else cells[key]=kind==='driver'?{kind,driver}:{kind};}
+ for(const part of targets){const key=cellKey(day,part,plate);if(cells[key]){const errors=cellErrors(ctx,next,key,cells[key],cells);if(errors.length)throw Error(errors.join(' · '));}}
  next.assignments=cells;return next;
 }
 function summary(ctx,plan,day,phase,cells=allocations(plan)){
@@ -68,26 +70,26 @@ root.SWAssignmentBoard=class{
  this.container.append(el('p','Scorri orizzontalmente per visualizzare gli altri mezzi.','allocation-mobile-hint'));const box=el('div',undefined,'allocation-table-box'),table=el('table',undefined,'allocation-table'),head=el('thead'),hr=el('tr');hr.append(el('th','Giorno'),el('th','Fascia'));
  vehicles.forEach((v,index)=>{const th=el('th');th.scope='col';th.dataset.allocationPlate=v.plate;th.dataset.garage=garageLabel(v).toLowerCase();th.title=v.plate+' · '+(v.description||v.model||v.category||'')+' · '+garageLabel(v);th.append(el('span',String(index+1),'allocation-vehicle-number'),el('strong',v.plate),el('small',garageLabel(v)==='Garage n.d.'?'—':garageLabel(v),'allocation-vehicle-garage'));hr.append(th);});const last=el('th','Da sistemare');last.scope='col';hr.append(last);head.append(hr);table.append(head);const body=el('tbody');
  ctx.days.filter(d=>!this.selectedDay||d===this.selectedDay).forEach((day,index)=>{for(const phase of ['m','p']){
-  const tr=el('tr');tr.dataset.allocationDay=day;tr.dataset.allocationPhase=phase;tr.dataset.band=String(index%2);if(phase==='m'){const th=el('th',fmt(day));th.scope='rowgroup';th.rowSpan=2;tr.append(th);}const phaseCell=el('th',phase==='m'?'AM':'PM');phaseCell.scope='row';phaseCell.className='allocation-phase';tr.append(phaseCell);
+  const tr=el('tr');tr.dataset.allocationDay=day;tr.dataset.allocationPhase=phase;tr.dataset.band=String(index%2);if(phase==='m'){const th=el('th'),date=new Date(day+'T12:00:00');th.scope='rowgroup';th.rowSpan=2;th.className='allocation-day';th.setAttribute('aria-label',fmt(day));th.append(el('span',date.toLocaleDateString('it-IT',{weekday:'short'}).replace('.','').toUpperCase(),'allocation-day-weekday'),el('strong',String(date.getDate()),'allocation-day-number'),el('span',date.toLocaleDateString('it-IT',{month:'short'}).replace('.','').toUpperCase(),'allocation-day-month'));tr.append(th);}const phaseCell=el('th',phase==='m'?'AM':'PM');phaseCell.scope='row';phaseCell.className='allocation-phase';tr.append(phaseCell);
   for(const v of vehicles){const key=cellKey(day,phase,v.plate),entry=cells[key],vehicleState=ctx.state(v,day),td=el('td'),button=el('button');button.type='button';button.className='allocation-cell';button.dataset.plate=v.plate;button.dataset.day=day;button.dataset.phase=phase;button.dataset.kind=entry?.kind||'empty';button.dataset.state=vehicleState.state;
    const invalid=entry?cellErrors(ctx,plan,key,entry,cells):[];button.dataset.invalid=String(!!invalid.length);
    if(!vehicleState.available){button.textContent={broken:'🔧 Guasto',maintenance:'Manut.',out_of_service:'✕ Fuori serv.',inactive:'Non attivo'}[vehicleState.state]||'Non disponibile';if(entry)button.textContent+=' · da liberare';}
    else if(entry?.kind==='driver'){button.textContent=ctx.name(entry.driver);button.dataset.shift=ctx.availability(entry.driver,day).shift;}
    else if(entry?.kind==='parked')button.textContent='× Fermo';else if(entry?.kind==='conflict')button.textContent='⚠ Conflitto';else button.textContent=vehicleState[phase==='m'?'required_morning':'required_afternoon']?'＋ Obbligo':'＋';
-   button.disabled=!ready||(!vehicleState.available&&!entry);button.title=fmt(day)+' · '+phaseName(phase)+' · '+v.plate+(vehicleState.reason?' · '+vehicleState.reason:'')+(invalid.length?' · '+invalid.join(' · '):'');button.setAttribute('aria-label',button.title+' · '+button.textContent);button.onclick=()=>this.edit(day,phase,v.plate);td.append(button);tr.append(td);
+   button.disabled=!ready||(!vehicleState.available&&!entry);button.title=fmt(day)+' · '+phaseName(phase)+' · '+v.plate+(vehicleState.reason?' · '+vehicleState.reason:'')+(invalid.length?' · '+invalid.join(' · '):'');button.setAttribute('aria-hidden','true');button.tabIndex=-1;const select=el('select',undefined,'allocation-picker');select.dataset.plate=v.plate;select.dataset.day=day;select.dataset.phase=phase;select.disabled=button.disabled;select.setAttribute('aria-label','Assegnazione '+v.plate+' '+day+' '+phaseName(phase));
+   const initial=el('option',button.textContent);initial.value=entry?.kind==='driver'?'driver:'+entry.driver:entry?.kind==='parked'?'parked':'';select.append(initial);
+   const fill=()=>this.fillPicker(select,day,phase,v.plate);select.onpointerdown=fill;select.onfocus=fill;select.onchange=async()=>{const value=select.value;select.disabled=true;try{await this.mutate({day,phase,plate:v.plate,kind:value.startsWith('driver:')?'driver':value==='parked'?'parked':'empty',driver:value.startsWith('driver:')?value.slice(7):undefined});}catch(e){this.status(e.message,true);}};td.append(button,select);tr.append(td);
   }
   const info=summary(ctx,plan,day,phase,cells),right=el('td',undefined,'allocation-balance');right.append(el('strong',info.assigned.length+' assegnat'+(info.assigned.length===1?'o':'i')+' · '+info.parked.length+' ferm'+(info.parked.length===1?'o':'i')));const count=el('div');count.append(el('span',info.open.length+' post'+(info.open.length===1?'o scoperto':'i scoperti'),info.open.length?'allocation-warning':'ok'));if(info.excess)count.append(el('span',' · '+info.excess+' autist'+(info.excess===1?'a':'i')+' di troppo','allocation-warning'));else if(info.shortage)count.append(el('span',' · −'+info.shortage+' autist'+(info.shortage===1?'a':'i'),'ok'));else count.append(el('span',' · Autisti/mezzi OK','ok'));right.append(count);
   if(info.remaining.length){const preview=el('div',info.remaining.slice(0,2).map(d=>ctx.name(d.id)).join(' · ')+(info.remaining.length>2?' · +'+(info.remaining.length-2):''),'allocation-names');preview.title=info.remaining.map(d=>ctx.name(d.id)).join(' · ');right.append(preview);const details=el('details'),title=el('summary',info.remaining.length+' autist'+(info.remaining.length===1?'a':'i')+' da assegnare');details.append(title,el('p',info.remaining.map(d=>ctx.name(d.id)).join(' · ')));right.append(details);}else right.append(el('small','Tutti gli autisti disponibili sono collocati.'));tr.append(right);body.append(tr);
  }});table.append(body);box.append(table);box.tabIndex=0;box.setAttribute('aria-label','Scorrimento mezzi del planning');box.onkeydown=e=>{if(e.target!==box)return;if(['ArrowLeft','ArrowRight','Home','End'].includes(e.key)){e.preventDefault();box.scrollLeft=e.key==='Home'?0:e.key==='End'?box.scrollWidth:box.scrollLeft+(e.key==='ArrowLeft'?-100:100);}};this.container.append(box);box.scrollLeft=previousScroll;
  }
- edit(day,phase,plate){
- const ctx=this.getContext(),plan=this.getPlan(),cells=allocations(plan),current=cells[cellKey(day,phase,plate)];this.dialog?.remove();const dialog=el('dialog',undefined,'allocation-dialog');this.dialog=dialog;const title=el('h3',plate+' · '+fmt(day)+' · '+phaseName(phase)),label=el('label','Autista o mezzo fermo'),select=el('select');select.setAttribute('aria-label','Assegnazione '+plate+' '+day+' '+phaseName(phase));
+ fillPicker(select,day,phase,plate){
+ const ctx=this.getContext(),plan=this.getPlan(),cells=allocations(plan),current=cells[cellKey(day,phase,plate)];select.replaceChildren();
  for(const [value,text] of [['','Posto scoperto'],['parked','Mezzo fermo per questa fascia']]){const o=el('option',text);o.value=value;select.append(o);}
- for(const d of ctx.drivers.filter(d=>eligible(ctx,plan,d.id,day,phase))){const elsewhere=Object.entries(cells).find(([key,e])=>key!==cellKey(day,phase,plate)&&key.startsWith(day+'|'+phase+'|')&&e.kind==='driver'&&e.driver===d.id);const o=el('option',ctx.name(d.id)+' · '+({long:'Lunga',morning:'AM',afternoon:'PM'}[ctx.availability(d.id,day).shift])+(elsewhere?' · già su '+elsewhere[0].split('|')[2]:''));o.value='driver:'+d.id;o.disabled=!!elsewhere;select.append(o);}
- select.value=current?.kind==='parked'?'parked':current?.kind==='driver'&&[...select.options].some(o=>o.value==='driver:'+current.driver)?'driver:'+current.driver:'';label.append(select);
- const bothLabel=el('label',undefined,'allocation-both'),both=el('input');both.type='checkbox';bothLabel.append(both,document.createTextNode('Assegna anche all’altra fascia sullo stesso mezzo (Lunga)'));const updateBoth=()=>{const driver=select.value.startsWith('driver:')?select.value.slice(7):'';bothLabel.hidden=!driver||ctx.availability(driver,day).shift!=='long';if(bothLabel.hidden)both.checked=false;};select.onchange=updateBoth;updateBoth();
- const hint=el('p','Vengono proposti solo autisti disponibili in questa fascia. Le richieste ancora in attesa non cambiano le disponibilità.','muted'),error=el('p','','status error');error.setAttribute('role','alert');
- const actions=el('div',undefined,'actions'),save=el('button','Salva assegnazione'),cancel=el('button','Chiudi','secondary');save.type=cancel.type='button';save.onclick=async()=>{save.disabled=true;cancel.disabled=true;try{const value=select.value;await this.mutate({day,phase,plate,kind:value.startsWith('driver:')?'driver':value==='parked'?'parked':'empty',driver:value.startsWith('driver:')?value.slice(7):undefined,both:both.checked});dialog.close();dialog.remove();this.dialog=null;}catch(e){error.textContent=e.message;}finally{save.disabled=false;cancel.disabled=false;}};cancel.onclick=()=>{dialog.close();dialog.remove();this.dialog=null;};actions.append(save,cancel);dialog.append(title,label,bothLabel,hint,error,actions);document.body.append(dialog);dialog.addEventListener('cancel',e=>{if(save.disabled)e.preventDefault();});dialog.showModal();select.focus();
+ for(const d of ctx.drivers.filter(d=>eligible(ctx,plan,d.id,day,phase))){const elsewhere=Object.entries(cells).find(([key,e])=>key!==cellKey(day,phase,plate)&&key.startsWith(day+'|'+phase+'|')&&e.kind==='driver'&&e.driver===d.id);const isLong=ctx.availability(d.id,day).shift==='long';const o=el('option',ctx.name(d.id)+' · '+(isLong?'Lunga · AM+PM':phaseName(phase))+(elsewhere?' · sposta da '+elsewhere[0].split('|')[2]:''));o.value='driver:'+d.id;select.append(o);}
+ select.value=current?.kind==='parked'?'parked':current?.kind==='driver'&&[...select.options].some(o=>o.value==='driver:'+current.driver)?'driver:'+current.driver:'';
  }
+
 };
 })(typeof window!=='undefined'?window:globalThis);
