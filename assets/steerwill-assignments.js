@@ -88,7 +88,7 @@ root.SWAssignmentBoard=class{
  const ctx=this.getContext(),plan=this.getPlan(),cells=allocations(plan),current=cells[cellKey(day,phase,plate)];select.replaceChildren();
  for(const [value,text] of [['','Posto scoperto'],['parked','Mezzo fermo per questa fascia']]){const o=el('option',text);o.value=value;select.append(o);}
  for(const d of ctx.drivers.filter(d=>eligible(ctx,plan,d.id,day,phase))){const elsewhere=Object.entries(cells).find(([key,e])=>key!==cellKey(day,phase,plate)&&key.startsWith(day+'|'+phase+'|')&&e.kind==='driver'&&e.driver===d.id);const isLong=ctx.availability(d.id,day).shift==='long';const o=el('option',ctx.name(d.id)+' · '+(isLong?'Lunga · AM+PM':phaseName(phase))+(elsewhere?' · sposta da '+elsewhere[0].split('|')[2]:''));o.value='driver:'+d.id;select.append(o);}
- select.value=current?.kind==='parked'?'parked':current?.kind==='driver'&&[...select.options].some(o=>o.value==='driver:'+current.driver)?'driver:'+current.driver:'';
+ const selected=current?.kind==='parked'?'parked':current?.kind==='driver'&&[...select.options].some(o=>o.value==='driver:'+current.driver)?'driver:'+current.driver:'';if(current&&!selected){const placeholder=el('option','Assegnazione da correggere');placeholder.value='current-invalid';placeholder.disabled=true;select.prepend(placeholder);select.value=placeholder.value;}else select.value=selected;
  }
 
 };
