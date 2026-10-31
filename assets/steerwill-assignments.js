@@ -1,6 +1,9 @@
 /* Manual weekly allocations. Availability requests and fleet calendar stay independent. */
 (function(root){
 'use strict';
+function planningOrder(v){const n=Number(v.technical_details?.planning_order);return Number.isInteger(n)&&n>0?n:Number.MAX_SAFE_INTEGER;}
+function orderedVehicles(vehicles){return [...vehicles].sort((a,b)=>planningOrder(a)-planningOrder(b)||a.plate.localeCompare(b.plate));}
+function garageLabel(v){const value=v.technical_details?.garage;return typeof value==='string'&&value.trim()?value.trim():'Garage n.d.';}
 const phases=s=>s==='long'?['m','p']:s==='morning'?['m']:s==='afternoon'?['p']:[];
 const phaseName=phase=>phase==='m'?'AM':'PM';
 const cellKey=(day,phase,plate)=>day+'|'+phase+'|'+plate;
@@ -47,7 +50,7 @@ function summary(ctx,plan,day,phase,cells=allocations(plan)){
 }
 function publish(ctx,plan,now){const next=structuredClone(plan||{}),cells=allocations(next),errors=validate(ctx,next,cells);if(errors.length)throw Error(errors.join('\n'));next.assignments=cells;next.publishedAssignments=structuredClone(cells);next.assignmentsPublishedAt=now;return next;}
 function forDriver(plan,driver,day,published=true){const cells=published?plan.publishedAssignments:allocations(plan);return Object.entries(cells||{}).filter(([key,e])=>key.split('|')[0]===day&&e.kind==='driver'&&e.driver===driver).map(([key])=>({phase:key.split('|')[1],plate:key.split('|')[2]}));}
-const api={phases,cellKey,allocations,eligible,cellErrors,validate,setAllocation,summary,publish,forDriver};
+const api={orderedVehicles,garageLabel,phases,cellKey,allocations,eligible,cellErrors,validate,setAllocation,summary,publish,forDriver};
 if(typeof module!=='undefined'&&module.exports){module.exports=api;return;}root.SWAssignmentRules=api;
 const el=(tag,text,cls)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;if(cls)node.className=cls;return node;};
 const fmt=day=>new Date(day+'T12:00:00').toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'});
@@ -55,7 +58,7 @@ root.SWAssignmentBoard=class{
  constructor({container,getContext,getPlan,mutate,publish,getReady}){Object.assign(this,{container,getContext,getPlan,mutate,publishPlan:publish,getReady});this.message='';this.bad=false;this.selectedDay='';this.dialog=null;}
  status(message,bad=false){this.message=message;this.bad=bad;this.render();}
  render(){
- const ctx=this.getContext(),plan=this.getPlan(),cells=allocations(plan),vehicles=ctx.vehicles.filter(v=>v.active||Object.keys(cells).some(key=>key.split('|')[2]===v.plate)),ready=this.getReady();
+ const ctx=this.getContext(),plan=this.getPlan(),cells=allocations(plan),vehicles=orderedVehicles(ctx.vehicles.filter(v=>v.active||Object.keys(cells).some(key=>key.split('|')[2]===v.plate))),ready=this.getReady();
  const previousScroll=this.container.querySelector('.allocation-table-box')?.scrollLeft||0;this.container.replaceChildren();const controls=el('div',undefined,'allocation-controls'),label=el('label','Giorno '),filter=el('select');filter.setAttribute('aria-label','Giorno del planning assegnazioni');const all=el('option','Tutta la settimana');all.value='';filter.append(all);for(const day of ctx.days){const o=el('option',fmt(day));o.value=day;filter.append(o);}if(!ctx.days.includes(this.selectedDay))this.selectedDay='';filter.value=this.selectedDay;filter.onchange=()=>{this.selectedDay=filter.value;this.render()};label.append(filter);
  const publishButton=el('button','Pubblica planning'),state=el('span',undefined,'muted');publishButton.disabled=!ready;publishButton.onclick=()=>this.publishPlan();const errors=ready?validate(ctx,plan,cells):['Calendario mezzi non caricato.'];
  const same=plan.publishedAssignments!==undefined&&JSON.stringify(Object.entries(cells).sort())===JSON.stringify(Object.entries(plan.publishedAssignments).sort());
@@ -63,7 +66,7 @@ root.SWAssignmentBoard=class{
  if(this.message)this.container.append(el('p',this.message,'status'+(this.bad?' error':'')));
  if(errors.length){const details=el('details',undefined,'allocation-errors'),title=el('summary',errors.length+' problemi da correggere prima della pubblicazione');details.append(title);const list=el('ul');errors.forEach(e=>list.append(el('li',e)));details.append(list);for(const [key] of Object.entries(cells)){const [day,phase,plate]=key.split('|');if(ctx.vehicles.some(v=>v.plate===plate))continue;const clear=el('button','Rimuovi assegnazione non in flotta: '+plate+' · '+day+' '+phaseName(phase),'secondary');clear.onclick=()=>this.mutate({day,phase,plate,kind:'empty'}).catch(e=>this.status(e.message,true));details.append(clear);}this.container.append(details);}
  this.container.append(el('p','Scorri orizzontalmente per visualizzare gli altri mezzi.','allocation-mobile-hint'));const box=el('div',undefined,'allocation-table-box'),table=el('table',undefined,'allocation-table'),head=el('thead'),hr=el('tr');hr.append(el('th','Giorno'),el('th','Fascia'));
- for(const v of vehicles){const th=el('th');th.scope='col';th.append(el('strong',v.plate),el('small',v.description||v.model||v.category||''));hr.append(th);}const last=el('th','Da sistemare');last.scope='col';hr.append(last);head.append(hr);table.append(head);const body=el('tbody');
+ vehicles.forEach((v,index)=>{const th=el('th');th.scope='col';th.dataset.allocationPlate=v.plate;th.dataset.garage=garageLabel(v).toLowerCase();th.title=v.plate+' · '+(v.description||v.model||v.category||'')+' · '+garageLabel(v);th.append(el('span',String(index+1),'allocation-vehicle-number'),el('strong',v.plate),el('small',garageLabel(v)==='Garage n.d.'?'—':garageLabel(v),'allocation-vehicle-garage'));hr.append(th);});const last=el('th','Da sistemare');last.scope='col';hr.append(last);head.append(hr);table.append(head);const body=el('tbody');
  ctx.days.filter(d=>!this.selectedDay||d===this.selectedDay).forEach((day,index)=>{for(const phase of ['m','p']){
   const tr=el('tr');tr.dataset.allocationDay=day;tr.dataset.allocationPhase=phase;tr.dataset.band=String(index%2);if(phase==='m'){const th=el('th',fmt(day));th.scope='rowgroup';th.rowSpan=2;tr.append(th);}const phaseCell=el('th',phase==='m'?'AM':'PM');phaseCell.scope='row';phaseCell.className='allocation-phase';tr.append(phaseCell);
   for(const v of vehicles){const key=cellKey(day,phase,v.plate),entry=cells[key],vehicleState=ctx.state(v,day),td=el('td'),button=el('button');button.type='button';button.className='allocation-cell';button.dataset.plate=v.plate;button.dataset.day=day;button.dataset.phase=phase;button.dataset.kind=entry?.kind||'empty';button.dataset.state=vehicleState.state;
