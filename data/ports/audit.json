@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-11-11T02:53:54.254Z",
+  "checked_at": "2026-11-11T10:53:46.244Z",
   "ports": [
     {
       "id": "civitavecchia",
@@ -7,7 +7,7 @@
       "provider_id": "civitavecchia",
       "status": "ok",
       "count": 87,
-      "fetched_at": "2026-11-11T02:50:14.806Z"
+      "fetched_at": "2026-11-11T10:51:34.530Z"
     },
     {
       "id": "ancona",
@@ -22,7 +22,7 @@
       "provider_id": "bariitaly",
       "status": "ok",
       "count": 24,
-      "fetched_at": "2026-11-11T02:50:26.661Z"
+      "fetched_at": "2026-11-11T10:51:46.307Z"
     },
     {
       "id": "brindisi",
@@ -30,14 +30,15 @@
       "provider_id": "brindisiitaly",
       "status": "ok",
       "count": 1,
-      "fetched_at": "2026-11-11T02:50:32.706Z"
+      "fetched_at": "2026-11-11T10:51:52.315Z"
     },
     {
       "id": "cagliari",
       "name": "Cagliari",
       "provider_id": "52",
-      "status": "source_error",
-      "error": "e 492, in _call_chain\n    result = func(*args)\n             ^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/urllib/request.py\", line 639, in http_error_default\n    raise HTTPError(req.full_url, code, msg, hdrs, fp)\nurllib.error.HTTPError: HTTP Error 429: Too Many Requests\n"
+      "status": "ok",
+      "count": 12,
+      "fetched_at": "2026-11-11T10:52:00.182Z"
     },
     {
       "id": "catania",
@@ -45,7 +46,7 @@
       "provider_id": "50",
       "status": "ok",
       "count": 6,
-      "fetched_at": "2026-11-11T02:51:55.486Z"
+      "fetched_at": "2026-11-11T10:52:04.081Z"
     },
     {
       "id": "genova",
@@ -53,7 +54,7 @@
       "provider_id": "genoaitaly",
       "status": "ok",
       "count": 56,
-      "fetched_at": "2026-11-11T02:52:01.113Z"
+      "fetched_at": "2026-11-11T10:52:09.785Z"
     },
     {
       "id": "laspezia",
@@ -61,7 +62,7 @@
       "provider_id": "laspeziaitaly",
       "status": "ok",
       "count": 21,
-      "fetched_at": "2026-11-11T02:52:06.741Z"
+      "fetched_at": "2026-11-11T10:52:15.390Z"
     },
     {
       "id": "livorno",
@@ -69,7 +70,7 @@
       "provider_id": "livornoflorencepisaitaly",
       "status": "ok",
       "count": 20,
-      "fetched_at": "2026-11-11T02:52:12.081Z"
+      "fetched_at": "2026-11-11T10:52:21.068Z"
     },
     {
       "id": "messina",
@@ -77,7 +78,7 @@
       "provider_id": "messinasicily",
       "status": "ok",
       "count": 25,
-      "fetched_at": "2026-11-11T02:52:17.707Z"
+      "fetched_at": "2026-11-11T10:52:26.748Z"
     },
     {
       "id": "napoli",
@@ -85,7 +86,7 @@
       "provider_id": "naplesitaly",
       "status": "ok",
       "count": 43,
-      "fetched_at": "2026-11-11T02:52:23.339Z"
+      "fetched_at": "2026-11-11T10:52:32.446Z"
     },
     {
       "id": "olbia",
@@ -100,7 +101,7 @@
       "provider_id": "palermosicily",
       "status": "ok",
       "count": 47,
-      "fetched_at": "2026-11-11T02:52:49.191Z"
+      "fetched_at": "2026-11-11T10:52:57.807Z"
     },
     {
       "id": "portoferraio",
@@ -122,7 +123,7 @@
       "provider_id": "salernoitaly",
       "status": "ok",
       "count": 1,
-      "fetched_at": "2026-11-11T02:53:07.241Z"
+      "fetched_at": "2026-11-11T10:53:15.350Z"
     },
     {
       "id": "savona",
@@ -130,7 +131,7 @@
       "provider_id": "savonaitaly",
       "status": "ok",
       "count": 31,
-      "fetched_at": "2026-11-11T02:53:12.905Z"
+      "fetched_at": "2026-11-11T10:53:20.983Z"
     },
     {
       "id": "siracusa",
@@ -138,14 +139,15 @@
       "provider_id": "siracusasicily",
       "status": "ok",
       "count": 5,
-      "fetched_at": "2026-11-11T02:53:18.534Z"
+      "fetched_at": "2026-11-11T10:53:26.313Z"
     },
     {
       "id": "taranto",
       "name": "Taranto",
       "provider_id": "51",
-      "status": "source_error",
-      "error": "e 492, in _call_chain\n    result = func(*args)\n             ^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/urllib/request.py\", line 639, in http_error_default\n    raise HTTPError(req.full_url, code, msg, hdrs, fp)\nurllib.error.HTTPError: HTTP Error 429: Too Many Requests\n"
+      "status": "empty",
+      "count": 0,
+      "fetched_at": "2026-11-11T10:53:29.269Z"
     },
     {
       "id": "trapani",
@@ -153,7 +155,7 @@
       "provider_id": "trapaniitaly",
       "status": "ok",
       "count": 7,
-      "fetched_at": "2026-11-11T02:53:42.294Z"
+      "fetched_at": "2026-11-11T10:53:34.960Z"
     },
     {
       "id": "trieste",
@@ -161,7 +163,7 @@
       "provider_id": "triesteitaly",
       "status": "ok",
       "count": 4,
-      "fetched_at": "2026-11-11T02:53:48.611Z"
+      "fetched_at": "2026-11-11T10:53:40.618Z"
     },
     {
       "id": "venezia",
@@ -169,7 +171,7 @@
       "provider_id": "veniceitaly",
       "status": "ok",
       "count": 7,
-      "fetched_at": "2026-11-11T02:53:54.253Z"
+      "fetched_at": "2026-11-11T10:53:46.244Z"
     }
   ]
 }
