@@ -1,13 +1,13 @@
 {
-  "checked_at": "2026-11-12T18:18:44.281Z",
+  "checked_at": "2026-11-12T23:43:21.867Z",
   "ports": [
     {
       "id": "civitavecchia",
       "name": "Civitavecchia",
       "provider_id": "civitavecchia",
       "status": "ok",
-      "count": 102,
-      "fetched_at": "2026-11-12T18:16:26.186Z"
+      "count": 98,
+      "fetched_at": "2026-11-12T23:40:16.394Z"
     },
     {
       "id": "ancona",
@@ -20,73 +20,64 @@
       "id": "bari",
       "name": "Bari",
       "provider_id": "bariitaly",
-      "status": "ok",
-      "count": 24,
-      "fetched_at": "2026-11-12T18:16:38.146Z"
+      "status": "source_error",
+      "error": "calendar_source_unavailable"
     },
     {
       "id": "brindisi",
       "name": "Brindisi",
       "provider_id": "brindisiitaly",
-      "status": "ok",
-      "count": 1,
-      "fetched_at": "2026-11-12T18:16:44.374Z"
+      "status": "source_error",
+      "error": "calendar_source_unavailable"
     },
     {
       "id": "cagliari",
       "name": "Cagliari",
       "provider_id": "52",
-      "status": "ok",
-      "count": 11,
-      "fetched_at": "2026-11-12T18:16:54.164Z"
+      "status": "source_error",
+      "error": "cv_into\n    return self.read(nbytes, buffer)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/ssl.py\", line 1116, in read\n    return self._sslobj.read(len, buffer)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTimeoutError: The read operation timed out\n"
     },
     {
       "id": "catania",
       "name": "Catania",
       "provider_id": "50",
-      "status": "ok",
-      "count": 6,
-      "fetched_at": "2026-11-12T18:16:58.146Z"
+      "status": "source_error",
+      "error": "cv_into\n    return self.read(nbytes, buffer)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/ssl.py\", line 1116, in read\n    return self._sslobj.read(len, buffer)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTimeoutError: The read operation timed out\n"
     },
     {
       "id": "genova",
       "name": "Genova",
       "provider_id": "genoaitaly",
-      "status": "ok",
-      "count": 56,
-      "fetched_at": "2026-11-12T18:17:03.958Z"
+      "status": "source_error",
+      "error": "calendar_source_unavailable"
     },
     {
       "id": "laspezia",
       "name": "La Spezia",
       "provider_id": "laspeziaitaly",
-      "status": "ok",
-      "count": 19,
-      "fetched_at": "2026-11-12T18:17:09.602Z"
+      "status": "source_error",
+      "error": "calendar_source_unavailable"
     },
     {
       "id": "livorno",
       "name": "Livorno",
       "provider_id": "livornoflorencepisaitaly",
-      "status": "ok",
-      "count": 19,
-      "fetched_at": "2026-11-12T18:17:15.283Z"
+      "status": "source_error",
+      "error": "calendar_source_unavailable"
     },
     {
       "id": "messina",
       "name": "Messina",
       "provider_id": "messinasicily",
-      "status": "ok",
-      "count": 25,
-      "fetched_at": "2026-11-12T18:17:20.861Z"
+      "status": "source_error",
+      "error": "calendar_source_unavailable"
     },
     {
       "id": "napoli",
       "name": "Napoli",
       "provider_id": "naplesitaly",
-      "status": "ok",
-      "count": 42,
-      "fetched_at": "2026-11-12T18:17:26.403Z"
+      "status": "source_error",
+      "error": "calendar_source_unavailable"
     },
     {
       "id": "olbia",
@@ -99,9 +90,8 @@
       "id": "palermo",
       "name": "Palermo",
       "provider_id": "palermosicily",
-      "status": "ok",
-      "count": 46,
-      "fetched_at": "2026-11-12T18:17:52.744Z"
+      "status": "source_error",
+      "error": "calendar_source_unavailable"
     },
     {
       "id": "portoferraio",
@@ -128,49 +118,43 @@
       "id": "savona",
       "name": "Savona",
       "provider_id": "savonaitaly",
-      "status": "ok",
-      "count": 31,
-      "fetched_at": "2026-11-12T18:18:16.872Z"
+      "status": "source_error",
+      "error": "calendar_source_unavailable"
     },
     {
       "id": "siracusa",
       "name": "Siracusa",
       "provider_id": "siracusasicily",
-      "status": "ok",
-      "count": 5,
-      "fetched_at": "2026-11-12T18:18:22.509Z"
+      "status": "source_error",
+      "error": "calendar_source_unavailable"
     },
     {
       "id": "taranto",
       "name": "Taranto",
       "provider_id": "51",
-      "status": "empty",
-      "count": 0,
-      "fetched_at": "2026-11-12T18:18:25.758Z"
+      "status": "source_error",
+      "error": "cv_into\n    return self.read(nbytes, buffer)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/ssl.py\", line 1116, in read\n    return self._sslobj.read(len, buffer)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTimeoutError: The read operation timed out\n"
     },
     {
       "id": "trapani",
       "name": "Trapani",
       "provider_id": "trapaniitaly",
-      "status": "ok",
-      "count": 6,
-      "fetched_at": "2026-11-12T18:18:32.325Z"
+      "status": "source_error",
+      "error": "calendar_source_unavailable"
     },
     {
       "id": "trieste",
       "name": "Trieste",
       "provider_id": "triesteitaly",
-      "status": "ok",
-      "count": 4,
-      "fetched_at": "2026-11-12T18:18:38.760Z"
+      "status": "source_error",
+      "error": "calendar_source_unavailable"
     },
     {
       "id": "venezia",
       "name": "Venezia",
       "provider_id": "veniceitaly",
-      "status": "ok",
-      "count": 7,
-      "fetched_at": "2026-11-12T18:18:44.280Z"
+      "status": "source_error",
+      "error": "calendar_source_unavailable"
     }
   ]
 }
