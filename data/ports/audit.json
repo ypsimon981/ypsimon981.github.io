@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-11-14T02:26:30.619Z",
+  "checked_at": "2026-11-14T10:22:23.184Z",
   "ports": [
     {
       "id": "civitavecchia",
@@ -7,7 +7,7 @@
       "provider_id": "civitavecchia",
       "status": "ok",
       "count": 95,
-      "fetched_at": "2026-11-14T02:24:22.294Z"
+      "fetched_at": "2026-11-14T10:18:57.121Z"
     },
     {
       "id": "ancona",
@@ -22,7 +22,7 @@
       "provider_id": "bariitaly",
       "status": "ok",
       "count": 23,
-      "fetched_at": "2026-11-14T02:24:33.914Z"
+      "fetched_at": "2026-11-14T10:19:08.903Z"
     },
     {
       "id": "brindisi",
@@ -30,23 +30,21 @@
       "provider_id": "brindisiitaly",
       "status": "ok",
       "count": 1,
-      "fetched_at": "2026-11-14T02:24:40.167Z"
+      "fetched_at": "2026-11-14T10:19:15.222Z"
     },
     {
       "id": "cagliari",
       "name": "Cagliari",
       "provider_id": "52",
-      "status": "ok",
-      "count": 9,
-      "fetched_at": "2026-11-14T02:24:44.700Z"
+      "status": "source_error",
+      "error": "e 492, in _call_chain\n    result = func(*args)\n             ^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/urllib/request.py\", line 639, in http_error_default\n    raise HTTPError(req.full_url, code, msg, hdrs, fp)\nurllib.error.HTTPError: HTTP Error 429: Too Many Requests\n"
     },
     {
       "id": "catania",
       "name": "Catania",
       "provider_id": "50",
-      "status": "ok",
-      "count": 5,
-      "fetched_at": "2026-11-14T02:24:48.308Z"
+      "status": "source_error",
+      "error": "e 492, in _call_chain\n    result = func(*args)\n             ^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/urllib/request.py\", line 639, in http_error_default\n    raise HTTPError(req.full_url, code, msg, hdrs, fp)\nurllib.error.HTTPError: HTTP Error 429: Too Many Requests\n"
     },
     {
       "id": "genova",
@@ -54,7 +52,7 @@
       "provider_id": "genoaitaly",
       "status": "ok",
       "count": 55,
-      "fetched_at": "2026-11-14T02:24:53.830Z"
+      "fetched_at": "2026-11-14T10:20:22.774Z"
     },
     {
       "id": "laspezia",
@@ -62,7 +60,7 @@
       "provider_id": "laspeziaitaly",
       "status": "ok",
       "count": 19,
-      "fetched_at": "2026-11-14T02:24:59.384Z"
+      "fetched_at": "2026-11-14T10:20:28.440Z"
     },
     {
       "id": "livorno",
@@ -70,7 +68,7 @@
       "provider_id": "livornoflorencepisaitaly",
       "status": "ok",
       "count": 19,
-      "fetched_at": "2026-11-14T02:25:05.416Z"
+      "fetched_at": "2026-11-14T10:20:34.059Z"
     },
     {
       "id": "messina",
@@ -78,7 +76,7 @@
       "provider_id": "messinasicily",
       "status": "ok",
       "count": 25,
-      "fetched_at": "2026-11-14T02:25:11.132Z"
+      "fetched_at": "2026-11-14T10:20:39.733Z"
     },
     {
       "id": "napoli",
@@ -86,7 +84,7 @@
       "provider_id": "naplesitaly",
       "status": "ok",
       "count": 42,
-      "fetched_at": "2026-11-14T02:25:16.779Z"
+      "fetched_at": "2026-11-14T10:20:45.352Z"
     },
     {
       "id": "olbia",
@@ -101,7 +99,7 @@
       "provider_id": "palermosicily",
       "status": "ok",
       "count": 44,
-      "fetched_at": "2026-11-14T02:25:41.706Z"
+      "fetched_at": "2026-11-14T10:21:10.123Z"
     },
     {
       "id": "portoferraio",
@@ -130,7 +128,7 @@
       "provider_id": "savonaitaly",
       "status": "ok",
       "count": 30,
-      "fetched_at": "2026-11-14T02:26:04.776Z"
+      "fetched_at": "2026-11-14T10:21:33.528Z"
     },
     {
       "id": "siracusa",
@@ -138,15 +136,14 @@
       "provider_id": "siracusasicily",
       "status": "ok",
       "count": 5,
-      "fetched_at": "2026-11-14T02:26:10.249Z"
+      "fetched_at": "2026-11-14T10:21:39.065Z"
     },
     {
       "id": "taranto",
       "name": "Taranto",
       "provider_id": "51",
-      "status": "empty",
-      "count": 0,
-      "fetched_at": "2026-11-14T02:26:13.149Z"
+      "status": "source_error",
+      "error": "lient.HTTPSConnection, req,\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/urllib/request.py\", line 1360, in do_open\n    raise URLError(err)\nurllib.error.URLError: <urlopen error _ssl.c:994: The handshake operation timed out>\n"
     },
     {
       "id": "trapani",
@@ -154,7 +151,7 @@
       "provider_id": "trapaniitaly",
       "status": "ok",
       "count": 5,
-      "fetched_at": "2026-11-14T02:26:18.952Z"
+      "fetched_at": "2026-11-14T10:22:11.717Z"
     },
     {
       "id": "trieste",
@@ -162,7 +159,7 @@
       "provider_id": "triesteitaly",
       "status": "ok",
       "count": 4,
-      "fetched_at": "2026-11-14T02:26:25.051Z"
+      "fetched_at": "2026-11-14T10:22:17.634Z"
     },
     {
       "id": "venezia",
@@ -170,7 +167,7 @@
       "provider_id": "veniceitaly",
       "status": "ok",
       "count": 7,
-      "fetched_at": "2026-11-14T02:26:30.619Z"
+      "fetched_at": "2026-11-14T10:22:23.183Z"
     }
   ]
 }
