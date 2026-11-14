@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-11-14T10:22:23.184Z",
+  "checked_at": "2026-11-14T17:06:33.414Z",
   "ports": [
     {
       "id": "civitavecchia",
@@ -7,7 +7,7 @@
       "provider_id": "civitavecchia",
       "status": "ok",
       "count": 95,
-      "fetched_at": "2026-11-14T10:18:57.121Z"
+      "fetched_at": "2026-11-14T17:03:16.591Z"
     },
     {
       "id": "ancona",
@@ -22,7 +22,7 @@
       "provider_id": "bariitaly",
       "status": "ok",
       "count": 23,
-      "fetched_at": "2026-11-14T10:19:08.903Z"
+      "fetched_at": "2026-11-14T17:03:28.034Z"
     },
     {
       "id": "brindisi",
@@ -30,21 +30,21 @@
       "provider_id": "brindisiitaly",
       "status": "ok",
       "count": 1,
-      "fetched_at": "2026-11-14T10:19:15.222Z"
+      "fetched_at": "2026-11-14T17:03:33.850Z"
     },
     {
       "id": "cagliari",
       "name": "Cagliari",
       "provider_id": "52",
       "status": "source_error",
-      "error": "e 492, in _call_chain\n    result = func(*args)\n             ^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/urllib/request.py\", line 639, in http_error_default\n    raise HTTPError(req.full_url, code, msg, hdrs, fp)\nurllib.error.HTTPError: HTTP Error 429: Too Many Requests\n"
+      "error": "lient.HTTPSConnection, req,\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/urllib/request.py\", line 1360, in do_open\n    raise URLError(err)\nurllib.error.URLError: <urlopen error _ssl.c:994: The handshake operation timed out>\n"
     },
     {
       "id": "catania",
       "name": "Catania",
       "provider_id": "50",
       "status": "source_error",
-      "error": "e 492, in _call_chain\n    result = func(*args)\n             ^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/urllib/request.py\", line 639, in http_error_default\n    raise HTTPError(req.full_url, code, msg, hdrs, fp)\nurllib.error.HTTPError: HTTP Error 429: Too Many Requests\n"
+      "error": "lient.HTTPSConnection, req,\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/urllib/request.py\", line 1360, in do_open\n    raise URLError(err)\nurllib.error.URLError: <urlopen error _ssl.c:994: The handshake operation timed out>\n"
     },
     {
       "id": "genova",
@@ -52,7 +52,7 @@
       "provider_id": "genoaitaly",
       "status": "ok",
       "count": 55,
-      "fetched_at": "2026-11-14T10:20:22.774Z"
+      "fetched_at": "2026-11-14T17:04:32.101Z"
     },
     {
       "id": "laspezia",
@@ -60,7 +60,7 @@
       "provider_id": "laspeziaitaly",
       "status": "ok",
       "count": 19,
-      "fetched_at": "2026-11-14T10:20:28.440Z"
+      "fetched_at": "2026-11-14T17:04:37.439Z"
     },
     {
       "id": "livorno",
@@ -68,7 +68,7 @@
       "provider_id": "livornoflorencepisaitaly",
       "status": "ok",
       "count": 19,
-      "fetched_at": "2026-11-14T10:20:34.059Z"
+      "fetched_at": "2026-11-14T17:04:42.888Z"
     },
     {
       "id": "messina",
@@ -76,7 +76,7 @@
       "provider_id": "messinasicily",
       "status": "ok",
       "count": 25,
-      "fetched_at": "2026-11-14T10:20:39.733Z"
+      "fetched_at": "2026-11-14T17:04:48.192Z"
     },
     {
       "id": "napoli",
@@ -84,7 +84,7 @@
       "provider_id": "naplesitaly",
       "status": "ok",
       "count": 42,
-      "fetched_at": "2026-11-14T10:20:45.352Z"
+      "fetched_at": "2026-11-14T17:04:53.558Z"
     },
     {
       "id": "olbia",
@@ -99,7 +99,7 @@
       "provider_id": "palermosicily",
       "status": "ok",
       "count": 44,
-      "fetched_at": "2026-11-14T10:21:10.123Z"
+      "fetched_at": "2026-11-14T17:05:21.357Z"
     },
     {
       "id": "portoferraio",
@@ -128,7 +128,7 @@
       "provider_id": "savonaitaly",
       "status": "ok",
       "count": 30,
-      "fetched_at": "2026-11-14T10:21:33.528Z"
+      "fetched_at": "2026-11-14T17:05:43.918Z"
     },
     {
       "id": "siracusa",
@@ -136,7 +136,7 @@
       "provider_id": "siracusasicily",
       "status": "ok",
       "count": 5,
-      "fetched_at": "2026-11-14T10:21:39.065Z"
+      "fetched_at": "2026-11-14T17:05:49.311Z"
     },
     {
       "id": "taranto",
@@ -151,7 +151,7 @@
       "provider_id": "trapaniitaly",
       "status": "ok",
       "count": 5,
-      "fetched_at": "2026-11-14T10:22:11.717Z"
+      "fetched_at": "2026-11-14T17:06:21.965Z"
     },
     {
       "id": "trieste",
@@ -159,7 +159,7 @@
       "provider_id": "triesteitaly",
       "status": "ok",
       "count": 4,
-      "fetched_at": "2026-11-14T10:22:17.634Z"
+      "fetched_at": "2026-11-14T17:06:28.044Z"
     },
     {
       "id": "venezia",
@@ -167,7 +167,7 @@
       "provider_id": "veniceitaly",
       "status": "ok",
       "count": 7,
-      "fetched_at": "2026-11-14T10:22:23.183Z"
+      "fetched_at": "2026-11-14T17:06:33.414Z"
     }
   ]
 }
