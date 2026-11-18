@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-11-18T04:17:56.301Z",
+  "checked_at": "2026-11-18T13:06:40.900Z",
   "ports": [
     {
       "id": "civitavecchia",
@@ -7,7 +7,7 @@
       "provider_id": "civitavecchia",
       "status": "ok",
       "count": 77,
-      "fetched_at": "2026-11-18T04:15:40.028Z"
+      "fetched_at": "2026-11-18T13:04:36.202Z"
     },
     {
       "id": "ancona",
@@ -36,7 +36,7 @@
       "provider_id": "52",
       "status": "ok",
       "count": 9,
-      "fetched_at": "2026-11-18T04:16:07.562Z"
+      "fetched_at": "2026-11-18T13:05:00.893Z"
     },
     {
       "id": "catania",
@@ -44,7 +44,7 @@
       "provider_id": "50",
       "status": "ok",
       "count": 5,
-      "fetched_at": "2026-11-18T04:16:14.970Z"
+      "fetched_at": "2026-11-18T13:05:05.896Z"
     },
     {
       "id": "genova",
@@ -136,7 +136,7 @@
       "provider_id": "51",
       "status": "empty",
       "count": 0,
-      "fetched_at": "2026-11-18T04:17:39.053Z"
+      "fetched_at": "2026-11-18T13:06:25.831Z"
     },
     {
       "id": "trapani",
